@@ -1,0 +1,82 @@
+atomi/nix-init:
+  active: true
+  history:
+    - version: 12
+      time: 2025-06-25T13:36:26.512377Z
+      answers:
+        init-type:
+          type: String
+          value: AtomiCloud Suite
+        infra:
+          type: Bool
+          value: false
+        service:
+          type: String
+          value: argon
+        platform:
+          type: String
+          value: alcohol
+        runtime:
+          type: String
+          value: Bun
+      deterministic_states: {}
+atomi/workspace:
+  active: true
+  history:
+    - version: 14
+      time: 2025-06-25T13:41:58.692235Z
+      answers:
+        atomi/workspace/service:
+          type: String
+          value: argon
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+      deterministic_states: {}
+    - version: 15
+      time: 2025-06-28T08:53:41.612768Z
+      answers:
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/service:
+          type: String
+          value: argon
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+      deterministic_states: {}
+    - version: 16
+      time: 2025-06-28T09:20:46.029384Z
+      answers:
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
+        atomi/workspace/service:
+          type: String
+          value: argon
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+      deterministic_states: {}
