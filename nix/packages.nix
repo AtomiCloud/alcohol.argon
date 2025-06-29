@@ -17,7 +17,6 @@ let
     nix-2505 = (
       with pkgs-2505;
       {
-        semver = pkgs.nodePackages.semver;
 
         inherit
           # standard

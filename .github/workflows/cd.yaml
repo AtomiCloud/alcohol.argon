@@ -1,0 +1,15 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload:
+    name: Upload to Landscapes
+    uses: ./.github/workflows/⚡reusable-upload.yaml
+    secrets: inherit
+    with:
+      atomi_platform: alcohol
+      atomi_service: argon
+      release_tag: ${{ github.event.release.tag_name }}

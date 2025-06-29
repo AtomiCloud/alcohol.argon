@@ -1,0 +1,43 @@
+name: Upload to Landscapes
+
+on:
+  workflow_call:
+    inputs:
+      atomi_platform:
+        required: true
+        type: string
+      atomi_service:
+        required: true
+        type: string
+      release_tag:
+        required: false
+        type: string
+        description: 'Release tag to include in upload description'
+
+jobs:
+  upload:
+    name: Upload to Landscapes
+    strategy:
+      matrix:
+        landscape: [pichu, pikachu, raichu]
+    runs-on:
+      - nscloud-ubuntu-22.04-amd64-4x8-with-cache
+      - nscloud-cache-size-50gb
+      - nscloud-cache-tag-${{ inputs.atomi_platform }}-${{ inputs.atomi_service }}-nix-store-cache
+    steps:
+      # Setup
+      - uses: AtomiCloud/actions.setup-nix@v2
+        with:
+          namespacelabs: true
+      - uses: AtomiCloud/actions.cache-bun@v1
+
+      # Upload to landscape
+      - name: 📤 Upload to ${{ matrix.landscape }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [[ -n "${{ inputs.release_tag }}" ]]; then
+            nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}" "${{ inputs.release_tag }}"
+          else
+            nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}"
+          fi

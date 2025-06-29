@@ -1,38 +1,40 @@
 version: '3'
 
 tasks:
-  setup:
-    desc: 'Setup the repository'
+  build:
+    desc: 'Build the application with OpenNext'
     cmds:
-      - bun install
-      - ./scripts/local/secrets.sh
+      - bunx opennextjs-cloudflare build
 
   lint:
     desc: 'Lint the repository'
     cmds:
       - pre-commit run --all-files
 
-  build:
-    desc: 'Build the Next.js application'
-    cmds:
-      - bun run build
-
   dev:
-    desc: 'Start development server'
+    desc: 'Start development server with live-reload'
+    summary: |
+      Builds the app with OpenNext and starts wrangler dev with live-reload.
+      This provides the best development experience matching production runtime.
     cmds:
-      - bun run dev
+      - bunx next dev
 
   preview:
-    desc: 'Preview locally with Cloudflare Workers runtime'
+    desc: 'Preview the application'
+    summary: |
+      Same as dev - builds with OpenNext and starts wrangler dev.
     cmds:
-      - bun run preview
+      - bunx opennextjs-cloudflare build
+      - wrangler dev --env lapras
 
-  deploy:
-    desc: 'Deploy to Cloudflare Workers'
-    cmds:
-      - bun run deploy
+  upload:
+    desc: 'Upload to specific landscape'
+    summary: |
+      Upload to a specific landscape environment.
 
-  cf-typegen:
-    desc: 'Generate Cloudflare types'
+      Usage: pls upload <landscape> [tag]
+
+      Landscapes: lapras, pichu, pikachu, raichu
+      Tag: Optional release tag to include in description
     cmds:
-      - bun run cf-typegen
+      - ./scripts/ci/upload.sh {{.CLI_ARGS}}

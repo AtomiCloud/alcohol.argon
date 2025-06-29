@@ -16,14 +16,25 @@ compatibility_flags = [
 directory = ".open-next/assets"
 binding = "ASSETS"
 
-# Service bindings
-[[services]]
-binding = "WORKER_SELF_REFERENCE"
-# The service should match the "name" of your worker
-service = "alcohol-argon-frontend"
-
 # R2 bucket configuration for incremental caching
 # Uncomment and configure when setting up R2 for enhanced caching
 # [[r2_buckets]]
 # binding = "NEXT_INC_CACHE_R2_BUCKET"
-# bucket_name = "<BUCKET_NAME>" 
+# bucket_name = "<BUCKET_NAME>"
+
+# Environment-specific configurations
+[env.lapras]
+name = "argon-alcohol-lapras"
+vars = { NEXTJS_ENV = "development", LANDSCAPE = "lapras" }
+
+[env.pichu]
+name = "argon-alcohol-pichu"
+vars = { NEXTJS_ENV = "production", LANDSCAPE = "pichu" }
+
+[env.pikachu]
+name = "argon-alcohol-pikachu"
+vars = { NEXTJS_ENV = "production", LANDSCAPE = "pikachu" }
+
+[env.raichu]
+name = "argon-alcohol-raichu"
+vars = { NEXTJS_ENV = "production", LANDSCAPE = "raichu" } 
