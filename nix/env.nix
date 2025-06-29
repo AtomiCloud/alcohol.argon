@@ -10,14 +10,11 @@ with packages;
     git
   ];
 
-  /*
-    
-  */
-
-
   main = [
     bun
     infisical
+    semver
+    wrangler
   ];
 
   lint = [
@@ -26,10 +23,6 @@ with packages;
     gitlint
     shellcheck
     sg
-
-    /*
-      
-    */
   ];
 
   releaser = [
