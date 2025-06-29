@@ -26,6 +26,25 @@ pre-commit-lib.run {
       pass_filenames = true;
     };
 
+    # Frontend linting hooks (now at root level)
+    a-frontend-tsc = {
+      enable = true;
+      name = "TypeScript Check";
+      entry = "${packages.bun}/bin/bun run type-check";
+      files = ".*\\.(ts|tsx)$";
+      language = "system";
+      pass_filenames = false;
+    };
+
+    a-frontend-eslint = {
+      enable = true;
+      name = "ESLint";
+      entry = "${packages.bun}/bin/bun run next lint --fix";
+      files = ".*\\.(ts|tsx|js|jsx)$";
+      language = "system";
+      pass_filenames = false;
+    };
+
     a-infisical = {
       enable = true;
       name = "Secrets Scanning";

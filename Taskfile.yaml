@@ -5,9 +5,34 @@ tasks:
     desc: 'Setup the repository'
     cmds:
       - bun install
-
       - ./scripts/local/secrets.sh
+
   lint:
     desc: 'Lint the repository'
     cmds:
       - pre-commit run --all-files
+
+  build:
+    desc: 'Build the Next.js application'
+    cmds:
+      - bun run build
+
+  dev:
+    desc: 'Start development server'
+    cmds:
+      - bun run dev
+
+  preview:
+    desc: 'Preview locally with Cloudflare Workers runtime'
+    cmds:
+      - bun run preview
+
+  deploy:
+    desc: 'Deploy to Cloudflare Workers'
+    cmds:
+      - bun run deploy
+
+  cf-typegen:
+    desc: 'Generate Cloudflare types'
+    cmds:
+      - bun run cf-typegen
