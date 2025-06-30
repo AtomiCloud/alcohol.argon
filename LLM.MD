@@ -220,4 +220,116 @@ This is a Next.js 15 application with SSR support, deployed on Cloudflare Worker
 ✅ Real JPG assets downloaded from web (clean minimal footprint)
 ✅ All unused SVG resources removed
 ✅ Search data reduced to 7 items with proper assets
-✅ All code quality checks passing (ESLint, TypeScript, Biome, treefmt) 
+✅ All code quality checks passing (ESLint, TypeScript, Biome, treefmt)
+
+## Lottie Animation System
+
+### Setup and Structure
+- **Package**: `lottie-react@2.4.1` installed
+- **Animations Directory**: `/public/animations/` for all .json files
+- **Components**: `/src/components/lottie/` for all Lottie-related components
+- **Utilities**: `/src/lib/lottie-utils.ts` for animation helpers
+- **Hooks**: `/src/hooks/useLottie.ts` for animation control
+
+### Component Hierarchy
+```
+src/components/lottie/
+├── index.ts              # Main exports
+├── LottieAnimation.tsx   # Hybrid component (inline + dynamic loading)
+├── InlineLottie.tsx      # Inline-only component (recommended)
+├── presets.tsx          # Pre-configured components
+├── animations.ts        # Centralized animation imports
+├── LottieExample.tsx    # Demo/documentation component
+```
+
+### Usage Patterns
+
+#### Inline Animation (Recommended)
+```tsx
+import loadingData from '/public/animations/loading.json';
+import { InlineLottie } from '@/components/lottie';
+
+<InlineLottie 
+  animationData={loadingData}
+  width={100} 
+  height={100} 
+  loop={true}
+  autoplay={true}
+/>
+```
+
+#### Dynamic Animation (Fallback)
+```tsx
+import { LottieAnimation } from '@/components/lottie';
+
+<LottieAnimation 
+  animationName="loading" 
+  width={100} 
+  height={100} 
+  showLoader={false}
+/>
+```
+
+#### Preset Components (Inline by Default)
+```tsx
+import { LoadingLottie, SuccessLottie } from '@/components/lottie';
+
+<LoadingLottie size={48} />     // Uses inline Lottie animations
+<SuccessLottie size={64} />     // Fallback to CSS/SVG until animations added
+```
+
+#### Animation Management
+- **Presets are inline by default**: No loading states, immediate display
+- **LoadingLottie uses simple CSS spinner as fallback**: Works immediately
+- **Dynamic animations**: Use consistent spinner loader matching presets
+- Built-in error handling and graceful fallbacks
+- Responsive sizing utilities and preloading functions available
+
+### File Organization Best Practices
+- Common UI animations in `/public/animations/` root
+- Custom/feature animations in subdirectories
+- Keep file sizes under 100KB when possible
+- Use kebab-case naming (e.g., `loading-spinner.json`)
+
+### Integration Points
+- Works with existing shadcn/ui components
+- Tailwind CSS classes supported
+- TypeScript types included
+- Next.js SSR compatible
+
+## Development Workflow
+
+### Adding New Animations
+1. Download/create .json file from LottieFiles or After Effects
+2. Place in `/public/animations/` directory
+3. Use with `<LottieAnimation animationName="filename" />`
+
+### Creating Preset Components
+1. Add new preset function in `presets.tsx`
+2. Export from `index.ts`
+3. Document usage in `LottieExample.tsx`
+
+### Performance Considerations
+- Animations load asynchronously
+- Loading states prevent layout shift
+- Preloading functions available for critical animations
+- File size guidelines documented
+
+## Technical Decisions
+
+### Why lottie-react
+- Official Lottie library for React
+- TypeScript support
+- Good performance
+- Active maintenance
+
+### Directory Structure Choice
+- Public directory for static assets (Next.js convention)
+- Component directory mirrors other UI components
+- Utilities separate for reusability
+
+### Component Design Philosophy
+- Fail gracefully with loading/error states
+- Props-based customization
+- TypeScript-first design
+- Composable and reusable 

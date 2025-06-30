@@ -1,168 +1,167 @@
-# Alcohol Argon
+# Alcohol.Argon Frontend
 
-Next.js SSR frontend with OpenNext on Cloudflare Workers, featuring modern UI components and optimal performance.
+Next.js 15 application with TypeScript, featuring search functionality and Lottie animations.
 
-## Tech Stack
+## Features
 
-- **Framework**: Next.js 15 with Pages Router
-- **Runtime**: Cloudflare Workers via OpenNext
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Language**: TypeScript
-- **Package Manager**: Bun
-- **Environment**: Nix-based development environment
-
-## Architecture
-
-- **SSR**: Server-Side Rendering for dynamic content
-- **Static Assets**: Optimally cached via Cloudflare CDN
-- **Edge Runtime**: Global performance with Cloudflare Workers
-- **Caching**: R2 bucket support for incremental cache
-
-## Development
-
-### Prerequisites
-
-- Nix with flakes enabled (for development environment)
-- Cloudflare account (for deployment)
-
-### Setup
-
-1. **Enter development environment**:
-   ```bash
-   nix develop  # Automatically loaded via direnv
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   pls setup
-   ```
-
-3. **Start development server**:
-   ```bash
-   pls dev
-   ```
-
-### Commands
-
-All commands use `pls` (task runner):
-
-```bash
-# Development
-pls dev       # Start Next.js dev server
-pls preview   # Preview with Workers runtime
-
-# Building & Deployment  
-pls build     # Build for production
-pls deploy    # Deploy to Cloudflare Workers
-
-# Utilities
-pls cf-typegen # Generate Cloudflare types
-pls lint      # Run all linters
-pls --list    # Show all available tasks
-```
-
-### Local Development
-
-- **Next.js Dev Server**: `pls dev` - Standard Next.js development
-- **Workers Runtime**: `pls preview` - Test with Cloudflare Workers runtime locally
-
-## Static Assets Strategy
-
-Optimized for performance and cost:
-
-- **`/_next/static/*`**: Immutable cache (1 year) - Build assets never change
-- **Images**: Daily cache (24 hours) - Balance between freshness and performance  
-- **CDN**: Served from Cloudflare's global edge network
-- **Headers**: Configured in `public/_headers` for optimal caching
-
-This approach provides:
-- ⚡ **Best Performance**: Static assets served from edge locations globally
-- 💰 **Lowest Cost**: Minimal origin requests due to aggressive caching
-- 📈 **Best Scalability**: CDN handles traffic spikes automatically
-
-## Deployment
-
-### Prerequisites
-
-1. **Cloudflare Account**: Sign up at [cloudflare.com](https://cloudflare.com)
-2. **Wrangler Authentication**: 
-   ```bash
-   bunx wrangler login
-   ```
-
-### Deploy
-
-```bash
-pls deploy
-```
-
-### Optional: R2 Caching
-
-For enhanced caching with R2 bucket:
-
-1. Create R2 bucket in Cloudflare dashboard
-2. Update `wrangler.toml`:
-   ```toml
-   [[r2_buckets]]
-   binding = "NEXT_INC_CACHE_R2_BUCKET"
-   bucket_name = "your-bucket-name"
-   ```
+- **Search System**: Full-text search with SSR support and live search
+- **Lottie Animations**: Comprehensive animation system with inline and dynamic loading
+- **Modern Stack**: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
+- **Performance**: Optimized for Cloudflare deployment with OpenNext
 
 ## Project Structure
 
 ```
-argon/
 ├── src/
-│   ├── pages/           # Next.js pages (Pages Router)
-│   ├── components/      # React components
-│   │   └── ui/         # shadcn/ui components
-│   ├── lib/            # Utilities
-│   └── styles/         # Global styles
-├── public/             # Static assets
-│   └── _headers        # Cloudflare caching rules
-├── nix/                # Nix configuration
-├── scripts/            # Development scripts
-├── open-next.config.ts # OpenNext configuration
-├── wrangler.toml       # Cloudflare Workers config
-├── .dev.vars          # Local environment variables
-├── Taskfile.yaml      # Task definitions
-└── LLM.MD             # Development guidelines
+│   ├── components/
+│   │   ├── lottie/          # Lottie animation system
+│   │   ├── ui/              # shadcn/ui components
+│   │   └── SearchResults.tsx
+│   ├── pages/
+│   │   ├── search.tsx       # Search page with SSR
+│   │   └── lottie-demo.tsx  # Animation examples
+│   ├── lib/
+│   │   └── lottie-utils.ts  # Animation utilities
+│   └── hooks/
+│       └── useLottie.ts     # Animation control hook
+├── public/
+│   └── animations/          # Lottie JSON files
+└── docs/                    # Documentation
 ```
 
-## Key Features
+## Getting Started
 
-- ✅ **SSR**: Full server-side rendering with `getServerSideProps`
-- ✅ **TypeScript**: Full type safety with generated Cloudflare types
-- ✅ **Modern UI**: shadcn/ui components with Tailwind CSS
-- ✅ **Edge Runtime**: Cloudflare Workers for global performance
-- ✅ **Optimized Caching**: Smart static asset caching strategy
-- ✅ **Development DX**: Hot reload, type checking, linting
-- ✅ **Nix Environment**: Reproducible development environment
+### Prerequisites
+- Node.js 18+
+- Bun (recommended) or npm/yarn
 
-## Environment Variables
+### Installation
 
-- `NEXTJS_ENV`: Controls .env file loading (development/production)
-- Cloudflare bindings available via `getCloudflareContext()` in production
+```bash
+# Clone the repository
+git clone <repository-url>
+cd alcohol.argon
+
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+```
+
+### Development
+
+```bash
+# Type checking
+bun run type-check
+
+# Build for production
+bun run build
+```
+
+## Lottie Animation System
+
+This project includes a comprehensive Lottie animation system with both inline and dynamic loading capabilities.
+
+### Quick Start
+
+**Option 1: Immediate Usage (CSS/SVG Fallbacks)**
+```tsx
+import { LoadingLottie, SuccessLottie } from '@/components/lottie';
+
+<LoadingLottie size={32} />     // Works immediately
+<SuccessLottie size={48} />     // CSS spinner & SVG icons
+```
+
+**Option 2: Inline Lottie Animations**
+```tsx
+import animationData from '/public/animations/loading.json';
+import { InlineLottie } from '@/components/lottie';
+
+<InlineLottie animationData={animationData} width={48} height={48} />
+```
+
+**Option 3: Dynamic Loading**
+```tsx
+import { LottieAnimation } from '@/components/lottie';
+
+<LottieAnimation animationName="loading" width={48} height={48} />
+```
+
+### Animation Setup
+
+1. **Get Animations**: Download from [LottieFiles.com](https://lottiefiles.com/featured)
+2. **Add Files**: Place JSON files in `/public/animations/`
+3. **Use Components**: Import and use in your React components
+
+### Components Available
+
+- `InlineLottie` - Zero loading states, immediate display
+- `LottieAnimation` - Hybrid component with fallback support
+- `LoadingLottie` - Loading spinner preset
+- `SuccessLottie` - Success checkmark preset
+- `ErrorLottie` - Error state preset
+- `EmptyStateLottie` - Empty state illustration preset
+
+### Demo & Documentation
+
+Visit `/lottie-demo` to see:
+- Live examples of all components
+- Code snippets and usage patterns
+- Setup instructions and best practices
+- Performance guidelines
+
+## Search System
+
+Full-featured search system with:
+- Server-side rendering (SSR)
+- Live search with debouncing
+- URL query parameter synchronization
+- Loading states and error handling
+
+Visit `/search` to try it out.
+
+## Development Guidelines
+
+### Code Quality
+- ESLint + TypeScript for code quality
+- Prettier for code formatting
+- Pre-commit hooks for validation
+
+### Performance
+- Bundle size monitoring
+- Image optimization
+- Animation file size guidelines (< 100KB)
+
+### Deployment
+- Optimized for Cloudflare with OpenNext
+- SSR support for better SEO
+- Static asset optimization
+
+## Documentation
+
+- **LLM.MD** - Technical architecture and decisions
+- **TODO.md** - Project status and completed features
+- **public/animations/README.md** - Complete Lottie setup guide
+- **Changelog.md** - Version history
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Animations**: Lottie with lottie-react
+- **Deployment**: Cloudflare with OpenNext
+- **Package Manager**: Bun
+- **Build Tools**: Next.js built-in tooling
 
 ## Contributing
 
-1. Follow the guidelines in `LLM.MD`
-2. All linting is handled by pre-commit hooks
-3. Use `pls` commands for all tasks
-4. Ensure static assets have proper cache headers
+1. Check TODO.md for current tasks
+2. Follow the existing code patterns
+3. Add tests for new features
+4. Update documentation as needed
 
-## Troubleshooting
+## License
 
-### Common Issues
-
-1. **Build Errors**: Ensure all dependencies are installed with `pls setup`
-2. **Type Errors**: Run `pls cf-typegen` to regenerate Cloudflare types
-3. **Deployment Issues**: Verify Wrangler authentication with `bunx wrangler whoami`
-
-### Performance
-
-- Static assets are cached aggressively for optimal performance
-- SSR pages are rendered at edge locations for low latency
-- Bundle size is optimized by Next.js and OpenNext
-
-For more detailed development guidelines, see `LLM.MD`. 
+[Add your license information here] 

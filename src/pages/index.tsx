@@ -72,12 +72,17 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
           </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" className="mr-4" asChild>
-              <Link href="/search">Try Search</Link>
-            </Button>
-            <Button variant="outline" size="lg">
-              Learn More
-            </Button>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button size="lg" asChild>
+                <Link href="/search">Try Search</Link>
+              </Button>
+              <Button size="lg" variant="secondary" asChild>
+                <Link href="/lottie-demo">Lottie Animations</Link>
+              </Button>
+              <Button variant="outline" size="lg">
+                Learn More
+              </Button>
+            </div>
           </div>
 
           <Card className="mt-12 max-w-2xl mx-auto">
