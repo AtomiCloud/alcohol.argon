@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -71,8 +72,8 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
           </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" className="mr-4">
-              Get Started
+            <Button size="lg" className="mr-4" asChild>
+              <Link href="/search">Try Search</Link>
             </Button>
             <Button variant="outline" size="lg">
               Learn More

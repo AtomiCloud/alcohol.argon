@@ -32,9 +32,6 @@ pls preview   # Preview with Workers runtime
 pls deploy    # Deploy to Cloudflare Workers
 pls cf-typegen # Generate Cloudflare types
 pls --list    # Show available tasks
-nix develop   # Enter dev shell
-treefmt       # Format code
-infisical scan . # Scan secrets
 ```
 
 ## Structure
@@ -104,4 +101,123 @@ infisical scan . # Scan secrets
 ## Deployment
 1. **Authenticate**: `bunx wrangler login`
 2. **Deploy**: `pls deploy`
-3. **Optional R2**: Configure R2 bucket in `wrangler.toml` for enhanced caching 
+3. **Optional R2**: Configure R2 bucket in `wrangler.toml` for enhanced caching
+
+# LLM Workflow Documentation
+
+## Project Overview
+This is a Next.js 15 application with SSR support, deployed on Cloudflare Workers using OpenNext adapter. The project includes a comprehensive search functionality with both server-side and client-side capabilities.
+
+## Architecture
+
+### Core Stack
+- **Next.js 15**: React framework with Pages Router
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Utility-first styling
+- **shadcn/ui**: Component library built on Radix UI
+- **OpenNext**: Cloudflare Workers adapter
+- **Lucide React**: Icon library
+
+### Search Implementation
+
+#### 1. Data Layer (`src/lib/sample-data.ts`)
+- Structured search data with interfaces
+- In-memory search function with fuzzy matching
+- Sample data includes tech tools, frameworks, and libraries
+- Supports featured items, tags, categories, logos, and images
+
+#### 2. API Layer (`src/pages/api/search.ts`)
+- RESTful search endpoint
+- Query parameter validation
+- Error handling with fallbacks
+- Simulated processing delay for realistic UX
+
+#### 3. UI Components
+- **Input Component** (`src/components/ui/input.tsx`): Styled input with focus states
+- **Badge Component** (`src/components/ui/badge.tsx`): Tags and categories
+- **SearchResults Component** (`src/components/SearchResults.tsx`): 
+  - Results grid with responsive layout
+  - Loading skeleton states
+  - Empty state handling
+  - Featured item highlighting
+
+#### 4. Search Page (`src/pages/search.tsx`)
+- **SSR Implementation**: Initial results rendered server-side
+- **Live Search**: Debounced real-time search (300ms)
+- **URL Synchronization**: Query parameters sync with search state
+- **Hydration Handling**: Prevents client-server mismatch
+- **Error Boundaries**: Graceful API failure handling
+- **Debug Information**: Development-only debug panel
+
+## Key Features
+
+### Server-Side Rendering (SSR)
+- `getServerSideProps` renders initial search results
+- Works with query parameters (`/search?q=react`)
+- Full page content available on initial load
+- SEO-friendly with proper meta tags
+
+### Live Search Functionality
+- Real-time search as user types
+- 300ms debounce to prevent excessive API calls
+- Updates URL without page reload
+- Maintains browser history (back/forward navigation)
+- Loading states during search
+- Fallback to client-side search if API fails
+
+### Dual-Mode Operation
+1. **Server-Side** (initial load): Fast first render with search results
+2. **Client-Side** (after hydration): Interactive search with API calls
+
+### Asset Management
+- Real JPG logos downloaded from web sources
+- Optimized JPG preview images for featured items
+- Minimal asset footprint (7 logos + 3 preview images)
+- All unused SVG files removed for clean deployment
+- Optimized asset loading with Next.js Image component
+
+## URL Structure
+- `/` - Home page with project overview
+- `/search` - Search page (empty state)
+- `/search?q=query` - Search with initial query
+- `/api/search?q=query&limit=10` - Search API endpoint
+
+## Development Patterns
+
+### State Management
+- React hooks for local state
+- URL as source of truth for search query
+- Hydration tracking to prevent SSR/client mismatches
+
+### Error Handling
+- API error boundaries
+- Graceful degradation to client-side search
+- User-friendly error messages
+
+### Performance Optimizations
+- Debounced search to reduce API calls
+- Skeleton loading states for perceived performance
+- Minimal asset bundle with selective imports
+
+### Responsive Design
+- Mobile-first approach
+- Grid layouts that adapt to screen size
+- Touch-friendly interactive elements
+
+## Testing Scenarios
+1. Direct URL access: `/search?q=react`
+2. Search input typing: Live updates
+3. Browser navigation: Back/forward with query preservation
+4. API failures: Fallback behavior
+5. Empty states: No results handling
+6. Loading states: Skeleton animations
+
+## Current Status
+✅ Complete search implementation with SSR and live search
+✅ Beautiful UI with responsive design and white search bar
+✅ URL query parameter handling
+✅ Error handling and fallbacks
+✅ Real JPG assets downloaded from web (clean minimal footprint)
+✅ All unused SVG resources removed
+✅ Search data reduced to 7 items with proper assets
+✅ All code quality checks passing (ESLint, TypeScript, Biome, treefmt) 
