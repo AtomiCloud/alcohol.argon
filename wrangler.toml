@@ -16,6 +16,10 @@ compatibility_flags = [
 directory = ".open-next/assets"
 binding = "ASSETS"
 
+[observability]
+enabled = true
+head_sampling_rate = 1 
+
 # R2 bucket configuration for incremental caching
 # Uncomment and configure when setting up R2 for enhanced caching
 # [[r2_buckets]]

@@ -1,8 +1,9 @@
 name: CD
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   upload:
@@ -12,4 +13,4 @@ jobs:
     with:
       atomi_platform: alcohol
       atomi_service: argon
-      release_tag: ${{ github.event.release.tag_name }}
+      release_tag: ${{ github.ref_name }}

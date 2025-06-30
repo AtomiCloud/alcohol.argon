@@ -4,9 +4,6 @@ atomi/nix-init:
     - version: 12
       time: 2025-06-25T13:36:26.512377Z
       answers:
-        init-type:
-          type: String
-          value: AtomiCloud Suite
         infra:
           type: Bool
           value: false
@@ -19,6 +16,9 @@ atomi/nix-init:
         runtime:
           type: String
           value: Bun
+        init-type:
+          type: String
+          value: AtomiCloud Suite
       deterministic_states: {}
 atomi/workspace:
   active: true
@@ -26,18 +26,18 @@ atomi/workspace:
     - version: 14
       time: 2025-06-25T13:41:58.692235Z
       answers:
-        atomi/workspace/service:
-          type: String
-          value: argon
         atomi/workspace/runtime:
           type: String
           value: Bun
-        atomi/workspace/platform:
-          type: String
-          value: alcohol
         atomi/workspace/enable-docker:
           type: Bool
           value: false
+        atomi/workspace/service:
+          type: String
+          value: argon
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
         atomi/workspace/enable-helm:
           type: Bool
           value: false
@@ -45,38 +45,57 @@ atomi/workspace:
     - version: 15
       time: 2025-06-28T08:53:41.612768Z
       answers:
-        atomi/workspace/enable-helm:
-          type: Bool
-          value: false
         atomi/workspace/platform:
           type: String
           value: alcohol
-        atomi/workspace/runtime:
-          type: String
-          value: Bun
-        atomi/workspace/service:
-          type: String
-          value: argon
         atomi/workspace/enable-docker:
           type: Bool
           value: false
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/service:
+          type: String
+          value: argon
       deterministic_states: {}
     - version: 16
       time: 2025-06-28T09:20:46.029384Z
       answers:
-        atomi/workspace/enable-helm:
-          type: Bool
-          value: false
         atomi/workspace/runtime:
           type: String
           value: Bun
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/service:
+          type: String
+          value: argon
         atomi/workspace/platform:
           type: String
           value: alcohol
+      deterministic_states: {}
+    - version: 17
+      time: 2025-06-30T12:23:31.093222Z
+      answers:
         atomi/workspace/service:
           type: String
           value: argon
         atomi/workspace/enable-docker:
           type: Bool
           value: false
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
       deterministic_states: {}

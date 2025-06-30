@@ -5,7 +5,8 @@ set -eou pipefail
 # Uploads to specific landscapes
 
 landscape="${1:-}"
-tag="${2:-}"
+deploy="${2:-}"
+tag="${3:-}"
 
 echo "🌍 Uploading to landscape: $landscape"
 if [[ -n $tag ]]; then
@@ -15,11 +16,17 @@ fi
 echo "🔨 Building application with OpenNext..."
 bunx opennextjs-cloudflare build
 
-echo "📤 Uploading to $landscape environment..."
-if [[ -n $tag ]]; then
-  wrangler versions upload --env "$landscape" --message "Release $tag"
-else
-  wrangler versions upload --env "$landscape"
-fi
+if [[ $deploy == "upload" ]]; then
+  echo "📤 Uploading to $landscape environment..."
+  if [[ -n $tag ]]; then
+    wrangler versions upload --env "$landscape" --message "Release $tag"
+  else
+    wrangler versions upload --env "$landscape"
+  fi
 
-echo "🎉 Upload to $landscape complete!"
+  echo "🎉 Uploaded to $landscape complete!"
+else
+  echo "🔨 Deploying to $landscape environment..."
+  wrangler deploy --env "$landscape"
+  echo "🎉 Deployed to $landscape complete!"
+fi

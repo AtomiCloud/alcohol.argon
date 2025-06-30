@@ -25,7 +25,7 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
               Alcohol Argon
             </h1>
             <p className="mt-6 text-lg leading-8 text-slate-600 dark:text-slate-400">
-              Next.js SSR Frontend with OpenNext on Cloudflare Workers
+              Next.js SSR Frontend with OpenNext on Cloudflare Workers :3
             </p>
           </div>
 

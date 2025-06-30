@@ -1,4 +1,4 @@
-name: Upload to Landscapes
+name: ⚡ Reusable Upload to Landscapes
 
 on:
   workflow_call:
@@ -35,9 +35,4 @@ jobs:
       - name: 📤 Upload to ${{ matrix.landscape }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [[ -n "${{ inputs.release_tag }}" ]]; then
-            nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}" "${{ inputs.release_tag }}"
-          else
-            nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}"
-          fi
+        run: nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}" upload "${{ inputs.release_tag }}"

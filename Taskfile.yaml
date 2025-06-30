@@ -32,9 +32,20 @@ tasks:
     summary: |
       Upload to a specific landscape environment.
 
-      Usage: pls upload <landscape> [tag]
+      Usage: pls upload <landscape>
 
       Landscapes: lapras, pichu, pikachu, raichu
       Tag: Optional release tag to include in description
     cmds:
-      - ./scripts/ci/upload.sh {{.CLI_ARGS}}
+      - ./scripts/ci/upload.sh {{.CLI_ARGS}} upload "local-$(openssl rand -hex 3)"
+  deploy:
+    desc: 'Deploy to specific landscape'
+    summary: |
+      Deploy to a specific landscape environment.
+
+      Usage: pls deploy <landscape>
+
+      Landscapes: lapras, pichu, pikachu, raichu
+      Tag: Optional release tag to include in description
+    cmds:
+      - ./scripts/ci/upload.sh {{.CLI_ARGS}} deploy "local-$(openssl rand -hex 3)"
