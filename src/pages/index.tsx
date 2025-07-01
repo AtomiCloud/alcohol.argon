@@ -19,7 +19,7 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-6xl">
@@ -100,7 +100,7 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
     </>
   );
 }
