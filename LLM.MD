@@ -18,7 +18,7 @@
 ## Tools
 - **Core**: `pls`, `sg`, `git`, `bun`, `infisical`, `wrangler`
 - **Frontend**: Next.js, OpenNext, shadcn/ui, Tailwind CSS
-- **Linting**: `treefmt`, `gitlint`, `shellcheck`, `biome`, ESLint
+- **Linting**: `treefmt`, `gitlint`, `shellcheck`, `biome`
 - **Environment**: `atomiutils`, shells (default/ci/releaser)
 - **Source**: `nix/packages.nix`
 
@@ -246,7 +246,7 @@ This is a Next.js 15 application with SSR support, deployed on Cloudflare Worker
 ✅ Real JPG assets downloaded from web (clean minimal footprint)
 ✅ All unused SVG resources removed
 ✅ Search data reduced to 7 items with proper assets
-✅ All code quality checks passing (ESLint, TypeScript, Biome, treefmt)
+✅ All code quality checks passing (TypeScript, Biome, treefmt)
 
 ## Lottie Animation System
 
