@@ -45,6 +45,7 @@ pls --list    # Show available tasks
 2. **Run `pls lint` before making changes** (prevents CI failures)
 3. **Use custom hooks for performance** (see `src/hooks/` directory)
 4. **Avoid runtime edge exports** (use standard Next.js patterns)
+5. **Convert all external code interfaces to monads. Internal project code must NEVER use native errors, nulls, or undefined - only Option/Result types** (see `src/lib/core/`) 
 
 ## File Structure
 ```
@@ -146,6 +147,64 @@ const { query, setQuery, clearSearch, isSearching } = useSearchState(
 - Browser back/forward navigation support
 - SSR-safe initialization
 - Single API call per user input (no duplicates)
+
+## 🧬 Functional Monads (`src/lib/core/`)
+
+### Core Types
+- **Option<T>** → `Some<T>` | `None` (nullables)
+- **Result<T,E>** → `Ok<T>` | `Err<E>` (errors)  
+- **DU<T>** → Discriminated unions
+- **All async** with `.serial()` for network transfer
+
+### Essential Patterns
+```typescript
+import { Some, None, Opt, Ok, Err, Res } from '@/lib/core/option';
+
+// Boundary conversion (REQUIRED)
+const safeData = Opt.fromNative(externalApi.data); // null → None
+const safeResult = await tryExternal().then(Ok).catch(Err); // Error → Err
+
+// Chaining
+const result = await user
+  .map(u => u.name.toUpperCase())
+  .andThen(fetchUserByName)
+  .unwrapOr("Default");
+
+// Collections
+const users = await Opt.all(fetchUser(1), fetchUser(2)); // Option<User[]>
+const validated = await Res.all(validateEmail(), validateAge()); // Result<T[], E[]>
+
+// Network serialization
+const serialized = await result.serial(); // ['ok', data] | ['err', error]
+const deserialized = Res.fromSerial(serialized);
+
+// Pattern matching
+const response = await result.match({
+  ok: (data) => ({ success: true, data }),
+  err: (error) => ({ success: false, error })
+});
+```
+
+### Boundary Conversion Examples
+```typescript
+// External API → Internal monads
+async function fetchUser(id: string): Promise<Result<User, string>> {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    return response.ok 
+      ? Ok(await response.json())
+      : Err(`HTTP ${response.status}`);
+  } catch (error) {
+    return Err(error instanceof Error ? error.message : String(error));
+  }
+}
+
+// Database → Internal monads  
+function findUser(id: string): Option<User> {
+  const user = database.findById(id); // Returns null if not found
+  return Opt.fromNative(user); // Convert null to None
+}
+```
 
 ## Architecture Notes
 
