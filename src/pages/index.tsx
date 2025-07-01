@@ -74,7 +74,7 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
           <div className="text-center mt-12">
             <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/search">Try Search</Link>
+                <Link href="/templates">Search Templates</Link>
               </Button>
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/lottie-demo">Lottie Animations</Link>

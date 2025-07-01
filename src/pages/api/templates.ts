@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { searchItems } from '@/lib/sample-data';
+import { searchTemplates } from '@/lib/template-api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { q: query = '', limit = '10' } = req.query;
+    const { q: query = '', limit = '20' } = req.query;
 
     if (typeof query !== 'string') {
       return res.status(400).json({ message: 'Query must be a string' });
@@ -21,16 +21,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Simulate some processing time for realistic feel
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    const results = searchItems(query, limitNum);
+    const results = await searchTemplates(query, limitNum);
 
     res.status(200).json({
       query,
-      results,
-      total: results.length,
-      timestamp: new Date().toISOString(),
+      results: results.templates,
+      total: results.total,
+      timestamp: results.timestamp,
     });
   } catch (error) {
-    console.error('Search API error:', error);
+    console.error('Templates API error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }

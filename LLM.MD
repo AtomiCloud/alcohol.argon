@@ -120,34 +120,46 @@ This is a Next.js 15 application with SSR support, deployed on Cloudflare Worker
 
 ### Search Implementation
 
-#### 1. Data Layer (`src/lib/sample-data.ts`)
-- Structured search data with interfaces
-- In-memory search function with fuzzy matching
-- Sample data includes tech tools, frameworks, and libraries
-- Supports featured items, tags, categories, logos, and images
+#### 1. URL State Management Hook (`src/hooks/useUrlState.ts`)
+- **`useUrlState`**: Generic hook for synchronizing component state with URL parameters
+- **`useSearchState`**: Specialized hook for search functionality with smart loading states
+- **Features**: 
+  - Automatic URL synchronization without manual debouncing
+  - Browser back/forward navigation support 
+  - SSR-safe initialization
+  - **Configurable loading delay**: Only shows loading animation if search takes longer than expected
+  - Prevents unnecessary loading flickers for fast responses
+  - Clean abstraction eliminates boilerplate
 
-#### 2. API Layer (`src/pages/api/search.ts`)
-- RESTful search endpoint
-- Query parameter validation
-- Error handling with fallbacks
-- Simulated processing delay for realistic UX
+#### 2. Data Layer
+- **Template API** (`src/lib/template-api.ts`): External API integration for templates
+- Structured interfaces and error handling
+- Direct client-side calls to external API after hydration
 
-#### 3. UI Components
-- **Input Component** (`src/components/ui/input.tsx`): Styled input with focus states
-- **Badge Component** (`src/components/ui/badge.tsx`): Tags and categories
-- **SearchResults Component** (`src/components/SearchResults.tsx`): 
-  - Results grid with responsive layout
-  - Loading skeleton states
-  - Empty state handling
-  - Featured item highlighting
+#### 3. API Routes
+- **`/api/templates`**: Proxy endpoint for external Template API
+- Query parameter validation and error handling
 
-#### 4. Search Page (`src/pages/search.tsx`)
-- **SSR Implementation**: Initial results rendered server-side
-- **Live Search**: Debounced real-time search (300ms)
-- **URL Synchronization**: Query parameters sync with search state
-- **Hydration Handling**: Prevents client-server mismatch
-- **Error Boundaries**: Graceful API failure handling
-- **Debug Information**: Development-only debug panel
+#### 4. Templates Search Page (`/templates`)
+- **External API Integration**: Real-time search of project templates
+- **Smart Loading**: Only shows loading animation for searches taking longer than 200ms
+- **SSR + Client-side**: Initial results server-rendered, subsequent searches client-side
+- **URL Synchronization**: Clean, automatic URL updates without manual debouncing
+- **Direct API Calls**: No proxy overhead after initial load
+
+### Smart Loading States
+
+#### Configurable Loading Delay
+- **Default delay**: 200ms before showing loading animation
+- **Purpose**: Prevents loading flicker for fast API responses
+- **Customizable**: Can be configured per search implementation
+- **Implementation**: Uses setTimeout with cleanup on component unmount
+
+#### Benefits
+- **Better UX**: No unnecessary loading spinners for instant results
+- **Perceived Performance**: Faster feel for quick responses
+- **Configurable**: Adjust delay based on expected API response time
+- **Clean**: Automatic cleanup prevents memory leaks
 
 ## Key Features
 
@@ -178,9 +190,9 @@ This is a Next.js 15 application with SSR support, deployed on Cloudflare Worker
 
 ## URL Structure
 - `/` - Home page with project overview
-- `/search` - Search page (empty state)
-- `/search?q=query` - Search with initial query
-- `/api/search?q=query&limit=10` - Search API endpoint
+- `/templates` - Templates search page (empty state)
+- `/templates?q=query` - Templates search with initial query
+- `/api/templates?q=query&limit=20` - Templates API endpoint
 
 ## Development Patterns
 
@@ -194,9 +206,23 @@ This is a Next.js 15 application with SSR support, deployed on Cloudflare Worker
 - Graceful degradation to client-side search
 - User-friendly error messages
 
+### URL State Management Pattern
+- **Clean Architecture**: `useSearchState` hook abstracts all URL synchronization logic
+- **Smart Loading**: Configurable delay prevents unnecessary loading flickers
+- **Benefits**: 
+  - Eliminates debouncing complexity
+  - Removes manual URL manipulation
+  - Configurable loading animation timing
+  - Single search call per user input (no duplicate API calls)
+  - Better separation of concerns
+  - Easier testing and maintenance
+  - Optimal perceived performance
+
 ### Performance Optimizations
-- Debounced search to reduce API calls
-- Skeleton loading states for perceived performance
+- Immediate search with smart URL synchronization (no debouncing needed)
+- **Smart loading states**: Only show loading animation for slow responses (>200ms)
+- Single API call per user input (no duplicate calls)
+- Direct API calls after hydration (no proxy overhead)
 - Minimal asset bundle with selective imports
 
 ### Responsive Design
