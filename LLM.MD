@@ -2,360 +2,210 @@
 
 **Always refer to this file before making changes.**
 
-## Project
-- **Name**: Alcohol Argon (Next.js SSR with OpenNext on Cloudflare Workers)
-- **Framework**: Next.js 15 with Pages Router + Nix-based tooling
-- **Platform**: Cloudflare Workers via OpenNext
-- **Principles**: Reproducible environments, centralized tasks, comprehensive linting, conventional commits
+## LLM.MD Self-Writing Instructions
 
-## Architecture
-- **Frontend**: Next.js SSR with Pages Router at root level
-- **Runtime**: Cloudflare Workers via OpenNext
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Static Assets**: Optimally cached via Cloudflare CDN
-- **Environment**: Nix-based development environment
+When updating this file, optimize for code generation by:
 
-## Tools
-- **Core**: `pls`, `sg`, `git`, `bun`, `infisical`, `wrangler`
-- **Frontend**: Next.js, OpenNext, shadcn/ui, Tailwind CSS
-- **Linting**: `treefmt`, `gitlint`, `shellcheck`, `biome`
-- **Environment**: `atomiutils`, shells (default/ci/releaser)
-- **Source**: `nix/packages.nix`
+**Content Strategy:**
+- Keep essential workflows, remove verbose explanations
+- Focus on "how-to" over "what-is" descriptions  
+- Add conditional usage patterns ("When to use X")
+- Include specific import patterns and component examples
 
-## Commands
+**Structure Guidelines:**
+- Use hierarchical sections with emojis for quick scanning
+- Group related information under clear headings
+- Keep code examples concise but complete
+- Eliminate deployment/commit workflows, focus on runtime instructions
+
+**Technical Accuracy:**
+- Verify file paths, imports, and tool versions are current
+- Test code examples for syntax correctness
+- Cross-reference with actual project structure
+- Emphasize patterns that improve generated code quality
+
+## Project Overview
+- **Name**: Alcohol Argon (Next.js SSR + Cloudflare Workers)
+- **Stack**: Next.js 15 Pages Router, TypeScript, Tailwind CSS, shadcn/ui
+- **Runtime**: Cloudflare Workers via OpenNext adapter
+- **Environment**: Nix-based reproducible development
+
+## Essential Commands
 ```bash
-pls setup     # Initialize repository & install dependencies
-pls lint      # Lint all files (REQUIRED before commits)
-pls build     # Build Next.js application
-pls dev       # Start development server
+pls dev       # Development server
+pls build     # Build application
 pls preview   # Preview with Workers runtime
-pls deploy    # Deploy to Cloudflare Workers
-pls cf-typegen # Generate Cloudflare types
+pls deploy    # Deploy to Cloudflare
+pls lint      # Lint all files (REQUIRED before changes)
 pls --list    # Show available tasks
 ```
 
-## Structure
-- `.github/workflows/` → CI/CD
-- `docs/developer/` → Documentation
-- `src/` → Next.js source code (Pages Router)
-- `public/` → Static assets with caching headers
-- `nix/` → Nix configuration
-- `scripts/ci/` → CI scripts
-- `scripts/local/` → Development scripts
-- `open-next.config.ts` → OpenNext configuration
-- `wrangler.toml` → Cloudflare Workers config
-- `Taskfile.yaml` → Task definitions
-- `flake.nix` → Main Nix config
-- `atomi_release.yaml` → Release config
+## Critical Rules
+1. **Always use `pls` commands** (not npm/bun/yarn directly)
+2. **Run `pls lint` before making changes** (prevents CI failures)
+3. **Use custom hooks for performance** (see `src/hooks/` directory)
+4. **Avoid runtime edge exports** (use standard Next.js patterns)
 
-## Workflow
-1. **Environment** → Auto-loaded via direnv or `nix develop`
-2. **Development** → `pls dev` for Next.js dev server
-3. **Changes** → Make code changes
-4. **Lint** → Run `pls lint` (CRITICAL)
-5. **Test** → `pls preview` for Workers runtime testing
-6. **Deploy** → `pls deploy` to Cloudflare Workers
-7. **Commit** → Use conventional commit format
+## File Structure
+```
+src/
+├── pages/           # Next.js Pages Router
+├── components/      # React components
+│   ├── ui/         # shadcn/ui components
+│   └── lottie/     # Lottie animations
+├── lib/            # Utilities and APIs
+├── hooks/          # Custom React hooks
+├── styles/         # Global CSS
+└── types/          # TypeScript types
+public/
+├── animations/     # Lottie JSON files
+├── images/         # Static images
+└── _headers        # Cloudflare cache headers
+```
 
-## Frontend Architecture
-- **SSR**: Server-Side Rendering with getServerSideProps
-- **Static Assets**: Immutable caching (1 year) for build assets, daily cache for images
-- **Edge Runtime**: Cloudflare Workers for global performance
-- **Caching**: R2 bucket support for incremental cache
-- **UI**: shadcn/ui components with Tailwind CSS
-
-## Linting
-- **biome** → JS/TS linting
-- **ESLint** → Next.js specific linting
-- **TypeScript** → Type checking with tsc --noEmit
-- **shellcheck** → Shell validation
-- **gitlint** → Commit validation
-- **infisical** → Secrets scanning
+## Linting & Formatting
+- **biome** → JS/TS linting and formatting
+- **TypeScript** → Type checking (`tsc --noEmit`)
+- **ESLint** → Next.js specific rules
 - **treefmt** → Universal formatting
 
-## Commits
-- `feat:` → minor release
-- `fix:`, `perf:` → patch release
-- `refactor:` → minor release
-- `docs:`, `ci:`, `build:`, `config:` → no release
-- `BREAKING CHANGE:` or `!` → major release
-- `no-release` scope → prevents release
 
-## CI/CD
-- **Workflows**: CI, Cache, Release, Merge Gatekeeper
-- **Shells**: default (dev), ci (testing), releaser (releases)
-
-## Critical Rules
-1. Use `pls` for all tasks (not language-specific runners)
-2. Run `pls lint` before committing
-3. Use conventional commits
-4. All tools via Nix (no global installs)
-5. Never use `export const runtime = "edge"` (not supported)
-6. Static assets must have proper cache headers in `public/_headers`
-7. Follow Next.js Pages Router patterns (no App Router)
-
-## Environment Variables
-- `NEXTJS_ENV` → Controls .env file loading (development/production)
-- Cloudflare bindings available via `getCloudflareContext()` in production
-
-## Deployment
-1. **Authenticate**: `bunx wrangler login`
-2. **Deploy**: `pls deploy`
-3. **Optional R2**: Configure R2 bucket in `wrangler.toml` for enhanced caching
-
-# LLM Workflow Documentation
-
-## Project Overview
-This is a Next.js 15 application with SSR support, deployed on Cloudflare Workers using OpenNext adapter. The project includes a comprehensive search functionality with both server-side and client-side capabilities.
-
-## Architecture
-
-### Core Stack
-- **Next.js 15**: React framework with Pages Router
-- **TypeScript**: Type safety
-- **Tailwind CSS**: Utility-first styling
-- **shadcn/ui**: Component library built on Radix UI
-- **OpenNext**: Cloudflare Workers adapter
-- **Lucide React**: Icon library
-
-### Search Implementation
-
-#### 1. URL State Management Hook (`src/hooks/useUrlState.ts`)
-- **`useUrlState`**: Generic hook for synchronizing component state with URL parameters
-- **`useSearchState`**: Specialized hook for search functionality with smart loading states
-- **Features**: 
-  - Automatic URL synchronization without manual debouncing
-  - Browser back/forward navigation support 
-  - SSR-safe initialization
-  - **Configurable loading delay**: Only shows loading animation if search takes longer than expected
-  - Prevents unnecessary loading flickers for fast responses
-  - Clean abstraction eliminates boilerplate
-
-#### 2. Data Layer
-- **Template API** (`src/lib/template-api.ts`): External API integration for templates
-- Structured interfaces and error handling
-- Direct client-side calls to external API after hydration
-
-#### 3. API Routes
-- **`/api/templates`**: Proxy endpoint for external Template API
-- Query parameter validation and error handling
-
-#### 4. Templates Search Page (`/templates`)
-- **External API Integration**: Real-time search of project templates
-- **Smart Loading**: Only shows loading animation for searches taking longer than 200ms
-- **SSR + Client-side**: Initial results server-rendered, subsequent searches client-side
-- **URL Synchronization**: Clean, automatic URL updates without manual debouncing
-- **Direct API Calls**: No proxy overhead after initial load
-
-### Smart Loading States
-
-#### Configurable Loading Delay
-- **Default delay**: 200ms before showing loading animation
-- **Purpose**: Prevents loading flicker for fast API responses
-- **Customizable**: Can be configured per search implementation
-- **Implementation**: Uses setTimeout with cleanup on component unmount
-
-#### Benefits
-- **Better UX**: No unnecessary loading spinners for instant results
-- **Perceived Performance**: Faster feel for quick responses
-- **Configurable**: Adjust delay based on expected API response time
-- **Clean**: Automatic cleanup prevents memory leaks
-
-## Key Features
-
-### Server-Side Rendering (SSR)
-- `getServerSideProps` renders initial search results
-- Works with query parameters (`/search?q=react`)
-- Full page content available on initial load
-- SEO-friendly with proper meta tags
-
-### Live Search Functionality
-- Real-time search as user types
-- 300ms debounce to prevent excessive API calls
-- Updates URL without page reload
-- Maintains browser history (back/forward navigation)
-- Loading states during search
-- Fallback to client-side search if API fails
-
-### Dual-Mode Operation
-1. **Server-Side** (initial load): Fast first render with search results
-2. **Client-Side** (after hydration): Interactive search with API calls
-
-### Asset Management
-- Real JPG logos downloaded from web sources
-- Optimized JPG preview images for featured items
-- Minimal asset footprint (7 logos + 3 preview images)
-- All unused SVG files removed for clean deployment
-- Optimized asset loading with Next.js Image component
-
-## URL Structure
-- `/` - Home page with project overview
-- `/templates` - Templates search page (empty state)
-- `/templates?q=query` - Templates search with initial query
-- `/api/templates?q=query&limit=20` - Templates API endpoint
-
-## Development Patterns
-
-### State Management
-- React hooks for local state
-- URL as source of truth for search query
-- Hydration tracking to prevent SSR/client mismatches
-
-### Error Handling
-- API error boundaries
-- Graceful degradation to client-side search
-- User-friendly error messages
-
-### URL State Management Pattern
-- **Clean Architecture**: `useSearchState` hook abstracts all URL synchronization logic
-- **Smart Loading**: Configurable delay prevents unnecessary loading flickers
-- **Benefits**: 
-  - Eliminates debouncing complexity
-  - Removes manual URL manipulation
-  - Configurable loading animation timing
-  - Single search call per user input (no duplicate API calls)
-  - Better separation of concerns
-  - Easier testing and maintenance
-  - Optimal perceived performance
-
-### Performance Optimizations
-- Immediate search with smart URL synchronization (no debouncing needed)
-- **Smart loading states**: Only show loading animation for slow responses (>200ms)
-- Single API call per user input (no duplicate calls)
-- Direct API calls after hydration (no proxy overhead)
-- Minimal asset bundle with selective imports
-
-### Responsive Design
-- Mobile-first approach
-- Grid layouts that adapt to screen size
-- Touch-friendly interactive elements
-
-## Testing Scenarios
-1. Direct URL access: `/search?q=react`
-2. Search input typing: Live updates
-3. Browser navigation: Back/forward with query preservation
-4. API failures: Fallback behavior
-5. Empty states: No results handling
-6. Loading states: Skeleton animations
-
-## Current Status
-✅ Complete search implementation with SSR and live search
-✅ Beautiful UI with responsive design and white search bar
-✅ URL query parameter handling
-✅ Error handling and fallbacks
-✅ Real JPG assets downloaded from web (clean minimal footprint)
-✅ All unused SVG resources removed
-✅ Search data reduced to 7 items with proper assets
-✅ All code quality checks passing (TypeScript, Biome, treefmt)
-
-## Lottie Animation System
-
-### Setup and Structure
-- **Package**: `lottie-react@2.4.1` installed
-- **Animations Directory**: `/public/animations/` for all .json files
-- **Components**: `/src/components/lottie/` for all Lottie-related components
-- **Utilities**: `/src/lib/lottie-utils.ts` for animation helpers
-- **Hooks**: `/src/hooks/useLottie.ts` for animation control
-
-### Component Hierarchy
-```
-src/components/lottie/
-├── index.ts              # Main exports
-├── LottieAnimation.tsx   # Hybrid component (inline + dynamic loading)
-├── InlineLottie.tsx      # Inline-only component (recommended)
-├── presets.tsx          # Pre-configured components
-├── animations.ts        # Centralized animation imports
-├── LottieExample.tsx    # Demo/documentation component
-```
-
-### Usage Patterns
-
-#### Inline Animation (Recommended)
-```tsx
-import loadingData from '/public/animations/loading.json';
-import { InlineLottie } from '@/components/lottie';
-
-<InlineLottie 
-  animationData={loadingData}
-  width={100} 
-  height={100} 
-  loop={true}
-  autoplay={true}
-/>
-```
-
-#### Dynamic Animation (Fallback)
-```tsx
-import { LottieAnimation } from '@/components/lottie';
-
-<LottieAnimation 
-  animationName="loading" 
-  width={100} 
-  height={100} 
-  showLoader={false}
-/>
-```
-
-#### Preset Components (Inline by Default)
-```tsx
-import { LoadingLottie, SuccessLottie } from '@/components/lottie';
-
-<LoadingLottie size={48} />     // Uses inline Lottie animations
-<SuccessLottie size={64} />     // Fallback to CSS/SVG until animations added
-```
-
-#### Animation Management
-- **Presets are inline by default**: No loading states, immediate display
-- **LoadingLottie uses simple CSS spinner as fallback**: Works immediately
-- **Dynamic animations**: Use consistent spinner loader matching presets
-- Built-in error handling and graceful fallbacks
-- Responsive sizing utilities and preloading functions available
-
-### File Organization Best Practices
-- Common UI animations in `/public/animations/` root
-- Custom/feature animations in subdirectories
-- Keep file sizes under 100KB when possible
-- Use kebab-case naming (e.g., `loading-spinner.json`)
-
-### Integration Points
-- Works with existing shadcn/ui components
-- Tailwind CSS classes supported
-- TypeScript types included
-- Next.js SSR compatible
 
 ## Development Workflow
+1. **Environment** → Auto-loaded via direnv or `nix develop`
+2. **Code Changes** → Make your changes
+3. **Lint** → `pls lint` (CRITICAL)
+4. **Test** → `pls preview` for Workers testing
 
-### Adding New Animations
-1. Download/create .json file from LottieFiles or After Effects
-2. Place in `/public/animations/` directory
-3. Use with `<LottieAnimation animationName="filename" />`
 
-### Creating Preset Components
-1. Add new preset function in `presets.tsx`
-2. Export from `index.ts`
-3. Document usage in `LottieExample.tsx`
 
-### Performance Considerations
-- Animations load asynchronously
-- Loading states prevent layout shift
-- Preloading functions available for critical animations
-- File size guidelines documented
+## Environment Variables
+- `NEXTJS_ENV` → Controls .env loading (development/production)
+- Cloudflare bindings available via `getCloudflareContext()` in production
 
-## Technical Decisions
+---
 
-### Why lottie-react
-- Official Lottie library for React
-- TypeScript support
-- Good performance
-- Active maintenance
+## Conditional Usage Guide
 
-### Directory Structure Choice
-- Public directory for static assets (Next.js convention)
-- Component directory mirrors other UI components
-- Utilities separate for reusability
+### 🔧 When Working with Components
+- **shadcn/ui**: Components in `src/components/ui/`
+- **Lottie**: Use components from `src/components/lottie/`
+- **Styling**: Tailwind CSS classes, responsive design patterns
 
-### Component Design Philosophy
-- Fail gracefully with loading/error states
-- Props-based customization
-- TypeScript-first design
-- Composable and reusable 
+### 🌐 When Building Pages
+- **SSR**: Use `getServerSideProps` for data fetching
+- **API Routes**: Place in `src/pages/api/`
+- **Static Assets**: Add to `public/` with proper cache headers in `_headers`
+
+### 🎨 When Adding Animations
+- **Lottie Files**: Place JSON in `public/animations/`
+- **Components**: Use `InlineLottie` for best performance
+- **Presets**: Available components: `LoadingLottie`, `SuccessLottie`
+
+### 📦 When Adding Dependencies
+- **Add to package.json**: Let Nix handle the environment
+- **TypeScript Types**: Install @types packages as devDependencies
+- **Build Tools**: Configure in respective config files
+
+### 🚀 When Deploying
+- **Authentication**: `bunx wrangler login` (first time)
+- **Environment**: Configure in `wrangler.toml`
+- **Secrets**: Use Cloudflare dashboard or `wrangler secret`
+
+### 🔍 When Debugging
+- **Development**: `pls dev` for hot reload
+- **Production**: `pls preview` for Workers runtime
+- **Logs**: Use `wrangler tail` for production logs
+- **Types**: `pls cf-typegen` to regenerate Cloudflare types
+
+## Custom Hooks for Performance
+
+### URL State Management (`src/hooks/useUrlState.ts`)
+Use these hooks for better URL synchronization and search functionality:
+
+```typescript
+// Generic URL state synchronization
+import { useUrlState } from '@/hooks/useUrlState';
+const [query, setQuery] = useUrlState('q', '');
+
+// Search-specific with smart loading states
+import { useSearchState } from '@/hooks/useUrlState';
+const { query, setQuery, clearSearch, isSearching } = useSearchState(
+  'q',
+  '',
+  async (query) => {
+    // Perform search
+  },
+  { loadingDelay: 300 }
+);
+```
+
+**Benefits:**
+- Automatic URL synchronization without manual debouncing
+- Smart loading states (only show spinner for slow responses)
+- Browser back/forward navigation support
+- SSR-safe initialization
+- Single API call per user input (no duplicates)
+
+## Architecture Notes
+
+### Next.js Configuration
+- **SSR**: Server-side rendering with `getServerSideProps`
+- **Static Generation**: Use `getStaticProps` for static pages
+- **API Routes**: Standard Next.js API pattern
+
+### Cloudflare Integration  
+- **Workers Runtime**: Via OpenNext adapter
+- **Caching**: Configured in `public/_headers`
+- **Bindings**: Available in production context
+- **R2 Storage**: Optional for enhanced caching
+
+### TypeScript Setup
+- **Strict Mode**: Enabled with comprehensive rules
+- **Path Mapping**: `@/` points to `src/`
+- **Type Checking**: Run `pls lint` includes `tsc --noEmit`
+
+## Additional Documentation References
+
+### Core Project Files
+- **`README.md`** - Project overview, setup instructions, tech stack
+- **`docs/developer/LottieAnimations.md`** - Lottie animations usage guide
+
+### Development Tools
+- **`Taskfile.yaml`** - Available pls commands and scripts
+- **`wrangler.toml`** - Cloudflare Workers configuration
+- **`package.json`** - Dependencies and npm scripts
+
+**Note:** Always check these files for the most current information and detailed implementation guidance.
+
+---
+
+## Quick Reference
+
+### Common Patterns
+```typescript
+// SSR Page
+export async function getServerSideProps(context) {
+  return { props: { data: await fetchData() } }
+}
+
+// API Route
+export default function handler(req, res) {
+  res.status(200).json({ message: 'Hello' })
+}
+
+// Lottie Animation
+import { InlineLottie } from '@/components/lottie'
+import animationData from '/public/animations/loading.json'
+```
+
+### File Extensions
+- `.tsx` → React components
+- `.ts` → TypeScript utilities
+- `.json` → Lottie animations, configuration
+- `.md` → Documentation
+
+### Import Patterns
+- `@/` → Absolute imports from src/
+- `/public/` → Static assets
+- Relative imports for local files 
