@@ -1,3 +1,19 @@
+## [1.1.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.0.0...v1.1.0) (2025-07-02)
+
+
+### ✨ Features ✨
+
+* **layout:** add layout and navbar components ([5054ac5](https://github.com/AtomiCloud/alcohol.argon/commit/5054ac51e8f4ecd8cb55ee8cc36efd25c4f20732))
+* **default:** add lottie animations support ([d5a8873](https://github.com/AtomiCloud/alcohol.argon/commit/d5a8873f5d20e80d52991d3399e6edd628840905))
+* example using this template ([dab9ffc](https://github.com/AtomiCloud/alcohol.argon/commit/dab9ffc66f08b3ad9f2b7029089bcc34ca97b346))
+* **migration:** migrate to biome and deprecate eslint ([6663357](https://github.com/AtomiCloud/alcohol.argon/commit/6663357484f3eda90dabcc886cae3d9eb2a111e0))
+* **default:** searching and url sync ([e002230](https://github.com/AtomiCloud/alcohol.argon/commit/e002230a446cef50c4e6caa93ad00ef3c7af0d4e))
+
+
+### 🐛 Bug Fixes 🐛
+
+* docs and LLM.MD ([bfec2b0](https://github.com/AtomiCloud/alcohol.argon/commit/bfec2b0de30e9ba87a24d5666e497c6796b393c7))
+
 ## 1.0.0 (2025-06-30)
 
 
