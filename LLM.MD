@@ -158,7 +158,7 @@ const { query, setQuery, clearSearch, isSearching } = useSearchState(
 
 ### Essential Patterns
 ```typescript
-import { Some, None, Opt, Ok, Err, Res } from '@/lib/core/option';
+import { Some, None, Opt, Ok, Err, Res } from '@/lib/monads/option';
 
 // Boundary conversion (REQUIRED)
 const safeData = Opt.fromNative(externalApi.data); // null → None
