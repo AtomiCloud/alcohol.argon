@@ -49,3 +49,5 @@ next-env.d.ts
 cloudflare-env.d.ts
 TODO.md
 scratch/
+
+.idea/
