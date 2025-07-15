@@ -50,3 +50,6 @@ next-env.d.ts
 cloudflare-env.d.ts
 TODO.md
 scratch/
+
+.vscode/
+.idea/
