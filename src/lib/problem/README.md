@@ -45,7 +45,7 @@ const problem = problemService.transformer.fromHttpError(httpError);
 ### 3. Map HTTP Responses
 
 ```typescript
-import { Ok, Err } from '@/lib/core/result';
+import { Ok, Err } from '@/lib/monads/result';
 
 // swagger-typescript-api response
 const apiResponse = { data: null, error: 'Not found' };
