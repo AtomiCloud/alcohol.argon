@@ -1,0 +1,8 @@
+# Base configuration for client-safe settings
+api:
+  baseUrl: '/api'
+  timeout: 5000
+
+ui:
+  theme: 'auto'
+  animations: true

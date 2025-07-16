@@ -1,0 +1,6 @@
+# Production environment overrides for raichu landscape
+app:
+  name: 'Alcohol Argon'
+
+features:
+  debug: false

@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       type: 'json',
     });
 
+    // Allow importing YAML files as modules
+    config.module.rules.push({
+      test: /\.ya?ml$/,
+      use: 'yaml-loader',
+    });
+
     return config;
   },
 };

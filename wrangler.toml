@@ -29,16 +29,31 @@ head_sampling_rate = 1
 # Environment-specific configurations
 [env.lapras]
 name = "argon-alcohol-lapras"
-vars = { NEXTJS_ENV = "development", LANDSCAPE = "lapras" }
 
+[env.lapras.vars]
+NEXTJS_ENV = "development"
+LANDSCAPE = "lapras"
+
+# PICHU
 [env.pichu]
 name = "argon-alcohol-pichu"
-vars = { NEXTJS_ENV = "production", LANDSCAPE = "pichu" }
 
+[env.pichu.vars]
+NEXTJS_ENV = "production"
+LANDSCAPE = "pichu"
+
+# PIKACHU
 [env.pikachu]
 name = "argon-alcohol-pikachu"
-vars = { NEXTJS_ENV = "production", LANDSCAPE = "pikachu" }
 
+[env.pikachu.vars]
+NEXTJS_ENV = "production"
+LANDSCAPE = "pikachu"
+
+# RAICHU
 [env.raichu]
 name = "argon-alcohol-raichu"
-vars = { NEXTJS_ENV = "production", LANDSCAPE = "raichu" } 
+
+[env.raichu.vars]
+NEXTJS_ENV = "production"
+LANDSCAPE = "raichu"

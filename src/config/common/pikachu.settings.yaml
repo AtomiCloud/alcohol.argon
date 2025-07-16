@@ -1,0 +1,6 @@
+# Pre-production environment overrides for pikachu landscape
+app:
+  name: 'Alcohol Argon (Pre-Production)'
+
+features:
+  debug: false

@@ -1,0 +1,6 @@
+# Development environment overrides for lapras landscape
+app:
+  name: 'Alcohol Argon (Development)'
+
+features:
+  debug: true
