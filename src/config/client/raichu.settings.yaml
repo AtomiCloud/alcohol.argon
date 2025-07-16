@@ -1,0 +1,8 @@
+# Production environment overrides for client configuration
+api:
+  baseUrl: '/api'
+  timeout: 5000
+
+ui:
+  theme: 'auto'
+  animations: true

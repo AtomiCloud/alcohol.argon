@@ -1,0 +1,6 @@
+# Staging environment overrides for pichu landscape
+app:
+  name: 'Alcohol Argon (Staging)'
+
+features:
+  debug: false

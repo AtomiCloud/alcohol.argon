@@ -3,6 +3,7 @@
  * Import and register all your application-specific problems here
  */
 
+import type { CommonConfig } from '@/config';
 import { ProblemRegistry } from '@/lib/problem/core/registry';
 import { entityConflictDefinition } from './definitions/entity-conflict';
 import { unauthorizedDefinition } from './definitions/unauthorized';
@@ -25,26 +26,22 @@ type ProblemId = keyof typeof PROBLEM_DEFINITIONS;
 /**
  * Create and configure the type-safe problem registry
  */
-function createProblemRegistry() {
-  // Configuration - this would typically be injected via DI
-  const config = {
-    baseUri: 'https://api.zinc.sulfone.pichu.cluster.atomi.cloud',
-    version: '1.0',
-    service: 'argon',
-  };
+function createProblemRegistry(errorPortalConfig: CommonConfig['errorPortal']) {
+  // Use provided config or fallback to default values
+  const config = errorPortalConfig;
 
   return new ProblemRegistry(config, PROBLEM_DEFINITIONS);
 }
 
 /**
- * Singleton instance for use across the application
+ * Create a problem registry with common configuration
  */
-const problemRegistry = createProblemRegistry();
+function createProblemRegistryWithConfig(commonConfig: CommonConfig) {
+  return createProblemRegistry(commonConfig.errorPortal);
+}
 
 /**
  * Type-safe problem registry type
  */
-type AppProblemRegistry = typeof problemRegistry;
-
-export type { AppProblemRegistry, ProblemId };
-export { problemRegistry, createProblemRegistry };
+export { createProblemRegistry, createProblemRegistryWithConfig };
+export type { ProblemId };

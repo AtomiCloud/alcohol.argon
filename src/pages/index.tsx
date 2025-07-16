@@ -1,19 +1,26 @@
-import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { withServerSideConfig } from '@/lib/config';
+import { configSchemas } from '@/config';
+import { useCommonConfig, useClientConfig } from '@/lib/config';
+import type { CommonConfig, ClientConfig } from '@/config';
 
 interface HomeProps {
   serverTime: string;
   userAgent: string;
+  appName: string;
+  debugMode: boolean;
 }
 
-export default function Home({ serverTime, userAgent }: HomeProps) {
+export default function Home({ serverTime, userAgent, appName, debugMode }: HomeProps) {
+  const commonConfig = useCommonConfig<CommonConfig>();
+  const clientConfig = useClientConfig<ClientConfig>();
   return (
     <>
       <Head>
-        <title>Alcohol Argon - SSR Frontend</title>
+        <title>{appName} - SSR Frontend</title>
         <meta name="description" content="Next.js SSR frontend with OpenNext on Cloudflare Workers" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -23,7 +30,7 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-6xl">
-              Alcohol Argon
+              {appName}
             </h1>
             <p className="mt-6 text-lg leading-8 text-slate-600 dark:text-slate-400">
               Next.js SSR Frontend with OpenNext on Cloudflare Workers :3
@@ -57,16 +64,27 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle>Modern Stack</CardTitle>
-                <CardDescription>Built with the latest technologies</CardDescription>
+                <CardTitle>Configuration System</CardTitle>
+                <CardDescription>Type-safe hierarchical configuration</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                  <li>• Next.js 15 with Pages Router</li>
-                  <li>• TypeScript</li>
-                  <li>• Tailwind CSS</li>
-                  <li>• shadcn/ui</li>
-                </ul>
+                <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                  <div>
+                    App Version: <span className="font-mono font-semibold">{commonConfig.app.version}</span>
+                  </div>
+                  <div>
+                    Debug Mode: <span className="font-mono font-semibold">{debugMode ? 'ON' : 'OFF'}</span>
+                  </div>
+                  <div>
+                    Theme: <span className="font-mono font-semibold">{clientConfig.ui.theme}</span>
+                  </div>
+                  <div>
+                    API Base URL: <span className="font-mono font-semibold">{clientConfig.api.baseUrl}</span>
+                  </div>
+                  <div>
+                    API Timeout: <span className="font-mono font-semibold">{clientConfig.api.timeout}ms</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -74,13 +92,16 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
           <div className="text-center mt-12">
             <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/templates">Search Templates</Link>
+                <Link href="/config">Configuration Demo</Link>
               </Button>
               <Button size="lg" variant="secondary" asChild>
+                <Link href="/templates">Search Templates</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
                 <Link href="/lottie-demo">Lottie Animations</Link>
               </Button>
-              <Button variant="outline" size="lg">
-                Learn More
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/problem-demo">Problem Details</Link>
               </Button>
             </div>
           </div>
@@ -105,15 +126,17 @@ export default function Home({ serverTime, userAgent }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ req }) => {
-  // This runs on the server for each request
+export const getServerSideProps = withServerSideConfig(configSchemas, async (context, config) => {
+  // Access config.common, config.client, config.server
   const serverTime = new Date().toISOString();
-  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const userAgent = context.req.headers['user-agent'] || 'Unknown';
 
   return {
     props: {
       serverTime,
       userAgent,
+      appName: config.common.app.name,
+      debugMode: config.common.features.debug,
     },
   };
-};
+});
