@@ -1,4 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+.idea/
 
 # Pre-commit config (generated)
 .pre-commit-config.yaml
@@ -49,3 +50,6 @@ next-env.d.ts
 cloudflare-env.d.ts
 TODO.md
 scratch/
+
+.vscode/
+.idea/

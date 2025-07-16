@@ -18,6 +18,7 @@ src/
 │   ├── ui/         # shadcn/ui components (Badge, Button, Card, Input)
 │   └── lottie/     # Lottie animation system (InlineLottie, presets)
 ├── lib/            # Utilities (lottie-utils, template-api, utils)
+│   └── core/       # Functional monads (Option, Result, discriminated unions)
 ├── hooks/          # Custom hooks (useUrlState for URL synchronization)
 ├── styles/         # Global CSS (Tailwind)
 └── types/          # TypeScript definitions
@@ -69,6 +70,36 @@ const { query, setQuery, clearSearch, isSearching } = useSearchState(
 ```
 
 **Key benefits**: Automatic URL sync, browser navigation support, SSR-safe, smart loading states
+
+## Functional Monads (`src/lib/core/`)
+
+**CRITICAL**: All internal project code MUST use functional monads (Option/Result). Never use native errors, null, or undefined.
+
+### Core Types & Boundary Conversion
+
+```typescript
+import { Some, None, Opt, Ok, Err, Res } from '@/lib/monads/option';
+import { Result } from '@/lib/monads/result';
+
+// REQUIRED: Convert external APIs to monads at boundaries
+const safeUser = Opt.fromNative(externalApi.getUser()); // null/undefined → None
+const safeResult = await tryFetch().then(Ok).catch(Err); // Promise<T> → Result<T, Error>
+
+// Chain operations safely
+const userName = await user
+  .map(u => u.name.toUpperCase())
+  .andThen(validateName)
+  .unwrapOr('Unknown');
+```
+
+### Essential Patterns
+
+- **Option<T>**: `Some<T>` | `None` (replaces null/undefined)
+- **Result<T,E>**: `Ok<T>` | `Err<E>` (replaces try/catch)
+- **Collections**: `Opt.all()`, `Res.all()` for multiple operations
+- **Serialization**: `.serial()` for network transfer, `Res.fromSerial()` for deserialization
+
+**Always wrap external code interfaces with these monads before use in internal logic.**
 
 ## Lottie Animation System
 
