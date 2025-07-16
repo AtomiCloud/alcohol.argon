@@ -1,4 +1,4 @@
-import { getValidatedConfig } from '../core/registry';
+import { useConfigContext } from './ConfigProvider';
 
 export function useCommonConfig<T = unknown>(): T {
   if (typeof window === 'undefined') {
@@ -7,7 +7,8 @@ export function useCommonConfig<T = unknown>(): T {
     );
   }
 
-  return getValidatedConfig('common') as T;
+  const { registry } = useConfigContext();
+  return registry.common as T;
 }
 
 export function useClientConfig<T = unknown>(): T {
@@ -17,7 +18,8 @@ export function useClientConfig<T = unknown>(): T {
     );
   }
 
-  return getValidatedConfig('client') as T;
+  const { registry } = useConfigContext();
+  return registry.client as T;
 }
 
 export function useServerConfig<T = unknown>(): T {
@@ -27,7 +29,8 @@ export function useServerConfig<T = unknown>(): T {
     );
   }
 
-  return getValidatedConfig('server') as T;
+  const { registry } = useConfigContext();
+  return registry.server as T;
 }
 
 export function useConfig() {
@@ -35,4 +38,9 @@ export function useConfig() {
     common: useCommonConfig(),
     client: useClientConfig(),
   };
+}
+
+export function useConfigRegistry() {
+  const { registry } = useConfigContext();
+  return registry;
 }

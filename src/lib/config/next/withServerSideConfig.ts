@@ -1,19 +1,12 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import {
-  type ConfigSchemas,
-  type ValidatedConfigs,
-  registerSchemas,
-  isRegistryInitialized,
-  getValidatedConfig,
-} from '../core/registry';
-import { loadConfigurations } from '../core/loader';
+import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
+import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
+import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
 import { importedConfigurations } from '../../../config/configs';
-import { mergeConfigurations, processEnvironmentVariables } from '../core/merge';
-import { validateAllConfigurations, isConfigValidationError, getValidationErrorMessage } from '../core/validator';
 
 export type ServerSideConfigHandler<T extends ConfigSchemas, P = Record<string, unknown>> = (
   context: GetServerSidePropsContext,
-  config: ValidatedConfigs<T>,
+  config: ConfigRegistry<T>,
 ) => Promise<GetServerSidePropsResult<P>>;
 
 export function withServerSideConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
@@ -22,20 +15,12 @@ export function withServerSideConfig<T extends ConfigSchemas, P = Record<string,
 ): (context: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<P>> {
   return async (context: GetServerSidePropsContext) => {
     try {
-      // Initialize configuration if not already done
-      if (!isRegistryInitialized()) {
-        await initializeConfiguration(schemas);
-      }
+      // Create configuration manager and registry via factory
+      const configManager = ConfigurationFactory.createDefaultManager<T>();
+      const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
-      // Get validated configs from registry after initialization
-      const validatedConfigs = {
-        common: getValidatedConfig('common'),
-        client: getValidatedConfig('client'),
-        server: getValidatedConfig('server'),
-      };
-
-      // Call the user's handler with the validated config
-      const result = await handler(context, validatedConfigs as ValidatedConfigs<T>);
+      // Call the user's handler with the config registry
+      const result = await handler(context, configRegistry);
 
       // If the result contains props, ensure we don't expose server config to client
       if ('props' in result) {
@@ -45,8 +30,8 @@ export function withServerSideConfig<T extends ConfigSchemas, P = Record<string,
             ...result.props,
             // Only expose common and client config to the client
             _config: {
-              common: validatedConfigs.common,
-              client: validatedConfigs.client,
+              common: configRegistry.common,
+              client: configRegistry.client,
             },
           },
         };
@@ -59,7 +44,8 @@ export function withServerSideConfig<T extends ConfigSchemas, P = Record<string,
       let errorMessage = 'Configuration initialization failed';
 
       if (isConfigValidationError(error)) {
-        errorMessage = getValidationErrorMessage(error);
+        const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+        errorMessage = validator.formatError(error);
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
@@ -72,18 +58,4 @@ export function withServerSideConfig<T extends ConfigSchemas, P = Record<string,
       };
     }
   };
-}
-
-async function initializeConfiguration<T extends ConfigSchemas>(schemas: T): Promise<void> {
-  const rawConfigs = loadConfigurations(importedConfigurations);
-  const envOverrides = processEnvironmentVariables();
-
-  const mergedConfigs = {
-    common: mergeConfigurations(rawConfigs.common, {}, envOverrides.common || {}),
-    client: mergeConfigurations(rawConfigs.client, {}, envOverrides.client || {}),
-    server: mergeConfigurations(rawConfigs.server, {}, envOverrides.server || {}),
-  };
-
-  const validatedConfigs = validateAllConfigurations(mergedConfigs, schemas);
-  registerSchemas(schemas, validatedConfigs as ValidatedConfigs<T>);
 }

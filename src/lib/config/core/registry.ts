@@ -1,73 +1,47 @@
 import type { z } from 'zod';
 
-export type ConfigSchemas = {
+type ConfigSchemas = {
   common: z.ZodSchema;
   client: z.ZodSchema;
-  server?: z.ZodSchema;
+  server: z.ZodSchema;
 };
 
-export type ValidatedConfigs<T extends ConfigSchemas> = {
+type ValidatedConfigs<T extends ConfigSchemas> = {
   common: z.infer<T['common']>;
   client: z.infer<T['client']>;
-  server: T['server'] extends z.ZodSchema ? z.infer<T['server']> : undefined;
+  server: z.infer<T['server']>;
 };
 
-interface RegistryEntry<T extends ConfigSchemas> {
-  schemas: T;
-  configs: ValidatedConfigs<T>;
-}
+class ConfigRegistry<T extends ConfigSchemas> {
+  private readonly configs: ValidatedConfigs<T>;
 
-// Global registry to store configuration schemas and validated data
-const registry = new Map<string, RegistryEntry<ConfigSchemas>>();
-
-// Symbol for type-safe access
-const REGISTRY_KEY = Symbol('config-registry');
-
-export function registerSchemas<T extends ConfigSchemas>(schemas: T, configs: ValidatedConfigs<T>): void {
-  const key = REGISTRY_KEY.toString();
-
-  if (registry.has(key)) {
-    throw new Error('Configuration schemas have already been registered. Multiple registrations are not allowed.');
+  constructor(configs: ValidatedConfigs<T>) {
+    this.configs = configs;
   }
 
-  registry.set(key, { schemas, configs });
-}
-
-export function getValidatedConfig(configType: keyof ConfigSchemas): unknown {
-  const key = REGISTRY_KEY.toString();
-  const entry = registry.get(key);
-
-  if (!entry) {
-    throw new Error(
-      'Configuration schemas have not been registered. Make sure to use ConfigProvider at the root of your application.',
-    );
+  getConfig(configType: 'common'): ValidatedConfigs<T>['common'];
+  getConfig(configType: 'client'): ValidatedConfigs<T>['client'];
+  getConfig(configType: 'server'): ValidatedConfigs<T>['server'];
+  getConfig(configType: keyof ConfigSchemas): unknown {
+    return this.configs[configType];
   }
 
-  return entry.configs[configType];
-}
-
-export function getSchema(configType: keyof ConfigSchemas): z.ZodSchema {
-  const key = REGISTRY_KEY.toString();
-  const entry = registry.get(key);
-
-  if (!entry) {
-    throw new Error(
-      'Configuration schemas have not been registered. Make sure to use ConfigProvider at the root of your application.',
-    );
+  get common(): ValidatedConfigs<T>['common'] {
+    return this.configs.common;
   }
 
-  const schema = entry.schemas[configType];
-  if (!schema) {
-    throw new Error(`Schema not found for config type: ${configType}`);
+  get client(): ValidatedConfigs<T>['client'] {
+    return this.configs.client;
   }
-  return schema;
+
+  get server(): ValidatedConfigs<T>['server'] {
+    return this.configs.server;
+  }
+
+  getAllConfigs(): ValidatedConfigs<T> {
+    return this.configs;
+  }
 }
 
-export function isRegistryInitialized(): boolean {
-  const key = REGISTRY_KEY.toString();
-  return registry.has(key);
-}
-
-export function clearRegistry(): void {
-  registry.clear();
-}
+export type { ConfigSchemas, ValidatedConfigs };
+export { ConfigRegistry };

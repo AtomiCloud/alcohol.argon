@@ -1,10 +1,10 @@
-export interface RawConfigurations {
+interface RawConfigurations {
   common: unknown;
   client: unknown;
   server: unknown;
 }
 
-export interface ImportedConfigurations {
+interface ImportedConfigurations {
   common: {
     base: unknown;
     landscapes?: Record<string, unknown>;
@@ -19,46 +19,50 @@ export interface ImportedConfigurations {
   };
 }
 
-// Configuration loader that accepts user-imported raw configurations
-export function loadConfigurations(importedConfigs: ImportedConfigurations): RawConfigurations {
-  const landscape = process.env.LANDSCAPE || 'base';
-
-  // Load common configuration
-  const commonConfig = loadConfigForType('common', landscape, importedConfigs.common);
-
-  // Load client configuration
-  const clientConfig = loadConfigForType('client', landscape, importedConfigs.client);
-
-  // Load server configuration
-  const serverConfig = loadConfigForType('server', landscape, importedConfigs.server);
-
-  return {
-    common: commonConfig,
-    client: clientConfig,
-    server: serverConfig,
-  };
+interface LoaderConfig {
+  landscape: string;
+  fallbackToBase: boolean;
 }
 
-function loadConfigForType(
-  configType: string,
-  landscape: string,
-  configs: { base: unknown; landscapes?: Record<string, unknown> },
-): unknown {
-  try {
-    // Try to load landscape-specific config first
-    if (landscape !== 'base' && configs.landscapes?.[landscape]) {
-      return configs.landscapes[landscape];
+class ConfigurationLoader {
+  private readonly config: LoaderConfig;
+
+  constructor(config: LoaderConfig) {
+    this.config = config;
+  }
+
+  load(importedConfigs: ImportedConfigurations): RawConfigurations {
+    return {
+      common: this.loadConfigForType('common', importedConfigs.common),
+      client: this.loadConfigForType('client', importedConfigs.client),
+      server: this.loadConfigForType('server', importedConfigs.server),
+    };
+  }
+
+  private loadConfigForType(
+    configType: string,
+    configs: { base: unknown; landscapes?: Record<string, unknown> },
+  ): unknown {
+    try {
+      // Try to load landscape-specific config first
+      if (this.config.landscape !== 'base' && configs.landscapes?.[this.config.landscape]) {
+        return configs.landscapes[this.config.landscape];
+      }
+
+      // Fallback to base config
+      return configs.base;
+    } catch (error) {
+      if (this.config.fallbackToBase) {
+        console.warn(
+          `Failed to load ${configType} configuration for landscape '${this.config.landscape}', falling back to base:`,
+          error,
+        );
+        return configs.base;
+      }
+      throw error;
     }
-
-    // Fallback to base config
-    return configs.base;
-  } catch (error) {
-    console.warn(
-      `Failed to load ${configType} configuration for landscape '${landscape}', falling back to base:`,
-      error,
-    );
-
-    // Final fallback to base config
-    return configs.base;
   }
 }
+
+export type { RawConfigurations, ImportedConfigurations, LoaderConfig };
+export { ConfigurationLoader };

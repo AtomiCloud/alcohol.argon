@@ -1,23 +1,30 @@
-// Core registry functions
-export { registerSchemas, getValidatedConfig, getSchema, isRegistryInitialized } from './core/registry';
+// Core classes and types
+export { ConfigRegistry } from './core/registry';
 export type { ConfigSchemas, ValidatedConfigs } from './core/registry';
 
-// Configuration loading and processing
-export { loadConfigurations } from './core/loader';
-export type { ImportedConfigurations, RawConfigurations } from './core/loader';
-export { mergeConfigurations, processEnvironmentVariables } from './core/merge';
+export { ConfigurationLoader } from './core/loader';
+export type { ImportedConfigurations, RawConfigurations, LoaderConfig } from './core/loader';
+
+export { ConfigurationMerger } from './core/merge';
+export type { MergeOptions, MergerConfig } from './core/merge';
+
+export { ConfigurationValidator, ConfigValidationError, isConfigValidationError } from './core/validator';
+export type { ValidationError, ValidatorConfig } from './core/validator';
+
+export { ConfigurationManager } from './core/manager';
+
+// Factory for dependency injection
 export {
-  validateConfiguration,
-  validateAllConfigurations,
-  isConfigValidationError,
-  getValidationErrorMessage,
-} from './core/validator';
-export type { ValidationError } from './core/validator';
+  ConfigurationFactory,
+  DEFAULT_LOADER_CONFIG,
+  DEFAULT_MERGER_CONFIG,
+  DEFAULT_VALIDATOR_CONFIG,
+} from './core/factory';
 
 // React integration
 export { ConfigProvider } from './providers/ConfigProvider';
 export type { ConfigProviderProps } from './providers/ConfigProvider';
-export { useCommonConfig, useClientConfig, useServerConfig, useConfig } from './providers/hooks';
+export { useCommonConfig, useClientConfig, useServerConfig, useConfig, useConfigRegistry } from './providers/hooks';
 
 // Next.js integration
 export { withServerSideConfig } from './next/withServerSideConfig';

@@ -1,9 +1,8 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { ConfigSchemas, ValidatedConfigs, registerSchemas } from '../core/registry';
-import { loadConfigurations } from '../core/loader';
+import { ConfigRegistry, ConfigSchemas } from '../core/registry';
+import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
+import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
 import { importedConfigurations } from '../../../config/configs';
-import { mergeConfigurations, processEnvironmentVariables } from '../core/merge';
-import { validateAllConfigurations, isConfigValidationError, getValidationErrorMessage } from '../core/validator';
 
 export interface ConfigProviderProps<T extends ConfigSchemas> {
   schemas: T;
@@ -11,8 +10,7 @@ export interface ConfigProviderProps<T extends ConfigSchemas> {
 }
 
 interface ConfigContextValue<T extends ConfigSchemas> {
-  common: ValidatedConfigs<T>['common'];
-  client: ValidatedConfigs<T>['client'];
+  registry: ConfigRegistry<T>;
   isLoading: boolean;
   error: string | null;
 }
@@ -20,7 +18,7 @@ interface ConfigContextValue<T extends ConfigSchemas> {
 const ConfigContext = React.createContext<ConfigContextValue<any> | null>(null);
 
 export function ConfigProvider<T extends ConfigSchemas>({ schemas, children }: ConfigProviderProps<T>) {
-  const [config, setConfig] = useState<ValidatedConfigs<T> | null>(null);
+  const [registry, setRegistry] = useState<ConfigRegistry<T> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,31 +28,17 @@ export function ConfigProvider<T extends ConfigSchemas>({ schemas, children }: C
         setIsLoading(true);
         setError(null);
 
-        // Load raw configurations from imported YAML files
-        const rawConfigs = loadConfigurations(importedConfigurations);
+        // Create configuration manager and registry via factory
+        const configManager = ConfigurationFactory.createDefaultManager<T>();
+        const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
-        // Process environment variable overrides
-        const envOverrides = processEnvironmentVariables();
-
-        // Merge configurations with environment overrides
-        const mergedConfigs = {
-          common: mergeConfigurations(rawConfigs.common, {}, envOverrides.common || {}),
-          client: mergeConfigurations(rawConfigs.client, {}, envOverrides.client || {}),
-          server: mergeConfigurations(rawConfigs.server, {}, envOverrides.server || {}),
-        };
-
-        // Validate all configurations
-        const validatedConfigs = validateAllConfigurations(mergedConfigs, schemas);
-
-        // Register schemas and validated configs globally
-        registerSchemas(schemas, validatedConfigs as ValidatedConfigs<T>);
-
-        setConfig(validatedConfigs as ValidatedConfigs<T>);
+        setRegistry(configRegistry);
       } catch (err) {
         let errorMessage = 'Failed to initialize configuration';
 
         if (isConfigValidationError(err)) {
-          errorMessage = getValidationErrorMessage(err);
+          const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+          errorMessage = validator.formatError(err);
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
@@ -70,8 +54,7 @@ export function ConfigProvider<T extends ConfigSchemas>({ schemas, children }: C
   }, [schemas]);
 
   const contextValue: ConfigContextValue<T> = {
-    common: config?.common,
-    client: config?.client,
+    registry: registry!,
     isLoading,
     error,
   };
