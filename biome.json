@@ -18,7 +18,8 @@
       },
       "complexity": {
         "recommended": true,
-        "noExcessiveCognitiveComplexity": "warn"
+        "noExcessiveCognitiveComplexity": "warn",
+        "noStaticOnlyClass": "off"
       },
       "correctness": {
         "recommended": true,

@@ -1,3 +1,28 @@
+## [1.2.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.1.0...v1.2.0) (2025-07-16)
+
+
+### 📜 Documentation 📜
+
+* **claude.md:** add CLAUDE.md file ([44dd7e4](https://github.com/AtomiCloud/alcohol.argon/commit/44dd7e48a6b1482d163cb00471a6defdadde5a78))
+* fix import path in src/lib/problem/README.md ([9c401e7](https://github.com/AtomiCloud/alcohol.argon/commit/9c401e752443e7c9ffa614c76e238a4b12e185f7))
+* LLM.MD update on functional monads ([5c943b7](https://github.com/AtomiCloud/alcohol.argon/commit/5c943b7ccdabd2cb2d55a6bcbc00f1cd2f1cb764))
+* **default:** monad import path changed ([d4ebfc0](https://github.com/AtomiCloud/alcohol.argon/commit/d4ebfc0db5616c3b03f78a71944e000e0be31f4f))
+
+
+### ✨ Features ✨
+
+* **problems:** add types to problem registry export ([5f531f5](https://github.com/AtomiCloud/alcohol.argon/commit/5f531f58db014b1f17dbc8d5bb67c80edb19192c))
+* added result lib ([aeed8b9](https://github.com/AtomiCloud/alcohol.argon/commit/aeed8b960a2dedd75a0c5d5784a74d44d5c147ee))
+* implement RFC 7807 Problem Details error handling system ([7b75758](https://github.com/AtomiCloud/alcohol.argon/commit/7b7575855c1e113d2e7f98bf2d5b1d1529bdbe95))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** incorrect gitignore ([78c2b2e](https://github.com/AtomiCloud/alcohol.argon/commit/78c2b2ec4215d1ef9af8cff4da8299ac49be5226))
+* incorrect return type in documentation ([7e1476c](https://github.com/AtomiCloud/alcohol.argon/commit/7e1476ca117c40954d0563dfe6370ce526072e1c))
+* move result type into monad folder ([0b73f69](https://github.com/AtomiCloud/alcohol.argon/commit/0b73f69a343dc60fcb154a40a2880a9e1d6f07cd))
+* **default:** review errors ([95ef93d](https://github.com/AtomiCloud/alcohol.argon/commit/95ef93d574f0e4b5d81928e69197c10dbe4c99ea))
+
 ## [1.1.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.0.0...v1.1.0) (2025-07-02)
 
 
