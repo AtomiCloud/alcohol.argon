@@ -1,5 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { type ConfigSchemas, type ValidatedConfigs, registerSchemas, isRegistryInitialized } from '../core/registry';
+import {
+  type ConfigSchemas,
+  type ValidatedConfigs,
+  registerSchemas,
+  isRegistryInitialized,
+  getValidatedConfig,
+} from '../core/registry';
 import { loadConfigurations } from '../core/loader';
 import { importedConfigurations } from '../../../config/configs';
 import { mergeConfigurations, processEnvironmentVariables } from '../core/merge';
@@ -22,21 +28,12 @@ export function withApiConfig<T extends ConfigSchemas>(
         await initializeConfiguration(schemas);
       }
 
-      // Load raw configurations
-      const rawConfigs = loadConfigurations(importedConfigurations);
-
-      // Process environment variable overrides
-      const envOverrides = processEnvironmentVariables();
-
-      // Merge configurations with environment overrides
-      const mergedConfigs = {
-        common: mergeConfigurations(rawConfigs.common, {}, envOverrides.common || {}),
-        client: mergeConfigurations(rawConfigs.client, {}, envOverrides.client || {}),
-        server: mergeConfigurations(rawConfigs.server, {}, envOverrides.server || {}),
+      // Get validated configs from registry after initialization
+      const validatedConfigs = {
+        common: getValidatedConfig('common'),
+        client: getValidatedConfig('client'),
+        server: getValidatedConfig('server'),
       };
-
-      // Validate all configurations
-      const validatedConfigs = validateAllConfigurations(mergedConfigs, schemas);
 
       // Call the user's handler with the validated config
       await handler(req, res, validatedConfigs as ValidatedConfigs<T>);
