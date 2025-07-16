@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { z } from 'zod';
 import type { Problem, ProblemConfig, ZodProblemDefinition, InferProblemContext } from './types';
-import { zodToJsonSchema } from '../utils/zod-to-json-schema';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Registry for managing Zod-based problem definitions
@@ -150,14 +150,17 @@ export class ProblemRegistry {
 
       // Convert Zod schema to JSON Schema
       const jsonSchema = zodToJsonSchema(definition.schema, {
-        title: definition.title,
-        description: definition.description,
-        additionalProperties: false,
+        $refStrategy: 'none',
       });
 
       // Return in expected format
       const response = {
-        schema: jsonSchema,
+        schema: {
+          ...jsonSchema,
+          title: definition.title,
+          description: definition.description,
+          additionalProperties: false,
+        },
         id: definition.id,
         title: definition.title,
         version: definition.version,

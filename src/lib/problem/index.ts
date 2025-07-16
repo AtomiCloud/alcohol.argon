@@ -33,7 +33,18 @@ export { HttpResponseMapper } from './core/http-mapper';
 export { ProblemRegistry } from './core/registry';
 
 // Utilities
-export { zodToJsonSchema } from './utils/zod-to-json-schema';
+export { zodToJsonSchema } from 'zod-to-json-schema';
+export {
+  type ContentTypeParser,
+  JsonParser,
+  YamlParser,
+  XmlParser,
+  TomlParser,
+  TextParser,
+  FormDataParser,
+  ContentTypeParserRegistry,
+  defaultContentTypeRegistry,
+} from './utils/content-type-parser';
 
 // Utility service class for easy setup
 import type { ProblemConfig } from './core/types';

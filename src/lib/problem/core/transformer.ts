@@ -1,12 +1,16 @@
 import type { Problem, ProblemConfig, HttpErrorDetails } from './types';
 import { isProblem } from './types';
+import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '../utils/content-type-parser';
 
 /**
  * Core transformer class for converting errors to RFC 7807 Problems
  * Designed to be DI-compatible - only handles library catch-all problems
  */
 export class ProblemTransformer {
-  constructor(private config: ProblemConfig) {}
+  constructor(
+    private config: ProblemConfig,
+    private contentTypeRegistry: ContentTypeParserRegistry = defaultContentTypeRegistry,
+  ) {}
 
   /**
    * Transform a native Error to a Problem (library catch-all)
@@ -30,17 +34,21 @@ export class ProblemTransformer {
 
   /**
    * Transform HTTP error details to a Problem (library catch-all)
+   * Supports multiple content types for parsing response body
    */
-  fromHttpError(details: HttpErrorDetails, additionalDetail?: string, instance?: string): Problem {
-    // Try to parse body as JSON to check if it's already a problem
+  async fromHttpError(details: HttpErrorDetails, additionalDetail?: string, instance?: string): Promise<Problem> {
+    // Try to parse body using content-type aware parser
     let bodyData: unknown = null;
     if (details.body) {
-      try {
-        bodyData = JSON.parse(details.body);
-      } catch {
-        // Body is not JSON, treat as plain text
-        bodyData = details.body;
-      }
+      // Determine content type from headers
+      const contentType = details.headers?.['content-type'] || 'application/json';
+
+      // Try to parse with appropriate parser
+      const parseResult = this.contentTypeRegistry.parse(details.body, contentType);
+      bodyData = await parseResult.match({
+        ok: parsed => parsed,
+        err: () => details.body, // Fallback to raw body if parsing fails
+      });
     }
 
     // If the parsed body is already a problem, preserve it with additional context
@@ -156,7 +164,7 @@ export class ProblemTransformer {
   /**
    * Transform swagger-typescript-api error to Problem (library catch-all)
    */
-  fromSwaggerError(error: unknown, url?: string, additionalDetail?: string, instance?: string): Problem {
+  async fromSwaggerError(error: unknown, url?: string, additionalDetail?: string, instance?: string): Promise<Problem> {
     // Check if it's already a structured error from swagger-typescript-api
     if (error && typeof error === 'object') {
       const errorObj = error as Record<string, unknown>;
@@ -172,7 +180,7 @@ export class ProblemTransformer {
           url: url || (errorObj.config as Record<string, unknown>)?.url?.toString(),
         };
 
-        return this.fromHttpError(httpError, additionalDetail, instance);
+        return await this.fromHttpError(httpError, additionalDetail, instance);
       }
 
       // Handle fetch-style error
@@ -184,7 +192,7 @@ export class ProblemTransformer {
           url,
         };
 
-        return this.fromHttpError(httpError, additionalDetail, instance);
+        return await this.fromHttpError(httpError, additionalDetail, instance);
       }
     }
 

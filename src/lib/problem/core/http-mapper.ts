@@ -1,51 +1,42 @@
 import type { Result } from '@/lib/monads/result';
 import { Ok, Err } from '@/lib/monads/result';
-import type { Problem, SwaggerApiResponse } from './types';
+import type { HttpErrorDetails, Problem, SwaggerApiResponse } from './types';
 import type { ProblemTransformer } from './transformer';
+import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '../utils/content-type-parser';
 
 /**
  * Maps HTTP responses from swagger-typescript-api to Result<T, Problem>
  */
 export class HttpResponseMapper {
-  constructor(private transformer: ProblemTransformer) {}
+  constructor(
+    private transformer: ProblemTransformer,
+    private contentTypeRegistry: ContentTypeParserRegistry = defaultContentTypeRegistry,
+  ) {}
 
   /**
    * Map a swagger-typescript-api response to Result<T, Problem>
    */
   mapResponse<T>(response: SwaggerApiResponse<T>, instance?: string): Result<T, Problem> {
-    // Success case - data is present and not null
-    if (response.data !== null && response.error === null) {
-      return Ok(response.data as T);
-    }
-
-    // Error case - error is present
-    if (response.error !== null) {
+    // if response has error, return Err(problem)
+    if (response.error) {
       const problem = this.transformer.fromUnknown(response.error, instance);
       return Err(problem);
     }
 
-    // Edge case - both data and error are null
-    if (response.data && response.error) {
-      const problem = this.transformer.fromUnknown(
-        new Error('Invalid response: both data and error are null'),
-        instance,
-      );
-      return Err(problem);
-    }
-
-    // Fallback - should not reach here in normal cases
+    // if response has data, return Ok(data). data can be null
     return Ok(response.data as T);
   }
 
   /**
    * Map a fetch Response to Result<T, Problem>
+   * Supports multiple content types: JSON, YAML, XML, TOML, form data, plain text
    */
   async mapFetchResponse<T>(response: Response, instance?: string): Promise<Result<T, Problem>> {
     try {
       // Check if response is ok
       if (!response.ok) {
         const body = await response.text();
-        const httpError = {
+        const httpError: HttpErrorDetails = {
           status: response.status,
           statusText: response.statusText,
           body,
@@ -53,13 +44,26 @@ export class HttpResponseMapper {
           url: response.url,
         };
 
-        const problem = this.transformer.fromHttpError(httpError, instance);
+        const problem = await this.transformer.fromHttpError(httpError, instance);
         return Err(problem);
       }
 
-      // Try to parse JSON response
-      const data = (await response.json()) as T;
-      return Ok(data);
+      const contentType = response.headers.get('content-type') || 'application/json';
+      const body = await response.text();
+
+      // Use content-type parser to parse the response
+      const parseResult = this.contentTypeRegistry.parse<T>(body, contentType);
+
+      return parseResult.match({
+        ok: data => Ok(data),
+        err: parseError => {
+          const problem = this.transformer.fromUnknown(
+            new Error(`Failed to parse ${contentType} response: ${parseError.message}`),
+            instance,
+          );
+          return Err(problem);
+        },
+      });
     } catch (error) {
       const problem = this.transformer.fromUnknown(error, instance);
       return Err(problem);
@@ -69,7 +73,7 @@ export class HttpResponseMapper {
   /**
    * Map an axios error to Result<T, Problem>
    */
-  mapAxiosError<T>(error: unknown, instance?: string): Result<T, Problem> {
+  async mapAxiosError<T>(error: unknown, instance?: string): Promise<Result<T, Problem>> {
     // Type guard for axios error structure
     const isAxiosError = (
       err: unknown,
@@ -84,17 +88,37 @@ export class HttpResponseMapper {
 
     // Axios error structure
     if (error.response && typeof error.response === 'object' && error.response !== null) {
-      const response = error.response as { status: number; statusText: string; data: unknown; headers: unknown };
-      // Server responded with error status
-      const httpError = {
+      const response = error.response as {
+        status: number;
+        statusText: string;
+        data: unknown;
+        headers: Record<string, string> | undefined;
+      };
+
+      // Try to serialize response data based on content type
+      let body: string;
+      const contentType = response.headers?.['content-type'] || 'application/json';
+
+      if (typeof response.data === 'string') {
+        body = response.data;
+      } else {
+        // Use content-type parser to serialize
+        const serializeResult = this.contentTypeRegistry.serialize(response.data, contentType);
+        body = await serializeResult.match({
+          ok: (serialized: string) => serialized,
+          err: () => JSON.stringify(response.data),
+        });
+      }
+
+      const httpError: HttpErrorDetails = {
         status: response.status,
         statusText: response.statusText,
-        body: JSON.stringify(response.data),
-        headers: response.headers as Record<string, string> | undefined,
+        body,
+        headers: response.headers,
         url: (error.config as { url?: string })?.url,
       };
 
-      const problem = this.transformer.fromHttpError(httpError, instance);
+      const problem = await this.transformer.fromHttpError(httpError, instance);
       return Err(problem);
     }
 
