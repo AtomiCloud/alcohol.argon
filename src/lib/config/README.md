@@ -131,9 +131,10 @@ ATOMI_<CONFIG_TYPE>__<NESTED_KEY>__<VALUE>
 1. Split by double underscores (`__`)
 2. Convert to nested object structure
 3. Parse JSON values for arrays/objects
-4. Merge with base configurations
+4. Support array indexing with numeric keys
+5. Merge with base configurations
 
-### Example
+### Object Examples
 ```bash
 ATOMI_COMMON__APP__NAME="Custom App"
 ```
@@ -144,6 +145,50 @@ Becomes:
     app: {
       name: "Custom App"
     }
+  }
+}
+```
+
+### Array Examples
+```bash
+ATOMI_COMMON__SERVERS__0="https://api1.example.com"
+ATOMI_COMMON__SERVERS__1="https://api2.example.com"
+ATOMI_COMMON__SERVERS__2="https://api3.example.com"
+```
+Becomes:
+```typescript
+{
+  common: {
+    servers: [
+      "https://api1.example.com",
+      "https://api2.example.com", 
+      "https://api3.example.com"
+    ]
+  }
+}
+```
+
+### Nested Array Examples
+```bash
+ATOMI_COMMON__USERS__0__NAME="Alice"
+ATOMI_COMMON__USERS__0__EMAIL="alice@example.com"
+ATOMI_COMMON__USERS__1__NAME="Bob"
+ATOMI_COMMON__USERS__1__EMAIL="bob@example.com"
+```
+Becomes:
+```typescript
+{
+  common: {
+    users: [
+      {
+        name: "Alice",
+        email: "alice@example.com"
+      },
+      {
+        name: "Bob", 
+        email: "bob@example.com"
+      }
+    ]
   }
 }
 ```

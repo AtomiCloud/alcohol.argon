@@ -113,7 +113,50 @@ ATOMI_CLIENT__API__AUTH__TOKEN="new-token-value"
 
 ### Array Values
 
-Arrays are supported using JSON syntax:
+Arrays are supported using indexed environment variables with numeric suffixes:
+
+```bash
+# Simple array
+ATOMI_COMMON__SERVERS__0="https://api1.example.com"
+ATOMI_COMMON__SERVERS__1="https://api2.example.com"
+ATOMI_COMMON__SERVERS__2="https://api3.example.com"
+
+# Results in:
+# { common: { servers: ["https://api1.example.com", "https://api2.example.com", "https://api3.example.com"] } }
+```
+
+#### Nested Arrays
+
+For arrays containing objects, combine numeric indices with nested keys:
+
+```bash
+# Array of user objects
+ATOMI_COMMON__USERS__0__NAME="Alice"
+ATOMI_COMMON__USERS__0__EMAIL="alice@example.com"
+ATOMI_COMMON__USERS__1__NAME="Bob"
+ATOMI_COMMON__USERS__1__EMAIL="bob@example.com"
+
+# Results in:
+# { common: { users: [
+#   { name: "Alice", email: "alice@example.com" },
+#   { name: "Bob", email: "bob@example.com" }
+# ] } }
+```
+
+#### Mixed Data Types
+
+Arrays automatically handle different data types:
+
+```bash
+ATOMI_CLIENT__API__TIMEOUTS__0=1000        # number
+ATOMI_CLIENT__API__TIMEOUTS__1=5000        # number
+ATOMI_CLIENT__API__RETRY_ENABLED__0=true   # boolean
+ATOMI_CLIENT__API__RETRY_ENABLED__1=false  # boolean
+```
+
+#### Alternative: JSON Syntax
+
+For complex arrays, you can still use JSON syntax:
 
 ```bash
 ATOMI_CLIENT__API__ALLOWED_ORIGINS='["https://example.com", "https://app.com"]'
