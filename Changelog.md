@@ -1,3 +1,19 @@
+## [1.3.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.2.0...v1.3.0) (2025-07-16)
+
+
+### ✨ Features ✨
+
+* **config:** allow array env var for configurations ([7bed79c](https://github.com/AtomiCloud/alcohol.argon/commit/7bed79ccdecb7ce01dca8528f9de3c293081e436))
+* **configuration:** implement hierarchical configuration system ([7712069](https://github.com/AtomiCloud/alcohol.argon/commit/7712069ed02ffaf22a666fbee7483416da60d922))
+* **config:** integrate problem with config system ([5dea745](https://github.com/AtomiCloud/alcohol.argon/commit/5dea7458900e36a58975c41ddba08a0936a7f811))
+
+
+### 🐛 Bug Fixes 🐛
+
+* avoid exposing detailed error messages in production ([1a614b7](https://github.com/AtomiCloud/alcohol.argon/commit/1a614b71ec8ad7c3db20ef0f9b8d8889f642deaf))
+* **default:** missing error validation for common hook ([9c9ee80](https://github.com/AtomiCloud/alcohol.argon/commit/9c9ee801c955ff0005ecc8a34cbc9359be95ff39))
+* **config:** use OOP for library code as config manager ([c60e027](https://github.com/AtomiCloud/alcohol.argon/commit/c60e027c3780337a3971b9fda70de8b70fea317b))
+
 ## [1.2.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.1.0...v1.2.0) (2025-07-16)
 
 
