@@ -54,7 +54,9 @@ export function withApiConfig<T extends ConfigSchemas>(
       // Return error response
       res.status(500).json({
         error: 'Internal Server Error',
-        message: errorMessage,
+        message: process.env.NODE_ENV === 'development'
+          ? errorMessage
+          : 'Configuration error occurred',
       });
     }
   };
