@@ -184,7 +184,7 @@ interface Result<T, E> {
   // returns native serializable format of the result type
   /**
    * @template T, E
-   * @returns {Promise<Promise<['err', E] | ['ok', T]>>} - promise of the native serializable format of the result type
+   * @returns {Promise<['err', E] | ['ok', T]>} - promise of the native serializable format of the result type
    */
   serial(): Promise<['err', E] | ['ok', T]>;
 
