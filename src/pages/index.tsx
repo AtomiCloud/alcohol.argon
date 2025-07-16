@@ -100,6 +100,9 @@ export default function Home({ serverTime, userAgent, appName, debugMode }: Home
               <Button variant="outline" size="lg" asChild>
                 <Link href="/lottie-demo">Lottie Animations</Link>
               </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/problem-demo">Problem Details</Link>
+              </Button>
             </div>
           </div>
 

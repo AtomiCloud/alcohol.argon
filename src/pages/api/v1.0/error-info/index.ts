@@ -1,10 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { problemRegistry } from '@/problems/registry';
+import { createProblemRegistry } from '@/problems/registry';
+import { withApiConfig } from '@/lib/config';
+import { configSchemas } from '@/config';
 
 /**
  * GET /api/v1.0/error-info
  * Returns array of problem IDs: ["entity_conflict", "unauthorized", "validation_error"]
  */
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default withApiConfig(configSchemas, async (req: NextApiRequest, res: NextApiResponse, config) => {
+  const problemRegistry = createProblemRegistry(config.common.errorPortal);
   return problemRegistry.handleListProblems(req, res);
-}
+});

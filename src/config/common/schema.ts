@@ -8,6 +8,11 @@ export const commonSchema = z.object({
   features: z.object({
     debug: z.boolean().default(false),
   }),
+  errorPortal: z.object({
+    baseUri: z.string().default('https://api.zinc.sulfone.pichu.cluster.atomi.cloud'),
+    version: z.string().default('1.0'),
+    service: z.string().default('argon'),
+  }),
 });
 
 export type CommonConfig = z.infer<typeof commonSchema>;

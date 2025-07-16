@@ -24,3 +24,5 @@ export { withServerSideConfig } from './next/withServerSideConfig';
 export type { ServerSideConfigHandler } from './next/withServerSideConfig';
 export { withStaticConfig } from './next/withStaticConfig';
 export type { StaticConfigHandler } from './next/withStaticConfig';
+export { withApiConfig } from './next/withApiConfig';
+export type { ApiConfigHandler } from './next/withApiConfig';

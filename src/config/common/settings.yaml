@@ -5,3 +5,8 @@ app:
 
 features:
   debug: false
+
+errorPortal:
+  baseUri: 'https://api.zinc.sulfone.pichu.cluster.atomi.cloud'
+  version: '1.0'
+  service: 'argon'

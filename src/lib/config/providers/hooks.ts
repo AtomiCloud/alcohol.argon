@@ -1,12 +1,6 @@
 import { getValidatedConfig } from '../core/registry';
 
 export function useCommonConfig<T = unknown>(): T {
-  if (typeof window === 'undefined') {
-    throw new Error(
-      'useCommonConfig cannot be used during server-side rendering. Use withServerSideConfig or withStaticConfig instead.',
-    );
-  }
-
   return getValidatedConfig('common') as T;
 }
 
