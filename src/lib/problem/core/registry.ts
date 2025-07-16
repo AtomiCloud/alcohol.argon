@@ -1,63 +1,57 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { z } from 'zod';
 import type { Problem, ProblemConfig, ZodProblemDefinition, InferProblemContext } from './types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
- * Registry for managing Zod-based problem definitions
- * Provides Next.js API route integration
+ * Type-safe problem registry with compile-time ID validation
  */
-export class ProblemRegistry {
-  private problems = new Map<string, ZodProblemDefinition>();
+// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
+export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefinition<any>>> {
+  private problems: TProblems;
 
-  constructor(private config: ProblemConfig) {}
-
-  /**
-   * Register a Zod-based problem definition
-   */
-  register<TSchema extends z.ZodType>(definition: ZodProblemDefinition<TSchema>): void {
-    this.problems.set(definition.id, definition as unknown as ZodProblemDefinition);
+  constructor(
+    private config: ProblemConfig,
+    problems: TProblems,
+  ) {
+    this.problems = problems;
   }
 
   /**
-   * Get a problem definition by ID
+   * Get a problem definition by ID with type safety
    */
-  get(id: string): ZodProblemDefinition | undefined {
-    return this.problems.get(id);
+  get<TId extends keyof TProblems>(id: TId): TProblems[TId] {
+    return this.problems[id];
   }
 
   /**
    * Get all registered problem IDs
    */
-  getAllIds(): string[] {
-    return Array.from(this.problems.keys());
+  getAllIds(): Array<keyof TProblems> {
+    return Object.keys(this.problems);
   }
 
   /**
    * Get all registered problem definitions
    */
-  getAll(): ZodProblemDefinition[] {
-    return Array.from(this.problems.values());
+  getAll(): Array<TProblems[keyof TProblems]> {
+    return Object.values(this.problems) as Array<TProblems[keyof TProblems]>;
   }
 
   /**
-   * Create a problem instance by ID with context validation
+   * Create a problem instance by ID with full type safety
    */
-  createProblem(
-    id: string,
-    context: Record<string, unknown>,
+  createProblem<TId extends keyof TProblems>(
+    id: TId,
+    context: InferProblemContext<TProblems[TId]>,
     additionalDetail?: string,
     instance?: string,
-  ): Problem | null {
-    const definition = this.problems.get(id);
-    if (!definition) {
-      return null;
-    }
+  ): Problem & InferProblemContext<TProblems[TId]> {
+    const definition = this.problems[id];
 
     // Validate context against Zod schema
     const parseResult = definition.schema.safeParse(context);
     if (!parseResult.success) {
-      throw new Error(`Invalid context for problem ${id}: ${parseResult.error.message}`);
+      throw new Error(`Invalid context for problem ${String(id)}: ${parseResult.error.message}`);
     }
 
     const validatedContext = parseResult.data;
@@ -77,13 +71,13 @@ export class ProblemRegistry {
 
     // Create problem with spread context
     return {
-      type: this.buildTypeUri(definition.id),
+      type: this.buildTypeUri(String(id)),
       title: definition.title,
       status: definition.status,
       detail,
       instance,
       ...validatedContext, // Spread validated context into problem
-    };
+    } as Problem & InferProblemContext<TProblems[TId]>;
   }
 
   /**
@@ -95,8 +89,6 @@ export class ProblemRegistry {
 
   /**
    * Next.js API route handler for listing all problems
-   * GET /api/v1.0/error-info
-   * Returns: ["entity_conflict", "unauthorized", "validation_error"]
    */
   handleListProblems = (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method !== 'GET') {
@@ -118,8 +110,6 @@ export class ProblemRegistry {
 
   /**
    * Next.js API route handler for getting a specific problem schema
-   * GET /api/v1.0/error-info/[id]
-   * Returns the expected format with schema, id, title, version
    */
   handleGetProblemSchema = (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method !== 'GET') {
@@ -129,17 +119,7 @@ export class ProblemRegistry {
     try {
       const { id } = req.query;
 
-      if (typeof id !== 'string') {
-        return res.status(400).json({
-          type: this.buildTypeUri('invalid_request'),
-          title: 'Invalid Request',
-          status: 400,
-          detail: 'Problem ID must be a string',
-        });
-      }
-
-      const definition = this.get(id);
-      if (!definition) {
+      if (typeof id !== 'string' || !(id in this.problems)) {
         return res.status(404).json({
           type: this.buildTypeUri('problem_not_found'),
           title: 'Problem Not Found',
@@ -147,6 +127,8 @@ export class ProblemRegistry {
           detail: `Problem with ID '${id}' not found`,
         });
       }
+
+      const definition = this.problems[id as keyof TProblems];
 
       // Convert Zod schema to JSON Schema
       const jsonSchema = zodToJsonSchema(definition.schema, {
@@ -187,3 +169,9 @@ export class ProblemRegistry {
     };
   }
 }
+
+/**
+ * Helper type to extract the problem ID union from a registry
+ */
+// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for type inference
+export type ProblemIds<T extends ProblemRegistry<any>> = T extends ProblemRegistry<infer P> ? keyof P : never;

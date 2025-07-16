@@ -47,20 +47,21 @@ export {
 } from './utils/content-type-parser';
 
 // Utility service class for easy setup
-import type { ProblemConfig } from './core/types';
+import type { ProblemConfig, ZodProblemDefinition } from './core/types';
 import { ProblemTransformer } from './core/transformer';
 import { HttpResponseMapper } from './core/http-mapper';
 import { ProblemRegistry } from './core/registry';
 
-export class ProblemService {
+// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
+export class ProblemService<TProblems extends Record<string, ZodProblemDefinition<any>>> {
   public readonly transformer: ProblemTransformer;
   public readonly httpMapper: HttpResponseMapper;
-  public readonly registry: ProblemRegistry;
+  public readonly registry: ProblemRegistry<TProblems>;
 
-  constructor(config: ProblemConfig) {
+  constructor(config: ProblemConfig, problems: TProblems) {
     this.transformer = new ProblemTransformer(config);
     this.httpMapper = new HttpResponseMapper(this.transformer);
-    this.registry = new ProblemRegistry(config);
+    this.registry = new ProblemRegistry(config, problems);
   }
 
   /**

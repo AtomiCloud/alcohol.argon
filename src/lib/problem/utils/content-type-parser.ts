@@ -6,12 +6,7 @@
 import type { Result } from '@/lib/monads/result';
 import { Ok, Err } from '@/lib/monads/result';
 
-// Optional dependencies - install if you need these formats
-// bun add js-yaml @iarna/toml
-import * as yaml from 'js-yaml';
-import * as toml from '@iarna/toml';
-
-export interface ContentTypeParser {
+interface ContentTypeParser {
   /** Media types this parser can handle */
   supportedTypes: string[];
   /** Parse the content string into a JavaScript object */
@@ -23,7 +18,7 @@ export interface ContentTypeParser {
 /**
  * JSON parser implementation
  */
-export class JsonParser implements ContentTypeParser {
+class JsonParser implements ContentTypeParser {
   supportedTypes = ['application/json', 'application/json; charset=utf-8', 'text/json'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
@@ -48,22 +43,31 @@ export class JsonParser implements ContentTypeParser {
  * YAML parser implementation
  * Note: Requires js-yaml package - suggested as optional dependency
  */
-export class YamlParser implements ContentTypeParser {
+class YamlParser implements ContentTypeParser {
   supportedTypes = ['application/yaml', 'application/x-yaml', 'text/yaml', 'text/x-yaml'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
     try {
+      // Dynamic import to avoid bundling if not needed
+      const yaml = require('js-yaml');
       const parsed = yaml.load(content) as T;
       return Ok(parsed);
     } catch (error) {
+      if (error instanceof Error && error.message.includes('Cannot find module')) {
+        return Err(new Error('YAML parsing requires js-yaml package. Install with: npm install js-yaml'));
+      }
       return Err(new Error(`YAML parse error: ${error instanceof Error ? error.message : String(error)}`));
     }
   }
 
   serialize(data: unknown): Result<string, Error> {
     try {
+      const yaml = require('js-yaml');
       return Ok(yaml.dump(data));
     } catch (error) {
+      if (error instanceof Error && error.message.includes('Cannot find module')) {
+        return Err(new Error('YAML serialization requires js-yaml package. Install with: npm install js-yaml'));
+      }
       return Err(new Error(`YAML stringify error: ${error instanceof Error ? error.message : String(error)}`));
     }
   }
@@ -73,7 +77,7 @@ export class YamlParser implements ContentTypeParser {
  * XML parser implementation
  * Note: Basic implementation using DOMParser - consider xml2js for full support
  */
-export class XmlParser implements ContentTypeParser {
+class XmlParser implements ContentTypeParser {
   supportedTypes = ['application/xml', 'text/xml', 'application/rss+xml', 'application/atom+xml'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
@@ -170,30 +174,30 @@ export class XmlParser implements ContentTypeParser {
  * TOML parser implementation
  * Note: Requires @iarna/toml package - suggested as optional dependency
  */
-export class TomlParser implements ContentTypeParser {
+class TomlParser implements ContentTypeParser {
   supportedTypes = ['application/toml', 'text/toml'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
     try {
+      const toml = require('@iarna/toml');
       const parsed = toml.parse(content) as T;
       return Ok(parsed);
     } catch (error) {
+      if (error instanceof Error && error.message.includes('Cannot find module')) {
+        return Err(new Error('TOML parsing requires @iarna/toml package. Install with: npm install @iarna/toml'));
+      }
       return Err(new Error(`TOML parse error: ${error instanceof Error ? error.message : String(error)}`));
     }
   }
 
   serialize(data: unknown): Result<string, Error> {
     try {
-      // @iarna/toml expects a specific object type for serialization
-      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-        return Err(new Error('TOML can only serialize objects (not arrays, primitives, or null)'));
-      }
-
-      // The @iarna/toml library has very strict types, but runtime validation will catch issues
-      // We use a careful type assertion here since we've validated the input
-      const result = toml.stringify(data as Parameters<typeof toml.stringify>[0]);
-      return Ok(result);
+      const toml = require('@iarna/toml');
+      return Ok(toml.stringify(data));
     } catch (error) {
+      if (error instanceof Error && error.message.includes('Cannot find module')) {
+        return Err(new Error('TOML serialization requires @iarna/toml package. Install with: npm install @iarna/toml'));
+      }
       return Err(new Error(`TOML stringify error: ${error instanceof Error ? error.message : String(error)}`));
     }
   }
@@ -202,7 +206,7 @@ export class TomlParser implements ContentTypeParser {
 /**
  * Plain text parser - fallback for text content
  */
-export class TextParser implements ContentTypeParser {
+class TextParser implements ContentTypeParser {
   supportedTypes = ['text/plain', 'text/html', 'text/css', 'text/javascript', 'application/javascript'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
@@ -218,7 +222,7 @@ export class TextParser implements ContentTypeParser {
 /**
  * URL-encoded form data parser
  */
-export class FormDataParser implements ContentTypeParser {
+class FormDataParser implements ContentTypeParser {
   supportedTypes = ['application/x-www-form-urlencoded'];
 
   parse<T = unknown>(content: string): Result<T, Error> {
@@ -257,11 +261,17 @@ export class FormDataParser implements ContentTypeParser {
 /**
  * Content-Type parser registry
  */
-export class ContentTypeParserRegistry {
+class ContentTypeParserRegistry {
   private parsers: ContentTypeParser[] = [];
 
-  constructor(parsers: ContentTypeParser[] = []) {
-    this.parsers = [...parsers];
+  constructor() {
+    // Register default parsers
+    this.register(new JsonParser());
+    this.register(new YamlParser());
+    this.register(new XmlParser());
+    this.register(new TomlParser());
+    this.register(new FormDataParser());
+    this.register(new TextParser()); // Fallback parser
   }
 
   /**
@@ -321,12 +331,16 @@ export class ContentTypeParserRegistry {
   }
 }
 
-// Export default registry instance with all built-in parsers
-export const defaultContentTypeRegistry = new ContentTypeParserRegistry([
-  new JsonParser(),
-  new YamlParser(),
-  new XmlParser(),
-  new TomlParser(),
-  new FormDataParser(),
-  new TextParser(), // Fallback parser should be last
-]);
+const defaultContentTypeRegistry = new ContentTypeParserRegistry();
+
+export {
+  defaultContentTypeRegistry,
+  ContentTypeParserRegistry,
+  type ContentTypeParser,
+  JsonParser,
+  YamlParser,
+  XmlParser,
+  TomlParser,
+  FormDataParser,
+  TextParser,
+};

@@ -17,12 +17,13 @@ This library provides a comprehensive solution for handling RFC 7807 Problem Det
 
 ```typescript
 import { ProblemService } from '@/lib/problem';
+import { myProblemDefinitions } from './my-problems';
 
 const problemService = new ProblemService({
   baseUri: 'https://api.example.com',
   version: '1.0',
   service: 'my-service',
-});
+}, myProblemDefinitions);
 ```
 
 ### 2. Transform Errors to Problems
@@ -61,31 +62,35 @@ const finalResult = await result.match({
 });
 ```
 
-### 4. Register Custom Problems
+### 4. Define Custom Problems
 
 ```typescript
-problemService.registry.register({
+import { z } from 'zod';
+import type { ZodProblemDefinition } from '@/lib/problem';
+
+const userNotFoundDefinition: ZodProblemDefinition<typeof UserNotFoundSchema> = {
   id: 'user_not_found',
   title: 'User Not Found',
+  version: 'v1',
+  description: 'User with specified ID was not found',
   status: 404,
-  schema: {
-    type: 'object',
-    properties: {
-      type: { type: 'string' },
-      title: { type: 'string' },
-      status: { type: 'number' },
-      detail: { type: 'string' },
-      userId: { type: 'string' },
-    },
-  },
-  create: (context: { userId: string }, instance) => ({
-    type: problemService.registry.buildTypeUri('user_not_found'),
-    title: 'User Not Found',
-    status: 404,
-    detail: `User with ID ${context.userId} not found`,
-    instance,
-    userId: context.userId,
+  schema: z.object({
+    userId: z.string().describe('The ID of the user that was not found'),
   }),
+  createDetail: (context) => `User with ID ${context.userId} not found`,
+};
+
+// Define problems mapping
+const myProblemDefinitions = {
+  user_not_found: userNotFoundDefinition,
+} as const;
+
+// Use with registry
+const problemService = new ProblemService(config, myProblemDefinitions);
+
+// Create problems with full type safety
+const problem = problemService.registry.createProblem('user_not_found', {
+  userId: '123', // TypeScript knows this is required
 });
 ```
 
@@ -120,9 +125,10 @@ export default problemService.registry.handleGetProblemSchema;
 - `mapAxiosError<T>(error: any, instance?: string): Result<T, Problem>`
 
 #### ProblemRegistry
-- `register<TContext>(definition: ProblemDefinition<TContext>): void`
-- `get(id: string): ProblemDefinition | undefined`
-- `createProblem<TContext>(id: string, context: TContext, instance?: string): Problem | null`
+- `get<TId extends keyof TProblems>(id: TId): TProblems[TId]`
+- `createProblem<TId extends keyof TProblems>(id: TId, context: InferProblemContext<TProblems[TId]>, additionalDetail?: string, instance?: string): Problem & InferProblemContext<TProblems[TId]>`
+- `getAllIds(): Array<keyof TProblems>`
+- `getAll(): Array<TProblems[keyof TProblems]>`
 - `handleListProblems(req: NextApiRequest, res: NextApiResponse): void`
 - `handleGetProblemSchema(req: NextApiRequest, res: NextApiResponse): void`
 

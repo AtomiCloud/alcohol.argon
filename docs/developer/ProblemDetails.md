@@ -1,6 +1,6 @@
 # User Space Problem Definitions
 
-This directory contains your application-specific RFC 7807 Problem Details definitions using Zod schemas.
+This directory contains your application-specific RFC 7807 Problem Details definitions using Zod schemas with compile-time type safety.
 
 ## Quick Start
 
@@ -34,13 +34,18 @@ export const myCustomErrorDefinition: ZodProblemDefinition<typeof MyCustomErrorS
 
 ### 2. Register the Problem
 
-Add to `registry.ts`:
+Add to the `PROBLEM_DEFINITIONS` object in `registry.ts`:
 
 ```typescript
 import { myCustomErrorDefinition } from './definitions/my-custom-error';
 
-// In createProblemRegistry function:
-registry.register(myCustomErrorDefinition);
+// Add to the PROBLEM_DEFINITIONS constant:
+const PROBLEM_DEFINITIONS = {
+  entity_conflict: entityConflictDefinition,
+  unauthorized: unauthorizedDefinition,
+  validation_error: validationErrorDefinition,
+  my_custom_error: myCustomErrorDefinition, // Add here
+} as const;
 ```
 
 ### 3. Export for Use
@@ -56,24 +61,37 @@ export { myCustomErrorDefinition, type MyCustomErrorContext } from './definition
 ```typescript
 import { problemRegistry, type MyCustomErrorContext } from '@/problems';
 
-// Create a problem instance
+// Create a problem instance with full type safety
 const context: MyCustomErrorContext = {
   resourceId: 'user-123',
   reason: 'Invalid email format',
   retryAfter: 60,
 };
 
+// TypeScript will validate the problem ID and context type
 const problem = problemRegistry.createProblem(
-  'my_custom_error',
-  context,
+  'my_custom_error', // ✅ Type-safe - only valid IDs accepted
+  context, // ✅ Type-safe - context must match schema
   'Additional details here', // optional
 );
+
+// problem is automatically typed as: Problem & MyCustomErrorContext
+console.log(problem.resourceId); // ✅ TypeScript knows this field exists
+console.log(problem.reason); // ✅ TypeScript knows this field exists
 
 // Use with Result monad
 const result = Err(problem);
 ```
 
 ## Features
+
+### ✅ **Compile-Time Type Safety**
+
+Problem IDs are validated at compile time - invalid IDs will cause TypeScript errors.
+
+### ✅ **Strongly Typed Contexts**
+
+Context parameters are automatically typed based on the problem ID you provide.
 
 ### ✅ **Zod Schema Validation**
 
@@ -94,6 +112,10 @@ Additional properties from context are spread directly into the Problem object.
 ### ✅ **Custom Detail Generation**
 
 Use `createDetail` function to generate meaningful error messages.
+
+### ✅ **Static Problem Registry**
+
+All problems are defined in a static object, making them discoverable at build time.
 
 ### ✅ **API Integration**
 
@@ -176,6 +198,49 @@ Update the `version` field when making breaking changes to problem schemas
 
 Create helpful `createDetail` functions that provide actionable error messages
 
+## Type Safety Examples
+
+### Compile-Time ID Validation
+
+```typescript
+// ✅ Valid - TypeScript accepts this
+const problem1 = problemRegistry.createProblem('validation_error', context);
+
+// ❌ Invalid - TypeScript error at compile time
+const problem2 = problemRegistry.createProblem('invalid_id', context);
+//                                               ^^^^^^^^^^
+// Error: Argument of type '"invalid_id"' is not assignable to parameter of type 'ProblemId'
+```
+
+### Strongly Typed Context
+
+```typescript
+// TypeScript automatically infers the correct context type
+const problem = problemRegistry.createProblem('validation_error', {
+  field: 'email', // ✅ Required field
+  constraint: 'Invalid', // ✅ Required field
+  value: 'test', // ✅ Optional field
+  code: 'invalid', // ✅ Optional field
+  // invalid: true       // ❌ TypeScript error - not part of ValidationErrorContext
+});
+```
+
+### Strongly Typed Return Values
+
+```typescript
+// Return type is automatically inferred as Problem & ValidationErrorContext
+const problem = problemRegistry.createProblem('validation_error', {
+  field: 'email',
+  constraint: 'Email is required',
+});
+
+// TypeScript knows these fields exist
+console.log(problem.field); // ✅ string
+console.log(problem.constraint); // ✅ string
+console.log(problem.value); // ✅ unknown | undefined
+console.log(problem.code); // ✅ string | undefined
+```
+
 ## Integration with Result Monads
 
 All problems work seamlessly with the `Result<T, Problem>` monad system:
@@ -190,6 +255,7 @@ async function validateUser(userData: unknown): Promise<Result<User, Problem>> {
     return Ok(user);
   } catch (error) {
     if (error.code === 'DUPLICATE_EMAIL') {
+      // Full type safety - ID and context are validated
       const problem = problemRegistry.createProblem('entity_conflict', {
         TypeName: 'User',
         AssemblyQualifiedName: 'MyApp.Models.User',

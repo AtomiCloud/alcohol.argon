@@ -1,6 +1,6 @@
-import type { Result } from './result.js';
-import { KResult } from './result.js';
-import { UnwrapError } from './error.js';
+import type { Result } from './result';
+import { KResult } from './result';
+import { UnwrapError } from './error';
 
 interface Match<T, U> {
   // Map the Some value to a standard type

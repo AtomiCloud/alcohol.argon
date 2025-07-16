@@ -9,9 +9,23 @@ import { unauthorizedDefinition } from './definitions/unauthorized';
 import { validationErrorDefinition } from './definitions/validation-error';
 
 /**
- * Create and configure the problem registry
+ * Static problem definitions mapping - all problems known at compile time
  */
-export function createProblemRegistry() {
+const PROBLEM_DEFINITIONS = {
+  entity_conflict: entityConflictDefinition,
+  unauthorized: unauthorizedDefinition,
+  validation_error: validationErrorDefinition,
+} as const;
+
+/**
+ * Type-safe problem ID union
+ */
+type ProblemId = keyof typeof PROBLEM_DEFINITIONS;
+
+/**
+ * Create and configure the type-safe problem registry
+ */
+function createProblemRegistry() {
   // Configuration - this would typically be injected via DI
   const config = {
     baseUri: 'https://api.zinc.sulfone.pichu.cluster.atomi.cloud',
@@ -19,20 +33,18 @@ export function createProblemRegistry() {
     service: 'argon',
   };
 
-  const registry = new ProblemRegistry(config);
-
-  // Register all application-specific problems
-  registry.register(entityConflictDefinition);
-  registry.register(unauthorizedDefinition);
-  registry.register(validationErrorDefinition);
-
-  // Add more problem registrations here as needed
-  // registry.register(yourNewProblemDefinition);
-
-  return registry;
+  return new ProblemRegistry(config, PROBLEM_DEFINITIONS);
 }
 
 /**
  * Singleton instance for use across the application
  */
-export const problemRegistry = createProblemRegistry();
+const problemRegistry = createProblemRegistry();
+
+/**
+ * Type-safe problem registry type
+ */
+type AppProblemRegistry = typeof problemRegistry;
+
+export type { AppProblemRegistry, ProblemId };
+export { problemRegistry, createProblemRegistry };

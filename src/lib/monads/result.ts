@@ -37,6 +37,12 @@ interface Match<T, E, U> {
   err: ((val: E) => Promise<U>) | ((val: E) => U);
 }
 
+/**
+ * Higher-order type for Result serial format
+ * Represents the serialized tuple format of a Result
+ */
+export type ResultSerial<T, E> = ['ok', T] | ['err', E];
+
 type ResultErr<T extends Result<unknown, unknown>[]> = T extends Array<Result<unknown, infer E>> ? E[] : never;
 
 type ResultOk<T extends Result<unknown, unknown>[]> = {
@@ -50,8 +56,8 @@ class Res {
    * @param a - serialized format of the result
    * @return {Result<T,E>} - new instance of `Result` by deserializing the serial format
    */
-  static fromSerial<T, E>(a: (['ok', T] | ['err', E]) | Promise<['ok', T] | ['err', E]>): Result<T, E> {
-    const p = Promise.resolve(a) satisfies Promise<['ok', T] | ['err', E]>;
+  static fromSerial<T, E>(a: ResultSerial<T, E> | Promise<ResultSerial<T, E>>): Result<T, E> {
+    const p = Promise.resolve(a) satisfies Promise<ResultSerial<T, E>>;
     return new KResult<T, E>(p);
   }
 
@@ -184,9 +190,9 @@ interface Result<T, E> {
   // returns native serializable format of the result type
   /**
    * @template T, E
-   * @returns {Promise<['err', E] | ['ok', T]>} - promise of the native serializable format of the result type
+   * @returns {Promise<ResultSerial<T, E>>} - promise of the native serializable format of the result type
    */
-  serial(): Promise<['err', E] | ['ok', T]>;
+  serial(): Promise<ResultSerial<T, E>>;
 
   // method that takes in a function fn with ok and err cases. It applies the corresponding case based on the variant of the Result and returns the result of that case as a Promise.
   /**
@@ -411,7 +417,7 @@ class KResult<T, X> implements Result<T, X> {
     );
   }
 
-  async serial(): Promise<['err', X] | ['ok', T]> {
+  async serial(): Promise<ResultSerial<T, X>> {
     const r = await this.value;
     return r;
   }

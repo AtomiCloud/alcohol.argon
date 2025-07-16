@@ -9,7 +9,7 @@ export { unauthorizedDefinition, type UnauthorizedContext } from './definitions/
 export { validationErrorDefinition, type ValidationErrorContext } from './definitions/validation-error';
 
 // Registry
-export { problemRegistry, createProblemRegistry } from './registry';
+export { problemRegistry, createProblemRegistry, type ProblemId, type AppProblemRegistry } from './registry';
 
 // Re-export library types for convenience
 export type { ZodProblemDefinition, Problem, ProblemResult, InferProblemContext } from '@/lib/problem/core/types';
