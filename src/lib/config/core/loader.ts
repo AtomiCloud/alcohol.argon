@@ -1,3 +1,4 @@
+import deepmerge from 'deepmerge';
 interface RawConfigurations {
   common: unknown;
   client: unknown;
@@ -22,6 +23,7 @@ interface ImportedConfigurations {
 interface LoaderConfig {
   landscape: string;
   fallbackToBase: boolean;
+  arrayMerge?: (target: unknown[], source: unknown[]) => unknown[];
 }
 
 class ConfigurationLoader {
@@ -40,17 +42,26 @@ class ConfigurationLoader {
   }
 
   private loadConfigForType(
-    configType: string,
+    configType: 'common' | 'client' | 'server',
     configs: { base: unknown; landscapes?: Record<string, unknown> },
   ): unknown {
     try {
-      // Try to load landscape-specific config first
+      // Start with base configuration
+      let result = configs.base;
+
+      // If we have a landscape-specific config and it's not 'base', merge it with base
       if (this.config.landscape !== 'base' && configs.landscapes?.[this.config.landscape]) {
-        return configs.landscapes[this.config.landscape];
+        const landscapeConfig = configs.landscapes[this.config.landscape];
+
+        // Merge base with landscape-specific overrides using deepmerge
+        const mergeOptions = {
+          arrayMerge: this.config.arrayMerge || ((target: unknown[], source: unknown[]) => source),
+        };
+
+        result = deepmerge(result as Record<string, unknown>, landscapeConfig as Record<string, unknown>, mergeOptions);
       }
 
-      // Fallback to base config
-      return configs.base;
+      return result;
     } catch (error) {
       if (this.config.fallbackToBase) {
         console.warn(
