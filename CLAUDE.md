@@ -18,7 +18,9 @@ src/
 │   ├── ui/         # shadcn/ui components (Badge, Button, Card, Input)
 │   └── lottie/     # Lottie animation system (InlineLottie, presets)
 ├── lib/            # Utilities (lottie-utils, template-api, utils)
-│   └── core/       # Functional monads (Option, Result, discriminated unions)
+│   ├── core/       # Functional monads (Option, Result, discriminated unions)
+│   ├── config/     # Configuration management system with validation
+│   └── problem/    # Problem Details (RFC 7807) error handling system
 ├── hooks/          # Custom hooks (useUrlState for URL synchronization)
 ├── styles/         # Global CSS (Tailwind)
 └── types/          # TypeScript definitions
@@ -39,6 +41,11 @@ pls lint          # Run pre-commit hooks (biome, TypeScript, formatting)
 # Build & Deploy
 pls build         # Build with OpenNext for Cloudflare
 pls deploy <env>  # Deploy to landscape (lapras, pichu, pikachu, raichu)
+pls upload <env>  # Upload to landscape without full deploy
+
+# SDK Generation
+pls generate:sdk        # Generate all SDK clients from OpenAPI specs
+pls generate:sdk:zinc   # Generate Zinc service SDK specifically
 
 # Available tasks
 pls --list        # Show all available commands
@@ -100,6 +107,53 @@ const userName = await user
 - **Serialization**: `.serial()` for network transfer, `Res.fromSerial()` for deserialization
 
 **Always wrap external code interfaces with these monads before use in internal logic.**
+
+## Configuration Management (`src/lib/config/` & `src/config/`)
+
+Centralized configuration system with validation and environment-specific settings:
+
+**Usage**:
+
+```typescript
+import { useConfig } from '@/lib/config';
+
+// In React components
+const { clientConfig } = useConfig();
+
+// In API routes
+import { getServerConfig } from '@/lib/config';
+const serverConfig = await getServerConfig();
+```
+
+**Configuration Files**:
+
+- `src/config/client/` - Client-side configuration (browser)
+- `src/config/server/` - Server-side configuration (API routes)
+- `src/config/common/` - Shared configuration
+- Environment-specific: `*.lapras.settings.yaml`, `*.pichu.settings.yaml`, etc.
+
+## Problem Details System (`src/lib/problem/` & `src/problems/`)
+
+RFC 7807 compliant error handling with standardized API responses:
+
+**Usage**:
+
+```typescript
+import { ValidationError, EntityConflict, Unauthorized } from '@/problems';
+
+// In API routes
+export default function handler(req, res) {
+  if (!isValid(req.body)) {
+    return ValidationError.send(res, { field: 'email', message: 'Invalid format' });
+  }
+
+  if (userExists) {
+    return EntityConflict.send(res, { entity: 'User', id: req.body.email });
+  }
+}
+```
+
+**Benefits**: Consistent error responses, client-side error handling, automatic problem detail URLs
 
 ## Lottie Animation System
 
@@ -186,6 +240,16 @@ export default function handler(req, res) {
 - `/public/` → Static assets
 - Relative imports for local files
 
+## SDK Integration
+
+Generated TypeScript clients for external services:
+
+**Generated Clients**:
+
+- `src/clients/zinc/generated/zinc-api.ts` - Zinc service API client
+
+**Regeneration**: Run `pls generate:sdk` when APIs change or `pls generate:sdk:zinc` for specific services
+
 ## Key Files for Reference
 
 - `LLM.MD` - Detailed technical architecture and conditional usage patterns
@@ -193,3 +257,5 @@ export default function handler(req, res) {
 - `Taskfile.yaml` - All available `pls` commands
 - `package.json` - Dependencies (build: `next build`, type-check: `tsc --noEmit`)
 - `biome.json` - Linting and formatting rules
+- `wrangler.toml` - Cloudflare Workers configuration
+- `open-next.config.ts` - OpenNext adapter configuration
