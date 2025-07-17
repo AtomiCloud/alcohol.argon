@@ -17,7 +17,7 @@ export function withApiConfig<T extends ConfigSchemas>(
   return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       // Create configuration manager and registry via factory
-      const configManager = ConfigurationFactory.createDefaultManager<T>();
+      const configManager = ConfigurationFactory.createManager<T>();
       const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
       // Call the user's handler with the config registry

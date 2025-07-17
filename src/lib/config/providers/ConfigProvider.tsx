@@ -29,7 +29,7 @@ export function ConfigProvider<T extends ConfigSchemas>({ schemas, children }: C
         setError(null);
 
         // Create configuration manager and registry via factory
-        const configManager = ConfigurationFactory.createDefaultManager<T>();
+        const configManager = ConfigurationFactory.createManager<T>();
         const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
         setRegistry(configRegistry);

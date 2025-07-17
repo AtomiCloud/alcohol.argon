@@ -186,6 +186,19 @@ export default function handler(req, res) {
 - `/public/` → Static assets
 - Relative imports for local files
 
+## 🗺️ AtomiCloud Service Tree
+
+### Service Tree Hierarchy (LPSM)
+
+AtomiCloud uses a hierarchical service tree structure: **Landscape → Platform → Service → Module**
+
+- **Landscape**: Environment tier using pokemon names (lapras=local, pichu=dev, pikachu=staging, raichu=prod)
+- **Platform**: Business domain, using functional groups (alcohol, hydrogen, etc.)
+- **Service**: Application using elements (argon, helium, etc.)
+- **Module**: Component using custom names (webapp, api, worker, etc.)
+
+**Current Project**: Platform=alcohol, Service=argon, Module=webapp, Landscape=varies by deployment
+
 ## Key Files for Reference
 
 - `LLM.MD` - Detailed technical architecture and conditional usage patterns

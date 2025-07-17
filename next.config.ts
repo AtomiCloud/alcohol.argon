@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
 
+// Process build-time environment variables
+const buildTimeProcessor = new BuildTimeProcessor();
+const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
+
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
@@ -16,6 +20,15 @@ const nextConfig: NextConfig = {
       use: 'yaml-loader',
     });
 
+    // Inject build-time environment variables into webpack DefinePlugin
+    config.plugins = config.plugins || [];
+    const webpack = require('webpack');
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
+      }),
+    );
+
     return config;
   },
 };
@@ -23,4 +36,5 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 initOpenNextCloudflareForDev();

@@ -2,6 +2,15 @@
 app:
   name: 'Alcohol Argon'
   version: '1.0.0'
+  build:
+    sha: 'unknown'
+    version: 'unknown'
+    time: 0
+  servicetree:
+    landscape: 'unknown'
+    platform: 'alcohol'
+    service: 'argon'
+    module: 'webapp'
 
 features:
   debug: false

@@ -16,7 +16,36 @@ class ConfigurationMerger {
     this.config = config;
   }
 
-  merge<T>(base: T, landscape: Partial<T> = {}, envOverrides: Partial<T> = {}, mergeOptions: MergeOptions = {}): T {
+  /**
+   * Enhanced merge method supporting 4-tier configuration hierarchy:
+   * base => landscape => build-time env => runtime env
+   */
+  merge<T>(
+    base: T,
+    landscape: Partial<T> = {},
+    buildTimeEnv: Partial<T> = {},
+    runtimeEnv: Partial<T> = {},
+    mergeOptions: MergeOptions = {},
+  ): T {
+    const mergeOpts = {
+      arrayMerge: mergeOptions.arrayMerge || this.config.defaultArrayMerge,
+    };
+
+    // 4-tier merge: base => landscape => build-time => runtime
+    const withLandscape = deepmerge(base, landscape, mergeOpts);
+    const withBuildTime = deepmerge(withLandscape, buildTimeEnv, mergeOpts);
+    return deepmerge(withBuildTime, runtimeEnv, mergeOpts);
+  }
+
+  /**
+   * Legacy 3-tier merge method for backward compatibility
+   */
+  mergeLegacy<T>(
+    base: T,
+    landscape: Partial<T> = {},
+    envOverrides: Partial<T> = {},
+    mergeOptions: MergeOptions = {},
+  ): T {
     const mergeOpts = {
       arrayMerge: mergeOptions.arrayMerge || this.config.defaultArrayMerge,
     };
@@ -26,6 +55,31 @@ class ConfigurationMerger {
 
     // Then merge with environment variable overrides
     return deepmerge(withLandscape, envOverrides, mergeOpts);
+  }
+
+  /**
+   * Process build-time environment variables from injected build environment
+   */
+  processBuildTimeEnvironmentVariables(): Record<string, unknown> {
+    const variables = process.env.BUILD_TIME_VARIABLES || {};
+    const envVars: Record<string, unknown> = {};
+
+    // Process build-time variables
+    for (const [key, value] of Object.entries(variables)) {
+      if (key.startsWith(this.config.envPrefix)) {
+        // Remove prefix and convert to nested object path
+        const configPath = key.substring(this.config.envPrefix.length);
+        const pathParts = configPath.split('__');
+
+        // Convert value to appropriate type
+        const parsedValue = this.parseEnvironmentValue(value as string);
+
+        // Set nested value
+        this.setNestedValue(envVars, pathParts, parsedValue);
+      }
+    }
+
+    return envVars;
   }
 
   processEnvironmentVariables(): Record<string, unknown> {
@@ -162,5 +216,5 @@ class ConfigurationMerger {
   }
 }
 
-export type { MergeOptions, MergerConfig };
 export { ConfigurationMerger };
+export type { MergeOptions, MergerConfig };
