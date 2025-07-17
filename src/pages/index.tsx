@@ -128,7 +128,6 @@ export default function Home({ serverTime, userAgent, appName, debugMode }: Home
 
 export const getServerSideProps = withServerSideConfig(configSchemas, async (context, config) => {
   // Access config.common, config.client, config.server
-  console.log(config.common);
   const serverTime = new Date().toISOString();
   const userAgent = context.req.headers['user-agent'] || 'Unknown';
 
