@@ -228,6 +228,120 @@ The library ensures end-to-end type safety:
 4. **Hook Types**: React hooks return properly typed configurations
 
 ## Next.js Integration
+## Next.js DefinePlugin Integration
+
+The library integrates with Next.js webpack configuration to inject build-time variables using DefinePlugin. This enables compile-time configuration injection for improved performance and security.
+
+### Build-Time Processing
+
+The `BuildTimeProcessor` class scans environment variables during the build process:
+
+```typescript
+// src/lib/config/core/build-time.ts
+class BuildTimeProcessor {
+  private readonly prefix: string;
+
+  constructor(prefix?: string) {
+    this.prefix = prefix || 'ATOMI_';
+  }
+
+  scanEnvironmentVariables(env: Record<string, string | undefined> = process.env): Record<string, string> {
+    const variables: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(env)) {
+      if (!key.startsWith(this.prefix) || value === undefined) continue;
+      variables[key] = value;
+    }
+
+    return variables;
+  }
+}
+```
+
+### Next.js Configuration Integration
+
+In `next.config.ts`, the library integrates with webpack's DefinePlugin:
+
+```typescript
+// next.config.ts
+import { BuildTimeProcessor } from '@/lib/config/core/build-time';
+
+// Process build-time environment variables
+const buildTimeProcessor = new BuildTimeProcessor();
+const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
+
+const nextConfig: NextConfig = {
+  webpack: (config) => {
+    // Inject build-time environment variables into webpack DefinePlugin
+    config.plugins = config.plugins || [];
+    const webpack = require('webpack');
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
+      }),
+    );
+
+    return config;
+  },
+};
+```
+
+### Build-Time Variable Sources
+
+Build-time variables are automatically exported by the CI script:
+
+```bash
+# scripts/ci/export_build_info.sh
+export ATOMI_COMMON__APP__BUILD__SHA="sha-$(git rev-parse --short HEAD)"
+export ATOMI_COMMON__APP__BUILD__VERSION="$(git describe --tags --match 'v*' --abbrev=0)"
+export ATOMI_COMMON__APP__BUILD__TIME="$(date +%s)000"
+export ATOMI_COMMON__APP__SERVICETREE__LANDSCAPE="$LANDSCAPE"
+```
+
+These variables are then:
+1. Scanned by `BuildTimeProcessor`
+2. Injected into webpack via DefinePlugin
+3. Compiled into the application bundle
+4. Available at runtime without additional network requests
+
+### Configuration Manager Updates
+
+The `ConfigurationFactory` now creates managers without the deprecated `createDefaultManager` method:
+
+```typescript
+// Updated factory usage in Next.js integrations
+export function withServerSideConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
+  schemas: T,
+  handler: ConfigHandler<T, GetServerSidePropsContext, GetServerSidePropsResult<P>>
+): GetServerSideProps<P> {
+  return async (context: GetServerSidePropsContext) => {
+    try {
+      // Create configuration manager using the factory
+      const configManager = ConfigurationFactory.createManager<T>();
+      const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
+
+      // Call the user's handler with the config registry
+      return await handler(context, configRegistry);
+    } catch (error) {
+      // Error handling...
+    }
+  };
+}
+```
+
+### Performance Benefits
+
+1. **Compile-Time Injection**: Build variables are compiled into the bundle, eliminating runtime processing
+2. **Zero Runtime Overhead**: No need to parse environment variables at runtime
+3. **Tree Shaking**: Unused configuration branches can be eliminated during bundling
+4. **Type Safety**: Full TypeScript support for build-time variables
+
+### Security Benefits
+
+1. **No Environment Exposure**: Build-time variables don't expose server environment to client
+2. **Selective Injection**: Only explicitly processed variables are included
+3. **Immutable Values**: Build-time values cannot be modified at runtime
+
 
 ### Server-Side Rendering
 
