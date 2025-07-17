@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next/**", "node_modules/**", ".open-next/**", ".wrangler/**", "dist/**", "build/**"]
+    "ignore": [
+      ".next/**",
+      "node_modules/**",
+      ".open-next/**",
+      ".wrangler/**",
+      "dist/**",
+      "build/**",
+      "src/clients/*/generated/**"
+    ]
   },
   "linter": {
     "enabled": true,
