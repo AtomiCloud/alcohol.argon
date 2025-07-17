@@ -69,7 +69,7 @@ export default function ConfigPage({ serverTime, appName, debugMode, serverConfi
                   <div>
                     <span className="font-semibold text-slate-700 dark:text-slate-300">Build Time:</span>
                     <div className="font-mono text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-2 rounded mt-1">
-                      {new Date(commonConfig.app.build.time).toLocaleString()}
+                      {commonConfig.app.build.time ? new Date(commonConfig.app.build.time).toLocaleString() : 'unknown'}
                     </div>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 
 // Process build-time environment variables
 const buildTimeProcessor = new BuildTimeProcessor();
@@ -36,5 +37,4 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 initOpenNextCloudflareForDev();
