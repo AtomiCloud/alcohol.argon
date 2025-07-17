@@ -1,3 +1,13 @@
+## [1.3.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.3.0...v1.3.1) (2025-07-17)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** incorrect configurations ([#7](https://github.com/AtomiCloud/alcohol.argon/issues/7)) ([9b9fadb](https://github.com/AtomiCloud/alcohol.argon/commit/9b9fadb87f207db3b64ff02949fd5a0966439f73))
+* **default:** incorrect configurations ([c4a528b](https://github.com/AtomiCloud/alcohol.argon/commit/c4a528ba86cef04ec29d003e1fd3f24fef6911b5))
+* **default:** remove console and revert to node 20 ([#8](https://github.com/AtomiCloud/alcohol.argon/issues/8)) ([c7a9f4b](https://github.com/AtomiCloud/alcohol.argon/commit/c7a9f4b7bcdec2d455d2ce4c108987842870251f))
+* **default:** remove console and revert to node 20 ([117193f](https://github.com/AtomiCloud/alcohol.argon/commit/117193fbeea070799ae1167f74c716945c677777))
+
 ## [1.3.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.2.0...v1.3.0) (2025-07-16)
 
 
