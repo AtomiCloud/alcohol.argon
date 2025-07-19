@@ -1,12 +1,14 @@
 import type { NextConfig } from 'next';
 import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
-import { type ClientConfig, type CommonConfig, configSchemas, importedConfigurations } from '@/config';
-import { ConfigurationFactory } from '@/lib/config';
+import { type ClientConfig, type CommonConfig, configSchemas } from '@/config';
+import { ConfigurationFactory } from '@/lib/config/core/factory';
 
 // Process build-time environment variables
 const buildTimeProcessor = new BuildTimeProcessor();
 const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
+
+const importedConfigurations = loadImportedConfigurations();
 
 const cfgFactory = ConfigurationFactory.createManager();
 const registry = cfgFactory.createRegistry(configSchemas, importedConfigurations);
@@ -59,4 +61,5 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+import { loadImportedConfigurations } from '@/config/configs.node';
 initOpenNextCloudflareForDev();

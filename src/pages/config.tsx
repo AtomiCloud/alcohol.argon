@@ -6,6 +6,7 @@ import { configSchemas } from '@/config';
 import { useCommonConfig, useClientConfig } from '@/lib/config';
 import type { CommonConfig, ClientConfig } from '@/config';
 import Link from 'next/link';
+import { importedConfigurations } from '@/config/configs';
 
 interface ConfigPageProps {
   serverTime: string;
@@ -275,22 +276,26 @@ export default function ConfigPage({ serverTime, appName, debugMode, serverConfi
   );
 }
 
-export const getServerSideProps = withServerSideConfig(configSchemas, async (context, config) => {
-  const serverTime = new Date().toISOString();
+export const getServerSideProps = withServerSideConfig(
+  configSchemas,
+  importedConfigurations,
+  async (context, config) => {
+    const serverTime = new Date().toISOString();
 
-  return {
-    props: {
-      serverTime,
-      appName: config.common.app.name,
-      debugMode: config.common.features.debug,
-      serverConfig: {
-        database: {
-          connections: config.server.database.connections,
-        },
-        security: {
-          origins: config.server.security.origins,
+    return {
+      props: {
+        serverTime,
+        appName: config.common.app.name,
+        debugMode: config.common.features.debug,
+        serverConfig: {
+          database: {
+            connections: config.server.database.connections,
+          },
+          security: {
+            origins: config.server.security.origins,
+          },
         },
       },
-    },
-  };
-});
+    };
+  },
+);

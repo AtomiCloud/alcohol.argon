@@ -33,7 +33,7 @@ export { HttpResponseMapper } from './core/http-mapper';
 export { ProblemRegistry } from './core/registry';
 
 // Utilities
-export { zodToJsonSchema } from 'zod-to-json-schema';
+// Note: Zod v4 has native JSON Schema support via schema.toJSONSchema()
 export {
   type ContentTypeParser,
   JsonParser,

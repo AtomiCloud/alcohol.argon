@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Problem, ProblemConfig, ZodProblemDefinition, InferProblemContext } from './types';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+// Using native Zod v4 JSON Schema conversion
 
 /**
  * Type-safe problem registry with compile-time ID validation
@@ -130,10 +130,8 @@ export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefiniti
 
       const definition = this.problems[id as keyof TProblems];
 
-      // Convert Zod schema to JSON Schema
-      const jsonSchema = zodToJsonSchema(definition.schema, {
-        $refStrategy: 'none',
-      });
+      // Convert Zod schema to JSON Schema using native Zod v4 method
+      const jsonSchema = definition.schema.toJSONSchema();
 
       // Return in expected format
       const response = {

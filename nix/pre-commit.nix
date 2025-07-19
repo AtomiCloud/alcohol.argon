@@ -22,6 +22,7 @@ pre-commit-lib.run {
       name = "Biome Lint";
       entry = "${packages.biome}/bin/biome lint --write";
       files = ".*ts$";
+      excludes = [ ".*/src/clients/.*" ];
       language = "system";
       pass_filenames = true;
     };

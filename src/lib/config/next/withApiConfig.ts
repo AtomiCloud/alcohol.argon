@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
 import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
-import { importedConfigurations } from '../../../config/configs';
+import type { ImportedConfigurations } from '../core/loader';
 
 export type ApiConfigHandler<T extends ConfigSchemas> = (
   req: NextApiRequest,
@@ -12,6 +12,7 @@ export type ApiConfigHandler<T extends ConfigSchemas> = (
 
 export function withApiConfig<T extends ConfigSchemas>(
   schemas: T,
+  importedConfigurations: ImportedConfigurations,
   handler: ApiConfigHandler<T>,
 ): (req: NextApiRequest, res: NextApiResponse) => Promise<void> {
   return async (req: NextApiRequest, res: NextApiResponse) => {

@@ -21,6 +21,8 @@ export {
   DEFAULT_VALIDATOR_CONFIG,
 } from './core/factory';
 
+export { BuildTimeProcessor } from './core/build-time';
+
 // React integration
 export { ConfigProvider } from './providers/ConfigProvider';
 export type { ConfigProviderProps } from './providers/ConfigProvider';

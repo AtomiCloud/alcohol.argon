@@ -2,7 +2,7 @@ import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
 import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
-import { importedConfigurations } from '../../../config/configs';
+import type { ImportedConfigurations } from '../core/loader';
 
 export type ServerSideConfigHandler<T extends ConfigSchemas, P = Record<string, unknown>> = (
   context: GetServerSidePropsContext,
@@ -11,6 +11,7 @@ export type ServerSideConfigHandler<T extends ConfigSchemas, P = Record<string, 
 
 export function withServerSideConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
   schemas: T,
+  importedConfigurations: ImportedConfigurations,
   handler: ServerSideConfigHandler<T, P>,
 ): (context: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<P>> {
   return async (context: GetServerSidePropsContext) => {

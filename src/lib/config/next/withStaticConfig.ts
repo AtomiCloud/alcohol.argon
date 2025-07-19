@@ -2,7 +2,7 @@ import type { GetStaticPropsContext, GetStaticPropsResult } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
 import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
-import { importedConfigurations } from '../../../config/configs';
+import type { ImportedConfigurations } from '../core/loader';
 
 export type StaticConfigHandler<T extends ConfigSchemas, P = Record<string, unknown>> = (
   context: GetStaticPropsContext,
@@ -11,6 +11,7 @@ export type StaticConfigHandler<T extends ConfigSchemas, P = Record<string, unkn
 
 export function withStaticConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
   schemas: T,
+  importedConfigurations: ImportedConfigurations,
   handler: StaticConfigHandler<T, P>,
 ): (context: GetStaticPropsContext) => Promise<GetStaticPropsResult<P>> {
   return async (context: GetStaticPropsContext) => {
