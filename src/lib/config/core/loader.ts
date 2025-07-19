@@ -60,7 +60,6 @@ class ConfigurationLoader {
 
         result = deepmerge(result as Record<string, unknown>, landscapeConfig as Record<string, unknown>, mergeOptions);
       }
-
       return result;
     } catch (error) {
       if (this.config.fallbackToBase) {

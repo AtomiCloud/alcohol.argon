@@ -35,4 +35,5 @@ jobs:
       - name: 📤 Upload to ${{ matrix.landscape }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ATOMI_CLIENT__FARO__BUILD__KEY: ${{ secrets.ATOMI_CLIENT__FARO__BUILD__KEY }}
         run: nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}" upload "${{ inputs.release_tag }}"

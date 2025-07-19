@@ -1,3 +1,18 @@
+## [Unreleased]
+
+### ✨ Features ✨
+
+* **observability:** integrate Grafana Faro Web SDK with distributed tracing for full-stack observability
+  - Add `@grafana/faro-web-sdk` and `@grafana/faro-web-tracing` dependencies
+  - Extend 4-tier configuration system with minimal faro settings (enabled, collectorurl, envkey, debug)
+  - Implement FaroProvider with TracingInstrumentation for automatic trace context propagation
+  - Add manual Next.js router instrumentation for page view tracking and navigation spans
+  - Wrap all faro operations in Result monads per project conventions
+  - Enable automatic distributed tracing via traceparent headers for backend integration
+  - Ensure SSR/hydration safety for Cloudflare Workers deployment
+  - Add comprehensive documentation in `docs/developer/Faro.md` with usage examples
+  - Compatible with React 19, Next.js 15, OpenNext adapter, and all deployment targets
+
 ## [1.3.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.3.0...v1.3.1) (2025-07-17)
 
 

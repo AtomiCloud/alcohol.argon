@@ -1,4 +1,5 @@
 # Development environment overrides for lapras landscape
+landscape: 'lapras'
 app:
   name: 'Alcohol Argon (Development)'
 
