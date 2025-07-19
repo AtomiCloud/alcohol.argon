@@ -57,13 +57,13 @@ tasks:
       Generate TypeScript SDK clients for all configured services.
       Uses swagger-typescript-api to create type-safe API clients.
     cmds:
-      - task: generate:sdk:zinc
+      - task: generate:sdk:alcohol:zinc
 
-  generate:sdk:zinc:
-    desc: 'Generate Zinc service SDK'
+  generate:sdk:alcohol:zinc:
+    desc: 'Generate AlcoholZinc service SDK'
     summary: |
       Generate TypeScript SDK client for the Zinc service.
 
-      Usage: task generate:sdk:zinc [SPEC_URL]
+      Usage: pls generate:sdk:alcohol:zinc -- [SPEC_URL]
     cmds:
-      - ./scripts/local/generate-sdk.sh zinc {{.SPEC_URL | default "https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json"}}
+      - ./scripts/local/generate-sdk.sh alcohol zinc https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json

@@ -296,7 +296,7 @@ export class HttpClient<SecurityDataType = unknown> {
  *
  * Alcohol-Zinc: API for Phinish
  */
-export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   /**
    * No description
    *

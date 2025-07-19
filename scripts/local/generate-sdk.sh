@@ -2,8 +2,9 @@
 set -euo pipefail
 
 # Parse arguments
-service="$1"
-spec_url="${2:-}"
+platform="$1"
+service="$2"
+spec_url="${3:-}"
 
 # Validate inputs
 [[ -z $service ]] && echo "❌ Service name required" && exit 1
@@ -18,9 +19,9 @@ spec_url="${2:-}"
 [[ ! -f "package.json" ]] && echo "❌ Run from project root" && exit 1
 
 # Set output directory
-output_dir="$(pwd)/src/clients/$service/generated"
+output_dir="$(pwd)/src/clients/$platform/$service"
 
-echo "🚀 Generating SDK for $service..."
+echo "🚀 Generating SDK for $platform/$service..."
 echo "📄 Spec: $spec_url"
 echo "📁 Output: $output_dir"
 
@@ -31,7 +32,8 @@ mkdir -p "$output_dir"
 bunx swagger-typescript-api generate \
   -p "$spec_url" \
   -o "$output_dir" \
-  --name "$service-api.ts" \
+  --name "api.ts" \
+  --api-class-name="${platform^}${service^}Api" \
   --client-type "fetch" \
   --responses \
   --add-readonly \
