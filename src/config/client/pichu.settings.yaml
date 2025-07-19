@@ -1,4 +1,5 @@
 # Staging environment overrides for client configuration
+landscape: 'pichu'
 api:
   baseUrl: '/api'
   timeout: 5000
@@ -6,3 +7,12 @@ api:
 ui:
   theme: 'auto'
   animations: true
+
+faro:
+  enabled: true
+  collectorurl: 'https://faro-collector-prod-ap-southeast-1.grafana.net/collect/acde1a1cc27485b1800cab08881b90a4'
+  sessionTracking:
+    enabled: true
+    samplingRate: 1
+  build:
+    enabled: true

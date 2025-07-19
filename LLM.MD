@@ -118,6 +118,49 @@ public/
 - **Production**: `pls preview` for Workers runtime
 - **Logs**: Use `wrangler tail` for production logs
 - **Types**: `pls cf-typegen` to regenerate Cloudflare types
+### 🔍 When Adding Observability
+
+Grafana Faro Web SDK with distributed tracing is integrated for RUM, error tracking, and full-stack observability:
+
+```typescript
+// Use Faro context for telemetry
+import { useFaro } from '@/lib/observability';
+
+const { faro, isLoading } = useFaro();
+
+// Custom logging with trace correlation
+faro?.match({
+  ok: (faroInstance) => {
+    faroInstance.api.pushLog(['User action completed'], {
+      level: 'info',
+      context: { userId: 'abc123', action: 'purchase' },
+    });
+  },
+  err: () => console.log('Faro not available'),
+});
+
+// Custom events for business metrics
+faro?.match({
+  ok: (faroInstance) => {
+    faroInstance.api.pushEvent('button_click', {
+      button_name: 'purchase',
+      section: 'product_page',
+      timestamp: Date.now(),
+    });
+  },
+  err: () => {},
+});
+
+// Custom spans for distributed tracing
+const tracer = faro?.api.getOTEL()?.trace.getTracer('business-logic');
+const span = tracer?.startSpan('user_action', {
+  attributes: { 'user.id': userId, 'action.type': 'purchase' },
+});
+// ... business logic ...
+span?.end();
+```
+
+**Configuration**: Access via `useClientConfig()` with landscape-specific settings. **SSR Safety**: FaroProvider handles server-side rendering automatically. **Backend Integration**: Automatic trace context propagation via traceparent headers enables end-to-end observability.
 
 ## Custom Hooks for Performance
 
@@ -269,6 +312,17 @@ export default function handler(req, res) {
 // Lottie Animation
 import { InlineLottie } from '@/components/lottie'
 import animationData from '/public/animations/loading.json'
+
+// Faro Observability
+import { useFaro } from '@/lib/observability'
+import { useClientConfig } from '@/lib/config/providers/hooks'
+
+// Custom logging, events, and distributed tracing
+const { faro } = useFaro()
+faro?.match({
+  ok: (f) => f.api.pushLog(['Message'], { level: 'info' }),
+  err: () => console.log('Fallback'),
+})
 ```
 
 ### File Extensions

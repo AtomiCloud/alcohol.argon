@@ -1,4 +1,5 @@
 # Staging environment overrides for pichu landscape
+landscape: 'pichu'
 app:
   name: 'Alcohol Argon (Staging)'
 

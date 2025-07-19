@@ -8,12 +8,12 @@ landscape="${1:-}"
 deploy="${2:-}"
 tag="${3:-}"
 
-export LANDSCAPE="$landscape"
-
 echo "🌍 Uploading to landscape: $landscape"
 if [[ -n $tag ]]; then
   echo "🏷️  Release tag: $tag"
 fi
+
+export LANDSCAPE="$landscape"
 
 echo "🔧 Exporting build info and building application..."
 eval "$(./scripts/ci/export_build_info.sh)"

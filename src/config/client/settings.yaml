@@ -6,3 +6,15 @@ api:
 ui:
   theme: 'auto'
   animations: true
+
+faro:
+  enabled: false
+  collectorurl: ''
+  sessionTracking:
+    enabled: false
+    samplingRate: 0
+  build:
+    enabled: false
+    endpoint: https://faro-api-prod-ap-southeast-1.grafana.net/faro/api/v1
+    app: 751
+    stack: 818828

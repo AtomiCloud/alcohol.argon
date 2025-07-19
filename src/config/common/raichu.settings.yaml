@@ -1,4 +1,5 @@
 # Production environment overrides for raichu landscape
+landscape: 'raichu'
 app:
   name: 'Alcohol Argon'
 
