@@ -76,6 +76,8 @@ export type VErrorInfoListData = string[];
 
 export type VErrorInfoDetailData = ErrorInfo;
 
+export type VErrorInfoRandomErrorListData = string;
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -290,7 +292,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title Pichu Alcohol Zinc API
+ * @title Lapras Alcohol Zinc API
  * @version 1.0
  * @contact kirinnee <kirinnee97@gmail.com>
  *
@@ -511,6 +513,24 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     vErrorInfoDetail: (id: string, version: string, params: RequestParams = {}) =>
       this.request<VErrorInfoDetailData, any>({
         path: `/api/v${version}/error-info/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags V1Error
+     * @name VErrorInfoRandomErrorList
+     * @request GET:/api/v{version}/error-info/random-error
+     * @secure
+     * @response `200` `VErrorInfoRandomErrorListData` Success
+     */
+    vErrorInfoRandomErrorList: (version: string, params: RequestParams = {}) =>
+      this.request<VErrorInfoRandomErrorListData, any>({
+        path: `/api/v${version}/error-info/random-error`,
         method: 'GET',
         secure: true,
         format: 'json',

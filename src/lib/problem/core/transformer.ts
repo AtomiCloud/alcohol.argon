@@ -1,6 +1,16 @@
 import type { Problem, ProblemConfig, HttpErrorDetails } from './types';
 import { isProblem } from './types';
 import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '../utils/content-type-parser';
+import type { ProblemRegistry } from './registry';
+import type { HttpErrorContext } from '@/problems/definitions/http-error';
+import type { LocalErrorContext } from '@/problems/definitions/local-error';
+
+/**
+ * Interface for error reporting functionality (e.g., Faro, Sentry, etc.)
+ */
+export interface ErrorReporter {
+  pushError(error: Error, context?: Record<string, unknown>): void;
+}
 
 /**
  * Core transformer class for converting errors to RFC 7807 Problems
@@ -9,27 +19,44 @@ import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '../u
 export class ProblemTransformer {
   constructor(
     private config: ProblemConfig,
+    // biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
+    private problemRegistry: ProblemRegistry<any>,
+    private errorReporter: ErrorReporter,
     private contentTypeRegistry: ContentTypeParserRegistry = defaultContentTypeRegistry,
   ) {}
+
+  /**
+   * Report error to configured error reporter
+   */
+  private reportError(error: Error, context?: Record<string, unknown>): void {
+    try {
+      this.errorReporter.pushError(error, context);
+    } catch (e) {
+      // Silently fail if error reporting fails
+      console.debug('Failed to report error:', e);
+    }
+  }
 
   /**
    * Transform a native Error to a Problem (library catch-all)
    */
   fromError(error: Error, additionalDetail?: string, instance?: string): Problem {
-    let detail = error.message;
-    if (additionalDetail) {
-      detail = `${detail}. ${additionalDetail}`;
-    }
-
-    return {
-      type: this.buildTypeUri('internal_error'),
-      title: 'Internal Error',
-      status: 500,
-      detail,
+    // Report to error reporter
+    this.reportError(error, {
+      additionalDetail,
       instance,
-      stack: error.stack,
-      name: error.name,
+      transformer: 'ProblemTransformer.fromError',
+    });
+
+    // Create problem using registry
+    const localErrorContext: LocalErrorContext = {
+      errorName: error.constructor.name,
+      errorMessage: error.message,
+      stackTrace: error.stack,
+      context: additionalDetail || 'Error transformation',
     };
+
+    return this.problemRegistry.createProblem('local_error', localErrorContext, undefined, instance);
   }
 
   /**
@@ -37,6 +64,17 @@ export class ProblemTransformer {
    * Supports multiple content types for parsing response body
    */
   async fromHttpError(details: HttpErrorDetails, additionalDetail?: string, instance?: string): Promise<Problem> {
+    // Report to error reporter
+    const httpError = new Error(`HTTP ${details.status} ${details.statusText}: ${details.body}`);
+    this.reportError(httpError, {
+      url: details.url,
+      status: details.status,
+      statusText: details.statusText,
+      additionalDetail,
+      instance,
+      transformer: 'ProblemTransformer.fromHttpError',
+    });
+
     // Try to parse body using content-type aware parser
     let bodyData: unknown = null;
     if (details.body) {
@@ -73,23 +111,14 @@ export class ProblemTransformer {
       };
     }
 
-    // Create a generic HTTP problem (library catch-all)
-    let detail = this.buildHttpErrorDetail(details);
-    if (additionalDetail) {
-      detail = `${detail}. ${additionalDetail}`;
-    }
-
-    return {
-      type: this.buildTypeUri('http_error'),
-      title: 'HTTP Error',
-      status: details.status,
-      detail,
-      instance,
-      statusText: details.statusText,
-      headers: details.headers,
+    // Create problem using registry
+    const httpErrorContext: HttpErrorContext = {
+      statusCode: details.status,
+      responseBody: details.body?.trim() || undefined,
       url: details.url,
-      responseBody: details.body,
     };
+
+    return this.problemRegistry.createProblem('http_error', httpErrorContext, undefined, instance);
   }
 
   /**
@@ -107,10 +136,20 @@ export class ProblemTransformer {
       return error;
     }
 
-    // If it's an Error object
+    // If it's an Error object, use fromError (which handles Faro reporting)
     if (error instanceof Error) {
       return this.fromError(error, additionalDetail, instance);
     }
+
+    // Report non-Error objects to error reporter as synthetic errors
+    const syntheticError = new Error(typeof error === 'string' ? error : 'Unknown error occurred');
+    this.reportError(syntheticError, {
+      originalError: error,
+      errorType: typeof error,
+      additionalDetail,
+      instance,
+      transformer: 'ProblemTransformer.fromUnknown',
+    });
 
     // If it's a string
     if (typeof error === 'string') {
@@ -162,42 +201,84 @@ export class ProblemTransformer {
   }
 
   /**
-   * Transform swagger-typescript-api error to Problem (library catch-all)
+   * Transform swagger-typescript-api errors to Problems
+   * Specifically handles HttpResponse errors from swagger-generated clients
    */
-  async fromSwaggerError(error: unknown, url?: string, additionalDetail?: string, instance?: string): Promise<Problem> {
-    // Check if it's already a structured error from swagger-typescript-api
-    if (error && typeof error === 'object') {
-      const errorObj = error as Record<string, unknown>;
+  async fromSwaggerError(error: unknown, instance = 'unknown'): Promise<Problem> {
+    // If it's already a Problem, return as-is
+    if (isProblem(error)) return error;
 
-      // Handle axios-style error
-      if (errorObj.response) {
-        const response = errorObj.response as Record<string, unknown>;
-        const httpError = {
-          status: Number(response.status) || 500,
-          statusText: String(response.statusText) || 'Unknown',
-          body: response.data ? JSON.stringify(response.data) : undefined,
-          headers: response.headers as Record<string, string>,
-          url: url || (errorObj.config as Record<string, unknown>)?.url?.toString(),
-        };
+    // Handle HttpResponse errors from swagger-typescript-api
+    if (error && typeof error === 'object' && 'error' in error && 'data' in error) {
+      const httpResponse = error as { error: unknown; data: unknown; status?: number; statusText?: string };
 
-        return await this.fromHttpError(httpError, additionalDetail, instance);
+      // Check if the error content is a Problem
+      if (isProblem(httpResponse.error)) return httpResponse.error;
+
+      // Get status info
+      const status = httpResponse.status || 500;
+
+      // Try to get raw response body and other details
+      let responseBody: string;
+      let url: string | undefined;
+
+      try {
+        if (httpResponse && typeof httpResponse === 'object' && 'text' in httpResponse && 'clone' in httpResponse) {
+          const httpResponseWithText = httpResponse as unknown as {
+            clone(): { text(): Promise<string> };
+            url?: string;
+          };
+          const responseClone = httpResponseWithText.clone();
+          responseBody = await responseClone.text();
+          url = httpResponseWithText.url;
+        } else {
+          responseBody = '';
+        }
+      } catch (e) {
+        responseBody = '';
       }
 
-      // Handle fetch-style error
-      if (errorObj.status && errorObj.statusText) {
-        const httpError = {
-          status: Number(errorObj.status),
-          statusText: String(errorObj.statusText),
-          body: errorObj.body?.toString(),
-          url,
-        };
+      // Report to error reporter
+      const httpError = new Error(`Swagger HTTP ${status}: ${responseBody}`);
+      this.reportError(httpError, {
+        url,
+        status,
+        instance,
+        transformer: 'ProblemTransformer.fromSwaggerError',
+      });
 
-        return await this.fromHttpError(httpError, additionalDetail, instance);
-      }
+      // Create problem using registry
+      const httpErrorContext: HttpErrorContext = {
+        statusCode: status,
+        responseBody: responseBody.trim() || undefined,
+        url,
+      };
+
+      return this.problemRegistry.createProblem('http_error', httpErrorContext, undefined, instance);
     }
 
-    // Fallback to unknown error handling
-    return this.fromUnknown(error, additionalDetail, instance);
+    // Handle standard Error objects
+    if (error instanceof Error) {
+      // Report to error reporter
+      this.reportError(error, {
+        instance,
+        context: 'Swagger API call',
+        transformer: 'ProblemTransformer.fromSwaggerError',
+      });
+
+      // Create problem using registry
+      const localErrorContext: LocalErrorContext = {
+        errorName: error.constructor.name,
+        errorMessage: error.message,
+        stackTrace: error.stack,
+        context: 'Swagger API call',
+      };
+
+      return this.problemRegistry.createProblem('local_error', localErrorContext, undefined, instance);
+    }
+
+    // Handle unknown error types using existing fromUnknown method
+    return this.fromUnknown(error, 'Swagger error', instance);
   }
 
   /**
@@ -205,22 +286,5 @@ export class ProblemTransformer {
    */
   private buildTypeUri(problemId: string): string {
     return `${this.config.baseUri}/${this.config.service}/api/v${this.config.version}/${problemId}`;
-  }
-
-  /**
-   * Build a detailed error message for HTTP errors
-   */
-  private buildHttpErrorDetail(details: HttpErrorDetails): string {
-    let detail = `HTTP ${details.status} ${details.statusText}`;
-
-    if (details.url) {
-      detail += ` at ${details.url}`;
-    }
-
-    if (details.body) {
-      detail += `. Response: ${details.body}`;
-    }
-
-    return detail;
   }
 }

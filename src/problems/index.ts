@@ -5,6 +5,8 @@
 
 // Problem definitions
 export { entityConflictDefinition, type EntityConflictContext } from './definitions/entity-conflict';
+export { httpErrorDefinition, type HttpErrorContext } from './definitions/http-error';
+export { localErrorDefinition, type LocalErrorContext } from './definitions/local-error';
 export { unauthorizedDefinition, type UnauthorizedContext } from './definitions/unauthorized';
 export { validationErrorDefinition, type ValidationErrorContext } from './definitions/validation-error';
 

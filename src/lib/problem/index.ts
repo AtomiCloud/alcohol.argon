@@ -28,7 +28,8 @@ export type {
 export { isProblem } from './core/types';
 
 // Core classes
-export { ProblemTransformer } from './core/transformer';
+export { ProblemTransformer, type ErrorReporter } from './core/transformer';
+export { NoOpErrorReporter } from './core/no-op-error-reporter';
 export { HttpResponseMapper } from './core/http-mapper';
 export { ProblemRegistry } from './core/registry';
 
@@ -48,7 +49,8 @@ export {
 
 // Utility service class for easy setup
 import type { ProblemConfig, ZodProblemDefinition } from './core/types';
-import { ProblemTransformer } from './core/transformer';
+import { ProblemTransformer, type ErrorReporter } from './core/transformer';
+import { NoOpErrorReporter } from './core/no-op-error-reporter';
 import { HttpResponseMapper } from './core/http-mapper';
 import { ProblemRegistry } from './core/registry';
 
@@ -58,10 +60,10 @@ export class ProblemService<TProblems extends Record<string, ZodProblemDefinitio
   public readonly httpMapper: HttpResponseMapper;
   public readonly registry: ProblemRegistry<TProblems>;
 
-  constructor(config: ProblemConfig, problems: TProblems) {
-    this.transformer = new ProblemTransformer(config);
-    this.httpMapper = new HttpResponseMapper(this.transformer);
+  constructor(config: ProblemConfig, problems: TProblems, errorReporter?: ErrorReporter) {
     this.registry = new ProblemRegistry(config, problems);
+    this.transformer = new ProblemTransformer(config, this.registry, errorReporter || new NoOpErrorReporter());
+    this.httpMapper = new HttpResponseMapper(this.transformer);
   }
 
   /**

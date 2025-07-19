@@ -66,4 +66,4 @@ tasks:
 
       Usage: pls generate:sdk:alcohol:zinc -- [SPEC_URL]
     cmds:
-      - ./scripts/local/generate-sdk.sh alcohol zinc https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json
+      - ./scripts/local/generate-sdk.sh alcohol zinc {{ .CLI_ARGS | default "https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json" }}
