@@ -4,7 +4,7 @@ tasks:
   build:
     desc: 'Build the application with OpenNext'
     cmds:
-      - bunx opennextjs-cloudflare build
+      - eval "$(./scripts/ci/export_build_info.sh)" && bunx opennextjs-cloudflare build
 
   lint:
     desc: 'Lint the repository'
@@ -23,9 +23,10 @@ tasks:
     desc: 'Preview the application'
     summary: |
       Same as dev - builds with OpenNext and starts wrangler dev.
+    env:
+      LANDSCAPE: lapras
     cmds:
-      - bunx opennextjs-cloudflare build
-      - wrangler dev --env lapras
+      - ./scripts/local/preview.sh
 
   upload:
     desc: 'Upload to specific landscape'

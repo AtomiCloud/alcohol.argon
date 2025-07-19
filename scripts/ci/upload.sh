@@ -13,7 +13,10 @@ if [[ -n $tag ]]; then
   echo "🏷️  Release tag: $tag"
 fi
 
-echo "🔨 Building application with OpenNext..."
+export LANDSCAPE="$landscape"
+
+echo "🔧 Exporting build info and building application..."
+eval "$(./scripts/ci/export_build_info.sh)"
 bunx opennextjs-cloudflare build
 
 if [[ $deploy == "upload" ]]; then

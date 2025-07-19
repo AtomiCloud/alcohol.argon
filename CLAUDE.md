@@ -232,6 +232,93 @@ export default function handler(req, res) {
 4. **Test locally**: `pls preview` for Workers runtime testing
 5. **Deploy**: `pls deploy <landscape>` when ready
 
+## Observability with Grafana Faro
+
+Grafana Faro Web SDK with distributed tracing is integrated for comprehensive observability, RUM monitoring, and full-stack trace correlation.
+
+### FaroProvider Integration
+
+**Setup**: FaroProvider wraps the entire application and consumes configuration via `useClientConfig()`:
+
+```typescript
+// Automatic integration in _app.tsx
+<ConfigProvider schemas={configSchemas}>
+  <FaroProvider>
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  </FaroProvider>
+</ConfigProvider>
+```
+
+**Configuration**: Landscape-specific settings via 4-tier configuration system:
+
+```typescript
+import { useClientConfig } from '@/lib/config/providers/hooks';
+import type { ClientConfig } from '@/config/client/schema';
+
+const config = useClientConfig<ClientConfig>();
+// config.faro.enabled, config.faro.collectorurl, config.faro.envkey, config.faro.debug
+```
+
+### SSR Considerations
+
+FaroProvider handles SSR compatibility automatically:
+
+- **Client-side only**: Faro initialization only occurs in browser environment
+- **Cloudflare Workers**: Compatible with OpenNext adapter and Workers runtime
+- **Hydration safe**: No SSR/hydration mismatches
+
+### Monad-Wrapped Observability
+
+**All Faro operations follow project conventions using Result monads**:
+
+```typescript
+import { useFaro } from '@/lib/observability';
+
+const { faro, isLoading } = useFaro();
+
+// Custom logging with error handling
+const logResult = await faro?.match({
+  ok: faroInstance => {
+    faroInstance.api.pushLog(['User action'], { level: 'info' });
+    return Ok('Logged successfully');
+  },
+  err: error => {
+    console.log('Faro unavailable, using fallback');
+    return Err(error);
+  },
+});
+```
+
+### Distributed Tracing Features
+
+- **Automatic trace context propagation**: traceparent headers added to all HTTP requests
+- **Backend integration**: Enable end-to-end observability across frontend and backend services
+- **Custom spans**: Create business logic traces using `faro.api.getOTEL()?.trace.getTracer()`
+- **Next.js router instrumentation**: Automatic page view tracking and navigation spans
+- **OpenTelemetry compatibility**: Works with Grafana Tempo, Jaeger, and other tracing backends
+
+### Usage Patterns
+
+**Custom events and logging**:
+
+```typescript
+// Business metrics
+faro?.match({
+  ok: f => f.api.pushEvent('button_click', { button: 'purchase', section: 'product' }),
+  err: () => {}, // Graceful degradation
+});
+
+// Error tracking with trace correlation
+faro?.match({
+  ok: f => f.api.pushError(error, { context: { userId, action: 'checkout' } }),
+  err: () => console.error('Manual error log:', error),
+});
+```
+
+**See `docs/developer/Faro.md` for comprehensive usage examples including custom spans, performance tracking, user context, and backend integration patterns.**
+
 ## File Naming & Import Conventions
 
 - `.tsx` → React components
@@ -239,6 +326,19 @@ export default function handler(req, res) {
 - `@/` → Absolute imports from `src/`
 - `/public/` → Static assets
 - Relative imports for local files
+
+## 🗺️ AtomiCloud Service Tree
+
+### Service Tree Hierarchy (LPSM)
+
+AtomiCloud uses a hierarchical service tree structure: **Landscape → Platform → Service → Module**
+
+- **Landscape**: Environment tier using pokemon names (lapras=local, pichu=dev, pikachu=staging, raichu=prod)
+- **Platform**: Business domain, using functional groups (alcohol, hydrogen, etc.)
+- **Service**: Application using elements (argon, helium, etc.)
+- **Module**: Component using custom names (webapp, api, worker, etc.)
+
+**Current Project**: Platform=alcohol, Service=argon, Module=webapp, Landscape=varies by deployment
 
 ## SDK Integration
 

@@ -1,4 +1,5 @@
 # Pre-production environment overrides for pikachu landscape
+landscape: 'pikachu'
 app:
   name: 'Alcohol Argon (Pre-Production)'
 

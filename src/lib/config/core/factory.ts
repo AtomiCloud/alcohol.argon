@@ -1,8 +1,8 @@
 import { ConfigurationLoader, type LoaderConfig } from './loader';
-import { ConfigurationMerger, type MergerConfig } from './merge';
-import { ConfigurationValidator, type ValidatorConfig } from './validator';
 import { ConfigurationManager } from './manager';
+import { ConfigurationMerger, type MergerConfig } from './merge';
 import type { ConfigSchemas } from './registry';
+import { ConfigurationValidator, type ValidatorConfig } from './validator';
 
 // Default configurations for dependency injection
 const DEFAULT_LOADER_CONFIG: LoaderConfig = {
@@ -37,10 +37,6 @@ class ConfigurationFactory {
 
     // Inject dependencies into manager
     return new ConfigurationManager<T>(loader, merger, validator);
-  }
-
-  static createDefaultManager<T extends ConfigSchemas>(): ConfigurationManager<T> {
-    return ConfigurationFactory.createManager<T>();
   }
 }
 

@@ -16,7 +16,7 @@ export function withStaticConfig<T extends ConfigSchemas, P = Record<string, unk
   return async (context: GetStaticPropsContext) => {
     try {
       // Create configuration manager and registry via factory
-      const configManager = ConfigurationFactory.createDefaultManager<T>();
+      const configManager = ConfigurationFactory.createManager<T>();
       const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
       // Call the user's handler with the config registry

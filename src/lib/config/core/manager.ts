@@ -1,7 +1,7 @@
 import type { ConfigurationLoader, ImportedConfigurations } from './loader';
 import type { ConfigurationMerger } from './merge';
-import type { ConfigurationValidator } from './validator';
 import { ConfigRegistry, type ConfigSchemas, type ValidatedConfigs } from './registry';
+import type { ConfigurationValidator } from './validator';
 
 class ConfigurationManager<T extends ConfigSchemas> {
   private readonly loader: ConfigurationLoader;
@@ -14,18 +14,29 @@ class ConfigurationManager<T extends ConfigSchemas> {
     this.validator = validator;
   }
 
+  /**
+   * Create registry with 4-tier configuration hierarchy support
+   */
   createRegistry(schemas: T, importedConfigs: ImportedConfigurations): ConfigRegistry<T> {
     // Load raw configurations
     const rawConfigs = this.loader.load(importedConfigs);
 
-    // Process environment variable overrides
-    const envOverrides = this.merger.processEnvironmentVariables();
+    // Process build-time environment variables (if available)
+    const buildTimeOverrides = this.merger.processBuildTimeEnvironmentVariables();
 
-    // Merge configurations with environment overrides
+    // Process runtime environment variable overrides
+    const runtimeOverrides = this.merger.processEnvironmentVariables();
+
+    // Merge configurations using 4-tier hierarchy: base => landscape => build-time => runtime
     const mergedConfigs = {
-      common: this.merger.merge(rawConfigs.common, {}, envOverrides.common || {}),
-      client: this.merger.merge(rawConfigs.client, {}, envOverrides.client || {}),
-      server: this.merger.merge(rawConfigs.server, {}, envOverrides.server || {}),
+      common: this.merger.merge(
+        rawConfigs.common,
+        {}, // landscape overrides (handled in loader)
+        buildTimeOverrides.common || {},
+        runtimeOverrides.common || {},
+      ),
+      client: this.merger.merge(rawConfigs.client, {}, buildTimeOverrides.client || {}, runtimeOverrides.client || {}),
+      server: this.merger.merge(rawConfigs.server, {}, buildTimeOverrides.server || {}, runtimeOverrides.server || {}),
     };
 
     // Validate all configurations
