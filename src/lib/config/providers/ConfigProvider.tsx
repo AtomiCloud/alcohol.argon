@@ -2,10 +2,11 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { ConfigRegistry, ConfigSchemas } from '../core/registry';
 import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
-import { importedConfigurations } from '../../../config/configs';
+import { ImportedConfigurations } from '../core/loader';
 
 export interface ConfigProviderProps<T extends ConfigSchemas> {
   schemas: T;
+  importedConfigurations: ImportedConfigurations;
   children: ReactNode;
 }
 
@@ -17,7 +18,11 @@ interface ConfigContextValue<T extends ConfigSchemas> {
 
 const ConfigContext = React.createContext<ConfigContextValue<any> | null>(null);
 
-export function ConfigProvider<T extends ConfigSchemas>({ schemas, children }: ConfigProviderProps<T>) {
+export function ConfigProvider<T extends ConfigSchemas>({
+  schemas,
+  importedConfigurations,
+  children,
+}: ConfigProviderProps<T>) {
   const [registry, setRegistry] = useState<ConfigRegistry<T> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

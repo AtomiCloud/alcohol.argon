@@ -6,6 +6,7 @@ import { withServerSideConfig } from '@/lib/config';
 import { configSchemas } from '@/config';
 import { useCommonConfig, useClientConfig } from '@/lib/config';
 import type { CommonConfig, ClientConfig } from '@/config';
+import { importedConfigurations } from '@/config/configs';
 
 interface HomeProps {
   serverTime: string;
@@ -126,17 +127,21 @@ export default function Home({ serverTime, userAgent, appName, debugMode }: Home
   );
 }
 
-export const getServerSideProps = withServerSideConfig(configSchemas, async (context, config) => {
-  // Access config.common, config.client, config.server
-  const serverTime = new Date().toISOString();
-  const userAgent = context.req.headers['user-agent'] || 'Unknown';
+export const getServerSideProps = withServerSideConfig(
+  configSchemas,
+  importedConfigurations,
+  async (context, config) => {
+    // Access config.common, config.client, config.server
+    const serverTime = new Date().toISOString();
+    const userAgent = context.req.headers['user-agent'] || 'Unknown';
 
-  return {
-    props: {
-      serverTime,
-      userAgent,
-      appName: config.common.app.name,
-      debugMode: config.common.features.debug,
-    },
-  };
-});
+    return {
+      props: {
+        serverTime,
+        userAgent,
+        appName: config.common.app.name,
+        debugMode: config.common.features.debug,
+      },
+    };
+  },
+);
