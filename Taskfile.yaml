@@ -50,3 +50,20 @@ tasks:
       Tag: Optional release tag to include in description
     cmds:
       - ./scripts/ci/upload.sh {{.CLI_ARGS}} deploy "local-$(openssl rand -hex 3)"
+
+  generate:sdk:
+    desc: 'Generate SDK clients from OpenAPI specifications'
+    summary: |
+      Generate TypeScript SDK clients for all configured services.
+      Uses swagger-typescript-api to create type-safe API clients.
+    cmds:
+      - task: generate:sdk:alcohol:zinc
+
+  generate:sdk:alcohol:zinc:
+    desc: 'Generate AlcoholZinc service SDK'
+    summary: |
+      Generate TypeScript SDK client for the Zinc service.
+
+      Usage: pls generate:sdk:alcohol:zinc -- [SPEC_URL]
+    cmds:
+      - ./scripts/local/generate-sdk.sh alcohol zinc {{ .CLI_ARGS | default "https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json" }}

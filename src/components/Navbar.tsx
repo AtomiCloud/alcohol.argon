@@ -34,6 +34,7 @@ export function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/templates', label: 'Templates' },
     { href: '/lottie-demo', label: 'Animations' },
+    { href: '/api-showcase', label: 'API Showcase' },
   ];
 
   return (

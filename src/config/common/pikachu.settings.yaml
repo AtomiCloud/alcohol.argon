@@ -1,7 +1,10 @@
 # Pre-production environment overrides for pikachu landscape
 landscape: 'pikachu'
-app:
-  name: 'Alcohol Argon (Pre-Production)'
 
-features:
-  debug: false
+clients:
+  alcohol:
+    zinc:
+      url: 'https://api.zinc.alcohol.pikachu.cluster.atomi.cloud'
+app:
+  servicetree:
+    landscape: 'pikachu'

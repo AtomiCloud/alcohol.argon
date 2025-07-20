@@ -16,58 +16,33 @@
 
 // Core types and interfaces
 export type {
+  HttpErrorDetails,
+  InferProblemContext,
   Problem,
   ProblemConfig,
-  ZodProblemDefinition,
-  SwaggerApiResponse,
-  HttpErrorDetails,
   ProblemResult,
-  InferProblemContext,
+  SwaggerApiResponse,
+  ZodProblemDefinition,
 } from './core/types';
 
 export { isProblem } from './core/types';
 
 // Core classes
-export { ProblemTransformer } from './core/transformer';
 export { HttpResponseMapper } from './core/http-mapper';
+export { NoOpErrorReporter } from './core/no-op-error-reporter';
 export { ProblemRegistry } from './core/registry';
+export { ProblemTransformer, type ErrorReporter } from './core/transformer';
 
 // Utilities
-export { zodToJsonSchema } from 'zod-to-json-schema';
+// Note: Zod v4 has native JSON Schema support via schema.toJSONSchema()
 export {
-  type ContentTypeParser,
-  JsonParser,
-  YamlParser,
-  XmlParser,
-  TomlParser,
-  TextParser,
-  FormDataParser,
   ContentTypeParserRegistry,
   defaultContentTypeRegistry,
+  FormDataParser,
+  JsonParser,
+  TextParser,
+  TomlParser,
+  XmlParser,
+  YamlParser,
+  type ContentTypeParser,
 } from './utils/content-type-parser';
-
-// Utility service class for easy setup
-import type { ProblemConfig, ZodProblemDefinition } from './core/types';
-import { ProblemTransformer } from './core/transformer';
-import { HttpResponseMapper } from './core/http-mapper';
-import { ProblemRegistry } from './core/registry';
-
-// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
-export class ProblemService<TProblems extends Record<string, ZodProblemDefinition<any>>> {
-  public readonly transformer: ProblemTransformer;
-  public readonly httpMapper: HttpResponseMapper;
-  public readonly registry: ProblemRegistry<TProblems>;
-
-  constructor(config: ProblemConfig, problems: TProblems) {
-    this.transformer = new ProblemTransformer(config);
-    this.httpMapper = new HttpResponseMapper(this.transformer);
-    this.registry = new ProblemRegistry(config, problems);
-  }
-
-  /**
-   * Get Next.js API route handlers for problem registry
-   */
-  getApiHandlers() {
-    return this.registry.createApiHandlers();
-  }
-}

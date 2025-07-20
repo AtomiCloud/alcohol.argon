@@ -4,7 +4,6 @@ export const commonSchema = z.object({
   landscape: z.string().default('unknown'),
   app: z.object({
     name: z.string().default('Alcohol Argon'),
-    version: z.string().default('1.0.0'),
     build: z.object({
       sha: z.string().default('unknown'),
       version: z.string().default('unknown'),
@@ -17,13 +16,17 @@ export const commonSchema = z.object({
       module: z.string().default('webapp'),
     }),
   }),
-  features: z.object({
-    debug: z.boolean().default(false),
-  }),
   errorPortal: z.object({
     baseUri: z.string().default('https://api.zinc.sulfone.pichu.cluster.atomi.cloud'),
     version: z.string().default('1.0'),
     service: z.string().default('argon'),
+  }),
+  clients: z.object({
+    alcohol: z.object({
+      zinc: z.object({
+        url: z.url(),
+      }),
+    }),
   }),
 });
 

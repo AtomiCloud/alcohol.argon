@@ -3,31 +3,31 @@
 import { ClientConfig, CommonConfig } from '@/config';
 import { faro, getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
 import { TracingInstrumentation } from '@grafana/faro-web-tracing';
-import { useClientConfig, useCommonConfig } from '../config';
+import { useClientConfig, useCommonConfig } from '@/lib/config/providers';
 
 export default function FrontendObservability() {
   const clientCfg = useClientConfig<ClientConfig>();
   const commonCfg = useCommonConfig<CommonConfig>();
   const st = commonCfg.app.servicetree;
-  const fcfg = clientCfg.faro;
+  const fCfg = clientCfg.faro;
 
   // skip if already initialized
-  if (faro.api || !fcfg.enabled) {
+  if (faro.api || !fCfg.enabled) {
     return null;
   }
 
   const name = `${st.module}.${st.service}.${st.platform}`;
   try {
     initializeFaro({
-      url: fcfg.collectorurl,
+      url: fCfg.collectorurl,
       app: {
         name,
         version: commonCfg.app.build.version,
         environment: st.landscape,
       },
       sessionTracking: {
-        enabled: fcfg.sessionTracking.enabled,
-        samplingRate: fcfg.sessionTracking.samplingRate,
+        enabled: fCfg.sessionTracking.enabled,
+        samplingRate: fCfg.sessionTracking.samplingRate,
       },
       instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
     });

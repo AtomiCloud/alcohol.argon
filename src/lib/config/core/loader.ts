@@ -1,4 +1,5 @@
 import deepmerge from 'deepmerge';
+
 interface RawConfigurations {
   common: unknown;
   client: unknown;
@@ -20,18 +21,12 @@ interface ImportedConfigurations {
   };
 }
 
-interface LoaderConfig {
-  landscape: string;
-  fallbackToBase: boolean;
-  arrayMerge?: (target: unknown[], source: unknown[]) => unknown[];
-}
-
 class ConfigurationLoader {
-  private readonly config: LoaderConfig;
-
-  constructor(config: LoaderConfig) {
-    this.config = config;
-  }
+  constructor(
+    private readonly landscape: string,
+    private readonly fallbackToBase: boolean,
+    private readonly arrayMerge?: (target: unknown[], source: unknown[]) => unknown[],
+  ) {}
 
   load(importedConfigs: ImportedConfigurations): RawConfigurations {
     return {
@@ -50,21 +45,21 @@ class ConfigurationLoader {
       let result = configs.base;
 
       // If we have a landscape-specific config and it's not 'base', merge it with base
-      if (this.config.landscape !== 'base' && configs.landscapes?.[this.config.landscape]) {
-        const landscapeConfig = configs.landscapes[this.config.landscape];
+      if (this.landscape !== 'base' && configs.landscapes?.[this.landscape]) {
+        const landscapeConfig = configs.landscapes[this.landscape];
 
         // Merge base with landscape-specific overrides using deepmerge
         const mergeOptions = {
-          arrayMerge: this.config.arrayMerge || ((target: unknown[], source: unknown[]) => source),
+          arrayMerge: this.arrayMerge || ((target: unknown[], source: unknown[]) => source),
         };
 
         result = deepmerge(result as Record<string, unknown>, landscapeConfig as Record<string, unknown>, mergeOptions);
       }
       return result;
     } catch (error) {
-      if (this.config.fallbackToBase) {
+      if (this.fallbackToBase) {
         console.warn(
-          `Failed to load ${configType} configuration for landscape '${this.config.landscape}', falling back to base:`,
+          `Failed to load ${configType} configuration for landscape '${this.landscape}', falling back to base:`,
           error,
         );
         return configs.base;
@@ -74,5 +69,5 @@ class ConfigurationLoader {
   }
 }
 
-export type { RawConfigurations, ImportedConfigurations, LoaderConfig };
+export type { RawConfigurations, ImportedConfigurations };
 export { ConfigurationLoader };

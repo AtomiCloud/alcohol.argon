@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { createProblemRegistry } from '@/problems';
 import type { ValidationErrorContext } from '@/problems';
-import type { Problem } from '@/lib/problem';
+import { Problem, ProblemRegistry } from '@/lib/problem';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Ok, Err } from '@/lib/monads/result';
-import { useCommonConfig } from '@/lib/config';
+import { Err, Ok } from '@/lib/monads/result';
 import { CommonConfig } from '@/config';
+import { useCommonConfig } from '@/lib/config/providers';
+import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 
 export default function ProblemDemoPage() {
   const commonConfig = useCommonConfig<CommonConfig>();
-  const problemRegistry = createProblemRegistry(commonConfig.errorPortal);
+  const problemRegistry = new ProblemRegistry(commonConfig.errorPortal, PROBLEM_DEFINITIONS);
 
   const [email, setEmail] = useState('');
   const [resultSerial, setResultSerial] = useState<ResultSerial<string, Problem> | ''>('');

@@ -1,13 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createProblemRegistry } from '@/problems/registry';
-import { withApiConfig } from '@/lib/config';
 import { configSchemas } from '@/config';
+import { importedConfigurations } from '@/config/configs';
+import { withApiConfig } from '@/lib/config/next';
+import { ProblemRegistry } from '@/lib/problem';
+import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 
 /**
  * GET /api/v1.0/error-info/[id]
  * Returns JSON schema with format: { schema: {...}, id: "...", title: "...", version: "..." }
  */
-export default withApiConfig(configSchemas, async (req: NextApiRequest, res: NextApiResponse, config) => {
-  const problemRegistry = createProblemRegistry(config.common.errorPortal);
-  return problemRegistry.handleGetProblemSchema(req, res);
-});
+export default withApiConfig(
+  process.env.LANDSCAPE || 'base',
+  configSchemas,
+  importedConfigurations,
+  async (req: NextApiRequest, res: NextApiResponse, config) => {
+    const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
+    return problemRegistry.handleGetProblemSchema(req, res);
+  },
+);

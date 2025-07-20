@@ -1,12 +1,4 @@
 # Base configuration for client-safe settings
-api:
-  baseUrl: '/api'
-  timeout: 5000
-
-ui:
-  theme: 'auto'
-  animations: true
-
 faro:
   enabled: false
   collectorurl: ''
@@ -16,5 +8,7 @@ faro:
   build:
     enabled: false
     endpoint: https://faro-api-prod-ap-southeast-1.grafana.net/faro/api/v1
-    app: 751
-    stack: 818828
+    app: '751'
+    stack: '818828'
+    key: 'unknown'
+    gzipContents: true

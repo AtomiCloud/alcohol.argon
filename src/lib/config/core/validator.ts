@@ -6,11 +6,6 @@ interface ValidationError {
   errors: string[];
 }
 
-interface ValidatorConfig {
-  throwOnFirstError: boolean;
-  errorFormatter: (issue: z.ZodIssue) => string;
-}
-
 class ConfigValidationError extends Error {
   public readonly validationErrors: ValidationError;
 
@@ -24,10 +19,11 @@ class ConfigValidationError extends Error {
 }
 
 class ConfigurationValidator {
-  private readonly config: ValidatorConfig;
+  constructor(private readonly throwOnFirstError: boolean) {}
 
-  constructor(config: ValidatorConfig) {
-    this.config = config;
+  formatError(error: ConfigValidationError): string {
+    const { configType, errors } = error.validationErrors;
+    return `Configuration validation failed for '${configType}': ${errors.join(', ')}`;
   }
 
   validate<T>(configType: string, config: unknown, schema: z.ZodSchema<T>): T {
@@ -37,7 +33,7 @@ class ConfigurationValidator {
       if (error instanceof z.ZodError) {
         const validationErrors: ValidationError = {
           configType,
-          errors: error.issues.map(this.config.errorFormatter),
+          errors: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`),
         };
 
         throw new ConfigValidationError(validationErrors);
@@ -59,7 +55,6 @@ class ConfigurationValidator {
         if (configType in configs) {
           validatedConfigs[configType] = this.validate(configType, configs[configType], schema);
         } else {
-          // All config types are required now
           throw new Error(`Missing configuration for '${configType}'`);
         }
       } catch (error) {
@@ -72,14 +67,13 @@ class ConfigurationValidator {
           });
         }
 
-        if (this.config.throwOnFirstError) {
+        if (this.throwOnFirstError) {
           throw error;
         }
       }
     }
 
     if (allErrors.length > 0) {
-      // Combine all errors into a single error
       const combinedErrors: ValidationError = {
         configType: 'multiple',
         errors: allErrors.flatMap(err => err.errors.map(e => `${err.configType}: ${e}`)),
@@ -89,16 +83,11 @@ class ConfigurationValidator {
 
     return validatedConfigs as { common: unknown; client: unknown; server: unknown };
   }
-
-  formatError(error: ConfigValidationError): string {
-    const { configType, errors } = error.validationErrors;
-    return `Configuration validation failed for '${configType}':\n${errors.map(err => `  - ${err}`).join('\n')}`;
-  }
 }
 
 function isConfigValidationError(error: unknown): error is ConfigValidationError {
   return error instanceof ConfigValidationError;
 }
 
-export type { ValidationError, ValidatorConfig };
+export type { ValidationError };
 export { ConfigValidationError, ConfigurationValidator, isConfigValidationError };

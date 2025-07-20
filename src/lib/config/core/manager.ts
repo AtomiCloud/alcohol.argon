@@ -29,14 +29,9 @@ class ConfigurationManager<T extends ConfigSchemas> {
 
     // Merge configurations using 4-tier hierarchy: base => landscape => build-time => runtime
     const mergedConfigs = {
-      common: this.merger.merge(
-        rawConfigs.common,
-        {}, // landscape overrides (handled in loader)
-        buildTimeOverrides.common || {},
-        runtimeOverrides.common || {},
-      ),
-      client: this.merger.merge(rawConfigs.client, {}, buildTimeOverrides.client || {}, runtimeOverrides.client || {}),
-      server: this.merger.merge(rawConfigs.server, {}, buildTimeOverrides.server || {}, runtimeOverrides.server || {}),
+      common: this.merger.merge(rawConfigs.common, buildTimeOverrides.common || {}, runtimeOverrides.common || {}),
+      client: this.merger.merge(rawConfigs.client, buildTimeOverrides.client || {}, runtimeOverrides.client || {}),
+      server: this.merger.merge(rawConfigs.server, buildTimeOverrides.server || {}, runtimeOverrides.server || {}),
     };
 
     // Validate all configurations

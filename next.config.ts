@@ -1,15 +1,29 @@
 import type { NextConfig } from 'next';
 import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
-import { type ClientConfig, type CommonConfig, configSchemas, importedConfigurations } from '@/config';
-import { ConfigurationFactory } from '@/lib/config';
+import { type ClientConfig, type CommonConfig, configSchemas } from '@/config';
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+import { loadImportedConfigurations } from '@/config/configs.node';
+import {
+  ConfigurationLoader,
+  ConfigurationMerger,
+  ConfigurationValidator,
+  ConfigurationManager,
+} from '@/lib/config/core';
 
 // Process build-time environment variables
 const buildTimeProcessor = new BuildTimeProcessor();
 const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
 
-const cfgFactory = ConfigurationFactory.createManager();
-const registry = cfgFactory.createRegistry(configSchemas, importedConfigurations);
+const importedConfigurations = loadImportedConfigurations();
+
+const landscape = process.env.LANDSCAPE || process.env.ATOMI_LANDSCAPE || 'base';
+
+const cfgLoader = new ConfigurationLoader(landscape, true);
+const cfgMerger = new ConfigurationMerger('ATOMI_');
+const cfgValidator = new ConfigurationValidator(false);
+const cfgManager = new ConfigurationManager(cfgLoader, cfgMerger, cfgValidator);
+const registry = cfgManager.createRegistry(configSchemas, importedConfigurations);
 
 const common = registry.common as CommonConfig;
 const client = registry.client as ClientConfig;
@@ -36,7 +50,7 @@ const nextConfig: NextConfig = {
     config.plugins.push(
       new webpack.DefinePlugin({
         'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
-        'process.env.LANDSCAPE': JSON.stringify(process.env.LANDSCAPE),
+        'process.env.LANDSCAPE': JSON.stringify(landscape),
       }),
     );
 
@@ -58,5 +72,4 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-initOpenNextCloudflareForDev();
+initOpenNextCloudflareForDev().then(() => console.log('initOpenNextCloudflareForDev Completed'));

@@ -13,11 +13,7 @@ type ValidatedConfigs<T extends ConfigSchemas> = {
 };
 
 class ConfigRegistry<T extends ConfigSchemas> {
-  private readonly configs: ValidatedConfigs<T>;
-
-  constructor(configs: ValidatedConfigs<T>) {
-    this.configs = configs;
-  }
+  constructor(private readonly configs: ValidatedConfigs<T>) {}
 
   getConfig(configType: 'common'): ValidatedConfigs<T>['common'];
   getConfig(configType: 'client'): ValidatedConfigs<T>['client'];

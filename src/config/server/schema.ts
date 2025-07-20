@@ -1,12 +1,7 @@
 import { z } from 'zod';
 
 export const serverSchema = z.object({
-  database: z.object({
-    connections: z.number().positive().default(10),
-  }),
-  security: z.object({
-    origins: z.array(z.string()).default([]),
-  }),
+  landscape: z.string().default('unknown'),
 });
 
 export type ServerConfig = z.infer<typeof serverSchema>;

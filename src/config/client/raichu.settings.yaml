@@ -1,13 +1,5 @@
 # Production environment overrides for client configuration
 landscape: 'raichu'
-api:
-  baseUrl: '/api'
-  timeout: 5000
-
-ui:
-  theme: 'auto'
-  animations: true
-
 faro:
   enabled: true
   collectorurl: 'https://faro-collector-prod-ap-southeast-1.grafana.net/collect/acde1a1cc27485b1800cab08881b90a4'

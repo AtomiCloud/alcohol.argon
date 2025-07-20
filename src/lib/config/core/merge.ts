@@ -4,17 +4,8 @@ interface MergeOptions {
   arrayMerge?: (target: unknown[], source: unknown[]) => unknown[];
 }
 
-interface MergerConfig {
-  envPrefix: string;
-  defaultArrayMerge: (target: unknown[], source: unknown[]) => unknown[];
-}
-
 class ConfigurationMerger {
-  private readonly config: MergerConfig;
-
-  constructor(config: MergerConfig) {
-    this.config = config;
-  }
+  constructor(private readonly envPrefix: string) {}
 
   /**
    * Enhanced merge method supporting 4-tier configuration hierarchy:
@@ -22,18 +13,16 @@ class ConfigurationMerger {
    */
   merge<T>(
     base: T,
-    landscape: Partial<T> = {},
     buildTimeEnv: Partial<T> = {},
     runtimeEnv: Partial<T> = {},
-    mergeOptions: MergeOptions = {},
+    arrayMerge?: (target: unknown[], source: unknown[]) => unknown[],
   ): T {
     const mergeOpts = {
-      arrayMerge: mergeOptions.arrayMerge || this.config.defaultArrayMerge,
+      arrayMerge: arrayMerge || ((target: unknown[], source: unknown[]) => source),
     };
 
     // 4-tier merge: base => landscape => build-time => runtime
-    const withLandscape = deepmerge(base, landscape, mergeOpts);
-    const withBuildTime = deepmerge(withLandscape, buildTimeEnv, mergeOpts);
+    const withBuildTime = deepmerge(base, buildTimeEnv, mergeOpts);
     return deepmerge(withBuildTime, runtimeEnv, mergeOpts);
   }
 
@@ -47,7 +36,7 @@ class ConfigurationMerger {
     mergeOptions: MergeOptions = {},
   ): T {
     const mergeOpts = {
-      arrayMerge: mergeOptions.arrayMerge || this.config.defaultArrayMerge,
+      arrayMerge: mergeOptions.arrayMerge || ((target: unknown[], source: unknown[]) => source),
     };
 
     // First merge base with landscape-specific overrides
@@ -57,18 +46,14 @@ class ConfigurationMerger {
     return deepmerge(withLandscape, envOverrides, mergeOpts);
   }
 
-  /**
-   * Process build-time environment variables from injected build environment
-   */
-  processBuildTimeEnvironmentVariables(): Record<string, unknown> {
-    const variables = process.env.BUILD_TIME_VARIABLES || {};
+  processEnvVariables(variables: object): Record<string, unknown> {
     const envVars: Record<string, unknown> = {};
 
     // Process build-time variables
     for (const [key, value] of Object.entries(variables)) {
-      if (key.startsWith(this.config.envPrefix)) {
+      if (key.startsWith(this.envPrefix)) {
         // Remove prefix and convert to nested object path
-        const configPath = key.substring(this.config.envPrefix.length);
+        const configPath = key.substring(this.envPrefix.length);
         const pathParts = configPath.split('__');
 
         // Convert value to appropriate type
@@ -82,25 +67,16 @@ class ConfigurationMerger {
     return envVars;
   }
 
+  /**
+   * Process build-time environment variables from injected build environment
+   */
+  processBuildTimeEnvironmentVariables(): Record<string, unknown> {
+    const variables = process.env.BUILD_TIME_VARIABLES || {};
+    return this.processEnvVariables(variables);
+  }
+
   processEnvironmentVariables(): Record<string, unknown> {
-    const envVars: Record<string, unknown> = {};
-
-    // Process all environment variables with the configured prefix
-    for (const [key, value] of Object.entries(process.env)) {
-      if (key.startsWith(this.config.envPrefix) && value !== undefined) {
-        // Remove prefix and convert to nested object path
-        const configPath = key.substring(this.config.envPrefix.length);
-        const pathParts = configPath.split('__');
-
-        // Convert value to appropriate type
-        const parsedValue = this.parseEnvironmentValue(value);
-
-        // Set nested value
-        this.setNestedValue(envVars, pathParts, parsedValue);
-      }
-    }
-
-    return envVars;
+    return this.processEnvVariables(process.env);
   }
 
   private parseEnvironmentValue(value: string): unknown {
@@ -217,4 +193,4 @@ class ConfigurationMerger {
 }
 
 export { ConfigurationMerger };
-export type { MergeOptions, MergerConfig };
+export type { MergeOptions };
