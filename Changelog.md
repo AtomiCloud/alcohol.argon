@@ -1,3 +1,22 @@
+## [1.4.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.3.1...v1.4.0) (2025-07-20)
+
+
+### ✨ Features ✨
+
+* **swagger:** api adapter ([36c1241](https://github.com/AtomiCloud/alcohol.argon/commit/36c124154db248971f2aeb84215ec96b3b083ac9))
+* faro integration ([3598978](https://github.com/AtomiCloud/alcohol.argon/commit/3598978e937d99af71e3d24b0f8be0be93d811ff))
+* **observability:** fully sdk integration ([2916b45](https://github.com/AtomiCloud/alcohol.argon/commit/2916b45e8067e4ca78e80e42d32062fb244d3ad3))
+* **nix:** SDK generation complete ([e55ba7a](https://github.com/AtomiCloud/alcohol.argon/commit/e55ba7ac4b1f24c48ac2738eb78ba9ce72b3ab8d))
+* **sdk:** SDK generation complete ([5bf183e](https://github.com/AtomiCloud/alcohol.argon/commit/5bf183e9b674b65c9ab7f1dc348bb8ef00c7e5e6))
+* **config:** service tree integration & build time overrides ([e03c94b](https://github.com/AtomiCloud/alcohol.argon/commit/e03c94b13d96d1707be5d4272b64ac5a5aef7bd2))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **config:** build and loading problem ([96957b9](https://github.com/AtomiCloud/alcohol.argon/commit/96957b9ba23366cd37b359fef94fa74fe58e7270))
+* **default:** PR review comments ([6f322e3](https://github.com/AtomiCloud/alcohol.argon/commit/6f322e36dafc5aadde865755005d0cff1f499305))
+* **default:** review suggestions ([41933bd](https://github.com/AtomiCloud/alcohol.argon/commit/41933bd05ea0ea83c3d97961624b50f2cfe7db24))
+
 ## [Unreleased]
 
 ### ✨ Features ✨
