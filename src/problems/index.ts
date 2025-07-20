@@ -11,7 +11,7 @@ export { unauthorizedDefinition, type UnauthorizedContext } from './definitions/
 export { validationErrorDefinition, type ValidationErrorContext } from './definitions/validation-error';
 
 // Registry
-export { createProblemRegistry, type ProblemId } from './registry';
+export type { ProblemId } from './registry';
 
 // Re-export library types for convenience
 export type { ZodProblemDefinition, Problem, ProblemResult, InferProblemContext } from '@/lib/problem/core/types';

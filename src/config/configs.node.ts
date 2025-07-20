@@ -34,6 +34,10 @@ export function loadImportedConfigurations(): ImportedConfigurations {
 
   // Load server configurations
   const baseServerConfig = loadYaml('server/settings.yaml');
+  const laprasServerConfig = loadYaml('server/lapras.settings.yaml');
+  const pichuServerConfig = loadYaml('server/pichu.settings.yaml');
+  const pikachuServerConfig = loadYaml('server/pikachu.settings.yaml');
+  const raichuServerConfig = loadYaml('server/raichu.settings.yaml');
 
   // All imported configurations structured for the library
   return {
@@ -58,8 +62,10 @@ export function loadImportedConfigurations(): ImportedConfigurations {
     server: {
       base: baseServerConfig,
       landscapes: {
-        // Add server landscape configs here if needed:
-        // raichu: raichuServerConfig,
+        lapras: laprasServerConfig,
+        pichu: pichuServerConfig,
+        pikachu: pikachuServerConfig,
+        raichu: raichuServerConfig,
       },
     },
   };

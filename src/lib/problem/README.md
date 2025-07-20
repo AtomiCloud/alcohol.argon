@@ -16,10 +16,10 @@ This library provides a comprehensive solution for handling RFC 7807 Problem Det
 ### 1. Basic Setup
 
 ```typescript
-import { ProblemService } from '@/lib/problem';
+import { createProblemService } from '@/lib/problem';
 import { myProblemDefinitions } from './my-problems';
 
-const problemService = new ProblemService({
+const problemService = createProblemService({
   baseUri: 'https://api.example.com',
   version: '1.0',
   service: 'my-service',

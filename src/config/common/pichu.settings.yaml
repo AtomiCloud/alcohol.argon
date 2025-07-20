@@ -1,7 +1,10 @@
 # Staging environment overrides for pichu landscape
 landscape: 'pichu'
-app:
-  name: 'Alcohol Argon (Staging)'
 
-features:
-  debug: false
+clients:
+  alcohol:
+    zinc:
+      url: 'https://api.zinc.alcohol.pichu.cluster.atomi.cloud'
+app:
+  servicetree:
+    landscape: 'pichu'

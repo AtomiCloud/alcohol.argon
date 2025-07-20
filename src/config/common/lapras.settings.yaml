@@ -1,7 +1,9 @@
 # Development environment overrides for lapras landscape
 landscape: 'lapras'
+clients:
+  alcohol:
+    zinc:
+      url: 'https://api.zinc.alcohol.pichu.cluster.atomi.cloud'
 app:
-  name: 'Alcohol Argon (Development)'
-
-features:
-  debug: true
+  servicetree:
+    landscape: 'lapras'

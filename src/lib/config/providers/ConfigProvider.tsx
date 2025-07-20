@@ -1,10 +1,11 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { ConfigRegistry, ConfigSchemas } from '../core/registry';
-import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
 import { ImportedConfigurations } from '../core/loader';
+import { createConfigManager } from '@/lib/config/core';
 
 export interface ConfigProviderProps<T extends ConfigSchemas> {
+  landscape: string;
   schemas: T;
   importedConfigurations: ImportedConfigurations;
   children: ReactNode;
@@ -19,6 +20,7 @@ interface ConfigContextValue<T extends ConfigSchemas> {
 const ConfigContext = React.createContext<ConfigContextValue<any> | null>(null);
 
 export function ConfigProvider<T extends ConfigSchemas>({
+  landscape,
   schemas,
   importedConfigurations,
   children,
@@ -34,7 +36,7 @@ export function ConfigProvider<T extends ConfigSchemas>({
         setError(null);
 
         // Create configuration manager and registry via factory
-        const configManager = ConfigurationFactory.createManager<T>();
+        const configManager = createConfigManager(landscape);
         const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
         setRegistry(configRegistry);
@@ -42,7 +44,7 @@ export function ConfigProvider<T extends ConfigSchemas>({
         let errorMessage = 'Failed to initialize configuration';
 
         if (isConfigValidationError(err)) {
-          const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+          const validator = new ConfigurationValidator(false);
           errorMessage = validator.formatError(err);
         } else if (err instanceof Error) {
           errorMessage = err.message;
@@ -55,7 +57,7 @@ export function ConfigProvider<T extends ConfigSchemas>({
       }
     }
 
-    initializeConfiguration();
+    initializeConfiguration().then(r => console.log(r));
   }, [schemas]);
 
   const contextValue: ConfigContextValue<T> = {

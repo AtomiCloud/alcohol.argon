@@ -16,6 +16,10 @@ import raichuClientConfig from './client/raichu.settings.yaml';
 
 // Server configurations
 import baseServerConfig from './server/settings.yaml';
+import laprasServerConfig from './server/lapras.settings.yaml';
+import pichuServerConfig from './server/pichu.settings.yaml';
+import pikachuServerConfig from './server/pikachu.settings.yaml';
+import raichuServerConfig from './server/raichu.settings.yaml';
 
 // All imported configurations structured for the library
 export const importedConfigurations: ImportedConfigurations = {
@@ -40,8 +44,10 @@ export const importedConfigurations: ImportedConfigurations = {
   server: {
     base: baseServerConfig,
     landscapes: {
-      // Add server landscape configs here if needed:
-      // raichu: raichuServerConfig,
+      lapras: laprasServerConfig,
+      pichu: pichuServerConfig,
+      pikachu: pikachuServerConfig,
+      raichu: raichuServerConfig,
     },
   },
 };

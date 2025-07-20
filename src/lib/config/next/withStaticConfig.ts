@@ -1,8 +1,8 @@
 import type { GetStaticPropsContext, GetStaticPropsResult } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
-import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
-import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
+import { ConfigurationValidator, isConfigValidationError } from '../core/validator';
 import type { ImportedConfigurations } from '../core/loader';
+import { createConfigManager } from '@/lib/config/core';
 
 export type StaticConfigHandler<T extends ConfigSchemas, P = Record<string, unknown>> = (
   context: GetStaticPropsContext,
@@ -10,16 +10,15 @@ export type StaticConfigHandler<T extends ConfigSchemas, P = Record<string, unkn
 ) => Promise<GetStaticPropsResult<P>>;
 
 export function withStaticConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
+  landscape: string,
   schemas: T,
   importedConfigurations: ImportedConfigurations,
   handler: StaticConfigHandler<T, P>,
 ): (context: GetStaticPropsContext) => Promise<GetStaticPropsResult<P>> {
   return async (context: GetStaticPropsContext) => {
     try {
-      // Create configuration manager and registry via factory
-      const configManager = ConfigurationFactory.createManager<T>();
+      const configManager = createConfigManager(landscape);
       const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
-
       // Call the user's handler with the config registry
       const result = await handler(context, configRegistry);
 
@@ -45,7 +44,7 @@ export function withStaticConfig<T extends ConfigSchemas, P = Record<string, unk
       let errorMessage = 'Configuration initialization failed';
 
       if (isConfigValidationError(error)) {
-        const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+        const validator = new ConfigurationValidator(false);
         errorMessage = validator.formatError(error);
       } else if (error instanceof Error) {
         errorMessage = error.message;

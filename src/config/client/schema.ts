@@ -2,14 +2,6 @@ import { z } from 'zod';
 
 export const clientSchema = z.object({
   landscape: z.string().default('unknown'),
-  api: z.object({
-    baseUrl: z.string().default('/api'),
-    timeout: z.number().positive().default(5000),
-  }),
-  ui: z.object({
-    theme: z.enum(['light', 'dark', 'auto']).default('auto'),
-    animations: z.boolean().default(true),
-  }),
   faro: z.object({
     enabled: z.boolean().default(false),
     collectorurl: z.string().default(''),

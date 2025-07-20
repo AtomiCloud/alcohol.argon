@@ -1,6 +1,1 @@
-# Base configuration for server-only settings
-database:
-  connections: 10
-
-security:
-  origins: []
+landscape: unknown

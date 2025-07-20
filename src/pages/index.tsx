@@ -2,22 +2,20 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { withServerSideConfig } from '@/lib/config';
+import type { CommonConfig } from '@/config';
 import { configSchemas } from '@/config';
-import { useCommonConfig, useClientConfig } from '@/lib/config';
-import type { CommonConfig, ClientConfig } from '@/config';
 import { importedConfigurations } from '@/config/configs';
+import { useCommonConfig } from '@/lib/config/providers';
+import { withServerSideConfig } from '@/lib/config/next';
 
 interface HomeProps {
   serverTime: string;
   userAgent: string;
   appName: string;
-  debugMode: boolean;
 }
 
-export default function Home({ serverTime, userAgent, appName, debugMode }: HomeProps) {
+export default function Home({ serverTime, userAgent, appName }: HomeProps) {
   const commonConfig = useCommonConfig<CommonConfig>();
-  const clientConfig = useClientConfig<ClientConfig>();
   return (
     <>
       <Head>
@@ -71,19 +69,7 @@ export default function Home({ serverTime, userAgent, appName, debugMode }: Home
               <CardContent>
                 <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                   <div>
-                    App Version: <span className="font-mono font-semibold">{commonConfig.app.version}</span>
-                  </div>
-                  <div>
-                    Debug Mode: <span className="font-mono font-semibold">{debugMode ? 'ON' : 'OFF'}</span>
-                  </div>
-                  <div>
-                    Theme: <span className="font-mono font-semibold">{clientConfig.ui.theme}</span>
-                  </div>
-                  <div>
-                    API Base URL: <span className="font-mono font-semibold">{clientConfig.api.baseUrl}</span>
-                  </div>
-                  <div>
-                    API Timeout: <span className="font-mono font-semibold">{clientConfig.api.timeout}ms</span>
+                    App Version: <span className="font-mono font-semibold">{commonConfig.app.build.version}</span>
                   </div>
                 </div>
               </CardContent>
@@ -128,6 +114,7 @@ export default function Home({ serverTime, userAgent, appName, debugMode }: Home
 }
 
 export const getServerSideProps = withServerSideConfig(
+  process.env.LANDSCAPE || 'base',
   configSchemas,
   importedConfigurations,
   async (context, config) => {
@@ -140,7 +127,6 @@ export const getServerSideProps = withServerSideConfig(
         serverTime,
         userAgent,
         appName: config.common.app.name,
-        debugMode: config.common.features.debug,
       },
     };
   },

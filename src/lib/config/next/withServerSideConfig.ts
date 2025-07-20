@@ -1,8 +1,8 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
-import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
 import type { ImportedConfigurations } from '../core/loader';
+import { createConfigManager } from '@/lib/config/core';
 
 export type ServerSideConfigHandler<T extends ConfigSchemas, P = Record<string, unknown>> = (
   context: GetServerSidePropsContext,
@@ -10,14 +10,14 @@ export type ServerSideConfigHandler<T extends ConfigSchemas, P = Record<string, 
 ) => Promise<GetServerSidePropsResult<P>>;
 
 export function withServerSideConfig<T extends ConfigSchemas, P = Record<string, unknown>>(
+  landscape: string,
   schemas: T,
   importedConfigurations: ImportedConfigurations,
   handler: ServerSideConfigHandler<T, P>,
 ): (context: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<P>> {
   return async (context: GetServerSidePropsContext) => {
     try {
-      // Create configuration manager and registry via factory
-      const configManager = ConfigurationFactory.createManager<T>();
+      const configManager = createConfigManager(landscape);
       const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
       // Call the user's handler with the config registry
@@ -45,7 +45,7 @@ export function withServerSideConfig<T extends ConfigSchemas, P = Record<string,
       let errorMessage = 'Configuration initialization failed';
 
       if (isConfigValidationError(error)) {
-        const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+        const validator = new ConfigurationValidator(false);
         errorMessage = validator.formatError(error);
       } else if (error instanceof Error) {
         errorMessage = error.message;

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { ConfigRegistry, ConfigSchemas } from '../core/registry';
-import { ConfigurationFactory, DEFAULT_VALIDATOR_CONFIG } from '../core/factory';
 import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
 import type { ImportedConfigurations } from '../core/loader';
+import { createConfigManager } from '@/lib/config/core';
 
 export type ApiConfigHandler<T extends ConfigSchemas> = (
   req: NextApiRequest,
@@ -11,14 +11,14 @@ export type ApiConfigHandler<T extends ConfigSchemas> = (
 ) => Promise<void> | void;
 
 export function withApiConfig<T extends ConfigSchemas>(
+  landscape: string,
   schemas: T,
   importedConfigurations: ImportedConfigurations,
   handler: ApiConfigHandler<T>,
 ): (req: NextApiRequest, res: NextApiResponse) => Promise<void> {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-      // Create configuration manager and registry via factory
-      const configManager = ConfigurationFactory.createManager<T>();
+      const configManager = createConfigManager(landscape);
       const configRegistry = configManager.createRegistry(schemas, importedConfigurations);
 
       // Call the user's handler with the config registry
@@ -29,7 +29,7 @@ export function withApiConfig<T extends ConfigSchemas>(
       let errorMessage = 'Configuration initialization failed';
 
       if (isConfigValidationError(error)) {
-        const validator = new ConfigurationValidator(DEFAULT_VALIDATOR_CONFIG);
+        const validator = new ConfigurationValidator(false);
         errorMessage = validator.formatError(error);
       } else if (error instanceof Error) {
         errorMessage = error.message;

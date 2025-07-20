@@ -1,13 +1,5 @@
 # Development environment overrides for client configuration
 landscape: 'lapras'
-api:
-  baseUrl: 'http://localhost:3000/api'
-  timeout: 10000
-
-ui:
-  theme: 'light'
-  animations: true
-
 faro:
   enabled: false
   collectorurl: 'https://faro-collector-prod-ap-southeast-1.grafana.net/collect/acde1a1cc27485b1800cab08881b90a4'

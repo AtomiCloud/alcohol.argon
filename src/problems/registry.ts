@@ -28,24 +28,7 @@ const PROBLEM_DEFINITIONS = {
 type ProblemId = keyof typeof PROBLEM_DEFINITIONS;
 
 /**
- * Create and configure the type-safe problem registry
- */
-function createProblemRegistry(errorPortalConfig: CommonConfig['errorPortal']) {
-  // Use provided config or fallback to default values
-  const config = errorPortalConfig;
-
-  return new ProblemRegistry(config, PROBLEM_DEFINITIONS);
-}
-
-/**
- * Create a problem registry with common configuration
- */
-function createProblemRegistryWithConfig(commonConfig: CommonConfig) {
-  return createProblemRegistry(commonConfig.errorPortal);
-}
-
-/**
  * Type-safe problem registry type
  */
-export { createProblemRegistry, createProblemRegistryWithConfig };
+export { PROBLEM_DEFINITIONS };
 export type { ProblemId };

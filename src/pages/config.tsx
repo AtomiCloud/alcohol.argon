@@ -1,28 +1,19 @@
 import Head from 'next/head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { withServerSideConfig } from '@/lib/config';
 import { configSchemas } from '@/config';
-import { useCommonConfig, useClientConfig } from '@/lib/config';
 import type { CommonConfig, ClientConfig } from '@/config';
 import Link from 'next/link';
 import { importedConfigurations } from '@/config/configs';
+import { useClientConfig, useCommonConfig } from '@/lib/config/providers';
+import { withServerSideConfig } from '@/lib/config/next';
 
 interface ConfigPageProps {
   serverTime: string;
   appName: string;
-  debugMode: boolean;
-  serverConfig: {
-    database: {
-      connections: number;
-    };
-    security: {
-      origins: string[];
-    };
-  };
 }
 
-export default function ConfigPage({ serverTime, appName, debugMode, serverConfig }: ConfigPageProps) {
+export default function ConfigPage({ serverTime, appName }: ConfigPageProps) {
   const commonConfig = useCommonConfig<CommonConfig>();
   const clientConfig = useClientConfig<ClientConfig>();
 
@@ -130,13 +121,13 @@ export default function ConfigPage({ serverTime, appName, debugMode, serverConfi
                   <div>
                     <span className="font-semibold text-slate-700 dark:text-slate-300">Version:</span>
                     <div className="font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded mt-1">
-                      {commonConfig.app.version}
+                      {commonConfig.app.build.version}
                     </div>
                   </div>
                   <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Debug Mode:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Landscape:</span>
                     <div className="font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded mt-1">
-                      {commonConfig.features.debug ? 'ON' : 'OFF'}
+                      {commonConfig.landscape}
                     </div>
                   </div>
                 </div>
@@ -152,113 +143,22 @@ export default function ConfigPage({ serverTime, appName, debugMode, serverConfi
               <CardContent>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">API Base URL:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Landscape:</span>
                     <div className="font-mono text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-1">
-                      {clientConfig.api.baseUrl}
+                      {clientConfig.landscape}
                     </div>
                   </div>
                   <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">API Timeout:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Faro Enabled:</span>
                     <div className="font-mono text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-1">
-                      {clientConfig.api.timeout}ms
+                      {clientConfig.faro.enabled ? 'ON' : 'OFF'}
                     </div>
                   </div>
                   <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">UI Theme:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Session Tracking:</span>
                     <div className="font-mono text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-1">
-                      {clientConfig.ui.theme}
+                      {clientConfig.faro.sessionTracking.enabled ? 'ON' : 'OFF'}
                     </div>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Animations:</span>
-                    <div className="font-mono text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-1">
-                      {clientConfig.ui.animations ? 'ON' : 'OFF'}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Server Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-purple-600">Server Configuration</CardTitle>
-                <CardDescription>Server-only settings (from SSR)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">DB Max Connections:</span>
-                    <div className="font-mono text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 p-2 rounded mt-1">
-                      {serverConfig.database.connections}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">CORS Origins:</span>
-                    <div className="font-mono text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 p-2 rounded mt-1">
-                      {serverConfig.security.origins.length > 0
-                        ? serverConfig.security.origins.join(', ')
-                        : 'None configured'}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Rendered At:</span>
-                    <div className="font-mono text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 p-2 rounded mt-1">
-                      {serverTime}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-12 max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuration System Features</CardTitle>
-                <CardDescription>How this demonstration works</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-orange-600">Build Info</h4>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                      <li>• Git commit SHA</li>
-                      <li>• Build version & timestamp</li>
-                      <li>• Injected at build time</li>
-                    </ul>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-teal-600">Service Tree</h4>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                      <li>• AtomiCloud hierarchy</li>
-                      <li>• Deployment context</li>
-                      <li>• Environment awareness</li>
-                    </ul>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-blue-600">Common Config</h4>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                      <li>• Shared between client & server</li>
-                      <li>• Loaded via useCommonConfig()</li>
-                      <li>• Type-safe with Zod validation</li>
-                    </ul>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-green-600">Client Config</h4>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                      <li>• Browser-safe settings only</li>
-                      <li>• Loaded via useClientConfig()</li>
-                      <li>• Available in React components</li>
-                    </ul>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-purple-600">Server Config</h4>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                      <li>• Server-only sensitive data</li>
-                      <li>• Passed via getServerSideProps</li>
-                      <li>• Never exposed to client</li>
-                    </ul>
                   </div>
                 </div>
               </CardContent>
@@ -277,6 +177,7 @@ export default function ConfigPage({ serverTime, appName, debugMode, serverConfi
 }
 
 export const getServerSideProps = withServerSideConfig(
+  process.env.LANDSCAPE || 'base',
   configSchemas,
   importedConfigurations,
   async (context, config) => {
@@ -286,15 +187,6 @@ export const getServerSideProps = withServerSideConfig(
       props: {
         serverTime,
         appName: config.common.app.name,
-        debugMode: config.common.features.debug,
-        serverConfig: {
-          database: {
-            connections: config.server.database.connections,
-          },
-          security: {
-            origins: config.server.security.origins,
-          },
-        },
       },
     };
   },

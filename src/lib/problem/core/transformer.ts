@@ -1,6 +1,6 @@
-import type { Problem, ProblemConfig, HttpErrorDetails } from './types';
+import type { Problem, HttpErrorDetails } from './types';
 import { isProblem } from './types';
-import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '../utils/content-type-parser';
+import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '@/lib/problem';
 import type { ProblemRegistry } from './registry';
 import type { HttpErrorContext } from '@/problems/definitions/http-error';
 import type { LocalErrorContext } from '@/problems/definitions/local-error';
@@ -18,7 +18,6 @@ export interface ErrorReporter {
  */
 export class ProblemTransformer {
   constructor(
-    private config: ProblemConfig,
     // biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
     private problemRegistry: ProblemRegistry<any>,
     private errorReporter: ErrorReporter,
@@ -114,7 +113,7 @@ export class ProblemTransformer {
     // Create problem using registry
     const httpErrorContext: HttpErrorContext = {
       statusCode: details.status,
-      responseBody: details.body?.trim() || undefined,
+      responseBody: details.body?.trim() || 'unknown',
       url: details.url,
     };
 
@@ -250,7 +249,7 @@ export class ProblemTransformer {
       // Create problem using registry
       const httpErrorContext: HttpErrorContext = {
         statusCode: status,
-        responseBody: responseBody.trim() || undefined,
+        responseBody: responseBody.trim() || 'unknown',
         url,
       };
 
@@ -282,9 +281,9 @@ export class ProblemTransformer {
   }
 
   /**
-   * Build a type URI for problems
+   * Build a type URI for problems using the registry's URI builder
    */
   private buildTypeUri(problemId: string): string {
-    return `${this.config.baseUri}/${this.config.service}/api/v${this.config.version}/${problemId}`;
+    return this.problemRegistry.buildTypeUri(problemId);
   }
 }
