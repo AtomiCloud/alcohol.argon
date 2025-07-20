@@ -3,7 +3,7 @@ import InlineLottie from './InlineLottie';
 // Import animation data - uncomment when you have the JSON files
 import loadingData from '/public/animations/loading.json';
 import successData from '/public/animations/success.json';
-import errorData from '/public/animations/error.json';
+import errorData from '/public/animations/errors/dogSwimming.json';
 import emptyStateData from '/public/animations/empty-state.json';
 
 interface PresetProps {

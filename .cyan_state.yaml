@@ -4,21 +4,40 @@ atomi/nix-init:
     - version: 12
       time: 2025-06-25T13:36:26.512377Z
       answers:
-        infra:
-          type: Bool
-          value: false
+        init-type:
+          type: String
+          value: AtomiCloud Suite
         service:
           type: String
           value: argon
         platform:
           type: String
           value: alcohol
+        infra:
+          type: Bool
+          value: false
+        runtime:
+          type: String
+          value: Bun
+      deterministic_states: {}
+    - version: 13
+      time: 2025-07-20T15:07:29.490030Z
+      answers:
+        infra:
+          type: Bool
+          value: false
         runtime:
           type: String
           value: Bun
         init-type:
           type: String
           value: AtomiCloud Suite
+        platform:
+          type: String
+          value: alcohol
+        service:
+          type: String
+          value: argon
       deterministic_states: {}
 atomi/workspace:
   active: true
@@ -26,6 +45,12 @@ atomi/workspace:
     - version: 14
       time: 2025-06-25T13:41:58.692235Z
       answers:
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
         atomi/workspace/runtime:
           type: String
           value: Bun
@@ -35,28 +60,22 @@ atomi/workspace:
         atomi/workspace/service:
           type: String
           value: argon
-        atomi/workspace/platform:
-          type: String
-          value: alcohol
-        atomi/workspace/enable-helm:
-          type: Bool
-          value: false
       deterministic_states: {}
     - version: 15
       time: 2025-06-28T08:53:41.612768Z
       answers:
-        atomi/workspace/platform:
-          type: String
-          value: alcohol
-        atomi/workspace/enable-docker:
-          type: Bool
-          value: false
         atomi/workspace/runtime:
           type: String
           value: Bun
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
         atomi/workspace/enable-helm:
           type: Bool
           value: false
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
         atomi/workspace/service:
           type: String
           value: argon
@@ -64,38 +83,57 @@ atomi/workspace:
     - version: 16
       time: 2025-06-28T09:20:46.029384Z
       answers:
-        atomi/workspace/runtime:
-          type: String
-          value: Bun
         atomi/workspace/enable-docker:
           type: Bool
           value: false
-        atomi/workspace/enable-helm:
-          type: Bool
-          value: false
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
         atomi/workspace/service:
           type: String
           value: argon
         atomi/workspace/platform:
           type: String
           value: alcohol
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
       deterministic_states: {}
     - version: 17
       time: 2025-06-30T12:23:31.093222Z
       answers:
-        atomi/workspace/service:
-          type: String
-          value: argon
-        atomi/workspace/enable-docker:
-          type: Bool
-          value: false
-        atomi/workspace/runtime:
-          type: String
-          value: Bun
-        atomi/workspace/enable-helm:
-          type: Bool
-          value: false
         atomi/workspace/platform:
           type: String
           value: alcohol
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/service:
+          type: String
+          value: argon
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+      deterministic_states: {}
+    - version: 18
+      time: 2025-07-20T15:07:33.300073Z
+      answers:
+        atomi/workspace/runtime:
+          type: String
+          value: Bun
+        atomi/workspace/platform:
+          type: String
+          value: alcohol
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: false
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: false
+        atomi/workspace/service:
+          type: String
+          value: argon
       deterministic_states: {}

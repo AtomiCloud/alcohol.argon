@@ -41,10 +41,10 @@ export default function InteractiveLottieDemo() {
             Success
           </Button>
           <Button
-            onClick={() => setCurrentAnimation('error')}
-            variant={currentAnimation === 'error' ? 'default' : 'outline'}
+            onClick={() => setCurrentAnimation('errors/dogSwimming')}
+            variant={currentAnimation === 'errors/dogSwimming' ? 'default' : 'outline'}
             className={
-              currentAnimation === 'error'
+              currentAnimation === 'errors/dogSwimming'
                 ? 'bg-red-600 hover:bg-red-700 text-white font-medium'
                 : 'border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 font-medium'
             }
