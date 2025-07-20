@@ -18,7 +18,7 @@ src/
 │   ├── ui/         # shadcn/ui components (Badge, Button, Card, Input)
 │   └── lottie/     # Lottie animation system (InlineLottie, presets)
 ├── lib/            # Utilities (lottie-utils, template-api, utils)
-│   ├── core/       # Functional monads (Option, Result, discriminated unions)
+│   ├── monads/     # Functional monads (Option, Result, discriminated unions)
 │   ├── config/     # Configuration management system with validation
 │   └── problem/    # Problem Details (RFC 7807) error handling system
 ├── hooks/          # Custom hooks (useUrlState for URL synchronization)

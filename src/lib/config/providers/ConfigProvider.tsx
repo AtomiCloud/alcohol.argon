@@ -58,7 +58,7 @@ export function ConfigProvider<T extends ConfigSchemas>({
     }
 
     initializeConfiguration().then(r => console.log(r));
-  }, [schemas]);
+  }, [schemas, landscape, importedConfigurations]);
 
   const contextValue: ConfigContextValue<T> = {
     registry: registry!,
