@@ -31,7 +31,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "tailwindcss": "^4.1.11",
-    "@grafana/faro-webpack-plugin": "^0.5.1",
+    "@grafana/faro-webpack-plugin": "^0.6.0",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5.8.3",
     "wrangler": "^4.25.0",
