@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { withApiConfig } from '@/lib/config/next';
-import { ProblemRegistry } from '@/lib/problem';
+import { ProblemRegistry } from '@/lib/problem/core';
 import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 
 /**

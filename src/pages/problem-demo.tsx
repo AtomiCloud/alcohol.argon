@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { ValidationErrorContext } from '@/problems';
-import { Problem, ProblemRegistry } from '@/lib/problem';
+import { Problem, ProblemRegistry } from '@/lib/problem/core';
 import type { ResultSerial } from '@/lib/monads/result';
 import { Err, Ok } from '@/lib/monads/result';
 import { CommonConfig } from '@/config';

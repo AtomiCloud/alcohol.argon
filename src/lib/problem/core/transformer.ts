@@ -1,27 +1,32 @@
-import type { Problem, HttpErrorDetails } from './types';
+import type { Problem } from './types';
 import { isProblem } from './types';
-import { defaultContentTypeRegistry, type ContentTypeParserRegistry } from '@/lib/problem';
 import type { ProblemRegistry } from './registry';
-import type { HttpErrorContext } from '@/problems/definitions/http-error';
-import type { LocalErrorContext } from '@/problems/definitions/local-error';
+import type { ProblemDefinitions } from '.';
+import type { LocalErrorContext } from './definition/local-error';
+import type { UnknownErrorContext } from './definition/unknown-error';
+import type { HttpErrorContext } from './definition/http-error';
 
 /**
  * Interface for error reporting functionality (e.g., Faro, Sentry, etc.)
  */
-export interface ErrorReporter {
+interface ErrorReporter {
   pushError(error: Error, context?: Record<string, unknown>): void;
+  getSessionId(): string;
+  getTraceId(): string;
+}
+
+interface ErrorReporterFactory {
+  get(): ErrorReporter;
 }
 
 /**
  * Core transformer class for converting errors to RFC 7807 Problems
  * Designed to be DI-compatible - only handles library catch-all problems
  */
-export class ProblemTransformer {
+class ProblemTransformer<T extends ProblemDefinitions> {
   constructor(
-    // biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
-    private problemRegistry: ProblemRegistry<any>,
+    private problemRegistry: ProblemRegistry<T>,
     private errorReporter: ErrorReporter,
-    private contentTypeRegistry: ContentTypeParserRegistry = defaultContentTypeRegistry,
   ) {}
 
   /**
@@ -37,9 +42,28 @@ export class ProblemTransformer {
   }
 
   /**
+   * Enrich problem with session and trace IDs from error reporter
+   * Only adds IDs if they're not already present in the problem
+   */
+  private enrichProblemWithIds(problem: Problem): Problem {
+    try {
+      const enrichedProblem = { ...problem };
+      // Only set sessionId if not already present
+      if (!enrichedProblem.sessionId) enrichedProblem.sessionId = this.errorReporter.getSessionId();
+      // Only set traceId if not already present
+      if (!enrichedProblem.traceId) enrichedProblem.traceId = this.errorReporter.getTraceId();
+      return enrichedProblem;
+    } catch (e) {
+      // If we can't get IDs, return problem as-is
+      console.debug('Failed to enrich problem with IDs:', e);
+      return problem;
+    }
+  }
+
+  /**
    * Transform a native Error to a Problem (library catch-all)
    */
-  fromError(error: Error, additionalDetail?: string, instance?: string): Problem {
+  fromError(error: Error, additionalDetail = '', instance = 'unknown'): Problem {
     // Report to error reporter
     this.reportError(error, {
       additionalDetail,
@@ -55,90 +79,26 @@ export class ProblemTransformer {
       context: additionalDetail || 'Error transformation',
     };
 
-    return this.problemRegistry.createProblem('local_error', localErrorContext, undefined, instance);
-  }
-
-  /**
-   * Transform HTTP error details to a Problem (library catch-all)
-   * Supports multiple content types for parsing response body
-   */
-  async fromHttpError(details: HttpErrorDetails, additionalDetail?: string, instance?: string): Promise<Problem> {
-    // Report to error reporter
-    const httpError = new Error(`HTTP ${details.status} ${details.statusText}: ${details.body}`);
-    this.reportError(httpError, {
-      url: details.url,
-      status: details.status,
-      statusText: details.statusText,
-      additionalDetail,
-      instance,
-      transformer: 'ProblemTransformer.fromHttpError',
-    });
-
-    // Try to parse body using content-type aware parser
-    let bodyData: unknown = null;
-    if (details.body) {
-      // Determine content type from headers
-      const contentType = details.headers?.['content-type'] || 'application/json';
-
-      // Try to parse with appropriate parser
-      const parseResult = this.contentTypeRegistry.parse(details.body, contentType);
-      bodyData = await parseResult.match({
-        ok: parsed => parsed,
-        err: () => details.body, // Fallback to raw body if parsing fails
-      });
-    }
-
-    // If the parsed body is already a problem, preserve it with additional context
-    if (isProblem(bodyData)) {
-      let detail = bodyData.detail;
-      if (additionalDetail) {
-        detail = `${detail}. ${additionalDetail}`;
-      }
-
-      return {
-        ...bodyData,
-        detail: `${detail} (Original HTTP ${details.status}: ${details.statusText})`,
-        instance: instance || bodyData.instance,
-        // Preserve original problem data
-        _originalProblem: bodyData,
-        _httpContext: {
-          status: details.status,
-          statusText: details.statusText,
-          headers: details.headers,
-          url: details.url,
-        },
-      };
-    }
-
-    // Create problem using registry
-    const httpErrorContext: HttpErrorContext = {
-      statusCode: details.status,
-      responseBody: details.body?.trim() || 'unknown',
-      url: details.url,
-    };
-
-    return this.problemRegistry.createProblem('http_error', httpErrorContext, undefined, instance);
+    // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
+    const problem = this.problemRegistry.createProblem('local_error', localErrorContext as any, undefined, instance);
+    return this.enrichProblemWithIds(problem);
   }
 
   /**
    * Transform unknown error to a Problem (library catch-all)
    */
-  fromUnknown(error: unknown, additionalDetail?: string, instance?: string): Problem {
+  fromUnknown(error: unknown, additionalDetail = '', instance = 'unknown'): Problem {
+    const ad = additionalDetail.length === 0 ? '' : `. ${additionalDetail}`;
+
     // If it's already a problem, return as-is (but add additional detail if provided)
-    if (isProblem(error)) {
-      if (additionalDetail) {
-        return {
-          ...error,
-          detail: `${error.detail}. ${additionalDetail}`,
-        };
-      }
-      return error;
-    }
+    if (isProblem(error))
+      return this.enrichProblemWithIds({
+        ...error,
+        detail: `${error.detail}${ad}`,
+      });
 
     // If it's an Error object, use fromError (which handles Faro reporting)
-    if (error instanceof Error) {
-      return this.fromError(error, additionalDetail, instance);
-    }
+    if (error instanceof Error) return this.fromError(error, additionalDetail, instance);
 
     // Report non-Error objects to error reporter as synthetic errors
     const syntheticError = new Error(typeof error === 'string' ? error : 'Unknown error occurred');
@@ -150,53 +110,33 @@ export class ProblemTransformer {
       transformer: 'ProblemTransformer.fromUnknown',
     });
 
-    // If it's a string
-    if (typeof error === 'string') {
-      let detail = error;
-      if (additionalDetail) {
-        detail = `${detail}. ${additionalDetail}`;
+    const parsed: string = (() => {
+      // if it's a string, return the object itself
+      if (typeof error === 'string') return `${error}.`;
+
+      // if it's an object, return he JSON form or "an unknown error occurred"
+      if (error && typeof error === 'object') {
+        try {
+          return JSON.stringify(error);
+        } catch {
+          return 'an unknown error occurred';
+        }
       }
+      // else, cast it to string and return it.
+      return String(error);
+    })();
+    // add additionalDetail if exists.
+    const detail = `${parsed}${ad}`;
 
-      return {
-        type: this.buildTypeUri('unknown_error'),
-        title: 'Unknown Error',
-        status: 500,
-        detail,
-        instance,
-      };
-    }
-
-    // If it's an object, try to extract useful information
-    if (error && typeof error === 'object') {
-      const obj = error as Record<string, unknown>;
-      let detail = obj.message?.toString() || 'An unknown error occurred';
-      if (additionalDetail) {
-        detail = `${detail}. ${additionalDetail}`;
-      }
-
-      return {
-        type: this.buildTypeUri('unknown_error'),
-        title: 'Unknown Error',
-        status: 500,
-        detail,
-        instance,
-        originalError: error,
-      };
-    }
-
-    // Fallback for primitive types
-    let detail = String(error);
-    if (additionalDetail) {
-      detail = `${detail}. ${additionalDetail}`;
-    }
-
-    return {
-      type: this.buildTypeUri('unknown_error'),
-      title: 'Unknown Error',
-      status: 500,
-      detail,
-      instance,
+    const unknownError: UnknownErrorContext = {
+      type: typeof error,
+      value: detail,
+      stackTrace: new Error('Stack trace generator').stack,
     };
+
+    // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
+    const problem = this.problemRegistry.createProblem('local_error', unknownError as any, undefined, instance);
+    return this.enrichProblemWithIds(problem);
   }
 
   /**
@@ -253,7 +193,8 @@ export class ProblemTransformer {
         url,
       };
 
-      return this.problemRegistry.createProblem('http_error', httpErrorContext, undefined, instance);
+      // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
+      return this.problemRegistry.createProblem('http_error', httpErrorContext as any, undefined, instance);
     }
 
     // Handle standard Error objects
@@ -273,17 +214,14 @@ export class ProblemTransformer {
         context: 'Swagger API call',
       };
 
-      return this.problemRegistry.createProblem('local_error', localErrorContext, undefined, instance);
+      // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
+      return this.problemRegistry.createProblem('local_error', localErrorContext as any, undefined, instance);
     }
 
     // Handle unknown error types using existing fromUnknown method
     return this.fromUnknown(error, 'Swagger error', instance);
   }
-
-  /**
-   * Build a type URI for problems using the registry's URI builder
-   */
-  private buildTypeUri(problemId: string): string {
-    return this.problemRegistry.buildTypeUri(problemId);
-  }
 }
+
+export type { ErrorReporter, ErrorReporterFactory };
+export { ProblemTransformer };

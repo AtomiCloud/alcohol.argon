@@ -33,8 +33,11 @@ export function Navbar() {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/templates', label: 'Templates' },
+    { href: '/config', label: 'Config' },
     { href: '/lottie-demo', label: 'Animations' },
+    { href: '/problem-demo', label: 'Problems' },
     { href: '/api-showcase', label: 'API Showcase' },
+    { href: '/framework-demo', label: 'Framework' },
   ];
 
   return (

@@ -1,13 +1,14 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { ConfigRegistry, ConfigSchemas } from '../core/registry';
-import { isConfigValidationError, ConfigurationValidator } from '../core/validator';
+import { ConfigurationValidator, isConfigValidationError } from '../core/validator';
 import { ImportedConfigurations } from '../core/loader';
 import { createConfigManager } from '@/lib/config/core';
+import { useLandscape } from '@/lib/landscape/providers/hooks';
 
 export interface ConfigProviderProps<T extends ConfigSchemas> {
-  landscape: string;
   schemas: T;
   importedConfigurations: ImportedConfigurations;
+  landscape: string;
   children: ReactNode;
 }
 
@@ -58,7 +59,7 @@ export function ConfigProvider<T extends ConfigSchemas>({
     }
 
     initializeConfiguration().then(r => console.log(r));
-  }, [schemas, landscape, importedConfigurations]);
+  }, [schemas, importedConfigurations]);
 
   const contextValue: ConfigContextValue<T> = {
     registry: registry!,

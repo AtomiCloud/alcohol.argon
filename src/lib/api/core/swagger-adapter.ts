@@ -5,8 +5,8 @@
  * Automatically detects and preserves RFC 7807 Problem Details in error responses.
  */
 
-import { Ok, Err, type Result } from '@/lib/monads/result';
-import type { Problem } from '@/lib/problem';
+import { Err, Ok, type Result } from '@/lib/monads/result';
+import type { Problem, ProblemDefinitions } from '@/lib/problem/core';
 import type { ProblemTransformer } from '@/lib/problem/core/transformer';
 
 /**
@@ -17,11 +17,11 @@ type AsyncFunction<TArgs extends unknown[], TReturn> = (...args: TArgs) => Promi
 /**
  * Configuration for the swagger adapter
  */
-export interface SwaggerAdapterConfig {
+interface SwaggerAdapterConfig<T extends ProblemDefinitions> {
   /** Instance identifier for problem details */
   instance?: string;
   /** Problem transformer for handling errors */
-  problemTransformer?: ProblemTransformer;
+  problemTransformer?: ProblemTransformer<T>;
 }
 
 /**
@@ -42,9 +42,9 @@ export interface SwaggerAdapterConfig {
  * });
  * ```
  */
-export function wrapApiMethod<TArgs extends unknown[], TReturn>(
+function wrapApiMethod<TArgs extends unknown[], TReturn, T extends ProblemDefinitions>(
   apiMethod: AsyncFunction<TArgs, TReturn>,
-  config: SwaggerAdapterConfig = {},
+  config: SwaggerAdapterConfig<T> = {},
 ): (...args: TArgs) => Promise<Result<TReturn, Problem>> {
   const { instance = 'unknown', problemTransformer } = config;
 
@@ -89,9 +89,9 @@ export function wrapApiMethod<TArgs extends unknown[], TReturn>(
  * ```
  */
 // biome-ignore lint/suspicious/noExplicitAny: Generic API client requires any type
-export function createSafeApiClient<T extends Record<string, any>>(
+function createSafeApiClient<T extends Record<string, any>, Y extends ProblemDefinitions>(
   apiClient: T,
-  config: SwaggerAdapterConfig = {},
+  config: SwaggerAdapterConfig<Y> = {},
 ): SafeApiClient<T> {
   // biome-ignore lint/suspicious/noExplicitAny: Cache must store any value type
   const cache = new Map<string | symbol, any>();
@@ -131,6 +131,27 @@ export function createSafeApiClient<T extends Record<string, any>>(
   return wrapObject(apiClient) as SafeApiClient<T>;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic type needs any to function
+type ClientTree = Record<string, Record<string, Record<string, any>>>;
+
+type ApiTree<T extends ClientTree> = {
+  [K in keyof T]: {
+    [L in keyof T[K]]: SafeApiClient<T[K][L]>;
+  };
+};
+
+function createFromClientTree<T extends ClientTree>(clientTree: T): ApiTree<T> {
+  const result = {} as ApiTree<T>;
+  for (const platform in clientTree) {
+    result[platform] = {} as ApiTree<T>[typeof platform];
+    for (const service in clientTree[platform]) {
+      result[platform][service] = createSafeApiClient(clientTree[platform][service]);
+    }
+  }
+
+  return result;
+}
+
 /**
  * Type transformation that converts all async methods to return Result<T, Problem>
  */
@@ -143,4 +164,5 @@ type SafeApiClient<T> = {
       : T[K];
 };
 
-export type { SafeApiClient };
+export { createSafeApiClient, wrapApiMethod, createFromClientTree };
+export type { SafeApiClient, SwaggerAdapterConfig, ClientTree, ApiTree };

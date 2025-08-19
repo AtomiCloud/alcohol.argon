@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import Head from 'next/head';
 import { AlertCircle, CheckCircle, ExternalLink, RefreshCw } from 'lucide-react';
 
 import { AlcoholZincApi } from '@/clients/alcohol/zinc/api';
-import { createSafeApiClient, SafeApiClient } from '@/lib/api/swagger-adapter';
+import { createSafeApiClient, SafeApiClient } from '@/lib/api/core/swagger-adapter';
 import { ProblemTransformer } from '@/lib/problem/core/transformer';
 import { FaroErrorReporter } from '@/lib/observability';
 import { CommonConfig, configSchemas } from '@/config';
 import type { ClientConfig } from '@/config/client/schema';
-import { NoOpErrorReporter, Problem, ProblemRegistry } from '@/lib/problem';
+import { NoOpErrorReporter, Problem, ProblemRegistry } from '@/lib/problem/core';
 import type { Result } from '@/lib/monads/result';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 import { useSearchState } from '@/hooks/useUrlState';
 import { withServerSideConfig } from '@/lib/config/next';
 import { importedConfigurations } from '@/config/configs';
+import { FaroErrorReporterFactory } from '@/adapters/problem-reporter/core/problem-reporter';
 
 interface DataSection {
   id: string;
@@ -384,10 +385,12 @@ export const getServerSideProps = withServerSideConfig(
   process.env.LANDSCAPE || 'base',
   configSchemas,
   importedConfigurations,
-  async (context, config): Promise<{ props: ApiShowcasePageProps }> => {
+  async (_, config): Promise<{ props: ApiShowcasePageProps }> => {
     const zincApiBaseUrl = config.common.clients.alcohol.zinc.url;
     const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
-    const problemTransformer = new ProblemTransformer(problemRegistry, new NoOpErrorReporter());
+    const errorReporterFactory = new FaroErrorReporterFactory(config.client.faro.enabled);
+    const errorReporter = errorReporterFactory.get();
+    const problemTransformer = new ProblemTransformer(problemRegistry, errorReporter);
 
     const zincApiGood = new AlcoholZincApi({ baseUrl: zincApiBaseUrl });
     const safeZincApiGood = createSafeApiClient(zincApiGood, { problemTransformer, instance: 'api-showcase-ssr' });

@@ -6,4 +6,12 @@ import type { ErrorReporter } from './transformer';
  */
 export class NoOpErrorReporter implements ErrorReporter {
   pushError(_error: Error, _context?: Record<string, unknown>): void {}
+
+  getSessionId(): string {
+    return 'unknown';
+  }
+
+  getTraceId(): string {
+    return 'unknown';
+  }
 }

@@ -5,18 +5,25 @@ import { configSchemas } from '@/config';
 import FrontendObservability from '@/lib/observability/FrontendObservability';
 import { importedConfigurations } from '@/config/configs';
 import { ConfigProvider } from '@/lib/config/providers';
+import { GlobalErrorBoundary } from '@/components/error-boundary';
+import { ContentManager } from '@/components/content-manager';
+import { ErrorProvider } from '@/contexts/ErrorContext';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ConfigProvider
-      schemas={configSchemas}
-      importedConfigurations={importedConfigurations}
-      landscape={process.env.LANDSCAPE || 'base'}
-    >
+    // <LandscapeProvider landscapeSource={envLandscapeSource}>
+    // <ConfigProvider schemas={configSchemas} importedConfigurations={importedConfigurations}>
+    // <ProblemProvider problemDefinition={PROBLEM_DEFINITIONS}>
+    <ErrorProvider>
       <FrontendObservability />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </ConfigProvider>
+      <GlobalErrorBoundary>
+        <Layout>
+          <ContentManager Component={Component} pageProps={pageProps} />
+        </Layout>
+      </GlobalErrorBoundary>
+    </ErrorProvider>
+    // </ProblemProvider>
+    // </ConfigProvider>
+    // </LandscapeProvider>
   );
 }
