@@ -3,7 +3,7 @@ import { ProblemTransformer } from '@/lib/problem/core/transformer';
 import type { Problem } from '@/lib/problem/core/types';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { ProblemDefinitions } from '@/lib/problem/core';
-import { useProblemTransformer } from '@/lib/problem/providers';
+import { useProblemTransformer } from '@/adapters/external/Provider';
 
 interface GlobalErrorBoundaryProps<T extends ProblemDefinitions> {
   children: ReactNode;

@@ -1,12 +1,10 @@
 import Head from 'next/head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { configSchemas } from '@/config';
-import type { CommonConfig, ClientConfig } from '@/config';
 import Link from 'next/link';
 import { importedConfigurations } from '@/config/configs';
-import { useClientConfig, useCommonConfig } from '@/lib/config/providers';
-import { withServerSideConfig } from '@/lib/config/next';
+import { withServerSideConfig } from '@/adapters/external/next';
+import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
 
 interface ConfigPageProps {
   serverTime: string;
@@ -14,8 +12,8 @@ interface ConfigPageProps {
 }
 
 export default function ConfigPage({ serverTime, appName }: ConfigPageProps) {
-  const commonConfig = useCommonConfig<CommonConfig>();
-  const clientConfig = useClientConfig<ClientConfig>();
+  const commonConfig = useCommonConfig();
+  const clientConfig = useClientConfig();
 
   return (
     <>
@@ -177,9 +175,10 @@ export default function ConfigPage({ serverTime, appName }: ConfigPageProps) {
 }
 
 export const getServerSideProps = withServerSideConfig(
-  process.env.LANDSCAPE || 'base',
-  configSchemas,
-  importedConfigurations,
+  {
+    landscape: process.env.LANDSCAPE || 'base',
+    importedConfigurations,
+  },
   async (context, config) => {
     const serverTime = new Date().toISOString();
 

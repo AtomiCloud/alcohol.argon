@@ -2,11 +2,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { CommonConfig } from '@/config';
-import { configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
-import { useCommonConfig } from '@/lib/config/providers';
-import { withServerSideConfig } from '@/lib/config/next';
+import { useCommonConfig } from '@/adapters/external/Provider';
+import { withServerSideConfig } from '@/adapters/external/next';
 
 interface HomeProps {
   serverTime: string;
@@ -15,7 +13,7 @@ interface HomeProps {
 }
 
 export default function Home({ serverTime, userAgent, appName }: HomeProps) {
-  const commonConfig = useCommonConfig<CommonConfig>();
+  const commonConfig = useCommonConfig();
   return (
     <>
       <Head>
@@ -114,9 +112,10 @@ export default function Home({ serverTime, userAgent, appName }: HomeProps) {
 }
 
 export const getServerSideProps = withServerSideConfig(
-  process.env.LANDSCAPE || 'base',
-  configSchemas,
-  importedConfigurations,
+  {
+    landscape: process.env.LANDSCAPE || 'base',
+    importedConfigurations,
+  },
   async (context, config) => {
     // Access config.common, config.client, config.server
     const serverTime = new Date().toISOString();

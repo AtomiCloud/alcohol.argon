@@ -1,4 +1,2 @@
-// React integration
-export { ErrorReporterProvider } from './ErrorReporterProvider';
-export type { ErrorReporterProviderProps } from './ErrorReporterProvider';
-export { useErrorReporter } from './hooks';
+export { useProblemReporterContext, ProblemReporterProvider, type ProblemReporterProviderProps } from './adapter';
+export { useProblemReporter, useProblemReporterFactory } from './hooks';

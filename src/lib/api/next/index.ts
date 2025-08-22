@@ -1,4 +1,13 @@
-// Next.js integration barrel exports
-export { withApiSwaggerClients, type ApiSwaggerClientsHandler } from './withApiSwaggerClients';
-export { withServerSideSwaggerClients, type ServerSideSwaggerClientsHandler } from './withServerSideSwaggerClients';
-export { withStaticSwaggerClients, type StaticSwaggerClientsHandler } from './withStaticSwaggerClients';
+import { createNextAdapter, type NextAdapter, type NextAdapterConfig } from '@/lib/module/next';
+import { apiBuilder, type ApiModuleInput } from '@/lib/api/core/adapter';
+import type { ApiTree, ClientTree } from '@/lib/api/core';
+
+function createApiModule<T extends ClientTree>(clientTree: T): NextAdapter<ApiModuleInput, ApiTree<T>> {
+  const module: NextAdapterConfig<ApiModuleInput, ApiTree<T>> = {
+    name: 'Api',
+    builder: input => apiBuilder(input, clientTree),
+  };
+  return createNextAdapter(module);
+}
+
+export { createApiModule };

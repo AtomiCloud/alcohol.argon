@@ -6,11 +6,10 @@ import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { loadImportedConfigurations } from '@/config/configs.node';
 import {
   ConfigurationLoader,
+  ConfigurationManager,
   ConfigurationMerger,
   ConfigurationValidator,
-  ConfigurationManager,
 } from '@/lib/config/core';
-
 // Process build-time environment variables
 const buildTimeProcessor = new BuildTimeProcessor();
 const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
@@ -49,7 +48,7 @@ const nextConfig: NextConfig = {
     const webpack = require('webpack');
     config.plugins.push(
       new webpack.DefinePlugin({
-        'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
+        // 'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
         'process.env.LANDSCAPE': JSON.stringify(landscape),
       }),
     );

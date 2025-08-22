@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useErrorContext } from '@/contexts/ErrorContext';
 import type { Problem } from '@/lib/problem/core/types';
-import { useProblemTransformer } from '@/lib/problem/providers';
+import { useProblemTransformer } from '@/adapters/external/Provider';
 
 export function useErrorHandler() {
   const { setError } = useErrorContext();

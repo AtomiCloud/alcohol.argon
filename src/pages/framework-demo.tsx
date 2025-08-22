@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, type GetServerSidePropsResult } from 'next';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +10,11 @@ import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { ProblemRegistry } from '@/lib/problem/core';
-import { useCommonConfig } from '@/lib/config/providers';
-import { CommonConfig, configSchemas } from '@/config';
+import { CommonConfig } from '@/config';
 import { PROBLEM_DEFINITIONS } from '@/problems';
-import { withServerSideConfig } from '@/lib/config/next';
 import { importedConfigurations } from '@/config/configs';
+import { withServerSideConfig } from '@/adapters/external/next';
+import { useCommonConfig } from '@/adapters/external/Provider';
 
 interface FrameworkDemoProps {
   // Example of how pages can receive serialized error results
@@ -31,7 +31,7 @@ interface FrameworkDemoProps {
  * 4. Various error types and animations
  */
 export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
-  const commonConfig = useCommonConfig<CommonConfig>();
+  const commonConfig = useCommonConfig();
   const problemRegistry = new ProblemRegistry(commonConfig.errorPortal, PROBLEM_DEFINITIONS);
 
   const router = useRouter();
@@ -328,11 +328,12 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
 /**
  * Example of how to return different types of errors from getServerSideProps
  */
-export const getServerSideProps: GetServerSideProps<FrameworkDemoProps> = withServerSideConfig(
-  process.env.LANDSCAPE || 'base',
-  configSchemas,
-  importedConfigurations,
-  async (context, config): Promise<{ props: FrameworkDemoProps }> => {
+export const getServerSideProps = withServerSideConfig(
+  {
+    landscape: process.env.LANDSCAPE || 'base',
+    importedConfigurations,
+  },
+  async (context, config): Promise<GetServerSidePropsResult<FrameworkDemoProps>> => {
     const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
 
     const { error_type } = context.query;

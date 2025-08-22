@@ -24,7 +24,10 @@ export { isProblem } from './types';
 // Core classes
 export { NoOpErrorReporter } from './no-op-error-reporter';
 export { ProblemRegistry } from './registry';
-export { ProblemTransformer, type ErrorReporter } from './transformer';
+export { ProblemTransformer, type ProblemReporter } from './transformer';
 
 // biome-ignore lint/suspicious/noExplicitAny: Generic needs any type to function correctly
 export type ProblemDefinitions = Record<string, ZodProblemDefinition<any>>;
+
+export { problemBuilder } from './adapter';
+export type { ProblemModuleInput, ProblemModuleOutput } from './adapter';

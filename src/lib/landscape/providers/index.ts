@@ -1,4 +1,3 @@
 // React integration
-export { LandscapeProvider } from './LandscapeProvider';
-export type { LandscapeProviderProps } from './LandscapeProvider';
+export { LandscapeProvider, type LandscapeProviderProps } from './adapter';
 export { useLandscape } from './hooks';

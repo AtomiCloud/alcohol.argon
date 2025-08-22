@@ -1,9 +1,19 @@
-import type { ErrorReporter } from '@/lib/problem/core';
-import { useErrorReporterContext } from '@/adapters/problem-reporter/providers/ErrorReporterProvider';
+import type { ProblemReporter } from '@/lib/problem/core';
+import { useProblemReporterContext } from '@/adapters/problem-reporter/providers/adapter';
+import type { ProblemReporterFactory } from '@/lib/problem/core/transformer';
 
-function useErrorReporter(): ErrorReporter {
-  const { reporter } = useErrorReporterContext();
+function useProblemReporter(): ProblemReporter {
+  const {
+    resource: { reporter },
+  } = useProblemReporterContext();
   return reporter;
 }
 
-export { useErrorReporter };
+function useProblemReporterFactory(): ProblemReporterFactory {
+  const {
+    resource: { factory },
+  } = useProblemReporterContext();
+  return factory;
+}
+
+export { useProblemReporter, useProblemReporterFactory };

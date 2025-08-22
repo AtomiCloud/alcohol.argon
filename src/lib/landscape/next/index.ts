@@ -1,4 +1,4 @@
 // Next.js integration barrel exports
-export { withApiLandscape, type ApiLandscapeHandler } from './withApiLandscape';
-export { withServerSideLandscape, type ServerSideLandscapeHandler } from './withServerSideLandscape';
-export { withStaticLandscape, type StaticLandscapeHandler } from './withStaticLandscape';
+export { withApiLandscape } from './adapter';
+export { withServerSideLandscape } from './adapter';
+export { withStaticLandscape } from './adapter';

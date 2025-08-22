@@ -1,10 +1,8 @@
-import {
-  type ConfigSchemas,
-  ConfigurationLoader,
-  ConfigurationManager,
-  ConfigurationMerger,
-  ConfigurationValidator,
-} from '.';
+import type { ConfigSchemas } from './registry';
+import { ConfigurationManager } from './manager';
+import { ConfigurationLoader } from './loader';
+import { ConfigurationMerger } from './merge';
+import { ConfigurationValidator } from './validator';
 
 function createConfigManager<T extends ConfigSchemas>(
   landscape: string,

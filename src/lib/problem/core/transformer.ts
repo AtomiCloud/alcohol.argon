@@ -9,14 +9,14 @@ import type { HttpErrorContext } from './definition/http-error';
 /**
  * Interface for error reporting functionality (e.g., Faro, Sentry, etc.)
  */
-interface ErrorReporter {
+interface ProblemReporter {
   pushError(error: Error, context?: Record<string, unknown>): void;
   getSessionId(): string;
   getTraceId(): string;
 }
 
-interface ErrorReporterFactory {
-  get(): ErrorReporter;
+interface ProblemReporterFactory {
+  get(): ProblemReporter;
 }
 
 /**
@@ -26,7 +26,7 @@ interface ErrorReporterFactory {
 class ProblemTransformer<T extends ProblemDefinitions> {
   constructor(
     private problemRegistry: ProblemRegistry<T>,
-    private errorReporter: ErrorReporter,
+    private errorReporter: ProblemReporter,
   ) {}
 
   /**
@@ -223,5 +223,5 @@ class ProblemTransformer<T extends ProblemDefinitions> {
   }
 }
 
-export type { ErrorReporter, ErrorReporterFactory };
+export type { ProblemReporter, ProblemReporterFactory };
 export { ProblemTransformer };

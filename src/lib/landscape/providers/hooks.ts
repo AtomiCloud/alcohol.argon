@@ -1,8 +1,8 @@
-import { useLandscapeContext } from '@/lib/landscape/providers/LandscapeProvider';
+import { useLandscapeContext } from '@/lib/landscape/providers/adapter';
 
-function useLandscape() {
-  const { landscape } = useLandscapeContext();
-  return landscape;
+function useLandscape(): string {
+  const { resource } = useLandscapeContext();
+  return resource;
 }
 
 export { useLandscape };
