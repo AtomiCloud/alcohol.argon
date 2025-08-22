@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { importedConfigurations } from '@/config/configs';
-import { useCommonConfig } from '@/adapters/external/Provider';
 import { withServerSideConfig } from '@/adapters/external/next';
+import { useCommonConfig } from '@/adapters/external/Provider';
 
 interface HomeProps {
   serverTime: string;

@@ -3,10 +3,11 @@ import { landscapeBuilder, type LandscapeModuleInput } from '@/lib/landscape/cor
 
 type LandscapeProviderProps = ModuleProviderProps<LandscapeModuleInput>;
 
-const module: ProviderConfig<LandscapeModuleInput, string> = {
+const { useContext: useLandscapeContext, Provider: LandscapeProvider } = createModuleProvider<
+  LandscapeModuleInput,
+  string
+>({
   name: 'Landscape',
   builder: input => landscapeBuilder(input),
-};
-const { useContext: useLandscapeContext, Provider: LandscapeProvider } = createModuleProvider(module);
-
+});
 export { useLandscapeContext, LandscapeProvider, type LandscapeProviderProps };

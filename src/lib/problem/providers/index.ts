@@ -12,11 +12,10 @@ import type { NextAdapterConfig } from '@/lib/module/next';
 type ProblemProviderProps = ModuleProviderProps<ProblemModuleInput>;
 
 function createProblemProvider<T extends ProblemDefinitions>(problemDefinition: T) {
-  const module: NextAdapterConfig<ProblemModuleInput, ProblemModuleOutput<T>> = {
+  const { Provider, useContext } = createModuleProvider<ProblemModuleInput, ProblemModuleOutput<T>>({
     name: 'Problem',
     builder: input => problemBuilder(input, problemDefinition),
-  };
-  const { Provider, useContext } = createModuleProvider(module);
+  });
   function useProblemRegistry(): ProblemRegistry<T> {
     const {
       resource: { registry },

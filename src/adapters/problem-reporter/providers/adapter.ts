@@ -7,10 +7,12 @@ import {
 
 type ProblemReporterProviderProps = ModuleProviderProps<ProblemReporterModuleInput>;
 
-const module: ProviderConfig<ProblemReporterModuleInput, ProblemReporterModuleOutput> = {
+const { useContext: useProblemReporterContext, Provider: ProblemReporterProvider } = createModuleProvider<
+  ProblemReporterModuleInput,
+  ProblemReporterModuleOutput
+>({
   name: 'ProblemReporter',
   builder: input => problemReporterBuilder(input),
-};
-const { useContext: useProblemReporterContext, Provider: ProblemReporterProvider } = createModuleProvider(module);
+});
 
 export { useProblemReporterContext, ProblemReporterProvider, type ProblemReporterProviderProps };

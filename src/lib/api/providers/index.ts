@@ -5,11 +5,10 @@ import { apiBuilder, type ApiModuleInput } from '@/lib/api/core/adapter';
 type ApiProviderProps = ModuleProviderProps<ApiModuleInput>;
 
 function createApiProvider<T extends ClientTree>(clientTree: T) {
-  const module: ProviderConfig<ApiModuleInput, ApiTree<T>> = {
+  const { Provider, useContext } = createModuleProvider<ApiModuleInput, ApiTree<T>>({
     name: 'Api',
     builder: input => apiBuilder(input, clientTree),
-  };
-  const { Provider, useContext } = createModuleProvider(module);
+  });
 
   function useSwaggerClients(): ApiTree<T> {
     const { resource } = useContext();
