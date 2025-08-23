@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GetServerSideProps, type GetServerSidePropsResult } from 'next';
+import { type GetServerSidePropsResult } from 'next';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +10,11 @@ import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { ProblemRegistry } from '@/lib/problem/core';
-import { CommonConfig } from '@/config';
 import { PROBLEM_DEFINITIONS } from '@/problems';
 import { importedConfigurations } from '@/config/configs';
 import { withServerSideConfig } from '@/adapters/external/next';
 import { useCommonConfig } from '@/adapters/external/Provider';
+import { detectSerialError } from '@/lib/problem/detect-serial-error';
 
 interface FrameworkDemoProps {
   // Example of how pages can receive serialized error results
@@ -199,11 +199,32 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
             </div>
           )}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* Debug section for pageProps */}
+          <details className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <summary className="cursor-pointer font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Debug: PageProps & Error Detection
+            </summary>
+            <div className="space-y-2 text-sm">
+              <div>
+                <strong>Current PageProps:</strong>
+                <pre className="mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto">
+                  {JSON.stringify({ result, error }, null, 2)}
+                </pre>
+              </div>
+              <div>
+                <strong>detectSerialError() would find:</strong>
+                <pre className="mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs">
+                  {JSON.stringify(detectSerialError({ result, error }) || 'null', null, 2)}
+                </pre>
+              </div>
+            </div>
+          </details>
+
+          <div className="grid gap-4 md:grid-cols-3">
             {/* Error Testing */}
             <Card>
               <CardHeader>
-                <CardTitle>Error Testing</CardTitle>
+                <CardTitle>Context Error Testing</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button onClick={handleThrowError} variant="destructive" className="w-full">
@@ -216,6 +237,42 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
 
                 <Button onClick={handleAsyncError} variant="destructive" className="w-full">
                   Throw Async Error
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* PageProps Error Testing */}
+            <Card>
+              <CardHeader>
+                <CardTitle>PageProps Error Testing</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  onClick={() => router.push('/framework-demo?error_type=validation')}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  SSR Validation Error
+                </Button>
+
+                <Button
+                  onClick={() => router.push('/framework-demo?error_type=unauthorized')}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  SSR Unauthorized Error
+                </Button>
+
+                <Button
+                  onClick={() => router.push('/framework-demo?error_type=server_error')}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  SSR Server Error
+                </Button>
+
+                <Button onClick={() => router.push('/framework-demo')} variant="outline" className="w-full">
+                  Clear Errors
                 </Button>
               </CardContent>
             </Card>

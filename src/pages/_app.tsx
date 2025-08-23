@@ -10,14 +10,14 @@ import { AtomiProvider } from '@/adapters/atomi/Provider';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <AtomiProvider>
-      <ErrorProvider>
-        <FrontendObservability />
-        <GlobalErrorBoundary>
+      <GlobalErrorBoundary>
+        <ErrorProvider>
+          <FrontendObservability />
           <Layout>
             <ContentManager Component={Component} pageProps={pageProps} />
           </Layout>
-        </GlobalErrorBoundary>
-      </ErrorProvider>
+        </ErrorProvider>
+      </GlobalErrorBoundary>
     </AtomiProvider>
   );
 }

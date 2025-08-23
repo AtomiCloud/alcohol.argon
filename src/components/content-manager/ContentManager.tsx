@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import type { Problem } from '@/lib/problem/core/types';
-import { isProblem } from '@/lib/problem/core/types';
-import type { ResultSerial } from '@/lib/monads/result';
 import type { NextComponentType, NextPageContext } from 'next';
 import { useErrorContext } from '@/contexts/ErrorContext';
+import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+import { detectSerialError } from '@/lib/problem/detect-serial-error';
 
 interface ContentManagerProps {
   Component: NextComponentType<NextPageContext, any, any>;
@@ -15,66 +15,30 @@ interface ContentManagerProps {
 
 type ContentState = 'loading' | 'content' | 'error';
 
-function detectSerialError(pageProps: any): Problem | null {
-  if (pageProps.error && isProblem(pageProps.error)) {
-    return pageProps.error;
-  }
-
-  const possibleErrorProps = ['result', 'data', 'response'];
-  for (const propName of possibleErrorProps) {
-    const prop = pageProps[propName];
-    if (Array.isArray(prop) && prop.length === 2 && prop[0] === 'err') {
-      const [, errorData] = prop as ResultSerial<any, any>;
-      if (isProblem(errorData)) {
-        return errorData;
-      }
-    }
-  }
-
-  return null;
-}
-
 export function ContentManager({ Component, pageProps }: ContentManagerProps) {
   const router = useRouter();
   const { currentError: contextError, clearError: clearContextError } = useErrorContext();
+  const problemReporter = useProblemReporter();
   const [state, setState] = useState<ContentState>('content');
   const [error, setError] = useState<Problem | null>(null);
 
-  // Handle context errors (from useErrorHandler) - highest priority
   useEffect(() => {
+    // Handle context errors (from useErrorHandler) - highest priority
     if (contextError) {
       console.log('🟠 ContentManager: Context error detected:', contextError);
-      // reportProblemAsError(contextError, { source: 'context-error' });
       setError(contextError);
       setState('error');
-    } else if (!contextError && error === contextError) {
-      // Context error was cleared, check for other errors
-      const pageError = detectSerialError(pageProps);
-      if (pageError) {
-        // reportProblemAsError(pageError, { source: 'page-props' });
-        setError(pageError);
-        setState('error');
-      } else {
-        setError(null);
-        setState('content');
-      }
-    }
-  }, [contextError, pageProps, error]);
-
-  // Handle page-level errors from props
-  useEffect(() => {
-    if (!contextError) {
-      // Only check page errors if no context error
+    } else {
+      // Handle page-level errors from props
       const detectedError = detectSerialError(pageProps);
       if (detectedError) {
-        // reportProblemAsError(detectedError, { source: 'page-props' });
         setError(detectedError);
         setState('error');
       } else if (state === 'error' && !error) {
         setState('content');
       }
     }
-  }, [pageProps, contextError, state, error]);
+  }, [contextError, pageProps, state, error]);
 
   // Handle router loading states
   useEffect(() => {
@@ -96,7 +60,7 @@ export function ContentManager({ Component, pageProps }: ContentManagerProps) {
         status: 500,
         detail: err.message || 'An error occurred during navigation',
       };
-      // reportProblemAsError(problem, { source: 'navigation-error', originalError: err });
+      problemReporter.pushError(err, { source: 'navigation-error', problem });
       setError(problem);
       setState('error');
     };
