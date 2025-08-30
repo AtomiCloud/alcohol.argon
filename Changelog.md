@@ -1,3 +1,28 @@
+## [1.5.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.4.0...v1.5.0) (2025-08-30)
+
+
+### ✨ Features ✨
+
+* **next.config:** add dependency injection framework ([a4b6536](https://github.com/AtomiCloud/alcohol.argon/commit/a4b65367e2562c0ad7719571c48dcbf45cb5d852))
+* **components, lib, pages:** add new components and update imports ([f426242](https://github.com/AtomiCloud/alcohol.argon/commit/f426242256bdd1d5a21249fcaabd7e14eeff04e0))
+* **snapshot:** add problem reporter and api client ([433bd1e](https://github.com/AtomiCloud/alcohol.argon/commit/433bd1e7f16772e12c068083fab2f075b2afd316))
+* **lottie:** all common lottie error and cleaned up lottie lib ([7ebf71d](https://github.com/AtomiCloud/alcohol.argon/commit/7ebf71d59a20d7e73384287de16393748a931a48))
+* **content-manager:** clean up content manager and improve demo ([f2db01e](https://github.com/AtomiCloud/alcohol.argon/commit/f2db01e78fdd452b0bc6b8b0c0b25de356362af3))
+* content manager and error boundary correctly defined ([fe74525](https://github.com/AtomiCloud/alcohol.argon/commit/fe745254d0ff0b933b4c18a669ac7663da6b7f27))
+* **api clients:** correct point to URL ([8060b79](https://github.com/AtomiCloud/alcohol.argon/commit/8060b79da3162306ad1f9f8eb7953e08cc218e7a))
+* **lottie:** remove cat animation because its not transparent ([2d1b5f5](https://github.com/AtomiCloud/alcohol.argon/commit/2d1b5f535469ff3994c7309ab2492e6e4b988a69))
+* **config:** remove the separation of build inputs and runtime inputs ([69401c9](https://github.com/AtomiCloud/alcohol.argon/commit/69401c9df9bc0a602157b1e8bd4c4319f595e5dc))
+* **external:** remove the separation of build inputs and runtime inputs ([bb5f8c8](https://github.com/AtomiCloud/alcohol.argon/commit/bb5f8c859805969117acd7cf132f34d805ef2233))
+* **problem:** remove the separation of build inputs and runtime inputs ([030eee2](https://github.com/AtomiCloud/alcohol.argon/commit/030eee220b6482a9af4875807635f977d451bc23))
+* **pages:** working snapshot ([0b3e826](https://github.com/AtomiCloud/alcohol.argon/commit/0b3e826a73340468423dfdc18f251904d807fa2d))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** install dependencies for bun ([cc51631](https://github.com/AtomiCloud/alcohol.argon/commit/cc516313cfe852cf5dfd74e4177ca901ae5300e3))
+* **default:** remove complex constructions ([d2b9a57](https://github.com/AtomiCloud/alcohol.argon/commit/d2b9a57d729b910e2fc61127dc2f0c8558303662))
+* **default:** swagger using deterministic problem transformer ([8e20052](https://github.com/AtomiCloud/alcohol.argon/commit/8e200524cd6468e078dd38a7b5c61ea704b5acc1))
+
 ## [1.4.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.3.1...v1.4.0) (2025-07-20)
 
 
