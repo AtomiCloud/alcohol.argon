@@ -57,7 +57,13 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
                 {
                   defaultInstance,
                   problemTransformer: problem.transformer,
-                  clientTree,
+                  clientTree: clientTree({
+                    alcohol: {
+                      zinc: {
+                        baseUrl: config.common.clients.alcohol.zinc.url,
+                      },
+                    },
+                  }),
                 },
                 (req, res, apiTree) => {
                   return handler(req, res, {
@@ -97,7 +103,13 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
               {
                 defaultInstance,
                 problemTransformer: problem.transformer,
-                clientTree,
+                clientTree: clientTree({
+                  alcohol: {
+                    zinc: {
+                      baseUrl: config.common.clients.alcohol.zinc.url,
+                    },
+                  },
+                }),
               },
               (context, apiTree) => {
                 return handler(context, {
@@ -136,7 +148,13 @@ const withStaticAtomi: WithStaticHandler<AdaptedInput, AtomiOutput> = (
               {
                 defaultInstance,
                 problemTransformer: problem.transformer,
-                clientTree,
+                clientTree: clientTree({
+                  alcohol: {
+                    zinc: {
+                      baseUrl: config.common.clients.alcohol.zinc.url,
+                    },
+                  },
+                }),
               },
               (context, apiTree) => {
                 return handler(context, {

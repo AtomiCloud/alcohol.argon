@@ -51,11 +51,18 @@ const BridgedApiClientProvider = createBridge<ApiProviderProps<AdaptedClientTree
   ApiProvider,
   () => {
     const problemTransformer = useProblemTransformer();
+    const common = useCommonConfig();
     return {
       config: {
         defaultInstance: buildTime.defaultInstance,
         problemTransformer,
-        clientTree: buildTime.clientTree,
+        clientTree: buildTime.clientTree({
+          alcohol: {
+            zinc: {
+              baseUrl: common.clients.alcohol.zinc.url,
+            },
+          },
+        }),
       },
     };
   },

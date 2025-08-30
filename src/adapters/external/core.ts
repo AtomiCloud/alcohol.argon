@@ -4,11 +4,21 @@ import { configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { envLandscapeSource } from '@/lib/landscape/core';
 
-const clientTree = {
+type ClientTreeInput = {
   alcohol: {
-    zinc: new AlcoholZincApi(),
-  },
+    zinc: {
+      baseUrl: string;
+    };
+  };
 };
+
+const clientTree = (i: ClientTreeInput) => ({
+  alcohol: {
+    zinc: new AlcoholZincApi({
+      baseUrl: i.alcohol.zinc.baseUrl,
+    }),
+  },
+});
 
 const buildTime = {
   problemDefinitions: PROBLEM_DEFINITIONS,
@@ -21,7 +31,7 @@ const buildTime = {
 
 type AdaptedProblemDefinition = typeof PROBLEM_DEFINITIONS;
 type AdaptedConfigSchema = typeof configSchemas;
-type AdaptedClientTree = typeof clientTree;
+type AdaptedClientTree = ReturnType<typeof clientTree>;
 type AdaptedImportedConfig = typeof importedConfigurations;
 type AdaptedInput = typeof buildTime;
 
