@@ -1,15 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAnimationForStatus, ProblemErrorAnimation } from '@/components/lottie/ErrorAnimations';
-import type { Problem } from '@/lib/problem/core/types';
 import { ChevronDown, ChevronUp, Copy, RefreshCw } from 'lucide-react';
+import { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
-interface ErrorPageProps {
-  error: Problem;
-  onRefresh?: () => void;
-}
-
-export function ErrorPage({ error, onRefresh }: ErrorPageProps) {
+export function ErrorPage({ error, onRefresh }: ErrorComponentProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 

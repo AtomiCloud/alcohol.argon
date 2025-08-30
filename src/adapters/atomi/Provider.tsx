@@ -7,9 +7,10 @@ import {
   BridgedProblemProvider,
   BridgedProblemReporterProvider,
 } from './bridge';
-import { GlobalErrorBoundary } from '@/components/error-boundary';
+import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { ErrorProvider } from '@/contexts/ErrorContext';
 import FrontendObservability from '../../lib/observability/FrontendObservability';
+import { GlobalErrorBoundary } from '@/adapters/components/GlobalErrorBoundary';
 
 interface AtomiProviderProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export function AtomiProvider({ children }: AtomiProviderProps) {
       <BridgedConfigProvider>
         <BridgedProblemReporterProvider>
           <BridgedProblemProvider>
-            <GlobalErrorBoundary>
+            <GlobalErrorBoundary ErrorComponent={ErrorPage}>
               <ErrorProvider>
                 <FrontendObservability />
                 <BridgedApiClientProvider>{children}</BridgedApiClientProvider>

@@ -1,24 +1,31 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { LoadingLottie } from '@/components/lottie/presets';
-import { ErrorPage } from '@/components/error-page/ErrorPage';
 import type { Problem } from '@/lib/problem/core/types';
 import type { NextComponentType, NextPageContext } from 'next';
 import { useErrorContext } from '@/contexts/ErrorContext';
-import { useProblemReporter } from '@/adapters/problem-reporter/providers';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
+import { ProblemReporter } from '@/lib/problem/core';
+import { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
 interface ContentManagerProps {
   Component: NextComponentType<NextPageContext, any, any>;
+  problemReporter: ProblemReporter;
   pageProps: any;
+  LoadingComponent: React.ComponentType;
+  ErrorComponent: React.ComponentType<ErrorComponentProps>;
 }
 
 type ContentState = 'loading' | 'content' | 'error';
 
-export function ContentManager({ Component, pageProps }: ContentManagerProps) {
+export function ContentManager({
+  Component,
+  pageProps,
+  problemReporter,
+  LoadingComponent,
+  ErrorComponent,
+}: ContentManagerProps) {
   const router = useRouter();
   const { currentError: contextError, clearError: clearContextError } = useErrorContext();
-  const problemReporter = useProblemReporter();
   const [state, setState] = useState<ContentState>('content');
   const [error, setError] = useState<Problem | null>(null);
 
@@ -79,21 +86,11 @@ export function ContentManager({ Component, pageProps }: ContentManagerProps) {
   // Render based on current state
   switch (state) {
     case 'loading':
-      return (
-        <div className="min-h-screen pt-20">
-          <div className="flex flex-col items-center text-center space-y-6 p-8">
-            <LoadingLottie />
-            <div className="space-y-2">
-              <p className="text-slate-700 dark:text-slate-300 text-lg font-medium">Loading...</p>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Please wait while we load the content!</p>
-            </div>
-          </div>
-        </div>
-      );
+      return <LoadingComponent />;
 
     case 'error':
       return error ? (
-        <ErrorPage
+        <ErrorComponent
           error={error}
           onRefresh={() => {
             setError(null);

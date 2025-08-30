@@ -1,13 +1,13 @@
 import React, { Component, ReactNode } from 'react';
 import { ProblemTransformer } from '@/lib/problem/core/transformer';
 import type { Problem } from '@/lib/problem/core/types';
-import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { ProblemDefinitions } from '@/lib/problem/core';
-import { useProblemTransformer } from '@/adapters/external/Provider';
+import { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
 interface GlobalErrorBoundaryProps<T extends ProblemDefinitions> {
   children: ReactNode;
   problemTransformer: ProblemTransformer<T>;
+  ErrorComponent: React.ComponentType<ErrorComponentProps>;
   onError?: (error: Problem, errorInfo: React.ErrorInfo) => void;
 }
 
@@ -16,7 +16,7 @@ interface GlobalErrorBoundaryState {
   error: Problem | null;
 }
 
-class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Component<
+export class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Component<
   GlobalErrorBoundaryProps<T>,
   GlobalErrorBoundaryState
 > {
@@ -59,9 +59,11 @@ class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Component<
   }
 
   render() {
+    const { ErrorComponent } = this.props;
+
     if (this.state.hasError && this.state.error) {
       return (
-        <ErrorPage
+        <ErrorComponent
           error={this.state.error}
           onRefresh={() => {
             this.setState({ hasError: false, error: null });
@@ -73,9 +75,4 @@ class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Component<
 
     return this.props.children;
   }
-}
-
-export function GlobalErrorBoundary({ children }: { children: ReactNode }) {
-  const problemTransformer = useProblemTransformer();
-  return <GlobalErrorBoundaryInner problemTransformer={problemTransformer} children={children} />;
 }
