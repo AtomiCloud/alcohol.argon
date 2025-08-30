@@ -4,7 +4,6 @@ clients:
   alcohol:
     zinc:
       url: http://localhost:9003
-#      url: 'https://api.zinc.alcohol.pichu.cluster.atomi.cloud'
 app:
   servicetree:
     landscape: 'lapras'
