@@ -1,7 +1,7 @@
 import { createModuleProvider, type ModuleProviderProps } from '@/lib/module/providers';
 import type { ApiTree, ClientTree } from '@/lib/api/core';
 import { apiBuilder, type ApiModuleInput } from '@/lib/api/core/adapter';
-import { type ProblemDefinitions, ProblemTransformer } from '@/lib/problem/core';
+import type { ProblemDefinitions } from '@/lib/problem/core';
 
 type ApiProviderProps<T extends ClientTree, Y extends ProblemDefinitions> = ModuleProviderProps<ApiModuleInput<T, Y>>;
 

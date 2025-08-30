@@ -1,5 +1,5 @@
 import { createApiProvider } from '@/lib/api/providers';
-import { AdaptedClientTree, AdaptedConfigSchema, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
+import { AdaptedClientTree, AdaptedConfigSchema, AdaptedProblemDefinition } from '@/adapters/external/core';
 import { createConfigProvider } from '@/lib/config/providers';
 import { createProblemProvider } from '@/lib/problem/providers';
 
