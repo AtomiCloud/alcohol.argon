@@ -15,8 +15,13 @@ fi
 
 export LANDSCAPE="$landscape"
 
+echo "⬇️ Installing dependencies"
+bun install --ci
+echo "✅ Dependencies installed"
+
 echo "🔧 Exporting build info and building application..."
 eval "$(./scripts/ci/export_build_info.sh)"
+
 bunx opennextjs-cloudflare build
 
 if [[ $deploy == "upload" ]]; then
