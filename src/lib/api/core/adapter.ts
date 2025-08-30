@@ -1,10 +1,19 @@
 import { type ApiTree, type ClientTree, createFromClientTree } from '@/lib/api/core/swagger-adapter';
+import type { ProblemDefinitions, ProblemTransformer } from '@/lib/problem/core';
 
-// biome-ignore lint/complexity/noBannedTypes: conform to interface
-type ApiModuleInput = {};
+type ApiModuleInput<Y extends ProblemDefinitions> = {
+  defaultInstance: string;
+  problemTransformer: ProblemTransformer<Y>;
+};
 
-function apiBuilder<T extends ClientTree>(input: ApiModuleInput, clientTree: T): ApiTree<T> {
-  return createFromClientTree(clientTree);
+function apiBuilder<T extends ClientTree, Y extends ProblemDefinitions>(
+  input: ApiModuleInput<Y>,
+  clientTree: T,
+): ApiTree<T> {
+  return createFromClientTree(clientTree, {
+    problemTransformer: input.problemTransformer,
+    instance: input.defaultInstance,
+  });
 }
 
 export { apiBuilder, type ApiModuleInput };

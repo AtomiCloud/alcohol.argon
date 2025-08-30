@@ -1,18 +1,26 @@
 import { createBridge } from './core';
 import { ProblemProviderProps } from '@/lib/problem/providers';
 import { ConfigProviderProps } from '@/lib/config/providers';
-import { ConfigProvider, ProblemProvider, useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
+import {
+  ApiProvider,
+  ConfigProvider,
+  ProblemProvider,
+  useClientConfig,
+  useCommonConfig,
+  useProblemTransformer,
+} from '@/adapters/external/Provider';
 import { useLandscape } from '@/lib/landscape/providers';
-import { importedConfigurations } from '@/config/configs';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { ProblemReporterProvider, ProblemReporterProviderProps } from '@/adapters/problem-reporter/providers';
+import { ApiProviderProps } from '@/lib/api/providers';
+import { buildTime } from '@/adapters/external/core';
 
 const BridgedConfigProvider = createBridge<ConfigProviderProps>(ConfigProvider, () => {
   const landscape = useLandscape();
   return {
     config: {
       landscape,
-      importedConfigurations,
+      importedConfigurations: buildTime.importedConfigurations,
     },
   };
 });
@@ -37,4 +45,17 @@ const BridgedProblemProvider = createBridge<ProblemProviderProps>(ProblemProvide
   };
 });
 
-export { BridgedProblemProvider, BridgedConfigProvider, BridgedProblemReporterProvider };
+const BridgedApiClientProvider = createBridge<ApiProviderProps<typeof buildTime.PROBLEM_DEFINITIONS>>(
+  ApiProvider,
+  () => {
+    const problemTransformer = useProblemTransformer();
+    return {
+      config: {
+        defaultInstance: buildTime.defaultInstance,
+        problemTransformer,
+      },
+    };
+  },
+);
+
+export { BridgedProblemProvider, BridgedConfigProvider, BridgedProblemReporterProvider, BridgedApiClientProvider };

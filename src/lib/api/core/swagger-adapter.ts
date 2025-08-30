@@ -19,9 +19,9 @@ type AsyncFunction<TArgs extends unknown[], TReturn> = (...args: TArgs) => Promi
  */
 interface SwaggerAdapterConfig<T extends ProblemDefinitions> {
   /** Instance identifier for problem details */
-  instance?: string;
+  instance: string;
   /** Problem transformer for handling errors */
-  problemTransformer?: ProblemTransformer<T>;
+  problemTransformer: ProblemTransformer<T>;
 }
 
 /**
@@ -44,7 +44,7 @@ interface SwaggerAdapterConfig<T extends ProblemDefinitions> {
  */
 function wrapApiMethod<TArgs extends unknown[], TReturn, T extends ProblemDefinitions>(
   apiMethod: AsyncFunction<TArgs, TReturn>,
-  config: SwaggerAdapterConfig<T> = {},
+  config: SwaggerAdapterConfig<T>,
 ): (...args: TArgs) => Promise<Result<TReturn, Problem>> {
   const { instance = 'unknown', problemTransformer } = config;
 
@@ -53,19 +53,7 @@ function wrapApiMethod<TArgs extends unknown[], TReturn, T extends ProblemDefini
       const result = await apiMethod(...args);
       return Ok(result);
     } catch (error) {
-      let problem: Problem;
-      if (problemTransformer) {
-        problem = await problemTransformer.fromSwaggerError(error, instance);
-      } else {
-        // Fallback for when no transformer is provided
-        problem = {
-          type: 'about:blank',
-          title: 'API Error',
-          status: 500,
-          detail: error instanceof Error ? error.message : String(error),
-          instance,
-        };
-      }
+      const problem: Problem = await problemTransformer.fromSwaggerError(error, instance);
       return Err(problem);
     }
   };
@@ -91,7 +79,7 @@ function wrapApiMethod<TArgs extends unknown[], TReturn, T extends ProblemDefini
 // biome-ignore lint/suspicious/noExplicitAny: Generic API client requires any type
 function createSafeApiClient<T extends Record<string, any>, Y extends ProblemDefinitions>(
   apiClient: T,
-  config: SwaggerAdapterConfig<Y> = {},
+  config: SwaggerAdapterConfig<Y>,
 ): SafeApiClient<T> {
   // biome-ignore lint/suspicious/noExplicitAny: Cache must store any value type
   const cache = new Map<string | symbol, any>();
@@ -140,12 +128,15 @@ type ApiTree<T extends ClientTree> = {
   };
 };
 
-function createFromClientTree<T extends ClientTree>(clientTree: T): ApiTree<T> {
+function createFromClientTree<T extends ClientTree, Y extends ProblemDefinitions>(
+  clientTree: T,
+  config: SwaggerAdapterConfig<Y>,
+): ApiTree<T> {
   const result = {} as ApiTree<T>;
   for (const platform in clientTree) {
     result[platform] = {} as ApiTree<T>[typeof platform];
     for (const service in clientTree[platform]) {
-      result[platform][service] = createSafeApiClient(clientTree[platform][service]);
+      result[platform][service] = createSafeApiClient(clientTree[platform][service], config);
     }
   }
 

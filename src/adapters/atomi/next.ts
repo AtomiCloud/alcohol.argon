@@ -36,7 +36,7 @@ type AtomiOutput = {
 };
 
 const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource },
+  { importedConfigurations, landscapeSource, defaultInstance },
   handler,
 ) => {
   return withApiLandscape({ source: landscapeSource }, (req, res, landscape) => {
@@ -53,17 +53,23 @@ const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
               config: config.common.errorPortal,
             },
             (req, res, problem) => {
-              return withApiSwagger({}, (req, res, apiTree) => {
-                return handler(req, res, {
-                  landscape,
-                  config,
-                  problemRegistry: problem.registry,
+              return withApiSwagger(
+                {
+                  defaultInstance,
                   problemTransformer: problem.transformer,
-                  apiTree,
-                  problemReporter: problemReporter.reporter,
-                  problemReporterFactory: problemReporter.factory,
-                });
-              })(req, res);
+                },
+                (req, res, apiTree) => {
+                  return handler(req, res, {
+                    landscape,
+                    config,
+                    problemRegistry: problem.registry,
+                    problemTransformer: problem.transformer,
+                    apiTree,
+                    problemReporter: problemReporter.reporter,
+                    problemReporterFactory: problemReporter.factory,
+                  });
+                },
+              )(req, res);
             },
           )(req, res);
         })(req, res);
@@ -73,7 +79,7 @@ const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
 };
 
 const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource },
+  { importedConfigurations, landscapeSource, defaultInstance },
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -85,17 +91,23 @@ const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
             errorReporter: problemReporter.reporter,
           },
           (context, problem) => {
-            return withServerSideSwagger({}, (context, apiTree) => {
-              return handler(context, {
-                landscape,
-                config,
-                problemRegistry: problem.registry,
+            return withServerSideSwagger(
+              {
+                defaultInstance,
                 problemTransformer: problem.transformer,
-                apiTree,
-                problemReporter: problemReporter.reporter,
-                problemReporterFactory: problemReporter.factory,
-              });
-            })(context);
+              },
+              (context, apiTree) => {
+                return handler(context, {
+                  landscape,
+                  config,
+                  problemRegistry: problem.registry,
+                  problemTransformer: problem.transformer,
+                  apiTree,
+                  problemReporter: problemReporter.reporter,
+                  problemReporterFactory: problemReporter.factory,
+                });
+              },
+            )(context);
           },
         )(context);
       })(context);
@@ -104,7 +116,7 @@ const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
 };
 
 const withStaticAtomi: WithStaticHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource },
+  { importedConfigurations, landscapeSource, defaultInstance },
   handler,
 ) => {
   return withStaticLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -116,17 +128,23 @@ const withStaticAtomi: WithStaticHandler<AtomiInput, AtomiOutput> = (
             config: config.common.errorPortal,
           },
           (context, problem) => {
-            return withStaticSwagger({}, (context, apiTree) => {
-              return handler(context, {
-                landscape,
-                config,
-                problemRegistry: problem.registry,
+            return withStaticSwagger(
+              {
+                defaultInstance,
                 problemTransformer: problem.transformer,
-                apiTree,
-                problemReporter: problemReporter.reporter,
-                problemReporterFactory: problemReporter.factory,
-              });
-            })(context);
+              },
+              (context, apiTree) => {
+                return handler(context, {
+                  landscape,
+                  config,
+                  problemRegistry: problem.registry,
+                  problemTransformer: problem.transformer,
+                  apiTree,
+                  problemReporter: problemReporter.reporter,
+                  problemReporterFactory: problemReporter.factory,
+                });
+              },
+            )(context);
           },
         )(context);
       })(context);

@@ -8,7 +8,7 @@ const {
   withApi: withApiSwagger,
   withStatic: withStaticSwagger,
   withServerSide: withServerSideSwagger,
-} = createApiModule(buildTime.apiTree);
+} = createApiModule<typeof buildTime.apiTree, typeof buildTime.PROBLEM_DEFINITIONS>(buildTime.apiTree);
 
 const {
   withApi: withApiProblem,

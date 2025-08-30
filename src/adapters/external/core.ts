@@ -16,5 +16,6 @@ const buildTime = {
   apiTree,
   importedConfigurations,
   landscapeSource: envLandscapeSource,
+  defaultInstance: 'global',
 };
 export { buildTime };
