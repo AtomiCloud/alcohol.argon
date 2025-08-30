@@ -1,13 +1,12 @@
 'use client';
 
-import { ClientConfig, CommonConfig } from '@/config';
 import { faro, getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
 import { TracingInstrumentation } from '@grafana/faro-web-tracing';
-import { useClientConfig, useCommonConfig } from '@/lib/config/providers';
+import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
 
 export default function FrontendObservability() {
-  const clientCfg = useClientConfig<ClientConfig>();
-  const commonCfg = useCommonConfig<CommonConfig>();
+  const clientCfg = useClientConfig();
+  const commonCfg = useCommonConfig();
   const st = commonCfg.app.servicetree;
   const fCfg = clientCfg.faro;
 

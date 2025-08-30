@@ -1,74 +1,63 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Problem, ProblemConfig, ZodProblemDefinition, InferProblemContext } from './types';
-// Using native Zod v4 JSON Schema conversion
+import type { InferProblemContext, Problem, ProblemConfig } from './types';
+import { DEFAULT_PROBLEMS, type DefaultProblems } from '@/lib/problem/core/definition';
+import type { ProblemDefinitions } from '@/lib/problem/core/index';
+
+type WithDefProb<T> = T & DefaultProblems;
 
 /**
  * Type-safe problem registry with compile-time ID validation
  */
-// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for flexibility
-export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefinition<any>>> {
-  private problems: TProblems;
+export class ProblemRegistry<TProblems extends ProblemDefinitions> {
+  private readonly problems: WithDefProb<TProblems>;
 
   constructor(
     private config: ProblemConfig,
     problems: TProblems,
+    defaultProblems: DefaultProblems = DEFAULT_PROBLEMS,
   ) {
-    this.problems = problems;
+    this.problems = {
+      ...defaultProblems,
+      ...problems,
+    };
   }
 
   /**
    * Get a problem definition by ID with type safety
    */
-  get<TId extends keyof TProblems>(id: TId): TProblems[TId] {
+  get<TId extends keyof WithDefProb<TProblems>>(id: TId): WithDefProb<TProblems>[TId] {
     return this.problems[id];
   }
 
   /**
    * Get all registered problem IDs
    */
-  getAllIds(): Array<keyof TProblems> {
+  getAllIds(): Array<keyof WithDefProb<TProblems>> {
     return Object.keys(this.problems);
-  }
-
-  /**
-   * Get all registered problem definitions
-   */
-  getAll(): Array<TProblems[keyof TProblems]> {
-    return Object.values(this.problems) as Array<TProblems[keyof TProblems]>;
   }
 
   /**
    * Create a problem instance by ID with full type safety
    */
-  createProblem<TId extends keyof TProblems>(
+  createProblem<TId extends keyof WithDefProb<TProblems>>(
     id: TId,
-    context: InferProblemContext<TProblems[TId]>,
-    additionalDetail?: string,
-    instance?: string,
-  ): Problem & InferProblemContext<TProblems[TId]> {
+    context: InferProblemContext<WithDefProb<TProblems>[TId]>,
+    additionalDetail = '',
+    instance = 'unknown',
+  ): Problem & InferProblemContext<WithDefProb<TProblems>[TId]> {
     const definition = this.problems[id];
 
     // Validate context against Zod schema
     const parseResult = definition.schema.safeParse(context);
     if (!parseResult.success) {
+      console.error('Failed to create problem', id, context, additionalDetail, instance);
       throw new Error(`Invalid context for problem ${String(id)}: ${parseResult.error.message}`);
     }
-
     const validatedContext = parseResult.data;
 
     // Generate detail message
-    let detail: string;
-    if (definition.createDetail) {
-      detail = definition.createDetail(validatedContext);
-    } else {
-      detail = `${definition.title} occurred`;
-    }
 
-    // Append additional detail if provided
-    if (additionalDetail) {
-      detail = `${detail}. ${additionalDetail}`;
-    }
-
+    const detail = `${definition.createDetail ? definition.createDetail(context) : definition.title}. ${additionalDetail ?? ''}`;
     // Create problem with spread context
     return {
       type: this.buildTypeUri(String(id)),
@@ -77,7 +66,7 @@ export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefiniti
       detail,
       instance,
       ...validatedContext, // Spread validated context into problem
-    } as Problem & InferProblemContext<TProblems[TId]>;
+    } as Problem & InferProblemContext<WithDefProb<TProblems>[TId]>;
   }
 
   /**
@@ -128,7 +117,7 @@ export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefiniti
         });
       }
 
-      const definition = this.problems[id as keyof TProblems];
+      const definition = this.problems[id as keyof WithDefProb<TProblems>];
 
       // Convert Zod schema to JSON Schema using native Zod v4 method
       const jsonSchema = definition.schema.toJSONSchema();
@@ -156,20 +145,4 @@ export class ProblemRegistry<TProblems extends Record<string, ZodProblemDefiniti
       });
     }
   };
-
-  /**
-   * Convenience method to create API route handlers
-   */
-  createApiHandlers() {
-    return {
-      list: this.handleListProblems,
-      schema: this.handleGetProblemSchema,
-    };
-  }
 }
-
-/**
- * Helper type to extract the problem ID union from a registry
- */
-// biome-ignore lint/suspicious/noExplicitAny: Generic constraint requires any for type inference
-export type ProblemIds<T extends ProblemRegistry<any>> = T extends ProblemRegistry<infer P> ? keyof P : never;

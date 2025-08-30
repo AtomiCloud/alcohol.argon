@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Lottie, { LottieComponentProps } from 'lottie-react';
 import { cn } from '@/lib/utils';
 import type { LottieAnimationData } from '@/lib/lottie-utils';
@@ -77,10 +77,7 @@ export default function LottieAnimation({
 
           const response = await fetch(`/animations/${animationName}.json`);
 
-          if (!response.ok) {
-            throw new Error(`Failed to load animation: ${response.statusText}`);
-          }
-
+          if (!response.ok) throw new Error(`Failed to load animation: ${response.statusText}`);
           const data = (await response.json()) as LottieAnimationData;
           setDynamicAnimationData(data);
           onLoadSuccess?.();
@@ -93,7 +90,7 @@ export default function LottieAnimation({
         }
       };
 
-      loadAnimation();
+      loadAnimation().then(_ => console.log());
     } else if (inlineAnimationData) {
       // Inline data is available immediately
       onLoadSuccess?.();

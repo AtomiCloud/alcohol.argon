@@ -1,8 +1,8 @@
-import { Template, getTemplateUrl, getTemplateDisplayTags } from '@/lib/template-api';
+import { getTemplateDisplayTags, getTemplateUrl, Template } from '@/lib/template-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { ExternalLink, Mail, GitBranch, Globe } from 'lucide-react';
+import { ExternalLink, GitBranch, Globe, Mail } from 'lucide-react';
 
 interface TemplateResultsProps {
   results: Template[];

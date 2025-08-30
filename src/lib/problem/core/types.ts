@@ -11,7 +11,7 @@ import type { z } from 'zod';
 /**
  * RFC 7807 Problem Details interface
  */
-export interface Problem {
+interface Problem {
   /** URI reference identifying the problem type */
   type: string;
   /** Human-readable summary of the problem type */
@@ -22,6 +22,10 @@ export interface Problem {
   detail: string;
   /** URI reference identifying the specific occurrence */
   instance?: string;
+  /** Session ID for tracing user sessions */
+  sessionId?: string;
+  /** Trace ID for distributed tracing */
+  traceId?: string;
   /** Additional extensible properties */
   [key: string]: unknown;
 }
@@ -29,7 +33,7 @@ export interface Problem {
 /**
  * Configuration for problem generation
  */
-export interface ProblemConfig {
+interface ProblemConfig {
   /** Base URI for problem types (e.g., "https://api.example.com") */
   baseUri: string;
   /** API version */
@@ -41,7 +45,7 @@ export interface ProblemConfig {
 /**
  * Zod-based problem definition for user space
  */
-export interface ZodProblemDefinition<TSchema extends z.ZodType = z.ZodType> {
+interface ZodProblemDefinition<TSchema extends z.ZodType = z.ZodType> {
   /** Unique identifier for this problem type */
   id: string;
   /** Human-readable title */
@@ -59,28 +63,9 @@ export interface ZodProblemDefinition<TSchema extends z.ZodType = z.ZodType> {
 }
 
 /**
- * Response structure from swagger-typescript-api
- */
-export interface SwaggerApiResponse<T = unknown> {
-  data: T | null;
-  error: unknown | null;
-}
-
-/**
- * HTTP error details for generic problem creation
- */
-export interface HttpErrorDetails {
-  status: number;
-  statusText: string;
-  body?: string;
-  headers?: Record<string, string>;
-  url?: string;
-}
-
-/**
  * Check if an object has minimum RFC 7807 properties
  */
-export function isProblem(obj: unknown): obj is Problem {
+function isProblem(obj: unknown): obj is Problem {
   if (!obj || typeof obj !== 'object') return false;
 
   const problem = obj as Record<string, unknown>;
@@ -96,9 +81,15 @@ export function isProblem(obj: unknown): obj is Problem {
 /**
  * Type alias for Result with Problem as error type
  */
-export type ProblemResult<T> = Result<T, Problem>;
+type ProblemResult<T> = Result<T, Problem>;
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic type constraint requires any
+type FirstArgument<T> = T extends (arg1: infer A, ...args: any[]) => any ? A : never;
 /**
  * Extract TypeScript type from Zod schema
  */
-export type InferProblemContext<T extends ZodProblemDefinition> = z.infer<T['schema']>;
+type InferProblemContext<T extends ZodProblemDefinition> = FirstArgument<T['createDetail']>;
+
+// Exports
+export type { Problem, ProblemConfig, ZodProblemDefinition, ProblemResult, InferProblemContext };
+export { isProblem };
