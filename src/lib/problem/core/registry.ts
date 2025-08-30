@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { InferProblemContext, Problem, ProblemConfig, ZodProblemDefinition } from './types';
+import type { InferProblemContext, Problem, ProblemConfig } from './types';
 import { DEFAULT_PROBLEMS, type DefaultProblems } from '@/lib/problem/core/definition';
 import type { ProblemDefinitions } from '@/lib/problem/core/index';
 

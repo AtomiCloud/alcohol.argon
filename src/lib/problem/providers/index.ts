@@ -7,7 +7,6 @@ import {
   type ProblemRegistry,
   type ProblemTransformer,
 } from '@/lib/problem/core';
-import type { NextAdapterConfig } from '@/lib/module/next';
 
 type ProblemProviderProps = ModuleProviderProps<ProblemModuleInput>;
 

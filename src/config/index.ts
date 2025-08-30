@@ -1,6 +1,7 @@
 import { commonSchema } from './common/schema';
 import { clientSchema } from './client/schema';
 import { serverSchema } from './server/schema';
+
 export { commonSchema, clientSchema, serverSchema };
 
 export const configSchemas = {

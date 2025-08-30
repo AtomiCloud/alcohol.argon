@@ -2,8 +2,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { importedConfigurations } from '@/config/configs';
-import { withServerSideConfig } from '@/adapters/external/next';
 import { useCommonConfig } from '@/adapters/external/Provider';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';

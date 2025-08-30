@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ProblemErrorAnimation, getAnimationForStatus } from '@/components/lottie/ErrorAnimations';
+import { getAnimationForStatus, ProblemErrorAnimation } from '@/components/lottie/ErrorAnimations';
 import type { Problem } from '@/lib/problem/core/types';
-import { Copy, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw } from 'lucide-react';
 
 interface ErrorPageProps {
   error: Problem;

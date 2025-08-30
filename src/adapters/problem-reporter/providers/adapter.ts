@@ -1,4 +1,4 @@
-import { createModuleProvider, type ModuleProviderProps, type ProviderConfig } from '@/lib/module/providers';
+import { createModuleProvider, type ModuleProviderProps } from '@/lib/module/providers';
 import {
   problemReporterBuilder,
   type ProblemReporterModuleInput,

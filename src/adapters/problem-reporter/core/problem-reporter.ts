@@ -1,4 +1,4 @@
-import { type ProblemReporter, NoOpErrorReporter } from '@/lib/problem/core';
+import { NoOpErrorReporter, type ProblemReporter } from '@/lib/problem/core';
 import type { ProblemReporterFactory } from '@/lib/problem/core/transformer';
 import { FaroErrorReporter } from '@/lib/observability';
 

@@ -13,11 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 import { useSearchState } from '@/hooks/useUrlState';
-import { importedConfigurations } from '@/config/configs';
-import { FaroErrorReporterFactory } from '@/adapters/problem-reporter/core/problem-reporter';
 import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
-import { withServerSideConfig } from '@/adapters/external/next';
-import { type GetServerSidePropsResult, GetStaticPropsResult } from 'next';
+import { type GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 

@@ -11,8 +11,6 @@ import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { ProblemRegistry } from '@/lib/problem/core';
 import { PROBLEM_DEFINITIONS } from '@/problems';
-import { importedConfigurations } from '@/config/configs';
-import { withServerSideConfig } from '@/adapters/external/next';
 import { useCommonConfig } from '@/adapters/external/Provider';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
