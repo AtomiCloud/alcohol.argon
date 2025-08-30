@@ -35,13 +35,14 @@ const BridgedProblemReporterProvider = createBridge<ProblemReporterProviderProps
   };
 });
 
-const BridgedProblemProvider = createBridge<ProblemProviderProps>(ProblemProvider, () => {
+const BridgedProblemProvider = createBridge<ProblemProviderProps<AdaptedProblemDefinition>>(ProblemProvider, () => {
   const errorReporter = useProblemReporter();
   const config = useCommonConfig();
   return {
     config: {
       config: config.errorPortal,
       errorReporter: errorReporter,
+      problemDefinitions: buildTime.problemDefinitions,
     },
   };
 });

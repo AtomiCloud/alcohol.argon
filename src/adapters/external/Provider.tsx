@@ -11,9 +11,8 @@ const { useSwaggerClients, useApiContext, ApiProvider } = createApiProvider<
 const { useConfigRegistry, useCommonConfig, useConfig, useClientConfig, useConfigContext, ConfigProvider } =
   createConfigProvider<AdaptedConfigSchema>();
 
-const { useProblemContext, useProblemTransformer, useProblemRegistry, ProblemProvider } = createProblemProvider(
-  buildTime.PROBLEM_DEFINITIONS,
-);
+const { useProblemContext, useProblemTransformer, useProblemRegistry, ProblemProvider } =
+  createProblemProvider<AdaptedProblemDefinition>();
 
 export {
   useProblemContext,

@@ -6,9 +6,10 @@ import {
   ProblemTransformer,
 } from '@/lib/problem/core';
 
-interface ProblemModuleInput {
+interface ProblemModuleInput<T extends ProblemDefinitions> {
   config: ProblemConfig;
   errorReporter: ProblemReporter;
+  problemDefinitions: T;
 }
 
 interface ProblemModuleOutput<T extends ProblemDefinitions> {
@@ -16,12 +17,9 @@ interface ProblemModuleOutput<T extends ProblemDefinitions> {
   transformer: ProblemTransformer<T>;
 }
 
-function problemBuilder<T extends ProblemDefinitions>(
-  input: ProblemModuleInput,
-  problemDefinition: T,
-): ProblemModuleOutput<T> {
-  const { config, errorReporter } = input;
-  const registry = new ProblemRegistry(config, problemDefinition);
+function problemBuilder<T extends ProblemDefinitions>(input: ProblemModuleInput<T>): ProblemModuleOutput<T> {
+  const { config, errorReporter, problemDefinitions } = input;
+  const registry = new ProblemRegistry(config, problemDefinitions);
   const transformer = new ProblemTransformer(registry, errorReporter);
   return {
     transformer,

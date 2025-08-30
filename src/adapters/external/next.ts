@@ -19,7 +19,7 @@ const {
   withApi: withApiProblem,
   withStatic: withStaticProblem,
   withServerSide: withServerSideProblem,
-} = createProblemModule(buildTime.PROBLEM_DEFINITIONS);
+} = createProblemModule<AdaptedProblemDefinition>();
 
 const {
   withApi: withApiConfig,

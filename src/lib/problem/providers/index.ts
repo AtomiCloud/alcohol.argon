@@ -8,13 +8,14 @@ import {
   type ProblemTransformer,
 } from '@/lib/problem/core';
 
-type ProblemProviderProps = ModuleProviderProps<ProblemModuleInput>;
+type ProblemProviderProps<T extends ProblemDefinitions> = ModuleProviderProps<ProblemModuleInput<T>>;
 
-function createProblemProvider<T extends ProblemDefinitions>(problemDefinition: T) {
-  const { Provider, useContext } = createModuleProvider<ProblemModuleInput, ProblemModuleOutput<T>>({
+function createProblemProvider<T extends ProblemDefinitions>() {
+  const { Provider, useContext } = createModuleProvider<ProblemModuleInput<T>, ProblemModuleOutput<T>>({
     name: 'Problem',
-    builder: input => problemBuilder(input, problemDefinition),
+    builder: input => problemBuilder(input),
   });
+
   function useProblemRegistry(): ProblemRegistry<T> {
     const {
       resource: { registry },

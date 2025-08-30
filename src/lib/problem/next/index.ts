@@ -6,12 +6,13 @@ import {
   type ProblemModuleOutput,
 } from '@/lib/problem/core';
 
-function createProblemModule<T extends ProblemDefinitions>(
-  problemDefinition: T,
-): NextAdapter<ProblemModuleInput, ProblemModuleOutput<T>> {
-  const module: NextAdapterConfig<ProblemModuleInput, ProblemModuleOutput<T>> = {
+function createProblemModule<T extends ProblemDefinitions>(): NextAdapter<
+  ProblemModuleInput<T>,
+  ProblemModuleOutput<T>
+> {
+  const module: NextAdapterConfig<ProblemModuleInput<T>, ProblemModuleOutput<T>> = {
     name: 'Problem',
-    builder: input => problemBuilder(input, problemDefinition),
+    builder: input => problemBuilder(input),
   };
   return createNextAdapter(module);
 }

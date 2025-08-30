@@ -11,7 +11,7 @@ const clientTree = {
 };
 
 const buildTime = {
-  PROBLEM_DEFINITIONS,
+  problemDefinitions: PROBLEM_DEFINITIONS,
   configSchemas,
   clientTree: clientTree,
   importedConfigurations,

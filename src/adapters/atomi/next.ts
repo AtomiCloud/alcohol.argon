@@ -34,7 +34,7 @@ type AtomiOutput = {
 };
 
 const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas, problemDefinitions },
   handler,
 ) => {
   return withApiLandscape({ source: landscapeSource }, (req, res, landscape) => {
@@ -50,6 +50,7 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
             {
               errorReporter: problemReporter.reporter,
               config: config.common.errorPortal,
+              problemDefinitions,
             },
             (req, res, problem) => {
               return withApiSwagger(
@@ -79,7 +80,7 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
 };
 
 const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas, problemDefinitions },
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -89,6 +90,7 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
           {
             config: config.common.errorPortal,
             errorReporter: problemReporter.reporter,
+            problemDefinitions,
           },
           (context, problem) => {
             return withServerSideSwagger(
@@ -117,7 +119,7 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
 };
 
 const withStaticAtomi: WithStaticHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas, problemDefinitions },
   handler,
 ) => {
   return withStaticLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -127,6 +129,7 @@ const withStaticAtomi: WithStaticHandler<AdaptedInput, AtomiOutput> = (
           {
             errorReporter: problemReporter.reporter,
             config: config.common.errorPortal,
+            problemDefinitions,
           },
           (context, problem) => {
             return withStaticSwagger(
