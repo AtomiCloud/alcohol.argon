@@ -1,20 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { importedConfigurations } from '@/config/configs';
-import { ProblemRegistry } from '@/lib/problem/core';
-import { PROBLEM_DEFINITIONS } from '@/problems/registry';
-import { withApiConfig } from '@/adapters/external/next';
+import { withApiAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 /**
  * GET /api/v1.0/error-info
  * Returns array of problem IDs: ["entity_conflict", "unauthorized", "validation_error"]
  */
-export default withApiConfig(
-  {
-    landscape: process.env.LANDSCAPE || 'base',
-    importedConfigurations,
-  },
-  async (req: NextApiRequest, res: NextApiResponse, config) => {
-    const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
-    return problemRegistry.handleListProblems(req, res);
-  },
-);
+export default withApiAtomi(buildTime, async (req: NextApiRequest, res: NextApiResponse, { problemRegistry }) => {
+  return problemRegistry.handleListProblems(req, res);
+});

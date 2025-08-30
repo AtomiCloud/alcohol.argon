@@ -18,6 +18,8 @@ import { FaroErrorReporterFactory } from '@/adapters/problem-reporter/core/probl
 import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
 import { withServerSideConfig } from '@/adapters/external/next';
 import { type GetServerSidePropsResult, GetStaticPropsResult } from 'next';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 interface DataSection {
   id: string;
@@ -380,20 +382,12 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
   );
 }
 
-export const getServerSideProps = withServerSideConfig(
-  {
-    landscape: process.env.LANDSCAPE || 'base',
-    importedConfigurations,
-  },
-  async (_, config): Promise<GetServerSidePropsResult<ApiShowcasePageProps>> => {
+export const getServerSideProps = withServerSideAtomi(
+  buildTime,
+  async (_, { config, apiTree, problemTransformer }): Promise<GetServerSidePropsResult<ApiShowcasePageProps>> => {
     const zincApiBaseUrl = config.common.clients.alcohol.zinc.url;
-    const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
-    const errorReporterFactory = new FaroErrorReporterFactory(config.client.faro.enabled);
-    const errorReporter = errorReporterFactory.get();
-    const problemTransformer = new ProblemTransformer(problemRegistry, errorReporter);
 
-    const zincApiGood = new AlcoholZincApi({ baseUrl: zincApiBaseUrl });
-    const safeZincApiGood = createSafeApiClient(zincApiGood, { problemTransformer, instance: 'api-showcase-ssr' });
+    const safeZincApiGood = apiTree.alcohol.zinc;
 
     const zincApiError = new AlcoholZincApi({
       baseUrl: zincApiBaseUrl,

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { importedConfigurations } from '@/config/configs';
 import { withServerSideConfig } from '@/adapters/external/next';
 import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 interface ConfigPageProps {
   serverTime: string;
@@ -174,19 +176,12 @@ export default function ConfigPage({ serverTime, appName }: ConfigPageProps) {
   );
 }
 
-export const getServerSideProps = withServerSideConfig(
-  {
-    landscape: process.env.LANDSCAPE || 'base',
-    importedConfigurations,
-  },
-  async (context, config) => {
-    const serverTime = new Date().toISOString();
-
-    return {
-      props: {
-        serverTime,
-        appName: config.common.app.name,
-      },
-    };
-  },
-);
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { config }) => {
+  const serverTime = new Date().toISOString();
+  return {
+    props: {
+      serverTime,
+      appName: config.common.app.name,
+    },
+  };
+});

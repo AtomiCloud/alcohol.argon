@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
     const webpack = require('webpack');
     config.plugins.push(
       new webpack.DefinePlugin({
-        // 'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
+        'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
         'process.env.LANDSCAPE': JSON.stringify(landscape),
       }),
     );

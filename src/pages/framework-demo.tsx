@@ -15,6 +15,8 @@ import { importedConfigurations } from '@/config/configs';
 import { withServerSideConfig } from '@/adapters/external/next';
 import { useCommonConfig } from '@/adapters/external/Provider';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 interface FrameworkDemoProps {
   // Example of how pages can receive serialized error results
@@ -385,14 +387,9 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
 /**
  * Example of how to return different types of errors from getServerSideProps
  */
-export const getServerSideProps = withServerSideConfig(
-  {
-    landscape: process.env.LANDSCAPE || 'base',
-    importedConfigurations,
-  },
-  async (context, config): Promise<GetServerSidePropsResult<FrameworkDemoProps>> => {
-    const problemRegistry = new ProblemRegistry(config.common.errorPortal, PROBLEM_DEFINITIONS);
-
+export const getServerSideProps = withServerSideAtomi(
+  buildTime,
+  async (context, { problemRegistry }): Promise<GetServerSidePropsResult<FrameworkDemoProps>> => {
     const { error_type } = context.query;
 
     // Simulate different error scenarios based on query parameter

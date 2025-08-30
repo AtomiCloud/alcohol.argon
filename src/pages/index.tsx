@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { importedConfigurations } from '@/config/configs';
 import { withServerSideConfig } from '@/adapters/external/next';
 import { useCommonConfig } from '@/adapters/external/Provider';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 interface HomeProps {
   serverTime: string;
@@ -111,22 +113,16 @@ export default function Home({ serverTime, userAgent, appName }: HomeProps) {
   );
 }
 
-export const getServerSideProps = withServerSideConfig(
-  {
-    landscape: process.env.LANDSCAPE || 'base',
-    importedConfigurations,
-  },
-  async (context, config) => {
-    // Access config.common, config.client, config.server
-    const serverTime = new Date().toISOString();
-    const userAgent = context.req.headers['user-agent'] || 'Unknown';
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { config }) => {
+  // Access config.common, config.client, config.server
+  const serverTime = new Date().toISOString();
+  const userAgent = context.req.headers['user-agent'] || 'Unknown';
 
-    return {
-      props: {
-        serverTime,
-        userAgent,
-        appName: config.common.app.name,
-      },
-    };
-  },
-);
+  return {
+    props: {
+      serverTime,
+      userAgent,
+      appName: config.common.app.name,
+    },
+  };
+});
