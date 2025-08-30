@@ -4,16 +4,18 @@ import { AlertCircle, CheckCircle, ExternalLink, RefreshCw } from 'lucide-react'
 
 import { AlcoholZincApi } from '@/clients/alcohol/zinc/api';
 import { createSafeApiClient, SafeApiClient } from '@/lib/api/core/swagger-adapter';
-import { ProblemTransformer } from '@/lib/problem/core/transformer';
-import { FaroErrorReporter } from '@/lib/observability';
-import { NoOpErrorReporter, Problem, ProblemRegistry } from '@/lib/problem/core';
+import { Problem } from '@/lib/problem/core';
 import type { Result } from '@/lib/monads/result';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { PROBLEM_DEFINITIONS } from '@/problems/registry';
 import { useSearchState } from '@/hooks/useUrlState';
-import { useClientConfig, useCommonConfig } from '@/adapters/external/Provider';
+import {
+  useClientConfig,
+  useCommonConfig,
+  useProblemTransformer,
+  useSwaggerClients,
+} from '@/adapters/external/Provider';
 import { type GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
@@ -43,17 +45,14 @@ interface ApiShowcasePageProps {
 }
 
 export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiShowcasePageProps) {
+  const [sectionData, setSectionData] = useState<Record<string, SectionData>>(initialData);
   const clientConfig = useClientConfig();
   const commonConfig = useCommonConfig();
-  const [sectionData, setSectionData] = useState<Record<string, SectionData>>(initialData);
-
   const zincApiBaseUrl = commonConfig.clients.alcohol.zinc.url;
-  const problemRegistry = new ProblemRegistry(commonConfig.errorPortal, PROBLEM_DEFINITIONS);
-  const faroErrorReporter = clientConfig.faro.enabled ? new FaroErrorReporter() : new NoOpErrorReporter();
-  const problemTransformer = new ProblemTransformer(problemRegistry, faroErrorReporter);
 
-  const zincApiGood = new AlcoholZincApi({ baseUrl: zincApiBaseUrl });
-  const safeZincApiGood = createSafeApiClient(zincApiGood, { problemTransformer, instance: 'api-showcase-good' });
+  const apiTree = useSwaggerClients();
+  const safeZincApiGood = apiTree.alcohol.zinc;
+  const problemTransformer = useProblemTransformer();
 
   const zincApiError = new AlcoholZincApi({
     baseUrl: zincApiBaseUrl,

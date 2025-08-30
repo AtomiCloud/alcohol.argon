@@ -11,7 +11,7 @@ import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { ProblemRegistry } from '@/lib/problem/core';
 import { PROBLEM_DEFINITIONS } from '@/problems';
-import { useCommonConfig } from '@/adapters/external/Provider';
+import { useCommonConfig, useProblemRegistry } from '@/adapters/external/Provider';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
@@ -31,8 +31,7 @@ interface FrameworkDemoProps {
  * 4. Various error types and animations
  */
 export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
-  const commonConfig = useCommonConfig();
-  const problemRegistry = new ProblemRegistry(commonConfig.errorPortal, PROBLEM_DEFINITIONS);
+  const problemRegistry = useProblemRegistry();
 
   const router = useRouter();
   const { throwError: handleThrowContextError } = useErrorHandler();

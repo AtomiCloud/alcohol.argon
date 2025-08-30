@@ -3,15 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { ValidationErrorContext } from '@/problems';
-import { Problem, ProblemRegistry } from '@/lib/problem/core';
+import { Problem } from '@/lib/problem/core';
 import type { ResultSerial } from '@/lib/monads/result';
 import { Err, Ok } from '@/lib/monads/result';
-import { PROBLEM_DEFINITIONS } from '@/problems/registry';
-import { useCommonConfig } from '@/adapters/external/Provider';
+import { useProblemRegistry } from '@/adapters/external/Provider';
 
 export default function ProblemDemoPage() {
-  const commonConfig = useCommonConfig();
-  const problemRegistry = new ProblemRegistry(commonConfig.errorPortal, PROBLEM_DEFINITIONS);
+  const problemRegistry = useProblemRegistry();
 
   const [email, setEmail] = useState('');
   const [resultSerial, setResultSerial] = useState<ResultSerial<string, Problem> | ''>('');
