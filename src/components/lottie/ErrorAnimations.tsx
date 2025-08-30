@@ -3,7 +3,6 @@ import type { Problem } from '@/lib/problem/core/types';
 
 // Import error animation data
 import astronautData from '/public/animations/errors/astronaout.json';
-import catData from '/public/animations/errors/cat.json';
 import chemicalData from '/public/animations/errors/chemical.json';
 import coffeeData from '/public/animations/errors/coffee.json';
 import cowData from '/public/animations/errors/cow.json';
@@ -28,7 +27,6 @@ interface ErrorAnimationProps {
  */
 const CHEEKY_NAMES: Record<string, string> = {
   astronaut: 'Error - Lost in Space',
-  cat: 'Error - Cat broke Glass',
   chemical: 'Error - Chemical Explosion',
   coffee: 'Error - Coffee Split',
   cow: 'Error - Alien Invasion',
@@ -48,13 +46,13 @@ const CHEEKY_NAMES: Record<string, string> = {
  */
 const ERROR_ANIMATION_MAP: Record<number, { data: any; name: string; cheekyName: string }> = {
   // Client Errors (4xx)
-  400: { data: catData, name: 'cat', cheekyName: CHEEKY_NAMES.cat },
+  400: { data: icecreamData, name: 'cat', cheekyName: CHEEKY_NAMES.icecream },
   401: { data: dogNewsPaperData, name: 'dogNewsPaper', cheekyName: CHEEKY_NAMES.dogNewsPaper },
   403: { data: puzzleData, name: 'puzzle', cheekyName: CHEEKY_NAMES.puzzle },
   404: { data: cowData, name: 'cow', cheekyName: CHEEKY_NAMES.cow },
   409: { data: dogSmellData, name: 'dogSmell', cheekyName: CHEEKY_NAMES.dogSmell },
   418: { data: dogSwimmingData, name: 'dogSwimming', cheekyName: CHEEKY_NAMES.dogSwimming },
-  422: { data: catData, name: 'cat', cheekyName: CHEEKY_NAMES.cat },
+  422: { data: dogSwimmingData, name: 'cat', cheekyName: CHEEKY_NAMES.dogSwimming },
   429: { data: coffeeData, name: 'coffee', cheekyName: CHEEKY_NAMES.coffee },
 
   // Server Errors (5xx)
