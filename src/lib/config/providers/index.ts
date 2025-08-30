@@ -2,12 +2,12 @@ import { createModuleProvider, type ModuleProviderProps } from '@/lib/module/pro
 import type { ConfigRegistry, ConfigSchemas } from '../core';
 import { configBuilder, type ConfigModuleInput } from '../adapter';
 
-type ConfigProviderProps = ModuleProviderProps<ConfigModuleInput>;
+type ConfigProviderProps<T extends ConfigSchemas> = ModuleProviderProps<ConfigModuleInput<T>>;
 
-function createConfigProvider<T extends ConfigSchemas>(schemas: T) {
-  const { useContext, Provider } = createModuleProvider<ConfigModuleInput, ConfigRegistry<T>>({
+function createConfigProvider<T extends ConfigSchemas>() {
+  const { useContext, Provider } = createModuleProvider<ConfigModuleInput<T>, ConfigRegistry<T>>({
     name: 'Config',
-    builder: input => configBuilder(input, schemas),
+    builder: input => configBuilder(input),
   });
 
   function useCommonConfig() {

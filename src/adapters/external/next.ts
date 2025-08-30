@@ -2,7 +2,12 @@
 import { createApiModule } from '@/lib/api/next';
 import { createProblemModule } from '@/lib/problem/next';
 import { createConfigModule } from '@/lib/config/next';
-import { type AdaptedClientTree, type AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
+import {
+  type AdaptedClientTree,
+  type AdaptedConfigSchema,
+  type AdaptedProblemDefinition,
+  buildTime,
+} from '@/adapters/external/core';
 
 const {
   withApi: withApiSwagger,
@@ -20,7 +25,7 @@ const {
   withApi: withApiConfig,
   withStatic: withStaticConfig,
   withServerSide: withServerSideConfig,
-} = createConfigModule(buildTime.configSchemas);
+} = createConfigModule<AdaptedConfigSchema>();
 
 export {
   withApiSwagger,

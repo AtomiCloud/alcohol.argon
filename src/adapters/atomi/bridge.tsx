@@ -13,14 +13,15 @@ import { useLandscape } from '@/lib/landscape/providers';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { ProblemReporterProvider, ProblemReporterProviderProps } from '@/adapters/problem-reporter/providers';
 import { ApiProviderProps } from '@/lib/api/providers';
-import { AdaptedClientTree, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
+import { AdaptedClientTree, AdaptedConfigSchema, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
 
-const BridgedConfigProvider = createBridge<ConfigProviderProps>(ConfigProvider, () => {
+const BridgedConfigProvider = createBridge<ConfigProviderProps<AdaptedConfigSchema>>(ConfigProvider, () => {
   const landscape = useLandscape();
   return {
     config: {
       landscape,
       importedConfigurations: buildTime.importedConfigurations,
+      schemas: buildTime.configSchemas,
     },
   };
 });

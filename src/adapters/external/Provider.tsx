@@ -1,15 +1,15 @@
 import { createApiProvider } from '@/lib/api/providers';
-import { buildTime } from '@/adapters/external/core';
+import { AdaptedClientTree, AdaptedConfigSchema, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
 import { createConfigProvider } from '@/lib/config/providers';
 import { createProblemProvider } from '@/lib/problem/providers';
 
 const { useSwaggerClients, useApiContext, ApiProvider } = createApiProvider<
-  typeof buildTime.clientTree,
-  typeof buildTime.PROBLEM_DEFINITIONS
+  AdaptedClientTree,
+  AdaptedProblemDefinition
 >();
 
 const { useConfigRegistry, useCommonConfig, useConfig, useClientConfig, useConfigContext, ConfigProvider } =
-  createConfigProvider(buildTime.configSchemas);
+  createConfigProvider<AdaptedConfigSchema>();
 
 const { useProblemContext, useProblemTransformer, useProblemRegistry, ProblemProvider } = createProblemProvider(
   buildTime.PROBLEM_DEFINITIONS,

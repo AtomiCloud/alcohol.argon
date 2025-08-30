@@ -34,14 +34,15 @@ type AtomiOutput = {
 };
 
 const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
   handler,
 ) => {
   return withApiLandscape({ source: landscapeSource }, (req, res, landscape) => {
     return withApiConfig(
       {
         landscape,
-        importedConfigurations: importedConfigurations,
+        importedConfigurations,
+        schemas: configSchemas,
       },
       (req, res, config) => {
         return withApiProblemReporter({ faro: false }, (req, res, problemReporter) => {
@@ -78,11 +79,11 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
 };
 
 const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
-    return withServerSideConfig({ importedConfigurations, landscape }, (context, config) => {
+    return withServerSideConfig({ importedConfigurations, landscape, schemas: configSchemas }, (context, config) => {
       return withServerSideProblemReporter({ faro: false }, (context, problemReporter) => {
         return withServerSideProblem(
           {
@@ -116,11 +117,11 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
 };
 
 const withStaticAtomi: WithStaticHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas },
   handler,
 ) => {
   return withStaticLandscape({ source: landscapeSource }, (context, landscape) => {
-    return withStaticConfig({ importedConfigurations, landscape }, (context, config) => {
+    return withStaticConfig({ importedConfigurations, landscape, schemas: configSchemas }, (context, config) => {
       return withStaticProblemReporter({ faro: false }, (context, problemReporter) => {
         return withStaticProblem(
           {

@@ -2,10 +2,10 @@ import { createNextAdapter, type NextAdapter, type NextAdapterConfig } from '@/l
 import { configBuilder, type ConfigModuleInput } from '@/lib/config/adapter';
 import type { ConfigRegistry, ConfigSchemas } from '@/lib/config/core';
 
-function createConfigModule<T extends ConfigSchemas>(schemas: T): NextAdapter<ConfigModuleInput, ConfigRegistry<T>> {
-  const module: NextAdapterConfig<ConfigModuleInput, ConfigRegistry<T>> = {
+function createConfigModule<T extends ConfigSchemas>(): NextAdapter<ConfigModuleInput<T>, ConfigRegistry<T>> {
+  const module: NextAdapterConfig<ConfigModuleInput<T>, ConfigRegistry<T>> = {
     name: 'Config',
-    builder: input => configBuilder(input, schemas),
+    builder: input => configBuilder(input),
   };
   return createNextAdapter(module);
 }
