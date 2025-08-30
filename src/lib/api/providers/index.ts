@@ -3,12 +3,12 @@ import type { ApiTree, ClientTree } from '@/lib/api/core';
 import { apiBuilder, type ApiModuleInput } from '@/lib/api/core/adapter';
 import { type ProblemDefinitions, ProblemTransformer } from '@/lib/problem/core';
 
-type ApiProviderProps<Y extends ProblemDefinitions> = ModuleProviderProps<ApiModuleInput<Y>>;
+type ApiProviderProps<T extends ClientTree, Y extends ProblemDefinitions> = ModuleProviderProps<ApiModuleInput<T, Y>>;
 
-function createApiProvider<T extends ClientTree, Y extends ProblemDefinitions>(clientTree: T) {
-  const { Provider, useContext } = createModuleProvider<ApiModuleInput<Y>, ApiTree<T>>({
+function createApiProvider<T extends ClientTree, Y extends ProblemDefinitions>() {
+  const { Provider, useContext } = createModuleProvider<ApiModuleInput<T, Y>, ApiTree<T>>({
     name: 'Api',
-    builder: input => apiBuilder(input, clientTree),
+    builder: input => apiBuilder(input),
   });
 
   function useSwaggerClients(): ApiTree<T> {

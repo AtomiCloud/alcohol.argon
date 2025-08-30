@@ -4,7 +4,7 @@ import { configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { envLandscapeSource } from '@/lib/landscape/core';
 
-const apiTree = {
+const clientTree = {
   alcohol: {
     zinc: new AlcoholZincApi(),
   },
@@ -13,9 +13,18 @@ const apiTree = {
 const buildTime = {
   PROBLEM_DEFINITIONS,
   configSchemas,
-  apiTree,
+  clientTree: clientTree,
   importedConfigurations,
   landscapeSource: envLandscapeSource,
   defaultInstance: 'global',
 };
+
+type AdaptedProblemDefinition = typeof PROBLEM_DEFINITIONS;
+type AdaptedConfigSchema = typeof configSchemas;
+type AdaptedClientTree = typeof clientTree;
+type AdaptedImportedConfig = typeof importedConfigurations;
+type AdaptedInput = typeof buildTime;
+
 export { buildTime };
+
+export type { AdaptedInput, AdaptedClientTree, AdaptedConfigSchema, AdaptedImportedConfig, AdaptedProblemDefinition };

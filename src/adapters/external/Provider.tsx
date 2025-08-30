@@ -4,9 +4,9 @@ import { createConfigProvider } from '@/lib/config/providers';
 import { createProblemProvider } from '@/lib/problem/providers';
 
 const { useSwaggerClients, useApiContext, ApiProvider } = createApiProvider<
-  typeof buildTime.apiTree,
+  typeof buildTime.clientTree,
   typeof buildTime.PROBLEM_DEFINITIONS
->(buildTime.apiTree);
+>();
 
 const { useConfigRegistry, useCommonConfig, useConfig, useClientConfig, useConfigContext, ConfigProvider } =
   createConfigProvider(buildTime.configSchemas);

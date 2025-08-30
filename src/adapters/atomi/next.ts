@@ -18,12 +18,10 @@ import {
 } from '@/adapters/problem-reporter/next';
 import type { ProblemReporter } from '@/lib/problem/core';
 import type { ProblemReporterFactory } from '@/lib/problem/core/transformer';
-import type { buildTime } from '@/adapters/external/core';
+import type { AdaptedInput } from '@/adapters/external/core';
 
 // biome-ignore lint/suspicious/noExplicitAny: Generic ApiOut must allow any type for extension
 type ApiOutput<T extends WithApiHandler<any, any>> = Parameters<Parameters<T>[1]>[2];
-
-type AtomiInput = typeof buildTime;
 
 type AtomiOutput = {
   landscape: string;
@@ -35,8 +33,8 @@ type AtomiOutput = {
   problemReporterFactory: ProblemReporterFactory;
 };
 
-const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance },
+const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
   handler,
 ) => {
   return withApiLandscape({ source: landscapeSource }, (req, res, landscape) => {
@@ -57,6 +55,7 @@ const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
                 {
                   defaultInstance,
                   problemTransformer: problem.transformer,
+                  clientTree,
                 },
                 (req, res, apiTree) => {
                   return handler(req, res, {
@@ -78,8 +77,8 @@ const withApiAtomi: WithApiHandler<AtomiInput, AtomiOutput> = (
   });
 };
 
-const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance },
+const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -95,6 +94,7 @@ const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
               {
                 defaultInstance,
                 problemTransformer: problem.transformer,
+                clientTree,
               },
               (context, apiTree) => {
                 return handler(context, {
@@ -115,8 +115,8 @@ const withServerSideAtomi: WithServerSideHandler<AtomiInput, AtomiOutput> = (
   });
 };
 
-const withStaticAtomi: WithStaticHandler<AtomiInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance },
+const withStaticAtomi: WithStaticHandler<AdaptedInput, AtomiOutput> = (
+  { importedConfigurations, landscapeSource, defaultInstance, clientTree },
   handler,
 ) => {
   return withStaticLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -132,6 +132,7 @@ const withStaticAtomi: WithStaticHandler<AtomiInput, AtomiOutput> = (
               {
                 defaultInstance,
                 problemTransformer: problem.transformer,
+                clientTree,
               },
               (context, apiTree) => {
                 return handler(context, {

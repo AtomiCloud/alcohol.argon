@@ -13,7 +13,7 @@ import { useLandscape } from '@/lib/landscape/providers';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { ProblemReporterProvider, ProblemReporterProviderProps } from '@/adapters/problem-reporter/providers';
 import { ApiProviderProps } from '@/lib/api/providers';
-import { buildTime } from '@/adapters/external/core';
+import { AdaptedClientTree, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
 
 const BridgedConfigProvider = createBridge<ConfigProviderProps>(ConfigProvider, () => {
   const landscape = useLandscape();
@@ -45,7 +45,7 @@ const BridgedProblemProvider = createBridge<ProblemProviderProps>(ProblemProvide
   };
 });
 
-const BridgedApiClientProvider = createBridge<ApiProviderProps<typeof buildTime.PROBLEM_DEFINITIONS>>(
+const BridgedApiClientProvider = createBridge<ApiProviderProps<AdaptedClientTree, AdaptedProblemDefinition>>(
   ApiProvider,
   () => {
     const problemTransformer = useProblemTransformer();
@@ -53,6 +53,7 @@ const BridgedApiClientProvider = createBridge<ApiProviderProps<typeof buildTime.
       config: {
         defaultInstance: buildTime.defaultInstance,
         problemTransformer,
+        clientTree: buildTime.clientTree,
       },
     };
   },
