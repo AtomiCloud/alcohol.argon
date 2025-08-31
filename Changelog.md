@@ -1,3 +1,11 @@
+## [1.6.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.6.0...v1.6.1) (2025-08-31)
+
+
+### 🐛 Bug Fixes 🐛
+
+* CD to cloudflare missing ACCOUNT ID ([c82786a](https://github.com/AtomiCloud/alcohol.argon/commit/c82786a89f42cd0da6cc0c57cb08a583d0618e65))
+* CD to cloudflare missing ACCOUNT ID ([#35](https://github.com/AtomiCloud/alcohol.argon/issues/35)) ([5bc76df](https://github.com/AtomiCloud/alcohol.argon/commit/5bc76df45cbe5b17a5862215add3a2eff6982bfa))
+
 ## [1.6.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.5.1...v1.6.0) (2025-08-31)
 
 
