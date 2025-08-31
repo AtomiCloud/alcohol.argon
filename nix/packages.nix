@@ -30,7 +30,6 @@ let
 
           # language
           bun
-          wrangler
           ;
       }
     );

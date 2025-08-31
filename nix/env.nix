@@ -13,7 +13,6 @@ with packages;
   main = [
     bun
     infisical
-    wrangler
   ];
 
   lint = [

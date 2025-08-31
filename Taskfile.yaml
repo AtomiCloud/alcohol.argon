@@ -1,6 +1,11 @@
 version: '3'
 
 tasks:
+  setup:
+    desc: 'Setup the application'
+    cmds:
+      - bun i
+
   build:
     desc: 'Build the application with OpenNext'
     cmds:
