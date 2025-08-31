@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.5.0...v1.5.1) (2025-08-31)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** move wrangler to bun ([52cf340](https://github.com/AtomiCloud/alcohol.argon/commit/52cf340ea09dd1b92deb478e7c7f48a047ea30cb))
+
 ## [1.5.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.4.0...v1.5.0) (2025-08-30)
 
 
