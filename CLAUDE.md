@@ -16,11 +16,30 @@ src/
 ├── pages/           # Next.js Pages Router (SSR pages + API routes)
 ├── components/      # React components
 │   ├── ui/         # shadcn/ui components (Badge, Button, Card, Input)
-│   └── lottie/     # Lottie animation system (InlineLottie, presets)
-├── lib/            # Utilities (lottie-utils, template-api, utils)
+│   ├── lottie/     # Lottie animation system (InlineLottie, presets)
+│   └── error-page/ # Enhanced error page with animations
+├── adapters/        # Dependency injection and provider system
+│   ├── atomi/      # Main AtomiProvider and bridged providers
+│   ├── external/   # External service adapters
+│   ├── components/ # Adapter-level components (GlobalErrorBoundary)
+│   └── problem-reporter/ # Error reporting system
+├── clients/         # Generated API clients
+│   └── alcohol/    # AtomiCloud service clients (zinc, etc.)
+├── lib/            # Core libraries and utilities
+│   ├── api/        # API client infrastructure
+│   ├── config/     # Configuration management system
+│   ├── landscape/  # Landscape/environment detection
+│   ├── module/     # Module system infrastructure
 │   ├── monads/     # Functional monads (Option, Result, discriminated unions)
-│   ├── config/     # Configuration management system with validation
+│   ├── observability/ # Faro integration and error reporting
 │   └── problem/    # Problem Details (RFC 7807) error handling system
+├── config/         # Configuration schemas and settings
+│   ├── client/     # Client-side configuration
+│   ├── server/     # Server-side configuration
+│   └── common/     # Shared configuration with landscape-specific files
+├── problems/       # Problem definition registry
+│   └── definitions/ # Specific problem types (validation, auth, etc.)
+├── contexts/       # React contexts (ErrorContext)
 ├── hooks/          # Custom hooks (useUrlState for URL synchronization)
 ├── styles/         # Global CSS (Tailwind)
 └── types/          # TypeScript definitions
@@ -318,6 +337,223 @@ faro?.match({
 ```
 
 **See `docs/developer/Faro.md` for comprehensive usage examples including custom spans, performance tracking, user context, and backend integration patterns.**
+
+## Dependency Injection System (`src/adapters/`)
+
+Unified provider system that orchestrates all application services, configuration, error handling, and observability:
+
+### AtomiProvider
+
+Root dependency injection container - single setup required:
+
+```typescript
+// In _app.tsx
+import { AtomiProvider } from '@/adapters/atomi/Provider';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <AtomiProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </AtomiProvider>
+  );
+}
+```
+
+### Available Services
+
+```typescript
+// Configuration access
+import { useConfig } from '@/lib/config';
+const { clientConfig, serverConfig } = useConfig();
+
+// Error reporting
+import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+const problemReporter = useProblemReporter();
+
+// API clients
+import { useApiClient } from '@/lib/api/providers';
+const apiClient = useApiClient();
+
+// Error context
+import { useErrorContext } from '@/contexts/ErrorContext';
+const { setError, clearError } = useErrorContext();
+```
+
+## Content Manager System
+
+State management for loading, content, and error states across the entire application:
+
+### Error State Management
+
+```typescript
+import { useErrorContext } from '@/contexts/ErrorContext';
+
+function MyComponent() {
+  const { setError } = useErrorContext();
+
+  const handleAction = async () => {
+    try {
+      await riskyOperation();
+    } catch (error) {
+      setError({
+        type: 'user_action_failed',
+        title: 'Action Failed',
+        status: 400,
+        detail: 'The requested action could not be completed.',
+      });
+    }
+  };
+}
+```
+
+### Page-Level Error Handling
+
+```typescript
+// In getServerSideProps
+export async function getServerSideProps(context) {
+  try {
+    const data = await fetchData();
+    return { props: { data } };
+  } catch (error) {
+    return {
+      props: {
+        __error: {
+          type: 'data_fetch_failed',
+          title: 'Data Loading Failed',
+          status: 500,
+          detail: error.message,
+        },
+      },
+    };
+  }
+}
+```
+
+## Enhanced Error Page System
+
+Error page with status-specific animations, JSON export, and refresh functionality:
+
+### Features
+
+- Status-specific Lottie animations (400, 401, 403, 404, 500, etc.)
+- JSON error details export for support
+- Refresh functionality with error recovery
+- Copy to clipboard functionality
+
+### Usage
+
+```typescript
+import { ErrorPage } from '@/components/error-page';
+
+// Automatic integration via AtomiProvider - no setup required
+// Manual usage:
+<ErrorPage
+  error={{
+    type: 'validation_error',
+    title: 'Invalid Input',
+    status: 400,
+    detail: 'Please check your input and try again.'
+  }}
+  onRefresh={() => window.location.reload()}
+/>
+```
+
+## Problem Reporter System
+
+Error reporting system with Grafana Faro integration:
+
+### Basic Error Reporting
+
+```typescript
+import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+
+function MyComponent() {
+  const problemReporter = useProblemReporter();
+
+  try {
+    await riskyOperation();
+  } catch (error) {
+    problemReporter.pushError(error, {
+      source: 'user-action',
+      context: { userId: '123', action: 'submit-form' },
+    });
+  }
+}
+```
+
+### Error with Context
+
+```typescript
+problemReporter.pushError(error, {
+  source: 'api-client',
+  problem: {
+    type: 'network_error',
+    title: 'Network Request Failed',
+    status: 503,
+    detail: 'Unable to connect to server',
+  },
+  context: {
+    url: '/api/users',
+    method: 'POST',
+    timestamp: Date.now(),
+  },
+});
+```
+
+## Landscape System (`src/lib/landscape/`)
+
+Environment detection and landscape-specific configuration:
+
+### Usage
+
+```typescript
+import { useLandscape } from '@/lib/landscape/providers';
+
+function MyComponent() {
+  const landscape = useLandscape();
+  // landscape: 'lapras' | 'pichu' | 'pikachu' | 'raichu'
+
+  const isProduction = landscape === 'raichu';
+  const isDevelopment = landscape === 'pichu';
+}
+```
+
+## API Client System (`src/lib/api/`)
+
+Unified API client infrastructure with automatic error handling:
+
+### Usage
+
+```typescript
+import { useApiClient } from '@/lib/api/providers';
+
+function MyComponent() {
+  const apiClient = useApiClient();
+
+  const fetchData = async () => {
+    const result = await apiClient.get('/users');
+    // Automatic error handling and problem reporting
+    return result;
+  };
+}
+```
+
+## Module System (`src/lib/module/`)
+
+Module identification and metadata system:
+
+### Usage
+
+```typescript
+import { useModule } from '@/lib/module/providers';
+
+function MyComponent() {
+  const module = useModule();
+  // Current module: 'webapp'
+}
+```
 
 ## File Naming & Import Conventions
 
