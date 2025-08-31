@@ -19,6 +19,9 @@ echo "⬇️ Installing dependencies"
 bun install --ci
 echo "✅ Dependencies installed"
 
+NODE_MODULES_BIN="$(pwd)/node_modules/.bin"
+export PATH="$NODE_MODULES_BIN:$PATH"
+
 echo "🔧 Exporting build info and building application..."
 eval "$(./scripts/ci/export_build_info.sh)"
 
