@@ -1,21 +1,13 @@
 import { AlcoholZincApi } from '@/clients/alcohol/zinc/api';
 import { PROBLEM_DEFINITIONS } from '@/problems';
-import { configSchemas } from '@/config';
+import { type CommonConfig, configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { envLandscapeSource } from '@/lib/landscape/core';
 
-type ClientTreeInput = {
-  alcohol: {
-    zinc: {
-      baseUrl: string;
-    };
-  };
-};
-
-const clientTree = (i: ClientTreeInput) => ({
+const clientTree = (i: CommonConfig) => ({
   alcohol: {
     zinc: new AlcoholZincApi({
-      baseUrl: i.alcohol.zinc.baseUrl,
+      baseUrl: i.clients.alcohol.zinc.url,
     }),
   },
 });
