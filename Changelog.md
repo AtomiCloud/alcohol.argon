@@ -1,3 +1,15 @@
+## [1.6.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.5.1...v1.6.0) (2025-08-31)
+
+
+### 📜 Documentation 📜
+
+* **developer:** update developer docs ([a19d1b3](https://github.com/AtomiCloud/alcohol.argon/commit/a19d1b371ed517208a392e376d0ab3f96ff78894))
+
+
+### ✨ Features ✨
+
+* **clientTree:** simplify clientTree converter ([2326750](https://github.com/AtomiCloud/alcohol.argon/commit/2326750f860388466245a56dcd90f3277caeacf6))
+
 ## [1.5.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.5.0...v1.5.1) (2025-08-31)
 
 
