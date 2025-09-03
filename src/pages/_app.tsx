@@ -6,6 +6,7 @@ import { AtomiProvider } from '@/adapters/atomi/Provider';
 import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
+import { InitialAuthTokenProvider } from '@/lib/auth/providers/Provider';
 
 function DefaultLoadingComponent() {
   return (
@@ -23,17 +24,18 @@ function DefaultLoadingComponent() {
 
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
-
   return (
-    <Layout>
-      <ContentManager
-        Component={Component}
-        pageProps={pageProps}
-        problemReporter={problemReporter}
-        LoadingComponent={DefaultLoadingComponent}
-        ErrorComponent={ErrorPage}
-      />
-    </Layout>
+    <InitialAuthTokenProvider initialAuthState={pageProps.__authState}>
+      <Layout>
+        <ContentManager
+          Component={Component}
+          pageProps={pageProps}
+          problemReporter={problemReporter}
+          LoadingComponent={DefaultLoadingComponent}
+          ErrorComponent={ErrorPage}
+        />
+      </Layout>
+    </InitialAuthTokenProvider>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { GetServerSideProps } from 'next';
+import { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { Search, X } from 'lucide-react';
 import { searchTemplates, Template } from '@/lib/template-api';
@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSearchState } from '@/hooks/useUrlState';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
 interface TemplatePageProps {
   initialResults: Template[];
@@ -111,14 +113,17 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
   );
 }
 
-export const getServerSideProps: GetServerSideProps<TemplatePageProps> = async ({ query }) => {
-  const searchQuery = (query.q as string) || '';
-  const searchResults = await searchTemplates(searchQuery, 20);
-  return {
-    props: {
-      initialResults: searchResults.templates,
-      initialQuery: searchQuery,
-      serverTimestamp: new Date().toISOString(),
-    },
-  };
-};
+export const getServerSideProps = withServerSideAtomi(
+  buildTime,
+  async ({ query }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
+    const searchQuery = (query.q as string) || '';
+    const searchResults = await searchTemplates(searchQuery, 20);
+    return {
+      props: {
+        initialResults: searchResults.templates,
+        initialQuery: searchQuery,
+        serverTimestamp: new Date().toISOString(),
+      },
+    };
+  },
+);
