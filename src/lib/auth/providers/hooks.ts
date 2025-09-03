@@ -10,7 +10,7 @@ const fetcher = async (...arg: FetcherArgs): Promise<any> => {
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  return await response.json<AuthState>();
+  return await response.json();
 };
 
 function useAuth(): AuthState {
