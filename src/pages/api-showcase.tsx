@@ -62,8 +62,6 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
     }) as unknown as typeof fetch,
   });
   const safeZincApiError = createSafeApiClient(zincApiError, { problemTransformer, instance: 'api-showcase-error' });
-  console.log(safeZincApiGood.baseUrl);
-  console.log(safeZincApiError.baseUrl);
 
   const dataSections: DataSection[] = [
     {
