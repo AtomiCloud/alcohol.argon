@@ -115,7 +115,7 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
 
 export const getServerSideProps = withServerSideAtomi(
   buildTime,
-  async ({ query }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
+  async ({ query }: any): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
     const searchQuery = (query.q as string) || '';
     const searchResults = await searchTemplates(searchQuery, 20);
     return {

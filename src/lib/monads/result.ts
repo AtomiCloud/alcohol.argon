@@ -355,9 +355,9 @@ class KResult<T, X> implements Result<T, X> {
     const closure = async (): Promise<ISome<X> | INone> => {
       const [t, v] = await this.value;
       if (t === 'err') {
-        return ['some', v] as ['some', X];
+        return [true, v] as [true, X];
       }
-      return ['none', null] as ['none', null];
+      return [false, null] as [false, null];
     };
     return new KOption<X>(closure());
   }
@@ -397,9 +397,9 @@ class KResult<T, X> implements Result<T, X> {
     const closure = async (): Promise<ISome<T> | INone> => {
       const [t, v] = await this.value;
       if (t === 'ok') {
-        return ['some', v] as ['some', T];
+        return [true, v] as [true, T];
       }
-      return ['none', null] as ['none', null];
+      return [false, null] as [false, null];
     };
     return new KOption<T>(closure());
   }
@@ -418,8 +418,7 @@ class KResult<T, X> implements Result<T, X> {
   }
 
   async serial(): Promise<ResultSerial<T, X>> {
-    const r = await this.value;
-    return r;
+    return await this.value;
   }
 }
 

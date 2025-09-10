@@ -1,12 +1,24 @@
 import { useCallback } from 'react';
-import { useErrorContext } from '@/contexts/ErrorContext';
+import { useErrorContext } from '@/lib/content/providers/ErrorContext';
 import type { Problem } from '@/lib/problem/core/types';
 import { useProblemTransformer } from '@/adapters/external/Provider';
 
-export function useErrorHandler() {
+function useErrorHandler() {
   const { setError } = useErrorContext();
 
   const problemTransformer = useProblemTransformer();
+
+  const throwUnknown = useCallback(
+    (error: unknown) => {
+      const problem = problemTransformer.fromUnknown(
+        error,
+        'Manual error thrown via useErrorHandler (throwUnknown)',
+        window.location.pathname,
+      );
+      setError(problem);
+    },
+    [setError, problemTransformer],
+  );
 
   const throwError = useCallback(
     (error: Error | string) => {
@@ -15,7 +27,7 @@ export function useErrorHandler() {
       // Convert error to Problem using the transformer
       const problem = problemTransformer.fromError(
         errorObj,
-        'Manual error thrown via useErrorHandler',
+        'Manual error thrown via useErrorHandler (throwError)',
         window.location.pathname,
       );
 
@@ -39,6 +51,9 @@ export function useErrorHandler() {
   return {
     throwError,
     throwProblem,
+    throwUnknown,
     clearError,
   };
 }
+
+export { useErrorHandler };

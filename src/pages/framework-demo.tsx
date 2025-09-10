@@ -8,7 +8,7 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { ProblemErrorAnimation } from '@/components/lottie/ErrorAnimations';
 import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import { useProblemRegistry } from '@/adapters/external/Provider';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
 import { withServerSideAtomi } from '@/adapters/atomi/next';

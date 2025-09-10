@@ -13,7 +13,7 @@ interface ErrorProviderProps {
   children: ReactNode;
 }
 
-export function ErrorProvider({ children }: ErrorProviderProps) {
+function ErrorProvider({ children }: ErrorProviderProps) {
   const [currentError, setCurrentError] = useState<Problem | null>(null);
 
   const setError = (error: Problem | null) => {
@@ -29,10 +29,13 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
   return <ErrorContext.Provider value={{ currentError, setError, clearError }}>{children}</ErrorContext.Provider>;
 }
 
-export function useErrorContext() {
+function useErrorContext() {
   const context = useContext(ErrorContext);
   if (context === undefined) {
     throw new Error('useErrorContext must be used within an ErrorProvider');
   }
   return context;
 }
+
+export { useErrorContext, ErrorProvider, ErrorContext };
+export type { ErrorProviderProps, ErrorContextType };

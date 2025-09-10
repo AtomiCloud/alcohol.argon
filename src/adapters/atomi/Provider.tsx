@@ -8,9 +8,10 @@ import {
   BridgedProblemReporterProvider,
 } from './bridge';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
-import { ErrorProvider } from '@/contexts/ErrorContext';
+import { ErrorProvider } from '@/lib/content/providers/ErrorContext';
 import FrontendObservability from '../../lib/observability/FrontendObservability';
 import { GlobalErrorBoundary } from '@/adapters/components/GlobalErrorBoundary';
+import { LoadingProvider } from '@/lib/content/providers/LoadingContext';
 
 interface AtomiProviderProps {
   children: ReactNode;
@@ -23,10 +24,12 @@ export function AtomiProvider({ children }: AtomiProviderProps) {
         <BridgedProblemReporterProvider>
           <BridgedProblemProvider>
             <GlobalErrorBoundary ErrorComponent={ErrorPage}>
-              <ErrorProvider>
-                <FrontendObservability />
-                <BridgedApiClientProvider>{children}</BridgedApiClientProvider>
-              </ErrorProvider>
+              <LoadingProvider>
+                <ErrorProvider>
+                  <FrontendObservability />
+                  <BridgedApiClientProvider>{children}</BridgedApiClientProvider>
+                </ErrorProvider>
+              </LoadingProvider>
             </GlobalErrorBoundary>
           </BridgedProblemProvider>
         </BridgedProblemReporterProvider>

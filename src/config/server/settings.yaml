@@ -1,8 +1,16 @@
 landscape: unknown
 auth:
   logto:
-    resources:
+    app:
+      secret: supersecret
+      id: id
+      endpoint: https://unknown
+    url: https://unknown
+    cookie:
+      secret: supersecret
+    scopes:
       - openid
       - profile
       - offline_access
       - email
+    resources: {}

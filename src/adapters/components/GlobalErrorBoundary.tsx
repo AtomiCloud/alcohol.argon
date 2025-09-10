@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import type { Problem } from '@/lib/problem/core';
 import { useProblemTransformer } from '@/adapters/external/Provider';
-import { GlobalErrorBoundaryInner } from '@/lib/problem/components';
+import { GlobalErrorBoundaryInner } from '@/lib/content/components';
 import { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
 type GlobalErrorBoundaryProps = {

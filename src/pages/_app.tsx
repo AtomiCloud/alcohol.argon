@@ -1,12 +1,11 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
-import { Layout } from '@/components/Layout';
-import { ContentManager } from '@/lib/problem/components';
+import { ContentManager } from '@/lib/content/components';
 import { AtomiProvider } from '@/adapters/atomi/Provider';
 import { LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
-import { InitialAuthTokenProvider } from '@/lib/auth/providers/Provider';
+import { Layout } from '@/components/Layout';
 
 function DefaultLoadingComponent() {
   return (
@@ -25,17 +24,14 @@ function DefaultLoadingComponent() {
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
   return (
-    <InitialAuthTokenProvider initialAuthState={pageProps.__authState}>
-      <Layout>
-        <ContentManager
-          Component={Component}
-          pageProps={pageProps}
-          problemReporter={problemReporter}
-          LoadingComponent={DefaultLoadingComponent}
-          ErrorComponent={ErrorPage}
-        />
-      </Layout>
-    </InitialAuthTokenProvider>
+    <ContentManager
+      Component={Component}
+      pageProps={pageProps}
+      LayoutComponent={Layout}
+      problemReporter={problemReporter}
+      LoadingComponent={DefaultLoadingComponent}
+      ErrorComponent={ErrorPage}
+    />
   );
 }
 

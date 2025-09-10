@@ -2,16 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { Problem } from '@/lib/problem/core/types';
 import type { NextComponentType, NextPageContext } from 'next';
-import { useErrorContext } from '@/contexts/ErrorContext';
+import { useErrorContext } from '@/lib/content/providers/ErrorContext';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
 import { ProblemReporter } from '@/lib/problem/core';
 import { ErrorComponentProps } from '@/lib/problem/core/error-page';
+import { useLoadingContext } from '../providers/LoadingContext';
+import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 
 interface ContentManagerProps {
   Component: NextComponentType<NextPageContext, any, any>;
   problemReporter: ProblemReporter;
   pageProps: any;
   LoadingComponent: React.ComponentType;
+  LayoutComponent: React.ComponentType<{ children: React.ReactNode }>;
   ErrorComponent: React.ComponentType<ErrorComponentProps>;
 }
 
@@ -23,41 +26,42 @@ export function ContentManager({
   problemReporter,
   LoadingComponent,
   ErrorComponent,
+  LayoutComponent,
 }: ContentManagerProps) {
   const router = useRouter();
   const { currentError: contextError, clearError: clearContextError } = useErrorContext();
+  const { throwProblem } = useErrorHandler();
+  const { loading, startLoading, stopLoading } = useLoadingContext();
   const [state, setState] = useState<ContentState>('content');
   const [error, setError] = useState<Problem | null>(null);
 
+  // Handle Errors
   useEffect(() => {
-    // Handle context errors (from useErrorHandler) - highest priority
-    if (contextError) {
-      console.log('🟠 ContentManager: Context error detected:', contextError);
-      setError(contextError);
-      setState('error');
-    } else {
-      // Handle page-level errors from props
-      const detectedError = detectSerialError(pageProps);
-      if (detectedError) {
-        setError(detectedError);
-        setState('error');
-      } else if (state === 'error' && !error) {
-        setState('content');
-      }
-    }
-  }, [contextError, pageProps, state, error]);
+    // if the error has been explicitly throwErrorContext
+    if (contextError) return setError(contextError);
+    // if SSR returns error
+    const detectedError = detectSerialError(pageProps);
+    if (detectedError) return setError(detectedError);
+    // clear error if nothing returns error
+    setError(null);
+  }, [contextError, pageProps]);
+
+  useEffect(() => {
+    console.log('something changed', error, loading);
+    if (error) return setState('error');
+    if (loading) return setState('loading');
+    setState('content');
+  }, [error, loading]);
 
   // Handle router loading states
   useEffect(() => {
     const handleRouteChangeStart = () => {
-      setState('loading');
+      setTimeout(startLoading, 0);
     };
 
     const handleRouteChangeComplete = () => {
-      if (state === 'loading') {
-        setState('content');
-        setError(null);
-      }
+      stopLoading();
+      clearContextError();
     };
 
     const handleRouteChangeError = (err: Error) => {
@@ -68,8 +72,7 @@ export function ContentManager({
         detail: err.message || 'An error occurred during navigation',
       };
       problemReporter.pushError(err, { source: 'navigation-error', problem });
-      setError(problem);
-      setState('error');
+      throwProblem(problem);
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
@@ -83,13 +86,13 @@ export function ContentManager({
     };
   }, [router, state]);
 
-  // Render based on current state
-  switch (state) {
-    case 'loading':
-      return <LoadingComponent />;
-
-    case 'error':
-      return error ? (
+  return (
+    <LayoutComponent>
+      <div className={state === 'content' ? '' : 'hidden'}>
+        <Component {...pageProps} />
+      </div>
+      {state === 'loading' ? <LoadingComponent /> : <></>}
+      {state === 'error' && error ? (
         <ErrorComponent
           error={error}
           onRefresh={() => {
@@ -99,11 +102,8 @@ export function ContentManager({
           }}
         />
       ) : (
-        <Component {...pageProps} />
-      );
-
-    case 'content':
-    default:
-      return <Component {...pageProps} />;
-  }
+        <></>
+      )}
+    </LayoutComponent>
+  );
 }
