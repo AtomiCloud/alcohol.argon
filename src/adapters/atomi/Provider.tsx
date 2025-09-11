@@ -23,14 +23,8 @@ export function AtomiProvider({ children }: AtomiProviderProps) {
       <BridgedConfigProvider>
         <BridgedProblemReporterProvider>
           <BridgedProblemProvider>
-            <GlobalErrorBoundary ErrorComponent={ErrorPage}>
-              <LoadingProvider>
-                <ErrorProvider>
-                  <FrontendObservability />
-                  <BridgedApiClientProvider>{children}</BridgedApiClientProvider>
-                </ErrorProvider>
-              </LoadingProvider>
-            </GlobalErrorBoundary>
+            <FrontendObservability />
+            <BridgedApiClientProvider>{children}</BridgedApiClientProvider>
           </BridgedProblemProvider>
         </BridgedProblemReporterProvider>
       </BridgedConfigProvider>

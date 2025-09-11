@@ -10,4 +10,7 @@ eval "$(./scripts/ci/export_build_info.sh)"
 
 bunx opennextjs-cloudflare build
 
-infisical run "--env=$l" -- wrangler dev --env lapras
+echo "NEXTJS_ENV=development" >".dev.vars"
+infisical export "--env=$l" >>".dev.vars"
+
+wrangler dev --env "$l"

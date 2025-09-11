@@ -1,11 +1,24 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
-import { ContentManager } from '@/lib/content/components';
 import { AtomiProvider } from '@/adapters/atomi/Provider';
-import { LoadingLottie } from '@/components/lottie/presets';
+import { EmptyStateLottie, LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { Layout } from '@/components/Layout';
+import { ContentSystem } from '@/lib/content/components/ContentSystem';
+
+function DefaultEmptyComponent({ desc }: { desc?: string }) {
+  return (
+    <div className="min-h-screen pt-20">
+      <div className="flex flex-col items-center text-center space-y-6 p-8">
+        <EmptyStateLottie />
+        <div className="space-y-2">
+          <p className="text-slate-700 dark:text-slate-300 text-lg font-medium">{desc ?? 'Nothing found'}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DefaultLoadingComponent() {
   return (
@@ -24,12 +37,13 @@ function DefaultLoadingComponent() {
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
   return (
-    <ContentManager
+    <ContentSystem
       Component={Component}
       pageProps={pageProps}
       LayoutComponent={Layout}
-      problemReporter={problemReporter}
+      EmptyComponent={DefaultEmptyComponent}
       LoadingComponent={DefaultLoadingComponent}
+      problemReporter={problemReporter}
       ErrorComponent={ErrorPage}
     />
   );

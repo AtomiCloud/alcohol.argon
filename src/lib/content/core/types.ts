@@ -1,6 +1,5 @@
-import type { ResultSerial } from '@/lib/monads/result';
-import type { OptionSerial } from '@/lib/monads/option';
+import type { Result } from '@/lib/monads/result';
 
-type Content<T, Y> = ResultSerial<OptionSerial<T>, Y>;
+type AtomiContent<T, Y> = Result<T, Y> | Promise<Result<T, Y>>;
 
-export type { Content };
+export type { AtomiContent };

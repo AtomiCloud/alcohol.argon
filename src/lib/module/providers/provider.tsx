@@ -28,9 +28,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    console.log(name, 'mounted');
     useEffect(() => {
-      console.log(name, 'changed', moduleConfig);
       async function initializeResource() {
         try {
           setIsLoading(true);
@@ -53,8 +51,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
         }
       }
 
-      initializeResource().then(() => console.log(`${name} initialized successfully`));
-      return () => console.log(name, 'unmounted');
+      initializeResource().then(() => console.debug(`${name} initialized successfully`));
     }, [moduleConfig]);
 
     const contextValue: ModuleContext<TOutput> = {

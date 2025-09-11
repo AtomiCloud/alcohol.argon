@@ -3,7 +3,7 @@ import type { IAuthStateRetriever } from '@/lib/auth/core/types';
 import type { Result } from '@/lib/monads/result';
 
 async function resultResult<T, P>(result: Result<T, P>, res: NextApiResponse): Promise<void> {
-  const serial = result.serial();
+  const serial = await result.serial();
   await result.match({
     err: async _ => {
       res.json(serial);

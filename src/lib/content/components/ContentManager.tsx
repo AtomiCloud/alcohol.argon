@@ -8,23 +8,26 @@ import { ProblemReporter } from '@/lib/problem/core';
 import { ErrorComponentProps } from '@/lib/problem/core/error-page';
 import { useLoadingContext } from '../providers/LoadingContext';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
+import { useEmptyContext } from '@/lib/content/providers/EmptyContext';
 
-interface ContentManagerProps {
+export interface ContentManagerProps {
   Component: NextComponentType<NextPageContext, any, any>;
   problemReporter: ProblemReporter;
   pageProps: any;
   LoadingComponent: React.ComponentType;
+  EmptyComponent: React.ComponentType<{ desc?: string }>;
   LayoutComponent: React.ComponentType<{ children: React.ReactNode }>;
   ErrorComponent: React.ComponentType<ErrorComponentProps>;
 }
 
-type ContentState = 'loading' | 'content' | 'error';
+type ContentState = 'loading' | 'content' | 'error' | 'empty';
 
 export function ContentManager({
   Component,
   pageProps,
   problemReporter,
   LoadingComponent,
+  EmptyComponent,
   ErrorComponent,
   LayoutComponent,
 }: ContentManagerProps) {
@@ -32,6 +35,7 @@ export function ContentManager({
   const { currentError: contextError, clearError: clearContextError } = useErrorContext();
   const { throwProblem } = useErrorHandler();
   const { loading, startLoading, stopLoading } = useLoadingContext();
+  const { desc } = useEmptyContext();
   const [state, setState] = useState<ContentState>('content');
   const [error, setError] = useState<Problem | null>(null);
 
@@ -47,7 +51,6 @@ export function ContentManager({
   }, [contextError, pageProps]);
 
   useEffect(() => {
-    console.log('something changed', error, loading);
     if (error) return setState('error');
     if (loading) return setState('loading');
     setState('content');
@@ -91,10 +94,11 @@ export function ContentManager({
       <div className={state === 'content' ? '' : 'hidden'}>
         <Component {...pageProps} />
       </div>
+      {state === 'empty' ? <EmptyComponent desc={desc} /> : <></>}
       {state === 'loading' ? <LoadingComponent /> : <></>}
-      {state === 'error' && error ? (
+      {state === 'error' ? (
         <ErrorComponent
-          error={error}
+          error={error ?? { type: 'unknown', title: 'Unknown Error', status: 500, detail: 'An unknown error occurred' }}
           onRefresh={() => {
             setError(null);
             setState('content');

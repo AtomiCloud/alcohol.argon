@@ -54,4 +54,6 @@ scratch/
 .vscode/
 .idea/
 
+.*.env
+
 forge.yaml

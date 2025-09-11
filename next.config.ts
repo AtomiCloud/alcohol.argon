@@ -29,7 +29,7 @@ const client = registry.client as ClientConfig;
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactStrictMode: true,
+  serverExternalPackages: ['jose'],
   webpack: config => {
     // Allow importing JSON files as modules
     config.module.rules.push({
