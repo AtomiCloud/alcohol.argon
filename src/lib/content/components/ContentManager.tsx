@@ -58,12 +58,12 @@ export function ContentManager({
 
   // Handle router loading states
   useEffect(() => {
-    const handleRouteChangeStart = () => {
-      setTimeout(startLoading, 0);
+    const handleRouteChangeStart = (_: string, { shallow }: { shallow: boolean }) => {
+      if (!shallow) startLoading();
     };
 
-    const handleRouteChangeComplete = () => {
-      stopLoading();
+    const handleRouteChangeComplete = (_: string, { shallow }: { shallow: boolean }) => {
+      if (!shallow) stopLoading();
       clearContextError();
     };
 

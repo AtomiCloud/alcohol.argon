@@ -10,33 +10,42 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSearchState } from '@/hooks/useUrlState';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
+import { useProblemTransformer } from '@/adapters/external/Provider';
+import { Res, ResultSerial } from '@/lib/monads/result';
+import { Problem } from '@/lib/problem/core';
+import { useContent } from '@/lib/content/providers';
 
 interface TemplatePageProps {
-  initialResults: Template[];
+  initialResults: ResultSerial<Template[], Problem>;
   initialQuery: string;
   serverTimestamp: string;
 }
 
 export default function TemplatePage({ initialResults, initialQuery, serverTimestamp }: TemplatePageProps) {
-  const [results, setResults] = useState(initialResults);
+  const [results, setResults] = useState(Res.fromSerial<Template[], Problem>(initialResults));
+  const [loading, setLoading] = useState(false);
+  const transformer = useProblemTransformer();
+  const content = useContent(results, {
+    notFound: 'No templates found',
+    defaultContent: initialResults,
+    loader: {
+      startLoading: () => setLoading(true),
+      stopLoading: () => setLoading(false),
+    },
+    loaderDelay: 100,
+  });
 
   // Clean URL-synchronized search state with smart loading animation
   const { query, setQuery, clearSearch, isSearching } = useSearchState(
     'q',
     initialQuery,
-    useCallback(async (searchQuery: string) => {
-      try {
-        const searchResults = await searchTemplates(searchQuery, 20);
-        setResults(searchResults.templates);
-      } catch (error) {
-        console.error('❌ Search failed:', error);
-        setResults([]);
-      }
-    }, []), // Empty deps to prevent re-creation
-    { loadingDelay: 50 }, // Show loading animation only if search takes longer than 50ms
+    useCallback((searchQuery: string) => setResults(searchTemplates(transformer, searchQuery, 20)), []), // Empty deps to prevent re-creation
+    { loadingDelay: 300 },
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
+
+  if (content == null) return <></>;
 
   return (
     <>
@@ -88,7 +97,7 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
 
           {/* Template Results */}
           <div className="max-w-7xl mx-auto">
-            <TemplateResults results={results} isLoading={isSearching} query={query} />
+            <TemplateResults results={content} isLoading={loading} query={query} />
           </div>
 
           {/* Debug Info */}
@@ -99,10 +108,10 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
               </CardHeader>
               <CardContent className="text-xs space-y-1">
                 <div>Server render time: {serverTimestamp}</div>
-                <div>Searching: {isSearching ? 'Yes' : 'No'}</div>
+                <div>Searching: {loading ? 'Yes' : 'No'}</div>
                 <div>Initial query: &ldquo;{initialQuery}&rdquo;</div>
                 <div>Current query: &ldquo;{query}&rdquo;</div>
-                <div>Results: {results.length}</div>
+                <div>Results: {content.length}</div>
                 <div>Data source: {query === initialQuery ? '🏗️ SSR' : '🔥 Client-side'}</div>
               </CardContent>
             </Card>
@@ -115,12 +124,12 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
 
 export const getServerSideProps = withServerSideAtomi(
   buildTime,
-  async ({ query }: any): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
+  async ({ query }: any, { problemTransformer }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
     const searchQuery = (query.q as string) || '';
-    const searchResults = await searchTemplates(searchQuery, 20);
+    const searchResults = await searchTemplates(problemTransformer, searchQuery, 20).serial();
     return {
       props: {
-        initialResults: searchResults.templates,
+        initialResults: searchResults,
         initialQuery: searchQuery,
         serverTimestamp: new Date().toISOString(),
       },

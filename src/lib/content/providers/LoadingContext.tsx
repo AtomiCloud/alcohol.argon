@@ -16,15 +16,9 @@ function LoadingProvider({ children }: LoadingProviderProps) {
   // Use a counter internally instead of boolean
   const [loadingCounter, setLoadingCounter] = useState<number>(0);
 
-  const startLoading = () => {
-    console.log('startLoading called');
-    setLoadingCounter(prev => prev + 1);
-  };
+  const startLoading = () => setLoadingCounter(prev => prev + 1);
 
-  const stopLoading = () => {
-    console.log('stopLoading called');
-    setLoadingCounter(prev => prev - 1);
-  };
+  const stopLoading = () => setLoadingCounter(prev => prev - 1);
 
   return (
     <LoadingContext.Provider

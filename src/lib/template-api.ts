@@ -1,3 +1,6 @@
+import { Err, Ok, Res, type Result } from '@/lib/monads/result';
+import type { Problem, ProblemDefinitions, ProblemTransformer } from '@/lib/problem/core';
+
 export interface Template {
   id: string;
   name: string;
@@ -19,51 +22,20 @@ export interface TemplateSearchResponse {
 
 const TEMPLATE_API_BASE = 'https://api.zinc.sulfone.pichu.cluster.atomi.cloud/api/v1.0';
 
-export async function searchTemplates(query: string, limit = 20): Promise<TemplateSearchResponse> {
-  try {
+export function searchTemplates<T extends ProblemDefinitions>(
+  transform: ProblemTransformer<T>,
+  query: string,
+  limit = 20,
+): Result<Template[], Problem> {
+  return Res.async(async () => {
     const searchParam = query.trim() ? `?Search=${encodeURIComponent(query)}` : '';
     const response = await fetch(`${TEMPLATE_API_BASE}/Template${searchParam}`);
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-
-    const templates: Template[] = await response.json();
-
-    // Filter results based on query if needed (for additional client-side filtering)
-    const filteredTemplates = query.trim()
-      ? templates.filter(template => {
-          const searchText = query.toLowerCase();
-          return (
-            template.name.toLowerCase().includes(searchText) ||
-            template.description.toLowerCase().includes(searchText) ||
-            template.project.toLowerCase().includes(searchText) ||
-            template.source.toLowerCase().includes(searchText) ||
-            template.email.toLowerCase().includes(searchText) ||
-            template.tags.some(tag => tag.toLowerCase().includes(searchText))
-          );
-        })
-      : templates;
-
-    // Apply limit
-    const limitedResults = filteredTemplates.slice(0, limit);
-
-    return {
-      templates: limitedResults,
-      total: limitedResults.length,
-      query,
-      timestamp: new Date().toISOString(),
-    };
-  } catch (error) {
-    console.error('Template API error:', error);
-    // Return empty results on error
-    return {
-      templates: [],
-      total: 0,
-      query,
-      timestamp: new Date().toISOString(),
-    };
-  }
+    return transform.fromHttpResponse(response, query).asResult({
+      some: p => Err(p),
+      none: () => Ok(response.json<Template[]>()),
+    });
+  });
 }
 
 export function getTemplateUrl(template: Template): string {

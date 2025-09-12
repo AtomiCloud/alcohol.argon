@@ -16,15 +16,8 @@ interface ErrorProviderProps {
 function ErrorProvider({ children }: ErrorProviderProps) {
   const [currentError, setCurrentError] = useState<Problem | null>(null);
 
-  const setError = (error: Problem | null) => {
-    console.log('🔥 ErrorContext setError called with:', error);
-    setCurrentError(error);
-  };
-
-  const clearError = () => {
-    console.log('🔥 ErrorContext clearError called');
-    setCurrentError(null);
-  };
+  const setError = (error: Problem | null) => setCurrentError(error);
+  const clearError = () => setCurrentError(null);
 
   return <ErrorContext.Provider value={{ currentError, setError, clearError }}>{children}</ErrorContext.Provider>;
 }

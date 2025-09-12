@@ -77,7 +77,7 @@ export function useSearchState(
     loadingDelay?: number; // Delay in ms before showing loading state
   } = {},
 ) {
-  const { loadingDelay = 300 } = options;
+  const { loadingDelay } = options;
   const [query, setQuery] = useUrlState(paramName, initialValue);
   const [isSearching, setIsSearching] = useState(false);
   const hasSearchedRef = useRef(false);
