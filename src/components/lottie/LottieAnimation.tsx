@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Lottie, { LottieComponentProps } from 'lottie-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import Lottie, { type LottieComponentProps } from 'lottie-react';
 import { cn } from '@/lib/utils';
 import type { LottieAnimationData } from '@/lib/lottie-utils';
 

@@ -1,435 +1,217 @@
 # API Clients
 
+## Overview
+
+API clients in this project are automatically generated from OpenAPI specifications and wrapped to return `Result<T, Problem>` monads instead of throwing exceptions.
+
 ## Using Existing API Clients
 
-### Get API Client
+### Basic Usage
 
 ```typescript
-import { useApiClient } from '@/lib/api/providers';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
-function MyComponent() {
-  const apiClient = useApiClient();
+// In API routes
+export default withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  // Access specific client - already configured with base URL
+  const result = await apiTree.alcohol.zinc.vUserList({
+    version: '1.0',
+  });
 
-  // Use client for requests
-  const fetchData = async () => {
-    const response = await apiClient.get('/users');
-    return response.data;
-  };
-}
-```
-
-### Basic Requests
-
-```typescript
-const apiClient = useApiClient();
-
-// GET request
-const users = await apiClient.get('/users');
-
-// POST request
-const newUser = await apiClient.post('/users', {
-  name: 'John Doe',
-  email: 'john@example.com',
+  return result.match({
+    ok: users => ({ props: { users } }),
+    err: problem => ({ props: { error: problem } }),
+  });
 });
-
-// PUT request
-const updatedUser = await apiClient.put('/users/123', userData);
-
-// DELETE request
-await apiClient.delete('/users/123');
 ```
 
-### With Error Handling
+### Client Structure
 
 ```typescript
-import { useApiClient } from '@/lib/api/providers';
-import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+// The clients are organized by platform and service
+// Available through AtomiProvider in server-side contexts
+export default withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  // Platform: alcohol, Service: zinc
+  const result = await apiTree.alcohol.zinc.vUserList(params);
 
-function MyComponent() {
-  const apiClient = useApiClient();
-  const problemReporter = useProblemReporter();
+  // Individual API methods return Result<T, Problem> via built-in transformer
+  // apiTree.alcohol.zinc.vUserList(params); // Result<UserPrincipalRes[], Problem>
+  // apiTree.alcohol.zinc.vUserCreate(version, data); // Result<UserPrincipalRes, Problem>
 
-  const fetchUsers = async () => {
-    try {
-      const response = await apiClient.get('/users');
-      return Ok(response.data);
-    } catch (error) {
-      // Automatic error reporting
-      problemReporter.pushError(error, {
-        source: 'api-client',
-        context: { endpoint: '/users', method: 'GET' },
-      });
-      return Err(error);
-    }
-  };
-}
-```
-
-## Generated SDK Clients
-
-### Using Zinc Client
-
-```typescript
-import { useZincClient } from '@/clients/alcohol/zinc/api';
-
-function MyComponent() {
-  const zincClient = useZincClient();
-
-  const fetchTemplates = async () => {
-    const response = await zincClient.getTemplates({
-      limit: 10,
-      offset: 0,
-    });
-    return response.data;
-  };
-}
-```
-
-### Type-Safe Requests
-
-```typescript
-// Generated clients provide full TypeScript support
-const response = await zincClient.createTemplate({
-  name: 'My Template',
-  description: 'Template description',
-  // TypeScript validates all fields
+  return result.match({
+    ok: data => ({ props: { data } }),
+    err: problem => ({ props: { error: problem } }),
+  });
 });
-
-// Response is typed
-response.data.id; // string
-response.data.name; // string
-response.data.createdAt; // Date
 ```
 
 ## Adding New API Clients
 
-### 1. Add Configuration
+### 1. Add Taskfile Target
 
-Add API configuration to your config schema:
+Add a new task to your Taskfile.yaml to generate the SDK:
+
+```yaml
+# Add this to your Taskfile.yaml tasks section
+generate:sdk:myplatform:myservice:
+  desc: 'Generate MyPlatform MyService SDK'
+  summary: |
+    Generate TypeScript SDK client for the MyPlatform MyService.
+
+    Usage: pls generate:sdk:myplatform:myservice -- [SPEC_URL]
+  cmds:
+    - ./scripts/local/generate-sdk.sh myplatform myservice {{ .CLI_ARGS | default "https://api.myplatform.pichu.cluster.atomi.cloud/swagger/v1/swagger.json" }}
+```
+
+Then update the main generate:sdk task to include your new service:
+
+```yaml
+generate:sdk:
+  desc: 'Generate SDK clients from OpenAPI specifications'
+  summary: |
+    Generate TypeScript SDK clients for all configured services.
+    Uses swagger-typescript-api to create type-safe API clients.
+  cmds:
+    - task: generate:sdk:alcohol:zinc
+    - task: generate:sdk:myplatform:myservice
+```
+
+### 2. Generate the SDK
+
+Run the task to generate the SDK:
+
+```bash
+# Generate from the default URL in the task
+pls generate:sdk:myplatform:myservice
+
+# Or specify a custom OpenAPI spec URL
+pls generate:sdk:myplatform:myservice -- https://api.example.com/swagger.json
+
+# Generate all SDKs
+pls generate:sdk
+```
+
+This creates:
+
+- `src/clients/myplatform/myservice/api.ts` - Generated TypeScript client
+- Properly named API class (e.g., `MyplatformMyserviceApi`)
+
+### 3. Update Configuration Schema
+
+Add your client configuration to `src/config/common/schema.ts`:
 
 ```typescript
-// src/config/client/schema.ts
-export const clientConfigSchema = z.object({
-  api: z.object({
-    baseUrl: z.string().url(),
-    timeout: z.number().default(5000),
-  }),
-  // Add new API
-  myApi: z.object({
-    baseUrl: z.string().url(),
-    apiKey: z.string().optional(),
-    timeout: z.number().default(10000),
+export const commonSchema = z.object({
+  // ... existing config
+  clients: z.object({
+    alcohol: z.object({
+      zinc: z.object({
+        url: z.url(),
+      }),
+    }),
+    myplatform: z.object({
+      // Add your platform
+      myservice: z.object({
+        url: z.url(),
+      }),
+    }),
   }),
 });
 ```
 
-### 2. Update Configuration Files
+### 4. Add Environment-Specific URLs
+
+Add URLs to each landscape configuration:
 
 ```yaml
-# src/config/client/settings.yaml
-api:
-  baseUrl: 'http://localhost:3000/api'
-  timeout: 5000
+# src/config/common/lapras.settings.yaml (development)
+clients:
+  alcohol:
+    zinc:
+      url: 'http://localhost:9003'
+  myplatform:
+    myservice:
+      url: 'http://localhost:8080'
 
-myApi:
-  baseUrl: 'https://api.myservice.com'
-  timeout: 10000
+# src/config/common/raichu.settings.yaml (production)
+clients:
+  alcohol:
+    zinc:
+      url: 'https://api.zinc.alcohol.raichu.cluster.atomi.cloud'
+  myplatform:
+    myservice:
+      url: 'https://api.myservice.raichu.cluster.atomi.cloud'
 ```
 
-```yaml
-# src/config/client/lapras.settings.yaml (local)
-myApi:
-  baseUrl: 'http://localhost:8080'
-  apiKey: 'dev-key-123'
+### 5. Update the Adapter
 
-# src/config/client/raichu.settings.yaml (prod)
-myApi:
-  baseUrl: 'https://prod-api.myservice.com'
-  # apiKey set via environment variable
-```
-
-### 3. Create Client Hook
+Add your client to the clientTree function in `src/adapters/external/core.ts`:
 
 ```typescript
-// src/lib/api/providers/my-api-client.ts
-import { useClientConfig } from '@/lib/config';
+import { MyplatformMyserviceApi } from '@/clients/myplatform/myservice/api';
 
-export function useMyApiClient() {
-  const config = useClientConfig();
-
-  const client = useMemo(() => {
-    return createApiClient({
-      baseURL: config.myApi.baseUrl,
-      timeout: config.myApi.timeout,
-      headers: {
-        ...(config.myApi.apiKey && {
-          Authorization: `Bearer ${config.myApi.apiKey}`,
-        }),
-      },
-    });
-  }, [config.myApi]);
-
-  return client;
-}
-```
-
-### 4. Export Client
-
-```typescript
-// src/lib/api/providers/index.ts
-export { useApiClient } from './api-client';
-export { useMyApiClient } from './my-api-client';
-```
-
-### 5. Use New Client
-
-```typescript
-import { useMyApiClient } from '@/lib/api/providers';
-
-function MyComponent() {
-  const myApiClient = useMyApiClient();
-
-  const fetchData = async () => {
-    const response = await myApiClient.get('/data');
-    return response.data;
-  };
-}
-```
-
-## Adding Generated SDK Clients
-
-### 1. Add OpenAPI Spec
-
-Add your OpenAPI specification:
-
-```
-src/clients/my-service/
-├── openapi.yaml          # OpenAPI specification
-└── generated/            # Generated files (auto-created)
-    └── my-service-api.ts
-```
-
-### 2. Update Generation Script
-
-```typescript
-// scripts/generate-sdk.ts
-const services = [
-  {
-    name: 'zinc',
-    specPath: 'src/clients/alcohol/zinc/openapi.yaml',
-    outputPath: 'src/clients/alcohol/zinc/generated/zinc-api.ts',
+const clientTree = (common: CommonConfig, retriever: AuthRetriever) => ({
+  alcohol: {
+    zinc: new AlcoholZincApi({
+      baseUrl: common.clients.alcohol.zinc.url,
+    }),
   },
-  {
-    name: 'my-service',
-    specPath: 'src/clients/my-service/openapi.yaml',
-    outputPath: 'src/clients/my-service/generated/my-service-api.ts',
+  myplatform: {
+    myservice: new MyplatformMyserviceApi({
+      baseUrl: common.clients.myplatform.myservice.url,
+      retriever, // Pass the auth retriever to the client
+    }),
   },
-];
+});
 ```
 
-### 3. Update Taskfile
+**Note**: SDK clients can use the `retriever` parameter to attach authentication to requests. For example, by configuring request interceptors or adding Authorization headers per request. This allows each API call to access the current authentication context and attach the appropriate tokens automatically.
 
-```yaml
-# Taskfile.yaml
-tasks:
-  generate:sdk:my-service:
-    desc: Generate My Service SDK
-    cmds:
-      - echo "Generating My Service SDK..."
-      - openapi-generator-cli generate -i src/clients/my-service/openapi.yaml -g typescript-fetch -o src/clients/my-service/generated/
-```
-
-### 4. Generate Client
-
-```bash
-pls generate:sdk:my-service
-```
-
-### 5. Create Wrapper Hook
+### 6. Access Your Client
 
 ```typescript
-// src/clients/my-service/api.ts
-import { MyServiceApi, Configuration } from './generated/my-service-api';
-import { useClientConfig } from '@/lib/config';
+// In API routes or server-side contexts
+export default withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  // Your new client is automatically available
+  const result = await apiTree.myplatform.myservice.getItems({ limit: 10 });
 
-export function useMyServiceClient() {
-  const config = useClientConfig();
+  return result.match({
+    ok: items => ({ props: { items } }),
+    err: problem => ({ props: { error: problem } }),
+  });
+});
 
-  const client = useMemo(() => {
-    return new MyServiceApi(
-      new Configuration({
-        basePath: config.myService.baseUrl,
-        headers: {
-          Authorization: `Bearer ${config.myService.apiKey}`,
-        },
-      }),
-    );
-  }, [config.myService]);
+// In getServerSideProps
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  const result = await apiTree.myplatform.myservice.getItems({ limit: 10 });
 
-  return client;
-}
+  return result.match({
+    ok: items => ({ props: { items } }),
+    err: problem => ({ props: { error: problem } }),
+  });
+});
 ```
 
-### 6. Use Generated Client
+## Error Handling
+
+All API clients return `Result<T, Problem>` monads through the built-in transformer:
 
 ```typescript
-import { useMyServiceClient } from '@/clients/my-service/api';
+export default withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  const result = await apiTree.alcohol.zinc.vUserList(params);
 
-function MyComponent() {
-  const client = useMyServiceClient();
+  return result.match({
+    ok: users => ({ props: { users } }),
+    err: problem => {
+      // problem is a full RFC 7807 Problem Details object
+      console.log(problem.type); // Problem type URI
+      console.log(problem.title); // Human-readable title
+      console.log(problem.status); // HTTP status code
+      console.log(problem.detail); // Detailed description
 
-  const fetchItems = async () => {
-    const response = await client.getItems({
-      limit: 10,
-      filter: 'active',
-    });
-    return response;
-  };
-}
-```
-
-## Request/Response Interceptors
-
-### Add Request Headers
-
-```typescript
-export function useApiClient() {
-  const config = useClientConfig();
-
-  const client = useMemo(() => {
-    const instance = createApiClient({
-      baseURL: config.api.baseUrl,
-    });
-
-    // Add request interceptor
-    instance.interceptors.request.use(config => {
-      config.headers['X-Request-ID'] = generateRequestId();
-      config.headers['X-Timestamp'] = Date.now().toString();
-      return config;
-    });
-
-    return instance;
-  }, [config.api]);
-
-  return client;
-}
-```
-
-### Handle Response Errors
-
-```typescript
-export function useApiClient() {
-  const problemReporter = useProblemReporter();
-
-  const client = useMemo(() => {
-    const instance = createApiClient(config);
-
-    // Add response interceptor
-    instance.interceptors.response.use(
-      response => response,
-      error => {
-        // Automatic error reporting
-        problemReporter.pushError(error, {
-          source: 'api-client',
-          context: {
-            url: error.config?.url,
-            method: error.config?.method,
-            status: error.response?.status,
-          },
-        });
-
-        throw error;
-      },
-    );
-
-    return instance;
-  }, [problemReporter]);
-
-  return client;
-}
-```
-
-## Configuration Examples
-
-### Development
-
-```yaml
-# lapras.settings.yaml
-api:
-  baseUrl: 'http://localhost:3000/api'
-
-zinc:
-  baseUrl: 'http://localhost:9003'
-```
-
-### Production
-
-```yaml
-# raichu.settings.yaml
-api:
-  baseUrl: 'https://api.myapp.com'
-
-zinc:
-  baseUrl: 'https://zinc.myapp.com'
-```
-
-### Environment Variables
-
-```bash
-# Override via environment
-ATOMI_CLIENT__API__BASE_URL="https://custom-api.com"
-ATOMI_CLIENT__ZINC__API_KEY="prod-key-xyz"
-```
-
-## Best Practices
-
-### 1. Use Configuration
-
-```typescript
-// ✅ Use configuration system
-const config = useClientConfig();
-const baseUrl = config.api.baseUrl;
-
-// ❌ Don't hardcode URLs
-const baseUrl = 'https://api.myapp.com';
-```
-
-### 2. Handle Errors Properly
-
-```typescript
-// ✅ Use Result monad pattern
-const result = await apiCall().then(Ok).catch(Err);
-
-// ❌ Don't let errors bubble up
-const data = await apiCall(); // Throws on error
-```
-
-### 3. Use Generated Clients
-
-```typescript
-// ✅ Use generated SDK for external services
-const client = useZincClient();
-const response = await client.getTemplates();
-
-// ❌ Don't create manual API calls for external services
-const response = await fetch('https://zinc.com/api/templates');
-```
-
-### 4. Report Errors
-
-```typescript
-// ✅ Report API errors
-try {
-  const response = await apiClient.get('/data');
-} catch (error) {
-  problemReporter.pushError(error, { source: 'api-client' });
-  throw error;
-}
-
-// ❌ Don't silently swallow errors
-try {
-  const response = await apiClient.get('/data');
-} catch (error) {
-  return null; // Lost error information
-}
+      return { props: { error: problem } };
+    },
+  });
+});
 ```

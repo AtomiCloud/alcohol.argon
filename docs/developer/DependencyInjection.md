@@ -31,12 +31,12 @@ The AtomiProvider establishes this provider chain (outer to inner):
 
 1. **LandscapeProvider** - Environment and landscape detection
 2. **BridgedConfigProvider** - Configuration management with environment-specific settings
-3. **BridgedProblemReporterProvider** - Error reporting infrastructure
-4. **BridgedProblemProvider** - Problem/error handling system
-5. **GlobalErrorBoundary** - React error boundary with ErrorPage integration
-6. **ErrorProvider** - Application-level error state management
-7. **FrontendObservability** - Grafana Faro observability integration
-8. **BridgedApiClientProvider** - API client dependency injection
+3. **BridgedProblemReporterProvider** - Error reporting infrastructure (Faro integration)
+4. **BridgedProblemProvider** - Problem/error handling system with RFC 7807 support
+5. **FrontendObservability** - Grafana Faro observability integration (automatic setup)
+6. **BridgedApiClientProvider** - API client dependency injection with Result monads
+
+**Note**: Error boundaries, loading states, and empty states are managed through separate context providers that are used independently as needed.
 
 ## Bridged Providers
 
@@ -48,11 +48,20 @@ Provides configuration access throughout the app:
 import { useConfig } from '@/lib/config';
 
 function MyComponent() {
-  const { clientConfig, serverConfig } = useConfig();
+  const { common, client } = useConfig();
 
   // Access landscape-specific configuration
-  const apiUrl = clientConfig.api.baseUrl;
-  const faroConfig = clientConfig.faro;
+  const appName = common.app.name;
+  const landscape = client.landscape;
+  const faroConfig = client.faro;
+
+  return (
+    <div>
+      <h1>{appName}</h1>
+      <p>Environment: {landscape}</p>
+      <p>Faro enabled: {faroConfig.enabled ? 'Yes' : 'No'}</p>
+    </div>
+  );
 }
 ```
 
@@ -66,30 +75,41 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers';
 function MyComponent() {
   const problemReporter = useProblemReporter();
 
-  try {
-    // risky operation
-  } catch (error) {
-    problemReporter.pushError(error, {
-      source: 'user-action',
-      context: { userId, action: 'submit-form' },
+  const handleAction = async () => {
+    const result = await riskyOperation(); // Returns Result<T, Error>
+
+    result.match({
+      ok: data => {
+        // Handle success
+      },
+      err: error => {
+        problemReporter.pushError(error, {
+          source: 'user-action',
+          context: { userId, action: 'submit-form' },
+        });
+      },
     });
-  }
+  };
 }
 ```
 
 ### BridgedApiClientProvider
 
-Provides configured API clients:
+Provides configured API clients with Result monad integration:
 
 ```typescript
-import { useApiClient } from '@/lib/api/providers';
+// For server-side API access, use withServerSideAtomi
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  // API clients are pre-configured and return Result monads
+  const result = await apiTree.alcohol.zinc.vUserList({ version: '1.0' });
 
-function MyComponent() {
-  const apiClient = useApiClient();
+  return result.match({
+    ok: users => ({ props: { users } }),
+    err: problem => ({ props: { error: problem } }),
+  });
+});
 
-  // Use configured client with automatic error handling
-  const result = await apiClient.get('/users');
-}
+// For client-side, the provider makes clients available through the adapter system
 ```
 
 ## Global Error Boundary Integration
@@ -170,13 +190,25 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ```typescript
 // In any component - services are automatically available
+import { useConfig } from '@/lib/config';
+import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+import { useErrorContext } from '@/lib/content/providers';
+
 function MyFeature() {
-  const config = useConfig();
+  const { common, client } = useConfig();
   const problemReporter = useProblemReporter();
-  const apiClient = useApiClient();
   const { setError } = useErrorContext();
 
-  // Use services as needed
+  // API clients are accessed through server-side adapters or specific hooks
+  // Configuration is environment-aware
+  // Problem reporting integrates with Faro automatically
+
+  return (
+    <div>
+      <h1>{common.app.name}</h1>
+      <p>Environment: {client.landscape}</p>
+    </div>
+  );
 }
 ```
 
@@ -184,9 +216,24 @@ function MyFeature() {
 
 ```typescript
 // Automatic error handling at multiple levels:
-// 1. React boundary errors → GlobalErrorBoundary → ErrorPage
-// 2. Application errors → ErrorContext → ContentManager
-// 3. API errors → ProblemReporter → Faro + ErrorPage
+// 1. Result monads → Never throw, always return Result<T, Problem>
+// 2. Problem reporting → Automatic Faro integration for tracking
+// 3. Content management → useContent handles Result states automatically
+// 4. Global boundaries → React error boundaries catch unexpected errors
+
+// Example of the flow:
+const result = await apiTree.service.method(params); // Result<T, Problem>
+result.match({
+  ok: data => {
+    // Handle success case
+    setContent(data);
+  },
+  err: problem => {
+    // Automatically reported to Faro
+    problemReporter.pushError(problem, { source: 'api-call' });
+    // Can trigger error UI through content system
+  },
+});
 ```
 
 This dependency injection framework eliminates boilerplate setup while providing a robust, observable, and maintainable application architecture.

@@ -20,8 +20,8 @@ pre-commit-lib.run {
     a-biome = {
       enable = true;
       name = "Biome Lint";
-      entry = "${packages.biome}/bin/biome lint --write";
-      files = ".*ts$";
+      entry = "${packages.biome}/bin/biome lint --error-on-warnings --write";
+      files = ".*tsx?$";
       excludes = [ ".*/src/clients/.*" ];
       language = "system";
       pass_filenames = true;
@@ -32,7 +32,7 @@ pre-commit-lib.run {
       enable = true;
       name = "TypeScript Check";
       entry = "${packages.bun}/bin/bun run type-check";
-      files = ".*\\.(ts|tsx)$";
+      files = ".*tsx?$";
       language = "system";
       pass_filenames = false;
     };

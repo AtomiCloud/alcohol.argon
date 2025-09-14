@@ -5,13 +5,17 @@ import type { ProblemDefinitions } from '.';
 import type { LocalErrorContext } from './definition/local-error';
 import type { UnknownErrorContext } from './definition/unknown-error';
 import type { HttpErrorContext } from './definition/http-error';
+import type { Option } from '@/lib/monads/option';
+import { None, Opt, Some } from '@/lib/monads/option';
 
 /**
  * Interface for error reporting functionality (e.g., Faro, Sentry, etc.)
  */
 interface ProblemReporter {
   pushError(error: Error, context?: Record<string, unknown>): void;
+
   getSessionId(): string;
+
   getTraceId(): string;
 }
 
@@ -137,6 +141,84 @@ class ProblemTransformer<T extends ProblemDefinitions> {
     // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
     const problem = this.problemRegistry.createProblem('local_error', unknownError as any, undefined, instance);
     return this.enrichProblemWithIds(problem);
+  }
+
+  /**
+   * Parse response body and return parsed JSON or text
+   */
+  private async parseResponseBody(response: Response): Promise<{ body: string; parsed: unknown }> {
+    try {
+      const body = await response.clone().text();
+      let parsed: unknown = null;
+
+      if (body.trim()) {
+        try {
+          parsed = JSON.parse(body);
+        } catch {
+          // Not JSON, keep as text
+        }
+      }
+
+      return { body, parsed };
+    } catch {
+      return { body: '', parsed: null };
+    }
+  }
+
+  /**
+   * Create HTTP error Problem from response
+   */
+  private createHttpErrorProblem(response: Response, responseBody: string, instance: string): Problem {
+    const httpError = new Error(`HTTP ${response.status} ${response.statusText}: ${responseBody}`);
+    this.reportError(httpError, {
+      url: response.url,
+      status: response.status,
+      statusText: response.statusText,
+      instance,
+      transformer: 'ProblemTransformer.fromHttpResponse',
+    });
+
+    const httpErrorContext: HttpErrorContext = {
+      statusCode: response.status,
+      responseBody: responseBody.trim() || response.statusText || 'Unknown error',
+      url: response.url,
+    };
+
+    const problem = this.problemRegistry.createProblem(
+      'http_error',
+      // biome-ignore lint/suspicious/noExplicitAny: Registry type system requires any for context
+      httpErrorContext as any,
+      undefined,
+      instance,
+    );
+    return this.enrichProblemWithIds(problem);
+  }
+
+  /**
+   * Transform a fetch Response object to an Option<Problem>
+   * Returns Some(Problem) for error responses or if response body is already a Problem,
+   * None for successful responses that aren't Problems
+   */
+  fromHttpResponse(response: Response, instance = 'unknown'): Option<Problem> {
+    return Opt.async(async () => {
+      try {
+        // For non-ok responses, create an HTTP error Problem
+        if (!response.ok) {
+          const { body, parsed } = await this.parseResponseBody(response);
+          // Check if the parsed body is already a Problem
+          if (parsed && isProblem(parsed)) return Some(this.enrichProblemWithIds(parsed));
+
+          const problem = this.createHttpErrorProblem(response, body, instance);
+          return Some(problem);
+        }
+        // For successful responses that aren't Problems, return None (no problem)
+        return None<Problem>();
+      } catch (error) {
+        // If we can't process the response at all, return a Problem
+        const fallbackError = error instanceof Error ? error : new Error('Failed to process HTTP response');
+        return Some(this.fromError(fallbackError, 'HTTP response processing failed', instance));
+      }
+    });
   }
 
   /**

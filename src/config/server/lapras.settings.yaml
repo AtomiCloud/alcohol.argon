@@ -1,1 +1,10 @@
 landscape: 'lapras'
+auth:
+  logto:
+    app:
+      id: '1b3v8mlb482f78t90os15'
+      endpoint: https://xzc47u.logto.app/
+    url: http://localhost:3000
+    resources:
+      alcohol-zinc: https://api.zinc.alcohol.lapras
+      alcohol-tin: https://api.tin.alcohol.lapras

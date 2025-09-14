@@ -14,6 +14,7 @@ import laptopData from '/public/animations/errors/laptop.json';
 import lochnessData from '/public/animations/errors/lochness.json';
 import puzzleData from '/public/animations/errors/puzzle.json';
 import tissueData from '/public/animations/errors/tissue.json';
+import type { LottieAnimationData } from '@/lib/lottie-utils';
 
 interface ErrorAnimationProps {
   className?: string;
@@ -44,36 +45,44 @@ const CHEEKY_NAMES: Record<string, string> = {
  * Static mapping of HTTP status codes to error animations
  * Based on semantic meaning and visual appeal
  */
-const ERROR_ANIMATION_MAP: Record<number, { data: any; name: string; cheekyName: string }> = {
+const ERROR_ANIMATION_MAP: Record<
+  number,
+  { data: LottieAnimationData; name: string; cheekyName: string; loop: boolean }
+> = {
   // Client Errors (4xx)
-  400: { data: icecreamData, name: 'cat', cheekyName: CHEEKY_NAMES.icecream },
-  401: { data: dogNewsPaperData, name: 'dogNewsPaper', cheekyName: CHEEKY_NAMES.dogNewsPaper },
-  403: { data: puzzleData, name: 'puzzle', cheekyName: CHEEKY_NAMES.puzzle },
-  404: { data: cowData, name: 'cow', cheekyName: CHEEKY_NAMES.cow },
-  409: { data: dogSmellData, name: 'dogSmell', cheekyName: CHEEKY_NAMES.dogSmell },
-  418: { data: dogSwimmingData, name: 'dogSwimming', cheekyName: CHEEKY_NAMES.dogSwimming },
-  422: { data: dogSwimmingData, name: 'cat', cheekyName: CHEEKY_NAMES.dogSwimming },
-  429: { data: coffeeData, name: 'coffee', cheekyName: CHEEKY_NAMES.coffee },
+  400: { data: icecreamData, name: 'cat', cheekyName: CHEEKY_NAMES.icecream, loop: false },
+  401: { data: dogNewsPaperData, name: 'dogNewsPaper', cheekyName: CHEEKY_NAMES.dogNewsPaper, loop: false },
+  403: { data: puzzleData, name: 'puzzle', cheekyName: CHEEKY_NAMES.puzzle, loop: false },
+  404: { data: cowData, name: 'cow', cheekyName: CHEEKY_NAMES.cow, loop: false },
+  409: { data: dogSmellData, name: 'dogSmell', cheekyName: CHEEKY_NAMES.dogSmell, loop: false },
+  418: { data: dogSwimmingData, name: 'dogSwimming', cheekyName: CHEEKY_NAMES.dogSwimming, loop: true },
+  422: { data: dogSwimmingData, name: 'cat', cheekyName: CHEEKY_NAMES.dogSwimming, loop: true },
+  429: { data: coffeeData, name: 'coffee', cheekyName: CHEEKY_NAMES.coffee, loop: false },
 
   // Server Errors (5xx)
-  500: { data: astronautData, name: 'astronaut', cheekyName: CHEEKY_NAMES.astronaut },
-  502: { data: chemicalData, name: 'chemical', cheekyName: CHEEKY_NAMES.chemical },
-  503: { data: laptopData, name: 'laptop', cheekyName: CHEEKY_NAMES.laptop },
-  504: { data: icecreamData, name: 'icecream', cheekyName: CHEEKY_NAMES.icecream },
+  500: { data: astronautData, name: 'astronaut', cheekyName: CHEEKY_NAMES.astronaut, loop: true },
+  502: { data: chemicalData, name: 'chemical', cheekyName: CHEEKY_NAMES.chemical, loop: false },
+  503: { data: laptopData, name: 'laptop', cheekyName: CHEEKY_NAMES.laptop, loop: false },
+  504: { data: icecreamData, name: 'icecream', cheekyName: CHEEKY_NAMES.icecream, loop: false },
 
   // Network/Connection Errors
-  0: { data: lochnessData, name: 'lochness', cheekyName: CHEEKY_NAMES.lochness },
+  0: { data: lochnessData, name: 'lochness', cheekyName: CHEEKY_NAMES.lochness, loop: false },
 };
 
 /**
  * Default fallback animation for unmapped status codes
  */
-const DEFAULT_ANIMATION = { data: tissueData, name: 'tissue', cheekyName: CHEEKY_NAMES.tissue };
+const DEFAULT_ANIMATION = { data: tissueData, name: 'tissue', cheekyName: CHEEKY_NAMES.tissue, loop: false };
 
 /**
  * Get appropriate animation info based on HTTP status code
  */
-function getAnimationForStatus(status?: number): { data: any; name: string; cheekyName: string } {
+function getAnimationForStatus(status?: number): {
+  data: LottieAnimationData;
+  name: string;
+  cheekyName: string;
+  loop: boolean;
+} {
   if (!status) return DEFAULT_ANIMATION;
   return ERROR_ANIMATION_MAP[status] || DEFAULT_ANIMATION;
 }
@@ -86,7 +95,9 @@ export function ErrorAnimation({ className, problem, status }: ErrorAnimationPro
   const effectiveStatus = problem?.status ?? status;
   const animationInfo = getAnimationForStatus(effectiveStatus);
 
-  return <InlineLottie animationData={animationInfo.data} className={className} loop={true} autoplay={true} />;
+  return (
+    <InlineLottie animationData={animationInfo.data} className={className} loop={animationInfo.loop} autoplay={true} />
+  );
 }
 
 /**

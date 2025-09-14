@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAnimationForStatus, ProblemErrorAnimation } from '@/components/lottie/ErrorAnimations';
 import { ChevronDown, ChevronUp, Copy, RefreshCw } from 'lucide-react';
-import { ErrorComponentProps } from '@/lib/problem/core/error-page';
+import type { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
 export function ErrorPage({ error, onRefresh }: ErrorComponentProps) {
   const [isCopied, setIsCopied] = useState(false);
@@ -56,6 +56,7 @@ export function ErrorPage({ error, onRefresh }: ErrorComponentProps) {
         <div className="w-full max-w-3xl">
           <div className="border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-950/50">
             <button
+              type="button"
               onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
               className="w-full flex items-center justify-between p-4 text-left hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
             >

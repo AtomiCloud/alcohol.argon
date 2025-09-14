@@ -1,5 +1,5 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Module } from '../core';
+import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import type { Module } from '../core';
 
 interface ProviderConfig<TInput, TOutput> extends Module<TInput, TOutput> {
   errorHandler?: (error: unknown) => string;
@@ -28,6 +28,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: require JSON for stable comparison
     useEffect(() => {
       async function initializeResource() {
         try {
@@ -52,7 +53,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
       }
 
       initializeResource().then(() => console.debug(`${name} initialized successfully`));
-    }, [moduleConfig]);
+    }, [JSON.stringify(moduleConfig)]);
 
     const contextValue: ModuleContext<TOutput> = {
       resource: resource!,

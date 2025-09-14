@@ -7,17 +7,17 @@ A hierarchical configuration system with type safety, environment overrides, and
 ### Using Configuration in Components
 
 ```typescript
-import { useCommonConfig, useClientConfig } from '@/lib/config';
+import { useConfig } from '@/lib/config';
 
 function MyComponent() {
-  const commonConfig = useCommonConfig();
-  const clientConfig = useClientConfig();
+  const { common, client } = useConfig();
 
   return (
     <div>
-      <h1>{commonConfig.app.name}</h1>
-      <p>API: {clientConfig.api.baseUrl}</p>
-      <p>Version: {commonConfig.app.build.version}</p>
+      <h1>{common.app.name}</h1>
+      <p>Landscape: {client.landscape}</p>
+      <p>Version: {common.app.build.version}</p>
+      <p>Faro Enabled: {client.faro.enabled ? 'Yes' : 'No'}</p>
     </div>
   );
 }
@@ -26,29 +26,40 @@ function MyComponent() {
 ### Server-Side Usage
 
 ```typescript
-import { withServerSideConfig } from '@/lib/config';
-import { configSchemas } from '@/config';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 
-export const getServerSideProps = withServerSideConfig(configSchemas, async (context, config) => {
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { config, apiTree }) => {
   const { common, client, server } = config;
 
-  const data = await fetch(`${server.database.url}/users`);
-  return {
-    props: {
-      users: await data.json(),
-      appName: common.app.name,
-    },
-  };
+  // Use configured API clients or external fetch
+  const result = await apiTree.alcohol.zinc.vUserList({ version: '1.0' });
+
+  return result.match({
+    ok: users => ({
+      props: {
+        users,
+        appName: common.app.name,
+        landscape: client.landscape,
+      },
+    }),
+    err: problem => ({
+      props: {
+        error: problem,
+        appName: common.app.name,
+      },
+    }),
+  });
 });
 ```
 
 ## Configuration Types
 
-- **Common**: Shared between client and server
-- **Client**: Browser-safe configuration only
-- **Server**: Server-only configuration (never sent to client)
+- **Common**: Shared between client and server (app info, service tree, build data)
+- **Client**: Browser-safe configuration only (faro settings, landscape info)
+- **Server**: Server-only configuration (database URLs, secrets, auth settings)
 
-All types support multiple landscapes (lapras, pichu, pikachu, raichu) with automatic merging and type-safe access.
+All types support multiple landscapes (lapras, pichu, pikachu, raichu) with automatic merging and type-safe access through the provider system.
 
 ## 4-Tier Override System
 
@@ -153,18 +164,22 @@ The system automatically injects build information and service tree data:
 ### Available Build Data
 
 ```typescript
-const config = useCommonConfig();
+const { common, client } = useConfig();
 
-// Build information
-config.app.build.sha; // Git commit hash
-config.app.build.version; // Git tag version
-config.app.build.time; // Build timestamp
+// Build information (common config)
+common.app.build.sha; // Git commit hash
+common.app.build.version; // Git tag version
+common.app.build.time; // Build timestamp
 
 // Service tree (AtomiCloud hierarchy)
-config.app.servicetree.landscape; // "pichu", "pikachu", etc.
-config.app.servicetree.platform; // "alcohol"
-config.app.servicetree.service; // "argon"
-config.app.servicetree.module; // "webapp"
+common.app.servicetree.landscape; // "pichu", "pikachu", etc.
+common.app.servicetree.platform; // "alcohol"
+common.app.servicetree.service; // "argon"
+common.app.servicetree.module; // "webapp"
+
+// Client-specific data
+client.landscape; // Current landscape string
+client.faro.enabled; // Faro observability enabled
 ```
 
 This data is automatically available in all environments without manual configuration.
@@ -183,11 +198,25 @@ This data is automatically available in all environments without manual configur
 
    ```typescript
    import stagingCommonConfig from './common/staging.settings.yaml';
+   import stagingClientConfig from './client/staging.settings.yaml';
+   import stagingServerConfig from './server/staging.settings.yaml';
 
    export const importedConfigurations = {
      common: {
        landscapes: {
          staging: stagingCommonConfig, // Add here
+         // ...existing landscapes
+       },
+     },
+     client: {
+       landscapes: {
+         staging: stagingClientConfig,
+         // ...existing landscapes
+       },
+     },
+     server: {
+       landscapes: {
+         staging: stagingServerConfig,
          // ...existing landscapes
        },
      },
@@ -225,13 +254,19 @@ src/config/
 ## Error Handling
 
 ```typescript
-import { isConfigValidationError, getValidationErrorMessage } from '@/lib/config';
+// Configuration errors are handled at the provider level
+// If config fails to load, the entire application will display an error page
+// Use try-catch for additional validation in your components if needed
 
-try {
-  const config = useCommonConfig();
-} catch (error) {
-  if (isConfigValidationError(error)) {
-    console.error('Config validation error:', getValidationErrorMessage(error));
+function MyComponent() {
+  try {
+    const { common, client } = useConfig();
+    // Use config safely - provider ensures it's valid
+    return <div>{common.app.name}</div>;
+  } catch (error) {
+    // This should rarely happen as config is validated at startup
+    console.error('Config access error:', error);
+    return <div>Configuration error</div>;
   }
 }
 ```
