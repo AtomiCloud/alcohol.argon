@@ -78,10 +78,10 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile" className="w-full flex items-center">
+          <a href="/profile" className="w-full flex items-center">
             <User className="mr-2 h-4 w-4" />
             View Profile
-          </Link>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

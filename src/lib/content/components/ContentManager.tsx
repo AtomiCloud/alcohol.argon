@@ -61,12 +61,12 @@ export function ContentManager({
   useEffect(() => {
     const handleRouteChangeStart = (_: string, { shallow }: { shallow: boolean }) => {
       clearDesc();
+      clearContextError();
       if (!shallow) startLoading();
     };
 
     const handleRouteChangeComplete = (_: string, { shallow }: { shallow: boolean }) => {
       if (!shallow) stopLoading();
-      clearContextError();
     };
 
     const handleRouteChangeError = (err: Error) => {
@@ -90,7 +90,7 @@ export function ContentManager({
       router.events.off('routeChangeComplete', handleRouteChangeComplete);
       router.events.off('routeChangeError', handleRouteChangeError);
     };
-  }, [router, state]);
+  }, []);
 
   return (
     <LayoutComponent>

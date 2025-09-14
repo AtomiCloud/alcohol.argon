@@ -3,11 +3,20 @@ import { PROBLEM_DEFINITIONS } from '@/problems';
 import { type CommonConfig, configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { envLandscapeSource } from '@/lib/landscape/core';
+import type { IAuthStateRetriever } from '@/lib/auth/core/types';
 
-const clientTree = (i: CommonConfig) => ({
+const clientTree = (i: CommonConfig, retriever?: IAuthStateRetriever) => ({
   alcohol: {
     zinc: new AlcoholZincApi({
       baseUrl: i.clients.alcohol.zinc.url,
+      // securityWorker: async () => {
+      //   await retriever.getTokenSet().match({
+      //     err: (e) => throw e,
+      //     ok: (v) => {
+      //
+      //     }
+      //   })
+      // }
     }),
   },
 });

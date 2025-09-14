@@ -143,7 +143,7 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
         }
       },
     }).then(() => console.debug('Content loaded'));
-  }, [input, setting?.notFound, setting?.defaultContent, latestRequestId]);
+  }, [input, setting?.notFound, setting?.defaultContent]);
   return content;
 }
 

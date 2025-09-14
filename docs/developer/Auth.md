@@ -22,14 +22,16 @@ function MyComponent() {
   const [hasData, authState] = content;
   if (!hasData) return <div>Loading...</div>;
 
-  return authState.match({
-    authed: ({ data: claims }) => <div>Welcome {claims.username}!</div>,
-    unauthed: () => (
+  if (authState.__kind === 'authed') {
+    const claims = authState.value.data;
+    return <div>Welcome {claims.username}!</div>;
+  } else {
+    return (
       <button onClick={() => window.location.assign('/api/logto/sign-in')}>
         Sign In
       </button>
-    ),
-  });
+    );
+  }
 }
 ```
 
@@ -61,15 +63,18 @@ import { AuthSection } from '@/components/AuthSection';
 ### Protected Pages
 
 ```typescript
-export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { auth }) => {
-  const userState = await auth.getClaims();
+export const getServerSideProps = withServerSideAtomi(buildTime, async (_, { auth }) => {
+  const userState = await auth.retriever.getClaims();
 
   return userState.match({
-    ok: state =>
-      state.match({
-        authed: ({ data: claims }) => ({ props: { username: claims.username } }),
-        unauthed: () => ({ redirect: { destination: '/api/logto/sign-in', permanent: false } }),
-      }),
+    ok: state => {
+      if (state.__kind === 'authed') {
+        const claims = state.value.data;
+        return { props: { username: claims.username } };
+      } else {
+        return { redirect: { destination: '/api/logto/sign-in', permanent: false } };
+      }
+    },
     err: problem => ({ props: { error: problem } }),
   });
 });
@@ -108,9 +113,9 @@ const [result, content] = useTokens();
 
 if (result === 'ok') {
   const [hasData, tokenState] = content;
-  if (hasData && tokenState.isAuthed) {
-    const { accessTokens } = tokenState.data;
-    const zincToken = accessTokens['alcohol-zinc'];
+  if (hasData && tokenState.__kind === 'authed') {
+    const tokenSet = tokenState.value.data;
+    const zincToken = tokenSet.accessTokens['alcohol-zinc'];
     // Use token for API calls
   }
 }
