@@ -2,7 +2,7 @@
 
 l="${LANDSCAPE}"
 
-set -eou pipefail
+set -euo pipefail
 
 echo "🔧 Exporting build info and building application..."
 

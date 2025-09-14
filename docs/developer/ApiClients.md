@@ -151,19 +151,22 @@ Add your client to the clientTree function in `src/adapters/external/core.ts`:
 ```typescript
 import { MyplatformMyserviceApi } from '@/clients/myplatform/myservice/api';
 
-const clientTree = (i: CommonConfig) => ({
+const clientTree = (common: CommonConfig, retriever: AuthRetriever) => ({
   alcohol: {
     zinc: new AlcoholZincApi({
-      baseUrl: i.clients.alcohol.zinc.url,
+      baseUrl: common.clients.alcohol.zinc.url,
     }),
   },
   myplatform: {
     myservice: new MyplatformMyserviceApi({
-      baseUrl: i.clients.myplatform.myservice.url,
+      baseUrl: common.clients.myplatform.myservice.url,
+      retriever, // Pass the auth retriever to the client
     }),
   },
 });
 ```
+
+**Note**: SDK clients can use the `retriever` parameter to attach authentication to requests. For example, by configuring request interceptors or adding Authorization headers per request. This allows each API call to access the current authentication context and attach the appropriate tokens automatically.
 
 ### 6. Access Your Client
 
