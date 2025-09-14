@@ -1,10 +1,172 @@
-# Error Handling
+# Error Handling System
 
-## Quick Start
+## Overview
 
-The project uses a unified error handling system with automatic reporting and user-friendly error pages.
+Unified error handling system with automatic reporting, user-friendly error pages,
+and observability integration.
 
-### Report an Error
+Built on [Result monads](./Monads.md) and [Problem Details](./ProblemDetails.md) format (RFC 7807) - no try/catch needed.
+
+## System Architecture
+
+```mermaid
+flowchart TD
+    %% Any operation can produce Result monads
+    B[Result&lt;T,Problem&gt;<br/>From any operation:<br/>• API calls<br/>• File operations<br/>• Calculations<br/>• Third-party libs]
+
+    %% Result Monad outcomes
+    B --> C[Ok&lpar;data&rpar;]
+    B --> D[Err&lpar;problem&rpar;]
+
+    %% Content Management
+    C --> E[useContent Hook]
+    D --> E
+    E --> F[Content Management<br/>• Loading<br/>• Empty<br/>• Content<br/>• Error]
+
+    %% User Interface
+    F --> G[Error Page<br/>• Lottie Animations<br/>• JSON Export<br/>• Retry Button]
+    F --> H[Content Display]
+
+    %% Error Reporting Flow
+    D --> I[Problem Reporter<br/>• Context<br/>• Source<br/>• Metadata]
+    E --> J[Global Error Boundary<br/>Catches unexpected errors]
+    J --> I
+
+    %% Try-catch wrapper for external libraries
+    A[External Operations<br/>• Third-party APIs<br/>• File system<br/>• Browser APIs<br/>• Calculations] --> |try-catch| B
+
+    %% Observability
+    I --> K[Grafana Faro<br/>• Distributed Traces<br/>• Error Logs<br/>• Performance Metrics<br/>• User Sessions]
+
+    %% Problem Details
+    L[Problem Details<br/>RFC 7807 Format<br/>• type<br/>• title<br/>• status<br/>• detail] -.-> D
+    L -.-> I
+
+    %% Styling
+    classDef operationLayer fill:#e1f5fe
+    classDef monadLayer fill:#f3e5f5
+    classDef contentLayer fill:#e8f5e8
+    classDef uiLayer fill:#fff3e0
+    classDef errorLayer fill:#ffebee
+    classDef observability fill:#f1f8e9
+
+    class A operationLayer
+    class B,C,D monadLayer
+    class E,F contentLayer
+    class G,H uiLayer
+    class I,J,L errorLayer
+    class K observability
+```
+
+## How It Works
+
+1. **External operations wrapped with try-catch** - Third-party APIs, file system, browser APIs, calculations converted to Result monads
+2. **Result monads from any source** - Never throw exceptions, always Ok(data) or Err(problem)
+3. **Content system handles all Results** - useContent extracts data and manages loading/empty/error states regardless of error source
+4. **Automatic error reporting** - Problems from any operation automatically sent to Grafana Faro with context
+5. **User-friendly error pages** - Status-specific Lottie animations, JSON export, retry functionality
+6. **Global error boundaries** - Catch any unexpected errors that slip through the Result system
+
+## Basic Usage
+
+### Working with Result Monads
+
+```typescript
+import { useState } from 'react';
+import { useContent } from '@/lib/content/providers';
+import { useProblemReporter } from '@/adapters/problem-reporter/providers';
+import { Ok, Err, type Result } from '@/lib/monads/result';
+import type { Problem } from '@/lib/problem/core/types';
+
+function MyComponent() {
+  const [result, setResult] = useState<Result<User[], Problem>>(Ok([]));
+  const problemReporter = useProblemReporter();
+
+  // useContent automatically handles Result monads
+  const content = useContent(result, {
+    notFound: 'No users found',
+    // No custom error handler = automatic global error handling
+  });
+
+  const handleLoad = async () => {
+    // Example 1: API call (already returns Result)
+    const apiResult = await apiTree.alcohol.zinc.vUserList({ version: '1.0' });
+
+    // Example 2: External operation wrapped with try-catch
+    const fileResult = await (async (): Promise<Result<string, Problem>> => {
+      try {
+        const data = await fetch('/external-api/data.json');
+        const content = await data.text();
+        return Ok(content);
+      } catch (error) {
+        const problem = problemRegistry.createProblem('network_error', {
+          url: '/external-api/data.json',
+          message: error.message,
+        });
+        return Err(problem);
+      }
+    })();
+
+    // Both Results handled the same way
+    const combinedResult = Res.all([apiResult, fileResult]).map(([users, fileData]) => ({
+      users,
+      fileData,
+    }));
+
+    combinedResult.match({
+      ok: data => setResult(Ok(data.users)),
+      err: problem => {
+        // Optional: Manual error reporting with context
+        problemReporter.pushError(problem, {
+          source: 'user-action',
+          context: { action: 'load-data', userId: user?.id },
+        });
+
+        // Set error result - triggers automatic error page
+        setResult(Err(problem));
+      },
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={handleLoad}>Load Users</button>
+      {content?.map(user => <div key={user.id}>{user.name}</div>)}
+    </div>
+  );
+}
+```
+
+### Server-Side Error Handling
+
+```typescript
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
+
+// API routes - errors automatically converted to Problem format
+export default withServerSideAtomi(buildTime, async (req, res, { apiTree, problemRegistry }) => {
+  const result = await apiTree.alcohol.zinc.vUserList({ version: '1.0' });
+
+  return result.match({
+    ok: users => res.status(200).json(users),
+    err: problem => res.status(problem.status).json(problem), // RFC 7807 format
+  });
+});
+
+// getServerSideProps - errors become page props
+export const getServerSideProps = withServerSideAtomi(buildTime, async (context, { apiTree }) => {
+  const result = await apiTree.alcohol.zinc.vUserList({ version: '1.0' });
+
+  return result.match({
+    ok: users => ({ props: { users } }),
+    err: problem => ({ props: { error: problem } }), // Error page automatically shown
+  });
+});
+```
+
+## Error Reporting
+
+Error reporting happens automatically through the ProblemReporter system:
 
 ```typescript
 import { useProblemReporter } from '@/adapters/problem-reporter/providers';
@@ -12,455 +174,171 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers';
 function MyComponent() {
   const problemReporter = useProblemReporter();
 
-  const handleAction = async () => {
-    try {
-      await riskyOperation();
-    } catch (error) {
-      problemReporter.pushError(error, {
-        source: 'user-action',
-        context: { action: 'submit-form' },
-      });
-    }
+  const reportCustomError = () => {
+    // Manual error reporting with rich context
+    problemReporter.pushError(new Error('Something went wrong'), {
+      source: 'user-interaction',
+      context: {
+        userId: user.id,
+        action: 'file-upload',
+        fileName: file.name,
+        fileSize: file.size,
+        timestamp: Date.now(),
+      },
+    });
   };
+
+  return <button onClick={reportCustomError}>Report Error</button>;
 }
 ```
 
-### Show Error to User
+### Error Sources
+
+Use consistent source identifiers for better tracking:
 
 ```typescript
-import { useErrorContext } from '@/contexts/ErrorContext';
+// ✅ Good - descriptive sources
+problemReporter.pushError(error, { source: 'form-validation' });
+problemReporter.pushError(error, { source: 'api-request' });
+problemReporter.pushError(error, { source: 'file-upload' });
+problemReporter.pushError(error, { source: 'user-checkout' });
+
+// ❌ Avoid - generic sources
+problemReporter.pushError(error, { source: 'error' });
+```
+
+## Error Page Features
+
+Error pages are automatically displayed with:
+
+- **Status-specific animations** - Different Lottie animations for 400, 404, 500, etc.
+- **JSON export** - Users can copy error details for support
+- **Refresh functionality** - Automatic retry mechanisms
+- **Copy to clipboard** - Easy sharing of error information
+
+### Manual Error Display
+
+```typescript
+import { useErrorContext } from '@/lib/content/providers';
 
 function MyComponent() {
   const { setError } = useErrorContext();
 
-  const handleAction = async () => {
-    try {
-      await riskyOperation();
-    } catch (error) {
-      setError({
-        type: 'user_action_failed',
-        title: 'Action Failed',
-        status: 400,
-        detail: 'The requested action could not be completed.',
-      });
-    }
-  };
-}
-```
-
-## Error Types
-
-### Application Errors (User-Facing)
-
-Use ErrorContext for errors that should show the error page:
-
-```typescript
-const { setError } = useErrorContext();
-
-setError({
-  type: 'payment_failed',
-  title: 'Payment Failed',
-  status: 402,
-  detail: 'Your payment method was declined. Please try a different card.',
-});
-```
-
-### Background Errors (Reporting Only)
-
-Use ProblemReporter for errors that shouldn't interrupt the user:
-
-```typescript
-const problemReporter = useProblemReporter();
-
-problemReporter.pushError(error, {
-  source: 'background-sync',
-  context: { userId: user.id, operation: 'cache-refresh' },
-});
-```
-
-## Using with Monads
-
-### Option Errors
-
-```typescript
-import { useErrorContext } from '@/contexts/ErrorContext';
-
-const { setError } = useErrorContext();
-
-const user = getUser(id);
-if (user.isNone()) {
-  setError({
-    type: 'user_not_found',
-    title: 'User Not Found',
-    status: 404,
-    detail: `User with ID ${id} could not be found.`,
-  });
-  return;
-}
-
-// User found, continue...
-const userData = user.unwrap();
-```
-
-### Result Errors
-
-```typescript
-const result = await fetchUserData(id);
-
-result.match({
-  ok: data => {
-    setUserData(data);
-  },
-  err: error => {
+  const triggerError = () => {
+    // Manually trigger error page (see ProblemDetails.md for format)
     setError({
-      type: 'data_load_failed',
-      title: 'Failed to Load Data',
-      status: 500,
-      detail: 'Unable to load user data. Please try again.',
+      type: 'custom_error',
+      title: 'Operation Failed',
+      status: 422,
+      detail: 'The requested operation could not be completed.',
     });
-  },
-});
-```
+  };
 
-## Page-Level Errors
-
-### In getServerSideProps
-
-```typescript
-export async function getServerSideProps(context) {
-  try {
-    const data = await fetchData();
-    return { props: { data } };
-  } catch (error) {
-    return {
-      props: {
-        __error: {
-          type: 'server_error',
-          title: 'Server Error',
-          status: 500,
-          detail: 'Failed to load page data.',
-        },
-      },
-    };
-  }
-}
-```
-
-### In API Routes
-
-```typescript
-import { ValidationError, EntityConflict } from '@/problems';
-
-export default function handler(req, res) {
-  try {
-    if (!isValid(req.body)) {
-      return ValidationError.send(res, {
-        field: 'email',
-        constraint: 'Invalid email format',
-      });
-    }
-
-    if (userExists) {
-      return EntityConflict.send(res, {
-        TypeName: 'User',
-        AssemblyQualifiedName: 'MyApp.Models.User',
-      });
-    }
-
-    // Success response
-    res.status(200).json({ success: true });
-  } catch (error) {
-    // Automatic error transformation
-    const problem = problemTransformer.fromUnknown(error);
-    res.status(problem.status).json(problem);
-  }
+  return <button onClick={triggerError}>Trigger Error</button>;
 }
 ```
 
 ## Error Recovery
 
-### Manual Recovery
-
 ```typescript
-const { clearError } = useErrorContext();
+import { useErrorContext } from '@/lib/content/providers';
 
-const handleRetry = () => {
-  clearError(); // Clear error state
-  // Retry the operation
-  performAction();
-};
-```
-
-### Automatic Recovery
-
-Error pages include automatic refresh functionality:
-
-```typescript
-// Error page automatically provides refresh button
-<ErrorPage
-  error={error}
-  onRefresh={() => {
-    clearError();
-    // Retry logic happens automatically
-  }}
-/>
-```
-
-## Custom Error Sources
-
-### Form Validation
-
-```typescript
-const problemReporter = useProblemReporter();
-
-const validateForm = data => {
-  if (!data.email.includes('@')) {
-    problemReporter.pushError(new Error('Invalid email'), {
-      source: 'form-validation',
-      context: {
-        field: 'email',
-        value: data.email,
-        rule: 'email-format',
-      },
-    });
-    return false;
-  }
-  return true;
-};
-```
-
-### Network Errors
-
-```typescript
-const problemReporter = useProblemReporter();
-
-const fetchData = async () => {
-  try {
-    const response = await fetch('/api/data');
-    return await response.json();
-  } catch (error) {
-    problemReporter.pushError(error, {
-      source: 'network-request',
-      context: {
-        url: '/api/data',
-        method: 'GET',
-        timestamp: Date.now(),
-      },
-    });
-    throw error;
-  }
-};
-```
-
-### User Actions
-
-```typescript
-const problemReporter = useProblemReporter();
-
-const handleFileUpload = async file => {
-  try {
-    await uploadFile(file);
-  } catch (error) {
-    problemReporter.pushError(error, {
-      source: 'file-upload',
-      context: {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-      },
-    });
-  }
-};
-```
-
-## Error Context Information
-
-### User Context
-
-```typescript
-problemReporter.pushError(error, {
-  source: 'checkout-process',
-  context: {
-    userId: user.id,
-    userEmail: user.email,
-    step: 'payment',
-    amount: order.total,
-  },
-});
-```
-
-### System Context
-
-```typescript
-problemReporter.pushError(error, {
-  source: 'system-error',
-  context: {
-    userAgent: navigator.userAgent,
-    url: window.location.href,
-    timestamp: Date.now(),
-    buildVersion: config.app.build.version,
-  },
-});
-```
-
-### Operation Context
-
-```typescript
-problemReporter.pushError(error, {
-  source: 'data-processing',
-  context: {
-    operation: 'user-export',
-    recordCount: records.length,
-    format: 'csv',
-    filters: appliedFilters,
-  },
-});
-```
-
-## React Patterns
-
-### Error Boundaries
-
-Error boundaries are automatically handled by AtomiProvider:
-
-```typescript
-// Automatic error boundary integration
-<AtomiProvider>
-  <MyApp />
-</AtomiProvider>
-```
-
-### Hook Pattern
-
-```typescript
-function useAsyncOperation() {
-  const { setError } = useErrorContext();
-  const problemReporter = useProblemReporter();
-
-  const performOperation = async data => {
-    try {
-      const result = await processData(data);
-      return Ok(result);
-    } catch (error) {
-      // Report for tracking
-      problemReporter.pushError(error, {
-        source: 'async-operation',
-        context: { operation: 'processData' },
-      });
-
-      // Show user-friendly error
-      setError({
-        type: 'operation_failed',
-        title: 'Operation Failed',
-        status: 500,
-        detail: 'The operation could not be completed. Please try again.',
-      });
-
-      return Err(error);
-    }
-  };
-
-  return { performOperation };
-}
-```
-
-### Component Pattern
-
-```typescript
 function MyComponent() {
-  const { setError } = useErrorContext();
-  const [loading, setLoading] = useState(false);
+  const { clearError } = useErrorContext();
+  const [result, setResult] = useState(Ok([]));
 
-  const handleSubmit = async (data) => {
-    setLoading(true);
-    try {
-      await submitData(data);
-      // Success handling
-    } catch (error) {
-      setError({
-        type: 'submit_failed',
-        title: 'Submission Failed',
-        status: 400,
-        detail: 'Your submission could not be processed. Please check your data and try again.'
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleRetry = async () => {
+    clearError(); // Clear any existing error state
+
+    // Retry the operation
+    const newResult = await performOperation();
+    setResult(newResult); // Updates useContent automatically
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* Form content */}
-      <button disabled={loading}>
-        {loading ? 'Submitting...' : 'Submit'}
-      </button>
-    </form>
-  );
+  return <button onClick={handleRetry}>Retry</button>;
 }
 ```
 
 ## Best Practices
 
-### 1. Use Appropriate Error Channel
+### 1. Use Result Monads
 
 ```typescript
-// ✅ User-facing errors -> ErrorContext
-setError(problem); // Shows error page
+// ✅ Handle both cases with Result monads
+result.match({
+  ok: data => processData(data),
+  err: problem => {
+    problemReporter.pushError(problem, { source: 'data-processing' });
+    // Error automatically handled by content system
+  },
+});
 
-// ✅ Background errors -> ProblemReporter
-problemReporter.pushError(error, { source: 'background' });
+// ❌ Don't unwrap without handling errors
+const data = result.unwrap(); // Throws if Result is Err!
 
-// ❌ Don't use console.error for important errors
-console.error('Important error occurred'); // Lost in logs
+// ✅ Safe unwrapping with defaults
+const data = result.unwrapOr([]);
 ```
 
-### 2. Provide Context
+### 2. Let the System Handle Errors
+
+```typescript
+// ✅ Recommended - let global system handle errors
+const content = useContent(result, {
+  notFound: 'No data found',
+  // No custom error handler = automatic global handling
+});
+
+// ❌ Only use custom error handling if absolutely necessary
+const content = useContent(result, {
+  error: error => {
+    // This REPLACES global error handling - you must handle everything
+    console.error('Custom handling:', error);
+  },
+});
+```
+
+### 3. Provide Rich Context
 
 ```typescript
 // ✅ Rich context for debugging
 problemReporter.pushError(error, {
-  source: 'user-action',
+  source: 'checkout-flow',
   context: {
-    action: 'file-upload',
-    fileName: file.name,
-    fileSize: file.size,
+    step: 'payment',
+    paymentMethod: 'credit_card',
+    amount: order.total,
     userId: user.id,
+    orderItems: order.items.length,
   },
 });
 
 // ❌ Minimal context
-problemReporter.pushError(error, { source: 'error' });
+problemReporter.pushError(error, { source: 'checkout' });
 ```
 
-### 3. User-Friendly Messages
+### 4. Use Appropriate Error Types
+
+See [Problem Details documentation](./ProblemDetails.md) for creating properly structured errors:
 
 ```typescript
-// ✅ Clear, actionable error messages
-setError({
-  type: 'validation_error',
-  title: 'Invalid Email Address',
-  status: 400,
-  detail: 'Please enter a valid email address (example: user@domain.com)',
+import { problemRegistry } from '@/problems';
+
+// Create structured error with validation
+const problem = problemRegistry.createProblem('validation_error', {
+  field: 'email',
+  constraint: 'Invalid email format',
 });
 
-// ❌ Technical error messages
-setError({
-  type: 'error',
-  title: 'Error',
-  status: 500,
-  detail: error.message, // Technical details
-});
+// Use in Result
+return Err(problem);
 ```
 
-### 4. Handle All Error Cases
+## Integration Points
 
-```typescript
-// ✅ Handle both success and error
-result.match({
-  ok: data => handleSuccess(data),
-  err: error => handleError(error),
-});
+- **Faro Observability**: Automatic error correlation with distributed tracing
+- **Content System**: Automatic error page display through `useContent`
+- **API Clients**: All clients return Result monads with Problem format
+- **Global Boundaries**: React error boundaries catch unexpected errors
 
-// ❌ Only handle success
-const data = result.unwrap(); // Throws on error
-```
+The error handling system is designed to work automatically - just use Result monads and let the system handle error reporting, user display, and observability.
