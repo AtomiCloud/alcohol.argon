@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.7.0...v1.7.1) (2025-09-14)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** address PR comments and improve code readability ([5a7cb44](https://github.com/AtomiCloud/alcohol.argon/commit/5a7cb44ce19fdd2cdffbe5f3c2f6e88a4b4ec508))
+
 ## [1.7.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.6.1...v1.7.0) (2025-09-14)
 
 
