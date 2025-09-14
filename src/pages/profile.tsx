@@ -6,11 +6,10 @@ import { useTokens } from '@/lib/auth/providers';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import type { UserInfoResponse } from '@logto/next';
-import { type ResultSerial, Res } from '@/lib/monads/result';
+import { Res, type ResultSerial } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import type { AuthState } from '@/lib/auth/core/types';
 import { useContent } from '@/lib/content/providers';
-import { useDebug } from '@/lib/debug';
 
 interface ClaimItemProps {
   label: string;

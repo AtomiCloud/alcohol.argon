@@ -1,4 +1,4 @@
-import type { ContentEmptyFn, ContentLoaderFn } from '@/lib/content/providers/useContent';
+import type { ContentEmptyFn } from '@/lib/content/providers/useContent';
 import { useState } from 'react';
 
 function useFreeEmpty(): [string | undefined, ContentEmptyFn] {

@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import type { IdTokenClaims } from '@logto/next';
 import {
   DropdownMenu,
@@ -10,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, ChevronDown } from 'lucide-react';
+import { ChevronDown, LogOut, User } from 'lucide-react';
 
 interface ProfileDropdownProps {
   data: IdTokenClaims;

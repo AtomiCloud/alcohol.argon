@@ -6,7 +6,7 @@ import type { LocalErrorContext } from './definition/local-error';
 import type { UnknownErrorContext } from './definition/unknown-error';
 import type { HttpErrorContext } from './definition/http-error';
 import type { Option } from '@/lib/monads/option';
-import { Some, None, Opt } from '@/lib/monads/option';
+import { None, Opt, Some } from '@/lib/monads/option';
 
 /**
  * Interface for error reporting functionality (e.g., Faro, Sentry, etc.)

@@ -1,5 +1,5 @@
 import type { AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
-import { None, Opt, type Option, Some } from '@/lib/monads/option';
+import { None, type Option, Some } from '@/lib/monads/option';
 import { Ok, Res, type Result, type ResultSerial } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import type { AuthChecker } from '@/lib/auth/core/checker';

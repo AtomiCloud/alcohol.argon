@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { LandscapeProvider } from '@/lib/landscape/providers';
 import { envLandscapeSource } from '@/lib/landscape/core';
 import {

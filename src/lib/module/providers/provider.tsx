@@ -1,6 +1,5 @@
 import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import type { Module } from '../core';
-import { useDebug } from '@/lib/debug';
 
 interface ProviderConfig<TInput, TOutput> extends Module<TInput, TOutput> {
   errorHandler?: (error: unknown) => string;
