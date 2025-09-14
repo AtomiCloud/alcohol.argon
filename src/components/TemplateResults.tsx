@@ -145,11 +145,7 @@ function TemplateResultCard({ template }: { template: Template }) {
   );
 
   if (hasValidUrl) {
-    return (
-      <Link href={templateUrl} target="_blank" rel="noopener noreferrer">
-        {content}
-      </Link>
-    );
+    return <Link href={`/templates?q=${template.name}`}>{content}</Link>;
   }
 
   return content;

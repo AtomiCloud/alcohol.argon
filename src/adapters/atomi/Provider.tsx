@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { LandscapeProvider } from '@/lib/landscape/providers';
 import { envLandscapeSource } from '@/lib/landscape/core';
 import {
@@ -7,11 +7,7 @@ import {
   BridgedProblemProvider,
   BridgedProblemReporterProvider,
 } from './bridge';
-import { ErrorPage } from '@/components/error-page/ErrorPage';
-import { ErrorProvider } from '@/lib/content/providers/ErrorContext';
 import FrontendObservability from '../../lib/observability/FrontendObservability';
-import { GlobalErrorBoundary } from '@/adapters/components/GlobalErrorBoundary';
-import { LoadingProvider } from '@/lib/content/providers/LoadingContext';
 
 interface AtomiProviderProps {
   children: ReactNode;

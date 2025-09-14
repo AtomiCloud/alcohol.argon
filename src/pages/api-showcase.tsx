@@ -9,7 +9,6 @@ import type { Result } from '@/lib/monads/result';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useSearchState } from '@/hooks/useUrlState';
 import {
   useClientConfig,
   useCommonConfig,
@@ -19,6 +18,7 @@ import {
 import { type GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
+import { useSearchState } from '@/lib/urlstate/useSearchState';
 
 interface DataSection {
   id: string;
@@ -142,22 +142,14 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
     [safeZincApiGood, safeZincApiError],
   );
 
-  const {
-    query: activeSection,
-    setQuery: setActiveSection,
-    isSearching,
-  } = useSearchState(
-    'section',
-    '',
+  const { query: activeSection, setQuery: setActiveSection } = useSearchState(
+    { section: '' },
     useCallback(
-      async (sectionId: string) => {
-        if (sectionId) {
-          await loadSectionData(sectionId);
-        }
+      async ({ section }: { section: string }) => {
+        if (section) await loadSectionData(section);
       },
       [loadSectionData],
     ),
-    { loadingDelay: 100 },
   );
 
   const loadAllData = async () => {
@@ -287,7 +279,7 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {dataSections.map(section => {
             const data = sectionData[section.id] || { sectionId: section.id, status: 'idle' as const };
-            const isLoading = activeSection === section.id && isSearching;
+            const isLoading = data.status === 'loading';
 
             return (
               <Card key={section.id} className="h-fit">
@@ -300,7 +292,7 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setActiveSection(section.id)}
+                      onClick={() => setActiveSection({ section: section.id })}
                       disabled={isLoading}
                       className="flex items-center gap-1"
                     >
@@ -367,8 +359,8 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
             </CardHeader>
             <CardContent className="text-xs space-y-1">
               <div>Server render time: {serverTimestamp}</div>
-              <div>Active section: {activeSection || 'None'}</div>
-              <div>Loading: {isSearching ? 'Yes' : 'No'}</div>
+              <div>Active section: {activeSection.section || 'None'}</div>
+              <div>Loading: {Object.values(sectionData).some(d => d.status === 'loading') ? 'Yes' : 'No'}</div>
               <div>Initial sections loaded: {Object.keys(initialData).length}</div>
               <div>Data source: {Object.keys(initialData).length > 0 ? '🏗️ SSR + Client' : '🔥 Client-only'}</div>
             </CardContent>

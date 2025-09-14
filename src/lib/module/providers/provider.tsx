@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { Module } from '../core';
+import { useDebug } from '@/lib/debug';
 
 interface ProviderConfig<TInput, TOutput> extends Module<TInput, TOutput> {
   errorHandler?: (error: unknown) => string;
@@ -52,7 +53,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
       }
 
       initializeResource().then(() => console.debug(`${name} initialized successfully`));
-    }, [moduleConfig]);
+    }, [JSON.stringify(moduleConfig)]);
 
     const contextValue: ModuleContext<TOutput> = {
       resource: resource!,

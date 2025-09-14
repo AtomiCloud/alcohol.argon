@@ -2,9 +2,8 @@ import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { AtomiContent } from '@/lib/content/core/types';
 import { useLoadingContext } from '@/lib/content/providers/LoadingContext';
 import { useEmptyContext } from '@/lib/content/providers/EmptyContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Res, type ResultSerial } from '@/lib/monads/result';
-import { useLoadingWithDelay } from '@/lib/content/providers/useLoadingWithDelay';
 
 type ContentLoaderFn = {
   startLoading: () => void;
@@ -67,6 +66,34 @@ type ContentSetting<T, Y> = {
   notFound?: string;
 };
 
+function loadWithDelay(loader: ContentLoaderFn, delay = 0) {
+  let timeoutRef: NodeJS.Timeout | null = null;
+
+  // Call this to start loading (with optional delay)
+  function start() {
+    if (delay > 0) {
+      timeoutRef = setTimeout(() => {
+        loader.startLoading();
+        timeoutRef = null;
+      }, delay);
+    } else {
+      loader.startLoading();
+    }
+  }
+
+  // Call this to stop loading
+  function stop() {
+    if (timeoutRef) {
+      clearTimeout(timeoutRef);
+      timeoutRef = null;
+    } else {
+      loader.stopLoading();
+    }
+  }
+
+  return { start, stop };
+}
+
 function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T, Y>): T | undefined {
   const { throwUnknown } = useErrorHandler();
   const { startLoading, stopLoading } = useLoadingContext();
@@ -79,14 +106,10 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
     else throwUnknown(v);
   }
 
-  const { start, stop } = useLoadingWithDelay(
-    {
-      startLoading: setting?.loader?.startLoading ?? startLoading,
-      stopLoading: setting?.loader?.stopLoading ?? stopLoading,
-    },
-    setting?.loaderDelay,
-  );
-
+  const loader = {
+    startLoading: setting?.loader?.startLoading ?? startLoading,
+    stopLoading: setting?.loader?.stopLoading ?? stopLoading,
+  };
   const setEmpty = setting?.empty?.setEmpty ?? setDesc;
 
   const clearEmpty = setting?.empty?.clear ?? clearDesc;
@@ -94,10 +117,14 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
 
   const [content, setContent] = useState<T | undefined>(initial);
 
+  const latestRequestId = useRef(0);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: setters from external
   useEffect(() => {
-    const i = Res.async<T, Y>(() => Promise.resolve(input));
+    const i = Res.async(() => Promise.resolve(input));
+    const { start, stop } = loadWithDelay(loader, setting?.loaderDelay);
     start();
+    const requestId = ++latestRequestId.current;
     i.match({
       err: err => {
         stop();
@@ -105,17 +132,19 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
       },
       ok: content => {
         stop();
-        setContent(content);
-        if (setting?.emptyChecker?.(content)) {
-          setEmpty(setting?.notFound ?? 'No content found');
-        } else if (Array.isArray(content) && content.length === 0) {
-          setEmpty(setting?.notFound ?? 'No content found');
-        } else {
-          clearEmpty();
+        if (requestId === latestRequestId.current) {
+          setContent(content);
+          if (setting?.emptyChecker?.(content)) {
+            setEmpty(setting?.notFound ?? 'No content found');
+          } else if (Array.isArray(content) && content.length === 0) {
+            setEmpty(setting?.notFound ?? 'No content found');
+          } else {
+            clearEmpty();
+          }
         }
       },
     }).then(() => console.debug('Content loaded'));
-  }, [input, setting?.notFound, setting?.defaultContent]);
+  }, [input, setting?.notFound, setting?.defaultContent, latestRequestId]);
   return content;
 }
 

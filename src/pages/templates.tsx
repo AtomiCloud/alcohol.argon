@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { Search, X } from 'lucide-react';
@@ -7,45 +7,63 @@ import { TemplateResults } from '@/components/TemplateResults';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSearchState } from '@/hooks/useUrlState';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import { useProblemTransformer } from '@/adapters/external/Provider';
 import { Res, ResultSerial } from '@/lib/monads/result';
 import { Problem } from '@/lib/problem/core';
 import { useContent } from '@/lib/content/providers';
+import { useCounterLoader } from '@/lib/content/providers/useCounterLoader';
+import { useSearchState } from '@/lib/urlstate/useSearchState';
+
+type Query = { q: string; limit: string };
 
 interface TemplatePageProps {
   initialResults: ResultSerial<Template[], Problem>;
-  initialQuery: string;
+  initialQuery: Query;
   serverTimestamp: string;
 }
 
 export default function TemplatePage({ initialResults, initialQuery, serverTimestamp }: TemplatePageProps) {
   const [results, setResults] = useState(Res.fromSerial<Template[], Problem>(initialResults));
-  const [loading, setLoading] = useState(false);
+  const [loading, loader] = useCounterLoader();
   const transformer = useProblemTransformer();
+
   const content = useContent(results, {
+    loaderDelay: 50,
     notFound: 'No templates found',
-    defaultContent: initialResults,
-    loader: {
-      startLoading: () => setLoading(true),
-      stopLoading: () => setLoading(false),
-    },
-    loaderDelay: 100,
+    loader,
   });
 
-  // Clean URL-synchronized search state with smart loading animation
-  const { query, setQuery, clearSearch, isSearching } = useSearchState(
-    'q',
-    initialQuery,
-    useCallback((searchQuery: string) => setResults(searchTemplates(transformer, searchQuery, 20)), []), // Empty deps to prevent re-creation
-    { loadingDelay: 300 },
+  // Search handler that executes search
+  const handleSearch = useCallback(
+    ({ q, limit }: Query) => setResults(searchTemplates(transformer, q, limit ? parseInt(limit) : undefined)),
+    [transformer],
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
+  // URL-synchronized search state with validators
+  const { query, setQuery, clearSearch } = useSearchState(
+    {
+      q: initialQuery.q,
+      limit: initialQuery.limit,
+    },
+    handleSearch,
+    {
+      debounceMs: 50,
+      validators: {
+        q: (value: string) => value.length >= 0, // Allow any query including empty
+        limit: (value: string) => {
+          if (!value.trim()) return true; // Allow empty (will use default)
+          const num = parseInt(value, 10);
+          return !isNaN(num) && num > 0 && num <= 100; // Valid number between 1-100
+        },
+      },
+    },
+  );
 
-  if (content == null) return <></>;
+  const handleInputChangeQuery = (e: React.ChangeEvent<HTMLInputElement>) => setQuery({ q: e.target.value });
+
+  const handleInputChangeLimit = (e: React.ChangeEvent<HTMLInputElement>) => setQuery({ limit: e.target.value });
 
   return (
     <>
@@ -75,10 +93,29 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
                   <Input
                     type="text"
                     placeholder="Search for React, Next.js, API templates..."
-                    value={query}
-                    onChange={handleInputChange}
+                    value={query.q}
+                    onChange={handleInputChangeQuery}
                     className="pl-10 pr-10 h-12 text-lg bg-white text-slate-900 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                    autoFocus
+                  />
+                  {query && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearSearch}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 text-slate-500 hover:text-slate-900"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Limits"
+                    value={query.limit}
+                    onChange={handleInputChangeLimit}
+                    className="pl-10 pr-10 h-12 text-lg bg-white text-slate-900 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                   {query && (
                     <Button
@@ -96,9 +133,11 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
           </div>
 
           {/* Template Results */}
-          <div className="max-w-7xl mx-auto">
-            <TemplateResults results={content} isLoading={loading} query={query} />
-          </div>
+          {content && (
+            <div className="max-w-7xl mx-auto">
+              <TemplateResults results={content} isLoading={loading} query={query.q} />
+            </div>
+          )}
 
           {/* Debug Info */}
           {process.env.NODE_ENV === 'development' && (
@@ -109,10 +148,19 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
               <CardContent className="text-xs space-y-1">
                 <div>Server render time: {serverTimestamp}</div>
                 <div>Searching: {loading ? 'Yes' : 'No'}</div>
-                <div>Initial query: &ldquo;{initialQuery}&rdquo;</div>
-                <div>Current query: &ldquo;{query}&rdquo;</div>
-                <div>Results: {content.length}</div>
-                <div>Data source: {query === initialQuery ? '🏗️ SSR' : '🔥 Client-side'}</div>
+                <div>
+                  Initial query: &ldquo;q={initialQuery.q}&rdquo; &ldquo;limit={initialQuery.limit}&rdquo;
+                </div>
+                <div>
+                  Current query: &ldquo;q={query.q}&rdquo; &ldquo;limit={query.limit}&rdquo;
+                </div>
+                <div>Results: {Array.isArray(content) ? content.length : 0}</div>
+                <div>
+                  Data source:{' '}
+                  {query.q === initialQuery.q && query.limit === initialQuery.limit.toString()
+                    ? '🏗️ SSR'
+                    : '🔥 Client-side'}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -126,11 +174,12 @@ export const getServerSideProps = withServerSideAtomi(
   buildTime,
   async ({ query }: any, { problemTransformer }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
     const searchQuery = (query.q as string) || '';
-    const searchResults = await searchTemplates(problemTransformer, searchQuery, 20).serial();
+    const limit = parseInt((query.limit as string | undefined) ?? '20');
+    const searchResults = await searchTemplates(problemTransformer, searchQuery, limit).serial();
     return {
       props: {
         initialResults: searchResults,
-        initialQuery: searchQuery,
+        initialQuery: { q: searchQuery ?? '', limit: query?.limit ?? '' },
         serverTimestamp: new Date().toISOString(),
       },
     };

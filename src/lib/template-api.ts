@@ -28,8 +28,11 @@ export function searchTemplates<T extends ProblemDefinitions>(
   limit = 20,
 ): Result<Template[], Problem> {
   return Res.async(async () => {
-    const searchParam = query.trim() ? `?Search=${encodeURIComponent(query)}` : '';
-    const response = await fetch(`${TEMPLATE_API_BASE}/Template${searchParam}`);
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('Search', query.trim());
+    if (limit) params.set('Limit', limit.toString());
+    const url = `${TEMPLATE_API_BASE}/Template${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await fetch(url);
 
     return transform.fromHttpResponse(response, query).asResult({
       some: p => Err(p),

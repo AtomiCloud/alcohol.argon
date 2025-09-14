@@ -74,6 +74,7 @@ export function ContentManager({
         status: 500,
         detail: err.message || 'An error occurred during navigation',
       };
+      console.error('navigation', err);
       problemReporter.pushError(err, { source: 'navigation-error', problem });
       throwProblem(problem);
     };
