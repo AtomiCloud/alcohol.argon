@@ -65,6 +65,7 @@ function useUrlToLocalSync<T extends Record<string, string>>(params: T) {
 
   // Build relevant query from router
   const buildQueryFromRouter = useCallback(() => mergeQueryWithDefaults(params, router.query), [params, router.query]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need the re-render
   const urlQuery = useMemo(buildQueryFromRouter, [buildQueryFromRouter]);
 
   // Local state
@@ -120,6 +121,7 @@ function useLocalToUrlSync<T extends Record<string, string>>(
   const router = useRouter();
   const validation = useValidationLogic(validators);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const setLocalQueryRef = useRefWrap(setLocalQuery);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -131,7 +133,7 @@ function useLocalToUrlSync<T extends Record<string, string>>(
   const setQuery = useCallback(
     (updates: Partial<T>) => {
       // 1. Update local state immediately
-      setLocalQuery(current => ({ ...current, ...updates }));
+      setLocalQueryRef.current(current => ({ ...current, ...updates }));
 
       // 2. Clear existing debounce
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
@@ -155,7 +157,7 @@ function useLocalToUrlSync<T extends Record<string, string>>(
         syncToUrl().then();
       }
     },
-    [router, debounceMs, validation.isValidUpdate, isInternalUpdateRef],
+    [router, debounceMs, validation.isValidUpdate, isInternalUpdateRef, setLocalQueryRef],
   );
 
   const clearSearch = useCallback(() => {
@@ -198,5 +200,5 @@ function useSearchLogic<T extends Record<string, string>>(urlQuery: T, params: T
     };
 
     performSearch().catch(console.error);
-  }, [urlQuery, params, isEqual]);
+  }, [urlQuery, params, isEqual, onSearchRef]);
 }

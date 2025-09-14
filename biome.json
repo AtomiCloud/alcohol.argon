@@ -24,7 +24,7 @@
       },
       "correctness": {
         "recommended": true,
-        "useExhaustiveDependencies": "off",
+        "useExhaustiveDependencies": "warn",
         "useHookAtTopLevel": "error",
         "noSwitchDeclarations": "off"
       },

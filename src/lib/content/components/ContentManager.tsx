@@ -61,6 +61,7 @@ export function ContentManager({
   }, [error, loading, desc]);
 
   // Handle router loading states
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ignore since many functions need to be excluded
   useEffect(() => {
     const handleRouteChangeStart = (_: string, { shallow }: { shallow: boolean }) => {
       clearDesc();
@@ -93,7 +94,7 @@ export function ContentManager({
       router.events.off('routeChangeComplete', handleRouteChangeComplete);
       router.events.off('routeChangeError', handleRouteChangeError);
     };
-  }, []);
+  }, [router.events, problemReporter]);
 
   return (
     <LayoutComponent>

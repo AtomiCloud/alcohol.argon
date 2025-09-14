@@ -105,6 +105,7 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
     },
   ];
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: lazy to fix
   const loadSectionData = useCallback(
     async (sectionId: string) => {
       const section = dataSections.find(s => s.id === sectionId);

@@ -30,7 +30,7 @@ function useUrlState(paramName: string, initialValue = '', options: UrlStateOpti
   useEffect(() => {
     const urlValue = (router.query[paramName] as string) || '';
     if (urlValue !== state) setState(urlValue);
-  }, [router.query[paramName]]);
+  }, [router.query[paramName], state, paramName]);
 
   return [state, updateState] as const;
 }

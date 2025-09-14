@@ -29,6 +29,7 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: require JSON for stable comparison
     useEffect(() => {
       async function initializeResource() {
         try {
