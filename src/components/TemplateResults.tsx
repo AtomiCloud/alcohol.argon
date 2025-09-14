@@ -5,69 +5,55 @@ import Link from 'next/link';
 import { ExternalLink, GitBranch, Globe, Mail } from 'lucide-react';
 
 interface TemplateResultsProps {
-  results: Template[];
-  isLoading?: boolean;
-  query: string;
+  templates: Template[];
 }
 
-export function TemplateResults({ results, isLoading, query }: TemplateResultsProps) {
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
-                <div>
-                  <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-20"></div>
-                </div>
+export function TemplateLoadingSkeleton() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="animate-pulse">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="flex gap-2">
-                <div className="h-5 bg-gray-200 rounded w-16"></div>
-                <div className="h-5 bg-gray-200 rounded w-20"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="flex gap-2">
+              <div className="h-5 bg-gray-200 rounded w-16"></div>
+              <div className="h-5 bg-gray-200 rounded w-20"></div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
-  if (results.length === 0 && query) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🔍</div>
-        <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-        <p className="text-muted-foreground">Try adjusting your search terms or browse all templates.</p>
-      </div>
-    );
-  }
+export function TemplateEmpty({ desc }: { desc?: string }) {
+  return (
+    <div className="text-center py-12">
+      <div className="text-6xl mb-4">🔍</div>
+      <h3 className="text-lg font-semibold mb-2">{desc ?? 'No templates found'}</h3>
+      <p className="text-muted-foreground">Try adjusting your search terms or browse all templates.</p>
+    </div>
+  );
+}
 
-  if (results.length === 0 && !query) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">📁</div>
-        <h3 className="text-lg font-semibold mb-2">No templates available</h3>
-        <p className="text-muted-foreground">Templates will appear here when they become available.</p>
-      </div>
-    );
-  }
-
+export function TemplateResults({ templates }: TemplateResultsProps) {
   return (
     <div className="space-y-6">
-      {query && (
-        <div className="text-sm text-muted-foreground">
-          Found {results.length} template{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
-        </div>
-      )}
+      <div className="text-sm text-muted-foreground">
+        Found {templates.length} template{templates.length !== 1 ? 's' : ''};
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {results.map(template => (
+        {templates.map(template => (
           <TemplateResultCard key={template.id} template={template} />
         ))}
       </div>

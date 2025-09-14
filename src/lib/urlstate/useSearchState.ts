@@ -49,8 +49,8 @@ export function useSearchState<T extends Record<string, string>>(
 
   return {
     query: localQuery,
-    setQuery: setQuery,
-    clearSearch: clearSearch,
+    setQuery,
+    clearSearch,
   };
 }
 

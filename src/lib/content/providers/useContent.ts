@@ -119,7 +119,6 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
 
   const latestRequestId = useRef(0);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: setters from external
   useEffect(() => {
     const i = Res.async(() => Promise.resolve(input));
     const { start, stop } = loadWithDelay(loader, setting?.loaderDelay);

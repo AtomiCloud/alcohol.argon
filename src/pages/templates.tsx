@@ -3,7 +3,7 @@ import { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { Search, X } from 'lucide-react';
 import { searchTemplates, Template } from '@/lib/template-api';
-import { TemplateResults } from '@/components/TemplateResults';
+import { TemplateEmpty, TemplateLoadingSkeleton, TemplateResults } from '@/components/TemplateResults';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,8 +13,10 @@ import { useProblemTransformer } from '@/adapters/external/Provider';
 import { Res, ResultSerial } from '@/lib/monads/result';
 import { Problem } from '@/lib/problem/core';
 import { useContent } from '@/lib/content/providers';
-import { useCounterLoader } from '@/lib/content/providers/useCounterLoader';
+import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useSearchState } from '@/lib/urlstate/useSearchState';
+import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
+import { FreeContentManager } from '@/lib/content/components/FreeContentManager';
 
 type Query = { q: string; limit: string };
 
@@ -26,13 +28,15 @@ interface TemplatePageProps {
 
 export default function TemplatePage({ initialResults, initialQuery, serverTimestamp }: TemplatePageProps) {
   const [results, setResults] = useState(Res.fromSerial<Template[], Problem>(initialResults));
-  const [loading, loader] = useCounterLoader();
+  const [loading, loader] = useFreeLoader();
+  const [desc, empty] = useFreeEmpty();
   const transformer = useProblemTransformer();
 
   const content = useContent(results, {
     loaderDelay: 50,
     notFound: 'No templates found',
     loader,
+    empty,
   });
 
   // Search handler that executes search
@@ -133,11 +137,18 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
           </div>
 
           {/* Template Results */}
-          {content && (
-            <div className="max-w-7xl mx-auto">
-              <TemplateResults results={content} isLoading={loading} query={query.q} />
-            </div>
-          )}
+          <FreeContentManager
+            LoadingComponent={TemplateLoadingSkeleton}
+            EmptyComponent={TemplateEmpty}
+            loadingState={loading}
+            emptyState={desc}
+          >
+            {content && (
+              <div className="max-w-7xl mx-auto">
+                <TemplateResults templates={content} />
+              </div>
+            )}
+          </FreeContentManager>
 
           {/* Debug Info */}
           {process.env.NODE_ENV === 'development' && (

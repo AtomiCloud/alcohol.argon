@@ -1,7 +1,7 @@
 import type { ContentLoaderFn } from '@/lib/content/providers/useContent';
 import { useState } from 'react';
 
-function useCounterLoader(): [boolean, ContentLoaderFn] {
+function useFreeLoader(): [boolean, ContentLoaderFn] {
   const [count, setCount] = useState(0);
   return [
     count > 0,
@@ -12,4 +12,4 @@ function useCounterLoader(): [boolean, ContentLoaderFn] {
   ];
 }
 
-export { useCounterLoader };
+export { useFreeLoader };
