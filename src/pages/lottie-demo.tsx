@@ -2,7 +2,7 @@ import InteractiveLottieDemo from '@/components/InteractiveLottieDemo';
 import { EmptyStateLottie, ErrorLottie, LoadingLottie, SuccessLottie } from '@/components/lottie/presets';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Lottie Animations Demo & Examples',

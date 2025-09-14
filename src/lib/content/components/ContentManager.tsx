@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { Problem } from '@/lib/problem/core/types';
 import type { NextComponentType, NextPageContext } from 'next';
 import { useErrorContext } from '@/lib/content/providers/ErrorContext';
 import { detectSerialError } from '@/lib/problem/detect-serial-error';
-import { ProblemReporter } from '@/lib/problem/core';
-import { ErrorComponentProps } from '@/lib/problem/core/error-page';
+import type { ProblemReporter } from '@/lib/problem/core';
+import type { ErrorComponentProps } from '@/lib/problem/core/error-page';
 import { useLoadingContext } from '@/lib/content/providers';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import { useEmptyContext } from '@/lib/content/providers/EmptyContext';
 
 export interface ContentManagerProps {
+  // biome-ignore lint/suspicious/noExplicitAny: components can have any props
   Component: NextComponentType<NextPageContext, any, any>;
   problemReporter: ProblemReporter;
+  // biome-ignore lint/suspicious/noExplicitAny: pageProps can be any
   pageProps: any;
   LoadingComponent: React.ComponentType;
   EmptyComponent: React.ComponentType<{ desc?: string }>;

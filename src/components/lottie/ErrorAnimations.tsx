@@ -14,6 +14,7 @@ import laptopData from '/public/animations/errors/laptop.json';
 import lochnessData from '/public/animations/errors/lochness.json';
 import puzzleData from '/public/animations/errors/puzzle.json';
 import tissueData from '/public/animations/errors/tissue.json';
+import type { LottieAnimationData } from '@/lib/lottie-utils';
 
 interface ErrorAnimationProps {
   className?: string;
@@ -44,7 +45,10 @@ const CHEEKY_NAMES: Record<string, string> = {
  * Static mapping of HTTP status codes to error animations
  * Based on semantic meaning and visual appeal
  */
-const ERROR_ANIMATION_MAP: Record<number, { data: any; name: string; cheekyName: string; loop: boolean }> = {
+const ERROR_ANIMATION_MAP: Record<
+  number,
+  { data: LottieAnimationData; name: string; cheekyName: string; loop: boolean }
+> = {
   // Client Errors (4xx)
   400: { data: icecreamData, name: 'cat', cheekyName: CHEEKY_NAMES.icecream, loop: false },
   401: { data: dogNewsPaperData, name: 'dogNewsPaper', cheekyName: CHEEKY_NAMES.dogNewsPaper, loop: false },
@@ -73,7 +77,12 @@ const DEFAULT_ANIMATION = { data: tissueData, name: 'tissue', cheekyName: CHEEKY
 /**
  * Get appropriate animation info based on HTTP status code
  */
-function getAnimationForStatus(status?: number): { data: any; name: string; cheekyName: string; loop: boolean } {
+function getAnimationForStatus(status?: number): {
+  data: LottieAnimationData;
+  name: string;
+  cheekyName: string;
+  loop: boolean;
+} {
   if (!status) return DEFAULT_ANIMATION;
   return ERROR_ANIMATION_MAP[status] || DEFAULT_ANIMATION;
 }

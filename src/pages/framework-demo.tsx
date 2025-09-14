@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type GetServerSidePropsResult } from 'next';
+import type { GetServerSidePropsResult } from 'next';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,14 +55,14 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
 
   // Simulate different error scenarios
   const handleThrowError = () => {
-    console.log('🚨 Throwing sync error via context...');
+    console.warn('🚨 Throwing sync error via context...');
 
     // Use context error (works reliably in both dev and prod)
     handleThrowContextError('This is a test error thrown from a React component');
   };
 
   const handleAsyncError = () => {
-    console.log('🚨 Throwing async error...');
+    console.warn('🚨 Throwing async error...');
 
     // Use context error for async (React error boundary can't catch async)
     setTimeout(() => {
@@ -71,7 +71,7 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
   };
 
   const handleThrowBoundaryError = () => {
-    console.log('🚨 Throwing React boundary error...');
+    console.warn('🚨 Throwing React boundary error...');
 
     // Only use React error boundary (for testing if it works in production)
     setThrowError(true);
@@ -160,7 +160,7 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
             </p>
             <div className="mt-2">
               <div className="w-80 h-2 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto">
-                <div className="h-2 bg-blue-500 rounded-full animate-pulse" style={{ width: '33%' }}></div>
+                <div className="h-2 bg-blue-500 rounded-full animate-pulse" style={{ width: '33%' }} />
               </div>
             </div>
           </div>

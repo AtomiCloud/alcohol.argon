@@ -1,8 +1,9 @@
-import React, { Component, ReactNode } from 'react';
-import { ProblemTransformer } from '@/lib/problem/core/transformer';
+import type React from 'react';
+import { Component, type ReactNode } from 'react';
+import type { ProblemTransformer } from '@/lib/problem/core/transformer';
 import type { Problem } from '@/lib/problem/core/types';
-import { ProblemDefinitions } from '@/lib/problem/core';
-import { ErrorComponentProps } from '@/lib/problem/core/error-page';
+import type { ProblemDefinitions } from '@/lib/problem/core';
+import type { ErrorComponentProps } from '@/lib/problem/core/error-page';
 
 interface GlobalErrorBoundaryProps<T extends ProblemDefinitions> {
   children: ReactNode;
@@ -39,8 +40,8 @@ export class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Comp
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.log('🔴 GlobalErrorBoundaryInner caught error:', error);
-    console.log('🔴 Error info:', errorInfo);
+    console.warn('🔴 GlobalErrorBoundaryInner caught error:', error);
+    console.warn('🔴 Error info:', errorInfo);
 
     const problem = this.problemTransformer.fromError(
       error,
@@ -48,7 +49,7 @@ export class GlobalErrorBoundaryInner<T extends ProblemDefinitions> extends Comp
       window.location.pathname,
     );
 
-    console.log('🔴 Converted to Problem:', problem);
+    console.warn('🔴 Converted to Problem:', problem);
 
     this.setState({
       hasError: true,

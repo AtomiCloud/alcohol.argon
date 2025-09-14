@@ -5,7 +5,7 @@ import loadingData from '/public/animations/loading.json';
 import successData from '/public/animations/success.json';
 import errorData from '/public/animations/errors/dogSwimming.json';
 import emptyStateData from '/public/animations/empty-state.json';
-import { LottieAnimationData } from '@/lib/lottie-utils';
+import type { LottieAnimationData } from '@/lib/lottie-utils';
 
 interface PresetProps {
   className?: string;

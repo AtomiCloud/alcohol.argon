@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, type ReactNode, useContext, useState } from 'react';
 import type { Problem } from '@/lib/problem/core/types';
 
 interface ErrorContextType {

@@ -1,4 +1,4 @@
-import { getTemplateDisplayTags, getTemplateUrl, Template } from '@/lib/template-api';
+import { getTemplateDisplayTags, getTemplateUrl, type Template } from '@/lib/template-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -12,22 +12,23 @@ export function TemplateLoadingSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: skeleton have no identity
         <Card key={i} className="animate-pulse">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+              <div className="w-8 h-8 bg-gray-200 rounded-lg" />
               <div>
-                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-20"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-20" />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-3 bg-gray-200 rounded w-full mb-2" />
+            <div className="h-3 bg-gray-200 rounded w-3/4 mb-4" />
             <div className="flex gap-2">
-              <div className="h-5 bg-gray-200 rounded w-16"></div>
-              <div className="h-5 bg-gray-200 rounded w-20"></div>
+              <div className="h-5 bg-gray-200 rounded w-16" />
+              <div className="h-5 bg-gray-200 rounded w-20" />
             </div>
           </CardContent>
         </Card>
@@ -50,7 +51,7 @@ export function TemplateResults({ templates }: TemplateResultsProps) {
   return (
     <div className="space-y-6">
       <div className="text-sm text-muted-foreground">
-        Found {templates.length} template{templates.length !== 1 ? 's' : ''};
+        Found {templates.length} template{templates.length !== 1 ? 's' : ''}
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {templates.map(template => (

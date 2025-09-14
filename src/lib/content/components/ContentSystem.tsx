@@ -1,5 +1,5 @@
 import { EmptyProvider, ErrorProvider, LoadingProvider } from '@/lib/content/providers';
-import { ContentManager, ContentManagerProps } from '@/lib/content/components/ContentManager';
+import { ContentManager, type ContentManagerProps } from '@/lib/content/components/ContentManager';
 import { GlobalErrorBoundary } from '@/adapters/components/GlobalErrorBoundary';
 
 export function ContentSystem({

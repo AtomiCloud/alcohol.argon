@@ -1,6 +1,6 @@
 'use client';
 
-import Lottie, { LottieComponentProps } from 'lottie-react';
+import Lottie, { type LottieComponentProps } from 'lottie-react';
 import { cn } from '@/lib/utils';
 import type { LottieAnimationData } from '@/lib/lottie-utils';
 

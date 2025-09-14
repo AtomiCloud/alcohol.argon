@@ -7,8 +7,6 @@ import useSWR from 'swr';
 import { AuthChecker } from '@/lib/auth/core/checker';
 import { ClientAuthStateRetriever } from '@/lib/auth/core/client/retriever';
 
-type FetcherArgs = [input: RequestInfo | URL, init?: RequestInit];
-
 type Content<T, Y> = ResultSerial<OptionSerial<T>, Y>;
 
 const fetcher = async <T extends AuthData>(url: string): Promise<ResultSerial<AuthState<T>, Problem>> => {
@@ -27,7 +25,6 @@ function useUserInfo(initial?: AuthState<UserInfoResponse>): Content<AuthState<U
   );
   if (isLoading) return ['ok', [false, null]];
   if (error) return ['err', error];
-  // biome-ignore lint/style/noNonNullAssertion: this is not null
   const [type, value] = data!;
   if (type === 'err') return ['err', value];
   return [type, [true, value]];
@@ -43,7 +40,6 @@ function useClaims(initial?: AuthState<IdTokenClaims>): Content<AuthState<IdToke
   );
   if (isLoading) return ['ok', [false, null]];
   if (error) return ['err', error];
-  // biome-ignore lint/style/noNonNullAssertion: this is not null
   const [type, value] = data!;
   if (type === 'err') return ['err', value];
   return [type, [true, value]];
@@ -55,7 +51,6 @@ function useTokens(initial?: AuthState<TokenSet>): Content<AuthState<TokenSet>, 
   });
   if (isLoading) return ['ok', [false, null]];
   if (error) return ['err', error];
-  // biome-ignore lint/style/noNonNullAssertion: this is not null
   const [type, value] = data!;
   if (type === 'err') return ['err', value];
   return [type, [true, value]];

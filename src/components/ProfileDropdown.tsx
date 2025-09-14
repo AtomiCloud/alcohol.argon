@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { IdTokenClaims } from '@logto/next';
+import type { IdTokenClaims } from '@logto/next';
 import {
   DropdownMenu,
   DropdownMenuContent,

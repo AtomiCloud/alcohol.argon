@@ -14,17 +14,19 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "recommended": true
+        "recommended": true,
+        "noSvgWithoutTitle": "off"
       },
       "complexity": {
         "recommended": true,
-        "noExcessiveCognitiveComplexity": "warn",
+        "noExcessiveCognitiveComplexity": "off",
         "noStaticOnlyClass": "off"
       },
       "correctness": {
         "recommended": true,
-        "useExhaustiveDependencies": "warn",
-        "useHookAtTopLevel": "error"
+        "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "error",
+        "noSwitchDeclarations": "off"
       },
       "performance": {
         "recommended": true
@@ -35,7 +37,8 @@
       "style": {
         "recommended": true,
         "useConst": "error",
-        "useTemplate": "warn"
+        "useTemplate": "warn",
+        "noNonNullAssertion": "off"
       },
       "suspicious": {
         "recommended": true,

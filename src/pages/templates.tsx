@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { GetServerSidePropsResult } from 'next';
+import type React from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { Search, X } from 'lucide-react';
-import { searchTemplates, Template } from '@/lib/template-api';
+import { searchTemplates, type Template } from '@/lib/template-api';
 import { TemplateEmpty, TemplateLoadingSkeleton, TemplateResults } from '@/components/TemplateResults';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,8 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import { useProblemTransformer } from '@/adapters/external/Provider';
-import { Res, ResultSerial } from '@/lib/monads/result';
-import { Problem } from '@/lib/problem/core';
+import { Res, type ResultSerial } from '@/lib/monads/result';
+import type { Problem } from '@/lib/problem/core';
 import { useContent } from '@/lib/content/providers';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useSearchState } from '@/lib/urlstate/useSearchState';
@@ -41,7 +42,7 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
 
   // Search handler that executes search
   const handleSearch = useCallback(
-    ({ q, limit }: Query) => setResults(searchTemplates(transformer, q, limit ? parseInt(limit) : undefined)),
+    ({ q, limit }: Query) => setResults(searchTemplates(transformer, q, limit ? Number.parseInt(limit) : undefined)),
     [transformer],
   );
 
@@ -58,8 +59,8 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
         q: (value: string) => value.length >= 0, // Allow any query including empty
         limit: (value: string) => {
           if (!value.trim()) return true; // Allow empty (will use default)
-          const num = parseInt(value, 10);
-          return !isNaN(num) && num > 0 && num <= 100; // Valid number between 1-100
+          const num = Number.parseInt(value, 10);
+          return !Number.isNaN(num) && num > 0 && num <= 100; // Valid number between 1-100
         },
       },
     },
@@ -183,14 +184,14 @@ export default function TemplatePage({ initialResults, initialQuery, serverTimes
 
 export const getServerSideProps = withServerSideAtomi(
   buildTime,
-  async ({ query }: any, { problemTransformer }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
+  async ({ query }, { problemTransformer }): Promise<GetServerSidePropsResult<TemplatePageProps>> => {
     const searchQuery = (query.q as string) || '';
-    const limit = parseInt((query.limit as string | undefined) ?? '20');
+    const limit = Number.parseInt((query.limit as string | undefined) ?? '20');
     const searchResults = await searchTemplates(problemTransformer, searchQuery, limit).serial();
     return {
       props: {
         initialResults: searchResults,
-        initialQuery: { q: searchQuery ?? '', limit: query?.limit ?? '' },
+        initialQuery: { q: searchQuery ?? '', limit: (query?.limit as string | undefined) ?? '' },
         serverTimestamp: new Date().toISOString(),
       },
     };

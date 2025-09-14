@@ -1,5 +1,5 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Module } from '../core';
+import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import type { Module } from '../core';
 import { useDebug } from '@/lib/debug';
 
 interface ProviderConfig<TInput, TOutput> extends Module<TInput, TOutput> {

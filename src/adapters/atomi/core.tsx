@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import type React from 'react';
+import type { ReactNode } from 'react';
 
 // ============================================
 // Simple Bridge Helper
@@ -6,12 +7,14 @@ import React, { ReactNode } from 'react';
 
 type BridgeProps = {
   children: ReactNode;
+  // biome-ignore lint/suspicious/noExplicitAny: bridgeprops can be anything
   [key: string]: any;
 };
 
 /**
  * Creates a wrapper component that calls hooks and passes values as props
  */
+// biome-ignore lint/suspicious/noExplicitAny: bridge needs to be dynamic
 function createBridge<P extends Record<string, any>>(
   Provider: React.ComponentType<P>,
   useHooks: () => Omit<P, 'children'> | null,

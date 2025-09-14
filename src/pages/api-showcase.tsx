@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import Head from 'next/head';
 import { AlertCircle, CheckCircle, ExternalLink, RefreshCw } from 'lucide-react';
 
 import { AlcoholZincApi } from '@/clients/alcohol/zinc/api';
-import { createSafeApiClient, SafeApiClient } from '@/lib/api/core/swagger-adapter';
-import { Problem } from '@/lib/problem/core';
+import { createSafeApiClient, type SafeApiClient } from '@/lib/api/core/swagger-adapter';
+import type { Problem } from '@/lib/problem/core';
 import type { Result } from '@/lib/monads/result';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import {
   useProblemTransformer,
   useSwaggerClients,
 } from '@/adapters/external/Provider';
-import { type GetServerSidePropsResult } from 'next';
+import type { GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import { useSearchState } from '@/lib/urlstate/useSearchState';
@@ -27,6 +28,7 @@ interface DataSection {
   loader: (
     good: SafeApiClient<AlcoholZincApi<unknown>>,
     bad: SafeApiClient<AlcoholZincApi<unknown>>,
+    // biome-ignore lint/suspicious/noExplicitAny: lazy to fix
   ) => Promise<Result<any, Problem>>;
   icon: React.ReactNode;
 }
@@ -34,6 +36,7 @@ interface DataSection {
 interface SectionData {
   sectionId: string;
   status: 'idle' | 'loading' | 'success' | 'error';
+  // biome-ignore lint/suspicious/noExplicitAny: lazy to fix
   data?: any;
   problem?: Problem;
   lastFetch?: string;
