@@ -12,7 +12,7 @@ type Content<T, Y> = ResultSerial<OptionSerial<T>, Y>;
 const fetcher = async <T extends AuthData>(url: string): Promise<ResultSerial<AuthState<T>, Problem>> => {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  return await response.json<ResultSerial<AuthState<T>, Problem>>();
+  return await response.json();
 };
 
 function useUserInfo(initial?: AuthState<UserInfoResponse>): Content<AuthState<UserInfoResponse>, Problem> {

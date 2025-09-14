@@ -36,7 +36,7 @@ export function searchTemplates<T extends ProblemDefinitions>(
 
     return transform.fromHttpResponse(response, query).asResult({
       some: p => Err(p),
-      none: () => Ok(response.json<Template[]>()),
+      none: () => Ok(response.json()),
     });
   });
 }

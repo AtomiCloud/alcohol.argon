@@ -13,9 +13,7 @@ class ClientAuthStateRetriever implements IAuthStateRetriever {
   constructor(private readonly authChecker: AuthChecker) {}
 
   private fetch<T extends AuthData>(endpoint: string): Result<AuthState<T>, Problem> {
-    return Res.fromSerial<AuthState<T>, Problem>(
-      fetch(endpoint).then(res => res.json<ResultSerial<AuthState<T>, Problem>>()),
-    );
+    return Res.fromSerial<AuthState<T>, Problem>(fetch(endpoint).then(res => res.json()));
   }
 
   private cacheOrFetch<T extends AuthData>(
