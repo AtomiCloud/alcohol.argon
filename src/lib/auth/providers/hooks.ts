@@ -1,9 +1,11 @@
 import type { IdTokenClaims, UserInfoResponse } from '@logto/next';
-import type { AuthData, AuthState, TokenSet } from '@/lib/auth/core/types';
+import type { AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
 import type { ResultSerial } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import type { OptionSerial } from '@/lib/monads/option';
 import useSWR from 'swr';
+import { AuthChecker } from '@/lib/auth/core/checker';
+import { ClientAuthStateRetriever } from '@/lib/auth/core/client/retriever';
 
 type FetcherArgs = [input: RequestInfo | URL, init?: RequestInit];
 
@@ -59,4 +61,10 @@ function useTokens(initial?: AuthState<TokenSet>): Content<AuthState<TokenSet>, 
   return [type, [true, value]];
 }
 
-export { useUserInfo, useClaims, useTokens };
+function useAuth(): { checker: AuthChecker; retriever: IAuthStateRetriever } {
+  const checker = new AuthChecker();
+  const retriever = new ClientAuthStateRetriever(checker);
+  return { checker, retriever };
+}
+
+export { useUserInfo, useClaims, useTokens, useAuth };

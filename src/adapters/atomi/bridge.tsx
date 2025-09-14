@@ -14,6 +14,7 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks'
 import { ProblemReporterProvider, ProblemReporterProviderProps } from '@/adapters/problem-reporter/providers';
 import { ApiProviderProps } from '@/lib/api/providers';
 import { AdaptedClientTree, AdaptedConfigSchema, AdaptedProblemDefinition, buildTime } from '@/adapters/external/core';
+import { useAuth } from '@/lib/auth/providers/hooks';
 
 const BridgedConfigProvider = createBridge<ConfigProviderProps<AdaptedConfigSchema>>(ConfigProvider, () => {
   const landscape = useLandscape();
@@ -52,11 +53,12 @@ const BridgedApiClientProvider = createBridge<ApiProviderProps<AdaptedClientTree
   () => {
     const problemTransformer = useProblemTransformer();
     const common = useCommonConfig();
+    const { retriever } = useAuth();
     return {
       config: {
         defaultInstance: buildTime.defaultInstance,
         problemTransformer,
-        clientTree: buildTime.clientTree(common),
+        clientTree: buildTime.clientTree(common, retriever),
       },
     };
   },

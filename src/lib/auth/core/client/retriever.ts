@@ -22,7 +22,7 @@ class ClientAuthStateRetriever implements IAuthStateRetriever {
     cache: Option<AuthState<T>>,
     endpoint: string,
   ): Result<AuthState<T>, Problem> {
-    return Res.fromAsync(cache.map(x => Ok<AuthState<T>, Problem>(x)).unwrapOr(this.fetch<T>(endpoint)));
+    return Res.fromAsync(cache.map(x => Ok<AuthState<T>, Problem>(x)).unwrapOr(() => this.fetch<T>(endpoint)));
   }
 
   getClaims(): Result<AuthState<IdTokenClaims>, Problem> {

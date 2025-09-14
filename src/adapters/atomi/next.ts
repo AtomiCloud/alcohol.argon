@@ -83,7 +83,7 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
                         {
                           defaultInstance,
                           problemTransformer: problem.transformer,
-                          clientTree: clientTree(config.common),
+                          clientTree: clientTree(config.common, retriever),
                         },
                         (req, res, apiTree) => {
                           return handler(req, res, {
@@ -187,7 +187,7 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                   {
                     defaultInstance,
                     problemTransformer: problem.transformer,
-                    clientTree: clientTree(config.common),
+                    clientTree: clientTree(config.common, retriever),
                   },
                   async (context, apiTree) => {
                     return await handler(context, {
