@@ -1,3 +1,33 @@
+## [1.7.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.6.1...v1.7.0) (2025-09-14)
+
+
+### 📜 Documentation 📜
+
+* **update:** all docs to reflect libraries ([093b869](https://github.com/AtomiCloud/alcohol.argon/commit/093b86962076f2dde8261eb6c8f9d41ffd89f84e))
+
+
+### ✨ Features ✨
+
+* **snapshot:** add snapshot feature ([c0ace5b](https://github.com/AtomiCloud/alcohol.argon/commit/c0ace5b233cb2c060d0dab70d6b80db6d367104f))
+* **hooks:** allow loading to be customizable ([011cd78](https://github.com/AtomiCloud/alcohol.argon/commit/011cd78863c0558441208816e023ba4ae408c402))
+* **auth:** basic auth setup ([09dff2b](https://github.com/AtomiCloud/alcohol.argon/commit/09dff2b2d0973bf292be5250ad8a2815527f8e76))
+* **content:** got auth to work correctly ([975f239](https://github.com/AtomiCloud/alcohol.argon/commit/975f239d288304cec605e7337e1da46f1a682c6a))
+* **FreeContentManagers:** implement useContent improvements ([b7e17de](https://github.com/AtomiCloud/alcohol.argon/commit/b7e17dee8d784638543ad01e2da506605930ce6a))
+* **content-manager:** search state correctly working ([16ee4f7](https://github.com/AtomiCloud/alcohol.argon/commit/16ee4f7a35aa27fc4f841e13b85efca20ac225e9))
+* **auth:** working auth ([233605e](https://github.com/AtomiCloud/alcohol.argon/commit/233605e5a4ce4f5bff5f5df4f286090a28662f18))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** dependency array problem biome reports ([169fb40](https://github.com/AtomiCloud/alcohol.argon/commit/169fb4057def39820494cb7faddf5652e617679b))
+* **all:** fix linting errors related to type imports ([fb85df8](https://github.com/AtomiCloud/alcohol.argon/commit/fb85df846c9a138d76e9d9452268c3d9aca6d2c0))
+* **default:** json generic types ([fa6e37d](https://github.com/AtomiCloud/alcohol.argon/commit/fa6e37d356e409d153e7a681d348de3019b667c1))
+* **default:** nav bar loading ([d7cd33e](https://github.com/AtomiCloud/alcohol.argon/commit/d7cd33e26f3fd57b11aa606f8a4c2d884066b65d))
+* **default:** pre-commit hooks ([4702fed](https://github.com/AtomiCloud/alcohol.argon/commit/4702fedf07408260433e813e1ea17e132737e894))
+* **imports:** refactor import statements for clarity ([54520b8](https://github.com/AtomiCloud/alcohol.argon/commit/54520b8375ef3c841a419c9f5efdc323b471bda1))
+* **ci:** update ci scripts for better reliability ([b6fa377](https://github.com/AtomiCloud/alcohol.argon/commit/b6fa3779b44071461dbd636682c9eb54346a1e14))
+* **default:** update imports and clean up configuration ([a654208](https://github.com/AtomiCloud/alcohol.argon/commit/a654208de29049ca939901ca078b8cef19c2c4eb))
+
 ## [1.6.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.6.0...v1.6.1) (2025-08-31)
 
 
