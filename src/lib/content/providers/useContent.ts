@@ -134,9 +134,11 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
         stop();
         if (requestId === latestRequestId.current) {
           setContent(content);
-          if (setting?.emptyChecker?.(content)) {
-            setEmpty(setting?.notFound ?? 'No content found');
-          } else if (Array.isArray(content) && content.length === 0) {
+          const isEmpty = setting?.emptyChecker
+            ? setting.emptyChecker(content)
+            : Array.isArray(content) && content.length === 0;
+
+          if (isEmpty) {
             setEmpty(setting?.notFound ?? 'No content found');
           } else {
             clearEmpty();

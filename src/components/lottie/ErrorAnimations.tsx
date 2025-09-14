@@ -67,7 +67,7 @@ const ERROR_ANIMATION_MAP: Record<
 
   // Network/Connection Errors
   0: { data: lochnessData, name: 'lochness', cheekyName: CHEEKY_NAMES.lochness, loop: false },
-};
+} as const;
 
 /**
  * Default fallback animation for unmapped status codes
