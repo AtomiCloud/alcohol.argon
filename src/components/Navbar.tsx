@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AuthSection } from './AuthSection';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavLinkProps {
   href: string;
@@ -78,16 +79,19 @@ export function Navbar() {
 
           {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
             <AuthSection />
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Mobile Right Section */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <AuthSection />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="relative"
+              className="relative h-8 w-8 p-0"
             >
               <svg
                 className={`h-5 w-5 transition-transform duration-200 ${isMobileMenuOpen ? 'rotate-90' : ''}`}
@@ -124,11 +128,6 @@ export function Navbar() {
                 {item.label}
               </NavLink>
             ))}
-
-            {/* Mobile Auth Section */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-              <AuthSection isMobile={true} onMenuClose={closeMobileMenu} />
-            </div>
           </div>
         </div>
       </div>

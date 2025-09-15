@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, LogOut, User } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface ProfileDropdownProps {
@@ -54,12 +54,11 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center space-x-1 px-2 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-sm">
             <span className="text-xs font-medium text-white">{data.username?.charAt(0).toUpperCase() || 'U'}</span>
           </div>
-          <ChevronDown className="h-4 w-4 text-slate-400" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" align="end">
