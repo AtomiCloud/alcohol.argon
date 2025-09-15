@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useClaims } from '@/lib/auth/providers';
 import { ProfileDropdown } from './ProfileDropdown';
 
@@ -11,31 +12,23 @@ interface AuthSectionProps {
 export function AuthSection({ isMobile = false, onMenuClose }: AuthSectionProps) {
   const [t, v] = useClaims();
 
-  if (t === 'err') {
-    return null;
-  }
-
+  if (t === 'err') return null;
   const [k, claimState] = v;
-
   if (!k) {
     if (isMobile) {
       return (
-        <div className="flex items-center justify-center py-2">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-          <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">Loading...</span>
+        <div className="flex items-center space-x-3 px-3 py-2">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-1">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
         </div>
       );
     }
 
-    // Match desktop ProfileDropdown button dimensions: px-2 py-2 with h-8 w-8 avatar + h-4 w-4 chevron
-    return (
-      <div className="flex items-center space-x-1 px-2 py-2">
-        <div className="h-8 w-8 flex items-center justify-center">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-        </div>
-        <div className="h-4 w-4" /> {/* Placeholder for chevron space */}
-      </div>
-    );
+    // Match desktop ProfileDropdown button dimensions
+    return <Skeleton className="h-8 w-8 rounded-full" />;
   }
 
   if (claimState.value.isAuthed) {
