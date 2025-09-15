@@ -18,6 +18,8 @@ seo:
   og:
     locale: en_US
 pwa:
+  startUrl: '/'
+  scope: '/'
   themeColor: '#00C30C'
   backgroundColor: '#00C30C'
   display: standalone
