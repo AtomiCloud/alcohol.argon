@@ -1,3 +1,16 @@
+## [1.8.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.7.1...v1.8.0) (2025-09-15)
+
+
+### ✨ Features ✨
+
+* **dark theme:** implement dark theme support ([b047c16](https://github.com/AtomiCloud/alcohol.argon/commit/b047c16439a3c994aaaa9cea0821d0c23ce9353a))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** navbar loading bug ([afe2493](https://github.com/AtomiCloud/alcohol.argon/commit/afe24930b0b368a8ed593cacb69b552354fc4f32))
+* **ssr:** resolve SSR crashes and optimize component performance ([4987c34](https://github.com/AtomiCloud/alcohol.argon/commit/4987c34e4aee1b8e3e90c813bc62d779c4cff3ed))
+
 ## [1.7.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.7.0...v1.7.1) (2025-09-14)
 
 
