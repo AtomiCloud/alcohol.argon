@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useCommonConfig } from '@/adapters/external/Provider';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
+import { trackEvent } from 'fathom-client';
 
 interface HomeProps {
   serverTime: string;
@@ -86,7 +87,9 @@ export default function Home({ serverTime, userAgent, appName }: HomeProps) {
                 <Link href="/lottie-demo">Lottie Animations</Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link href="/problem-demo">Problem Details</Link>
+                <Link onClick={() => trackEvent('Main Page Problem Details')} href="/problem-demo">
+                  Problem Details
+                </Link>
               </Button>
             </div>
           </div>
