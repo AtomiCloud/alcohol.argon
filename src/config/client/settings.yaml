@@ -1,4 +1,8 @@
 # Base configuration for client-safe settings
+tracker:
+  fathom:
+    enabled: true
+    id: BHLERINB
 faro:
   enabled: false
   collectorurl: ''

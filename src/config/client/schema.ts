@@ -2,6 +2,12 @@ import { z } from 'zod';
 
 export const clientSchema = z.object({
   landscape: z.string().default('unknown'),
+  tracker: z.object({
+    fathom: z.object({
+      enabled: z.boolean().default(false),
+      id: z.string(),
+    }),
+  }),
   faro: z.object({
     enabled: z.boolean().default(false),
     collectorurl: z.string().default(''),
