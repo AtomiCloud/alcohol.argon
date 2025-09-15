@@ -1,9 +1,12 @@
 # Development environment overrides for lapras landscape
 landscape: 'lapras'
+
 clients:
   alcohol:
     zinc:
       url: http://localhost:9003
 app:
+  name: Alcohol Lapras
+  url: http://localhost:8787
   servicetree:
     landscape: 'lapras'

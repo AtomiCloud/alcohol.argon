@@ -13,6 +13,7 @@ tasks:
   build:
     desc: 'Build the application with OpenNext'
     cmds:
+      - task: generate:pwa
       - eval "$(./scripts/ci/export_build_info.sh)" && bunx opennextjs-cloudflare build
 
   lint:
@@ -76,3 +77,11 @@ tasks:
       Usage: pls generate:sdk:alcohol:zinc -- [SPEC_URL]
     cmds:
       - ./scripts/local/generate-sdk.sh alcohol zinc {{ .CLI_ARGS | default "https://api.zinc.alcohol.pichu.cluster.atomi.cloud/swagger/v1/swagger.json" }}
+
+  generate:pwa:
+    desc: 'Generate PWA icons and assets'
+    summary: |
+      Generate all PWA icons, favicons, and apple-touch-icons from source logo.
+      Uses @vite-pwa/assets-generator to create all required sizes and formats.
+    cmds:
+      - bunx pwa-assets-generator

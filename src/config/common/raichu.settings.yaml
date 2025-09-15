@@ -1,9 +1,12 @@
 # Production environment overrides for raichu landscape
 landscape: 'raichu'
+
 clients:
   alcohol:
     zinc:
       url: 'https://api.zinc.alcohol.raichu.cluster.atomi.cloud'
 app:
+  name: LazyTax
+  url: 'https://lazytax.club'
   servicetree:
     landscape: 'raichu'

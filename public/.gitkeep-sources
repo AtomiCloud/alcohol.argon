@@ -1,0 +1,10 @@
+# PWA Source Assets (commit these)
+# - logo-source.svg (source for all PWA icons)
+# - og-image.png (social media sharing image)
+
+# PWA Generated Assets (ignored by git, auto-generated in build)
+# - pwa-*.png
+# - maskable-icon-*.png
+# - apple-touch-icon-*.png
+# - favicon.ico
+# - sw.js, workbox files

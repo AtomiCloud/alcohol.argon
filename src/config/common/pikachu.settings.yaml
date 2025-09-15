@@ -6,5 +6,7 @@ clients:
     zinc:
       url: 'https://api.zinc.alcohol.pikachu.cluster.atomi.cloud'
 app:
+  name: Alcohol Pikachu
+  url: 'https://argon-alcohol-pikachu.kirinnee.workers.dev'
   servicetree:
     landscape: 'pikachu'

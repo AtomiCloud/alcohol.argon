@@ -4,6 +4,9 @@ l="${LANDSCAPE}"
 
 set -euo pipefail
 
+echo "🔧 Generating PWA assets..."
+bunx pwa-assets-generator
+
 echo "🔧 Exporting build info and building application..."
 
 eval "$(./scripts/ci/export_build_info.sh)"

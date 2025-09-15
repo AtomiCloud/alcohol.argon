@@ -1,7 +1,9 @@
 # Base configuration for common settings shared between client and server
 
 app:
-  name: 'LazyTax'
+  name: 'Alcohol Unknown'
+  description: 'Tax yourself for being Lazy -- Stake money to charity each time you fail to complete your habit!'
+  url: 'http://localhost:3000'
   build:
     sha: 'unknown'
     version: 'unknown'
@@ -11,7 +13,17 @@ app:
     platform: 'alcohol'
     service: 'argon'
     module: 'webapp'
-
+seo:
+  twitter: {}
+  og:
+    locale: en_US
+pwa:
+  themeColor: '#00C30C'
+  backgroundColor: '#00C30C'
+  display: standalone
+  orientation: portrait-primary
+  categories:
+    - productivity
 errorPortal:
   baseUri: 'https://api.zinc.sulfone.pichu.cluster.atomi.cloud'
   version: '1.0'
