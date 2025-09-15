@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface ProfileDropdownProps {
   data: IdTokenClaims;
@@ -20,6 +21,8 @@ interface ProfileDropdownProps {
 }
 
 export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose }: ProfileDropdownProps) {
+  const { pathname } = useRouter();
+
   const handleSignOut = () => {
     onSignOut();
     onMenuClose?.();
@@ -77,8 +80,13 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          {window.location.pathname === '/profile' ? (
-            <span className="w-full flex items-center opacity-50 cursor-default">
+          {pathname === '/profile' ? (
+            <span
+              role="menuitem"
+              aria-disabled="true"
+              tabIndex={-1}
+              className="w-full flex items-center opacity-50 cursor-default"
+            >
               <User className="mr-2 h-4 w-4" />
               View Profile
             </span>

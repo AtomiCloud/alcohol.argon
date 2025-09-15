@@ -8,6 +8,7 @@ import {
   BridgedProblemReporterProvider,
 } from './bridge';
 import FrontendObservability from '../../lib/observability/FrontendObservability';
+import { ThemeProvider } from '@/lib/theme/provider';
 
 interface AtomiProviderProps {
   children: ReactNode;
@@ -20,7 +21,9 @@ export function AtomiProvider({ children }: AtomiProviderProps) {
         <BridgedProblemReporterProvider>
           <BridgedProblemProvider>
             <FrontendObservability />
-            <BridgedApiClientProvider>{children}</BridgedApiClientProvider>
+            <BridgedApiClientProvider>
+              <ThemeProvider>{children}</ThemeProvider>
+            </BridgedApiClientProvider>
           </BridgedProblemProvider>
         </BridgedProblemReporterProvider>
       </BridgedConfigProvider>

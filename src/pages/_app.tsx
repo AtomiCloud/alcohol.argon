@@ -1,7 +1,6 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { AtomiProvider } from '@/adapters/atomi/Provider';
-import { ThemeProvider } from '@/lib/theme/provider';
 import { EmptyStateLottie, LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
@@ -53,9 +52,7 @@ function AppContent({ Component, pageProps }: AppProps) {
 export default function App(appProps: AppProps) {
   return (
     <AtomiProvider>
-      <ThemeProvider>
-        <AppContent {...appProps} />
-      </ThemeProvider>
+      <AppContent {...appProps} />
     </AtomiProvider>
   );
 }
