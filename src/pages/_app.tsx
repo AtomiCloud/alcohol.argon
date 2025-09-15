@@ -1,11 +1,13 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
+import { DefaultSeo } from 'next-seo';
 import { AtomiProvider } from '@/adapters/atomi/Provider';
 import { EmptyStateLottie, LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { Layout } from '@/components/Layout';
 import { ContentSystem } from '@/lib/content/components/ContentSystem';
+import { useDefaultSEO } from '@/lib/seo';
 
 function DefaultEmptyComponent({ desc }: { desc?: string }) {
   return (
@@ -36,16 +38,21 @@ function DefaultLoadingComponent() {
 
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
+  const defaultSEO = useDefaultSEO();
+
   return (
-    <ContentSystem
-      Component={Component}
-      pageProps={pageProps}
-      LayoutComponent={Layout}
-      EmptyComponent={DefaultEmptyComponent}
-      LoadingComponent={DefaultLoadingComponent}
-      problemReporter={problemReporter}
-      ErrorComponent={ErrorPage}
-    />
+    <>
+      <DefaultSeo {...defaultSEO} />
+      <ContentSystem
+        Component={Component}
+        pageProps={pageProps}
+        LayoutComponent={Layout}
+        EmptyComponent={DefaultEmptyComponent}
+        LoadingComponent={DefaultLoadingComponent}
+        problemReporter={problemReporter}
+        ErrorComponent={ErrorPage}
+      />
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import withPWA from 'next-pwa';
 import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
 import { type ClientConfig, type CommonConfig, configSchemas } from '@/config';
@@ -69,6 +70,14 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const pwaConfig = withPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development', // Disable PWA in dev mode
+});
+
+// @ts-expect-error - Type incompatibility between Next.js 15 and next-pwa types
+export default pwaConfig(nextConfig);
 
 initOpenNextCloudflareForDev().then(() => console.log('initOpenNextCloudflareForDev Completed'));
