@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 interface ProfileDropdownProps {
   data: IdTokenClaims;
@@ -77,10 +78,17 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <a href="/profile" className="w-full flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            View Profile
-          </a>
+          {window.location.pathname === '/profile' ? (
+            <span className="w-full flex items-center opacity-50 cursor-default">
+              <User className="mr-2 h-4 w-4" />
+              View Profile
+            </span>
+          ) : (
+            <Link href="/profile" className="w-full flex items-center">
+              <User className="mr-2 h-4 w-4" />
+              View Profile
+            </Link>
+          )}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

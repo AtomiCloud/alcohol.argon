@@ -11,12 +11,8 @@ interface AuthSectionProps {
 export function AuthSection({ isMobile = false, onMenuClose }: AuthSectionProps) {
   const [t, v] = useClaims();
 
-  if (t === 'err') {
-    return null;
-  }
-
+  if (t === 'err') return null;
   const [k, claimState] = v;
-
   if (!k) {
     if (isMobile) {
       return (

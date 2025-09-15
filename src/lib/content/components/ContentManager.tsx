@@ -37,7 +37,7 @@ export function ContentManager({
   const router = useRouter();
   const { currentError: contextError, clearError: clearContextError } = useErrorContext();
   const { throwProblem } = useErrorHandler();
-  const { loading, startLoading, stopLoading } = useLoadingContext();
+  const { loading, stopIsolatedLoading, startIsolatedLoading } = useLoadingContext();
   const { desc, clearDesc } = useEmptyContext();
   const [state, setState] = useState<ContentState>('content');
   const [error, setError] = useState<Problem | null>(null);
@@ -66,11 +66,11 @@ export function ContentManager({
     const handleRouteChangeStart = (_: string, { shallow }: { shallow: boolean }) => {
       clearDesc();
       clearContextError();
-      if (!shallow) startLoading();
+      if (!shallow) startIsolatedLoading();
     };
 
     const handleRouteChangeComplete = (_: string, { shallow }: { shallow: boolean }) => {
-      if (!shallow) stopLoading();
+      if (!shallow) stopIsolatedLoading();
     };
 
     const handleRouteChangeError = (err: Error) => {
@@ -80,9 +80,11 @@ export function ContentManager({
         status: 500,
         detail: err.message || 'An error occurred during navigation',
       };
-      console.error('navigation', err);
-      problemReporter.pushError(err, { source: 'navigation-error', problem });
-      throwProblem(problem);
+      if (err.message !== 'Route Cancelled') {
+        console.error('navigation-error', err);
+        problemReporter.pushError(err, { source: 'navigation-error', problem });
+        throwProblem(problem);
+      }
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
