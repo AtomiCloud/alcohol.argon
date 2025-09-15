@@ -1,3 +1,16 @@
+## [1.10.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.9.0...v1.10.0) (2025-09-15)
+
+
+### ✨ Features ✨
+
+* seo & PWA configuration ([a58ffa7](https://github.com/AtomiCloud/alcohol.argon/commit/a58ffa7e04f3cf208d2ee228dacb866a6bc12bf6))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** missing scope & startUrl default in base settings ([e81c8f0](https://github.com/AtomiCloud/alcohol.argon/commit/e81c8f03c7eac1d98170395f3b00d62e788755d7))
+* **default:** skip runtime caching ([19cf6f4](https://github.com/AtomiCloud/alcohol.argon/commit/19cf6f4824bf398a5899d14ec9644219edc943a8))
+
 ## [1.9.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.8.0...v1.9.0) (2025-09-15)
 
 
