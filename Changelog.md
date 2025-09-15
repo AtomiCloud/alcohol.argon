@@ -1,3 +1,15 @@
+## [1.9.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.8.0...v1.9.0) (2025-09-15)
+
+
+### ✨ Features ✨
+
+* **analytics:** integrated with fathom analytics ([d3cef43](https://github.com/AtomiCloud/alcohol.argon/commit/d3cef432356658fa393a52798079d0b185b69a26))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** missing initial track on page load ([9b095d1](https://github.com/AtomiCloud/alcohol.argon/commit/9b095d1d88ff59b5aea6b8a1dae6fb1389ccf5c5))
+
 ## [1.8.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.7.1...v1.8.0) (2025-09-15)
 
 
