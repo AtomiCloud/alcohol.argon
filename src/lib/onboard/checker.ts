@@ -4,9 +4,9 @@ import { Err, Ok, Res, type Result } from '@/lib/monads/result';
 import type { UserInfoResponse } from '@logto/next';
 import type { AuthChecker } from '@/lib/auth/core/checker';
 
-type Fix = 'verify_email' | 'set_username' | 'set_email';
+type OnBoardFix = 'verify_email' | 'set_username' | 'set_email';
 
-type OnboardResult = Result<AuthState<UserInfoResponse>, Fix>;
+type OnboardResult = Result<AuthState<UserInfoResponse>, OnBoardFix>;
 
 class OnboardChecker {
   constructor(
@@ -36,14 +36,17 @@ class OnboardChecker {
 
   emailExist(idToken: string): boolean {
     const token = this.check.toToken(idToken);
-    return (
-      token.email != null && typeof token.email === 'string' && token.email.length > 0 && token.email.includes('!!')
-    );
+    return token.email != null && typeof token.email === 'string' && token.email.length > 0;
   }
 
   emailVerified(idToken: string): boolean {
     const token = this.check.toToken(idToken);
-    return token.email_verified != null && typeof token.email_verified === 'boolean' && token.email_verified;
+    return (
+      token.email_verified != null && typeof token.email_verified === 'boolean' && token.email_verified
+      // && token.email != null &&
+      // typeof token.email === 'string' &&
+      // token.email === 'hello'
+    );
   }
 
   listInactive(tokenSet: TokenSet, check: string[]): string[] {
@@ -57,11 +60,11 @@ class OnboardChecker {
         const idToken = tokens.value.data.idToken;
 
         // if no verified or username empty, we have to request a fix
-        if (!this.emailExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, Fix>('set_email'));
-        if (!this.usernameExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, Fix>('set_username'));
-        if (!this.emailVerified(idToken)) return Ok(Err<AuthState<UserInfoResponse>, Fix>('verify_email'));
+        if (!this.emailExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('set_email'));
+        if (!this.usernameExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('set_username'));
+        if (!this.emailVerified(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('verify_email'));
 
-        const success = this.retriever.getUserInfo().map(user => Ok<AuthState<UserInfoResponse>, Fix>(user));
+        const success = this.retriever.getUserInfo().map(user => Ok<AuthState<UserInfoResponse>, OnBoardFix>(user));
 
         const inactive = this.listInactive(tokenSet, this.targets);
         if (inactive.length === 0) return success;
@@ -87,9 +90,10 @@ class OnboardChecker {
             })
         );
       }
-      return Ok(Ok<AuthState<UserInfoResponse>, Fix>({ __kind: 'unauthed', value: { isAuthed: false } }));
+      return Ok(Ok<AuthState<UserInfoResponse>, OnBoardFix>({ __kind: 'unauthed', value: { isAuthed: false } }));
     });
   }
 }
 
 export { OnboardChecker };
+export type { OnboardResult, OnBoardFix };

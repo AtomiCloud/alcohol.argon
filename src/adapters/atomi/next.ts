@@ -222,35 +222,41 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                       },
                     });
 
-                    return await onboarder.onboard().match({
-                      ok: async ok => {
-                        return await ok.match({
+                    const onboardResult = await onboarder.onboard();
+
+                    return onboardResult.match({
+                      ok: onboardSuccess => {
+                        return onboardSuccess.match({
                           ok: () => result,
-                          err: e => {
+                          err: errorMessage => {
+                            const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
                             return {
                               redirect: {
                                 permanent: false,
-                                destination: `/finish?message=${e}`,
+                                destination: `/finish?message=${errorMessage}&returnTo=${originalPath}`,
                               },
                               // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
                             } as any;
                           },
                         });
                       },
-                      err: err => {
-                        if ('props' in result && typeof result.props === 'object') {
+                      err: onboardError => {
+                        const hasProps = 'props' in result && typeof result.props === 'object' && result.props !== null;
+
+                        if (hasProps) {
                           return {
                             ...result,
                             props: {
-                              ...result.props,
-                              error: err,
+                              ...(result.props as Record<string, unknown>),
+                              error: onboardError,
                             },
                           };
                         }
+
                         return {
                           ...result,
                           props: {
-                            error: err,
+                            error: onboardError,
                           },
                         };
                       },
