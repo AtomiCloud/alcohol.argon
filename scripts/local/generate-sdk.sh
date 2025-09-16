@@ -29,7 +29,7 @@ echo "📁 Output: $output_dir"
 mkdir -p "$output_dir"
 
 # Generate SDK
-bunx swagger-typescript-api generate \
+swagger-typescript-api generate \
   -p "$spec_url" \
   -o "$output_dir" \
   --name "api.ts" \

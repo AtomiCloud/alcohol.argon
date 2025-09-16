@@ -75,33 +75,11 @@ export default function ApiShowcasePage({ initialData, serverTimestamp }: ApiSho
       icon: <CheckCircle className="h-5 w-5" />,
     },
     {
-      id: 'non-existent-error',
-      title: 'Non-existent Error',
-      description: 'Should show a problem from server-side',
-      loader: api => api.api.vErrorInfoDetail('invalid-id', '1.0'),
-      icon: <ExternalLink className="h-5 w-5" />,
-    },
-    {
       id: 'user-list',
       title: 'Non-existent User (Requires Auth)',
       description: 'Should show an local-mapped, http_error, empty problem',
       loader: api => api.api.vUserList({ version: '1.0', Username: 'nonexistent' }),
       icon: <ExternalLink className="h-5 w-5" />,
-    },
-    {
-      id: 'random-error',
-      title: 'Random, non-JSON Error',
-      description: 'Should show an local-mapped, http_error, with the error content in the problem',
-      loader: api => api.api.vErrorInfoRandomErrorList('1.0'),
-      icon: <AlertCircle className="h-5 w-5" />,
-    },
-    {
-      id: 'local-error',
-      title: 'Emulated Local error',
-      description:
-        'Fetch function itself throws an error, which should be an local_error, with the stack trace in the problem',
-      loader: (_, api) => api.api.vErrorInfoRandomErrorList('1.0'),
-      icon: <AlertCircle className="h-5 w-5" />,
     },
   ];
 
@@ -400,19 +378,11 @@ export const getServerSideProps = withServerSideAtomi(
       },
       {
         id: 'non-existent-error',
-        loader: () => safeZincApiGood.api.vErrorInfoDetail('invalid-id', '1.0'),
+        loader: () => safeZincApiGood.api.vErrorInfoDetail({ version: '1.0', id: 'invalid-id' }),
       },
       {
         id: 'user-list',
         loader: () => safeZincApiGood.api.vUserList({ version: '1.0', Username: 'nonexistent' }),
-      },
-      {
-        id: 'random-error',
-        loader: () => safeZincApiGood.api.vErrorInfoRandomErrorList('1.0'),
-      },
-      {
-        id: 'local-error',
-        loader: () => safeZincApiError.api.vErrorInfoRandomErrorList('1.0'),
       },
     ];
 

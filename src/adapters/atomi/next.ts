@@ -18,6 +18,8 @@ import type { GetServerSidePropsResult } from 'next';
 import { AuthChecker } from '@/lib/auth/core/checker';
 import type { IAuthStateRetriever } from '@/lib/auth/core/types';
 import { ServerAuthStateRetriever } from '@/lib/auth/core/server/retriever';
+import { OnboardChecker } from '@/lib/onboard/checker';
+import { Res } from '@/lib/monads/result';
 
 // biome-ignore lint/suspicious/noExplicitAny: Generic ApiOut must allow any type for extension
 type ApiOutput<T extends WithApiHandler<any, any>> = Parameters<Parameters<T>[1]>[2];
@@ -190,7 +192,7 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                     clientTree: clientTree(config.common, retriever),
                   },
                   async (context, apiTree) => {
-                    return await handler(context, {
+                    const result = await handler(context, {
                       landscape,
                       config,
                       problemRegistry: problem.registry,
@@ -202,6 +204,61 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                         client,
                         checker,
                         retriever,
+                      },
+                    });
+
+                    const onboarder = new OnboardChecker(retriever, checker, {
+                      'alcohol-zinc': {
+                        creator: (idToken, accessToken) =>
+                          Res.fromAsync(
+                            apiTree.alcohol.zinc.api.vUserCreate(
+                              { version: '1.0' },
+                              {
+                                accessToken,
+                                idToken,
+                              },
+                            ),
+                          ),
+                      },
+                    });
+
+                    const onboardResult = await onboarder.onboard();
+
+                    return onboardResult.match({
+                      ok: onboardSuccess => {
+                        return onboardSuccess.match({
+                          ok: () => result,
+                          err: errorMessage => {
+                            const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
+                            return {
+                              redirect: {
+                                permanent: false,
+                                destination: `/finish?message=${errorMessage}&returnTo=${originalPath}`,
+                              },
+                              // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
+                            } as any;
+                          },
+                        });
+                      },
+                      err: onboardError => {
+                        const hasProps = 'props' in result && typeof result.props === 'object' && result.props !== null;
+
+                        if (hasProps) {
+                          return {
+                            ...result,
+                            props: {
+                              ...(result.props as Record<string, unknown>),
+                              error: onboardError,
+                            },
+                          };
+                        }
+
+                        return {
+                          ...result,
+                          props: {
+                            error: onboardError,
+                          },
+                        };
                       },
                     });
                   },

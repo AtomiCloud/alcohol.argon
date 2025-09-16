@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import type LogtoClient from '@logto/next';
 import type { IdTokenClaims, UserInfoResponse } from '@logto/next';
-import type { AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
+import type { AllState, AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
 import type { Problem } from '@/lib/problem/core';
 import { Ok, Res, type Result } from '@/lib/monads/result';
 import type { AuthChecker } from '@/lib/auth/core/checker';
@@ -23,6 +23,45 @@ class ServerAuthStateRetriever implements IAuthStateRetriever {
     private readonly res: Resp,
     private token: Option<TokenSet> = None(),
   ) {}
+
+  getStates(): Result<AuthState<AllState>, Problem> {
+    const tokenSetR = this.getTokenSet();
+    const userInfoR = this.getUserInfo();
+    const claimsR = this.getClaims();
+    return Res.all(tokenSetR, userInfoR, claimsR)
+      .andThen((x): Result<AuthState<AllState>, Problem[]> => {
+        const [tokenSetState, userInfoState, claimsState] = x as [
+          AuthState<TokenSet>,
+          AuthState<UserInfoResponse>,
+          AuthState<IdTokenClaims>,
+        ];
+        if (tokenSetState.value.isAuthed && userInfoState.value.isAuthed && claimsState.value.isAuthed) {
+          return Ok({
+            __kind: 'authed',
+            value: {
+              isAuthed: true,
+              data: {
+                tokens: tokenSetState.value.data,
+                claims: claimsState.value.data,
+                user: userInfoState.value.data,
+              },
+            },
+          } satisfies AuthState<AllState>);
+        }
+        return Ok({ __kind: 'unauthed', value: { isAuthed: false } } satisfies AuthState<AllState>);
+      })
+      .mapErr(x => x[0]);
+  }
+
+  forceTokenSet(): Result<AuthState<TokenSet>, Problem> {
+    return Res.async(async (): Promise<Result<AuthState<TokenSet>, Problem>> => {
+      this.token = None();
+      const client = await this.getNodeClient();
+      await client.clearAccessToken();
+      const r = await this.fetchTokenSet();
+      return Ok({ __kind: 'authed', value: { isAuthed: true, data: r } } satisfies AuthState<TokenSet>);
+    });
+  }
 
   getClaims(): Result<AuthState<IdTokenClaims>, Problem> {
     return this.getState(() => this.fetchClaims());

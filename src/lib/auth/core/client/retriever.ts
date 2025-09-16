@@ -1,4 +1,4 @@
-import type { AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
+import type { AllState, AuthData, AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
 import { None, type Option, Some } from '@/lib/monads/option';
 import { Ok, Res, type Result, type ResultSerial } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
@@ -11,6 +11,40 @@ class ClientAuthStateRetriever implements IAuthStateRetriever {
   #idClaimsCache: Option<AuthState<IdTokenClaims>> = None();
 
   constructor(private readonly authChecker: AuthChecker) {}
+
+  getStates(): Result<AuthState<AllState>, Problem> {
+    const tokenSetR = this.getTokenSet();
+    const userInfoR = this.getUserInfo();
+    const claimsR = this.getClaims();
+    return Res.all(tokenSetR, userInfoR, claimsR)
+      .andThen((x): Result<AuthState<AllState>, Problem[]> => {
+        const [tokenSetState, userInfoState, claimsState] = x as [
+          AuthState<TokenSet>,
+          AuthState<UserInfoResponse>,
+          AuthState<IdTokenClaims>,
+        ];
+        if (tokenSetState.value.isAuthed && userInfoState.value.isAuthed && claimsState.value.isAuthed) {
+          return Ok({
+            __kind: 'authed',
+            value: {
+              isAuthed: true,
+              data: {
+                tokens: tokenSetState.value.data,
+                claims: claimsState.value.data,
+                user: userInfoState.value.data,
+              },
+            },
+          } satisfies AuthState<AllState>);
+        }
+        return Ok({ __kind: 'unauthed', value: { isAuthed: false } } satisfies AuthState<AllState>);
+      })
+      .mapErr(x => x[0]);
+  }
+
+  forceTokenSet(): Result<AuthState<TokenSet>, Problem> {
+    this.#tokenSetCache = None();
+    return this.getTokenSet();
+  }
 
   private fetch<T extends AuthData>(endpoint: string): Result<AuthState<T>, Problem> {
     return Res.fromSerial<AuthState<T>, Problem>(fetch(endpoint).then(res => res.json()));
