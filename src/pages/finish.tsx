@@ -45,12 +45,25 @@ export default function Finish() {
 
   const handleRefresh = () => {
     if (returnTo) {
-      // Redirect to the original page they were trying to access
-      window.location.assign(decodeURIComponent(returnTo));
-    } else {
-      // Fallback to reload current page
-      window.location.reload();
+      try {
+        const decodedPath = decodeURIComponent(returnTo);
+
+        // Only allow same-origin relative paths that start with '/' but not '//'
+        if (decodedPath.match(/^\/(?!\/)/)) {
+          // Parse as URL to double-check it's safe
+          const url = new URL(decodedPath, window.location.origin);
+          if (url.origin === window.location.origin) {
+            window.location.assign(decodedPath);
+            return;
+          }
+        }
+      } catch {
+        // Invalid URL encoding or parsing failed
+      }
     }
+
+    // Fallback to reload current page
+    window.location.reload();
   };
 
   const handleGoHome = () => {

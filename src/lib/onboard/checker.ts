@@ -6,7 +6,7 @@ import type { AuthChecker } from '@/lib/auth/core/checker';
 
 type OnBoardFix = 'verify_email' | 'set_username' | 'set_email';
 
-type OnboardResult = Result<AuthState<UserInfoResponse>, OnBoardFix>;
+type OnboardResult = Result<true, OnBoardFix>;
 
 class OnboardChecker {
   constructor(
@@ -41,12 +41,7 @@ class OnboardChecker {
 
   emailVerified(idToken: string): boolean {
     const token = this.check.toToken(idToken);
-    return (
-      token.email_verified != null && typeof token.email_verified === 'boolean' && token.email_verified
-      // && token.email != null &&
-      // typeof token.email === 'string' &&
-      // token.email === 'hello'
-    );
+    return token.email_verified != null && typeof token.email_verified === 'boolean' && token.email_verified;
   }
 
   listInactive(tokenSet: TokenSet, check: string[]): string[] {
@@ -54,17 +49,16 @@ class OnboardChecker {
   }
 
   onboard(): Result<OnboardResult, Problem> {
+    const success = Ok(Ok<true, OnBoardFix>(true));
+
     return this.retriever.getTokenSet().andThen(tokens => {
       if (tokens.value.isAuthed) {
         const tokenSet = tokens.value.data;
         const idToken = tokens.value.data.idToken;
-
         // if no verified or username empty, we have to request a fix
-        if (!this.emailExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('set_email'));
-        if (!this.usernameExist(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('set_username'));
-        if (!this.emailVerified(idToken)) return Ok(Err<AuthState<UserInfoResponse>, OnBoardFix>('verify_email'));
-
-        const success = this.retriever.getUserInfo().map(user => Ok<AuthState<UserInfoResponse>, OnBoardFix>(user));
+        if (!this.emailExist(idToken)) return Ok(Err<true, OnBoardFix>('set_email'));
+        if (!this.usernameExist(idToken)) return Ok(Err<true, OnBoardFix>('set_username'));
+        if (!this.emailVerified(idToken)) return Ok(Err<true, OnBoardFix>('verify_email'));
 
         const inactive = this.listInactive(tokenSet, this.targets);
         if (inactive.length === 0) return success;
@@ -82,7 +76,6 @@ class OnboardChecker {
                   throw new Error(
                     `Failed to update API servers despite all API calls succeeded. Failed: ${JSON.stringify(inactive)}`,
                   );
-
                 return success;
               }
               // if this happens, somehow user logged out during this refetched access tokens
@@ -90,7 +83,7 @@ class OnboardChecker {
             })
         );
       }
-      return Ok(Ok<AuthState<UserInfoResponse>, OnBoardFix>({ __kind: 'unauthed', value: { isAuthed: false } }));
+      return success;
     });
   }
 }
