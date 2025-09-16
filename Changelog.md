@@ -1,3 +1,18 @@
+## [1.11.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.10.0...v1.11.0) (2025-09-16)
+
+
+### ✨ Features ✨
+
+* **backend:** auth info to backend sync mechanism ([109e8ba](https://github.com/AtomiCloud/alcohol.argon/commit/109e8baebe109840742e32d9fac217e63e46049f))
+* **finish page:** better finish page ([8dd519c](https://github.com/AtomiCloud/alcohol.argon/commit/8dd519c11e718bb65e54ea6dfd52cd43ba714ff6))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** atob unstability ([1d3c0f8](https://github.com/AtomiCloud/alcohol.argon/commit/1d3c0f8bc422dcbb98a8a0314e25cdc167e5acdf))
+* **default:** better security practice for redirect ([e6948ba](https://github.com/AtomiCloud/alcohol.argon/commit/e6948ba35cd34b82a934998539363d3c9da0b6e5))
+* **default:** pin back to 3000 ([cd775e5](https://github.com/AtomiCloud/alcohol.argon/commit/cd775e5418b015666446f7212d2444d37417f31c))
+
 ## [1.10.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.9.0...v1.10.0) (2025-09-15)
 
 
