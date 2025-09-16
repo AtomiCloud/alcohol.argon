@@ -1,8 +1,9 @@
 import type { TokenSet } from '@/lib/auth/core/types';
+import { decodeJwt } from 'jose';
 
 class AuthChecker {
   toToken(token: string): Record<string, string | number | boolean | string[] | number[] | boolean[] | undefined> {
-    return JSON.parse(atob(token.split('.')[1]));
+    return decodeJwt(token);
   }
 
   isTokenExpired(token: string): boolean {
