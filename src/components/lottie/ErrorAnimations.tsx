@@ -54,7 +54,7 @@ const ERROR_ANIMATION_MAP: Record<
   401: { data: dogNewsPaperData, name: 'dogNewsPaper', cheekyName: CHEEKY_NAMES.dogNewsPaper, loop: false },
   403: { data: puzzleData, name: 'puzzle', cheekyName: CHEEKY_NAMES.puzzle, loop: false },
   404: { data: cowData, name: 'cow', cheekyName: CHEEKY_NAMES.cow, loop: false },
-  409: { data: dogSmellData, name: 'dogSmell', cheekyName: CHEEKY_NAMES.dogSmell, loop: false },
+  409: { data: dogSmellData, name: 'dogSmell', cheekyName: CHEEKY_NAMES.dogSmell, loop: true },
   418: { data: dogSwimmingData, name: 'dogSwimming', cheekyName: CHEEKY_NAMES.dogSwimming, loop: true },
   422: { data: dogSwimmingData, name: 'cat', cheekyName: CHEEKY_NAMES.dogSwimming, loop: true },
   429: { data: coffeeData, name: 'coffee', cheekyName: CHEEKY_NAMES.coffee, loop: false },

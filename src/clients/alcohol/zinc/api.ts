@@ -11,7 +11,8 @@
  */
 
 export interface CreateUserReq {
-  username?: string | null;
+  idToken?: string | null;
+  accessToken?: string | null;
 }
 
 export interface ErrorInfo {
@@ -21,28 +22,53 @@ export interface ErrorInfo {
   version?: string | null;
 }
 
-export interface UpdateUserReq {
-  username?: string | null;
+export interface Info {
+  landscape?: string | null;
+  platform?: string | null;
+  service?: string | null;
+  module?: string | null;
+  version?: string | null;
+  status?: string | null;
+  /** @format date-time */
+  timeStamp: string;
 }
 
-export interface UserExistRes {
-  exists: boolean;
+export interface UpdateUserReq {
+  idToken?: string | null;
+  accessToken?: string | null;
 }
 
 export interface UserPrincipalRes {
   id?: string | null;
   username?: string | null;
+  email?: string | null;
+  emailVerified: boolean;
+  active: boolean;
 }
 
 export interface UserRes {
   principal: UserPrincipalRes;
 }
 
-export type GetRootData = any;
+export interface VEmailCreateParams {
+  to: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VEmailCreateData = any;
+
+export type GetRootData = Info;
 
 export interface VUserListParams {
   Id?: string;
   Username?: string;
+  Email?: string;
+  EmailVerified?: boolean;
+  Active?: boolean;
   /** @format int32 */
   Limit?: number;
   /** @format int32 */
@@ -56,27 +82,100 @@ export interface VUserListParams {
 
 export type VUserListData = UserPrincipalRes[];
 
+export interface VUserCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
 export type VUserCreateData = UserPrincipalRes;
+
+export interface VUserMeListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
 
 export type VUserMeListData = string;
 
+export interface VUserMeAllListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
 export type VUserMeAllListData = UserRes;
+
+export interface VUserDetailParams {
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
 
 export type VUserDetailData = UserRes;
 
+export interface VUserUpdateParams {
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
 export type VUserUpdateData = UserPrincipalRes;
+
+export interface VUserDeleteParams {
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
 
 export type VUserDeleteData = any;
 
+export interface VUserUsernameDetailParams {
+  username: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
 export type VUserUsernameDetailData = UserRes;
 
-export type VUserExistDetailData = UserExistRes;
+export interface VErrorInfoListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
 
 export type VErrorInfoListData = string[];
 
-export type VErrorInfoDetailData = ErrorInfo;
+export interface VErrorInfoDetailParams {
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
 
-export type VErrorInfoRandomErrorListData = string;
+export type VErrorInfoDetailData = ErrorInfo;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
@@ -179,8 +278,12 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.JsonApi]: (input: any) =>
       input !== null && (typeof input === 'object' || typeof input === 'string') ? JSON.stringify(input) : input,
     [ContentType.Text]: (input: any) => (input !== null && typeof input !== 'string' ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -191,7 +294,8 @@ export class HttpClient<SecurityDataType = unknown> {
               : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
@@ -261,7 +365,7 @@ export class HttpClient<SecurityDataType = unknown> {
       signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
       body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body),
     }).then(async response => {
-      const r = response.clone() as HttpResponse<T, E>;
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
@@ -313,10 +417,28 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       path: `/`,
       method: 'GET',
       secure: true,
+      format: 'json',
       ...params,
     });
 
   api = {
+    /**
+     * No description
+     *
+     * @tags Email
+     * @name VEmailCreate
+     * @request POST:/api/v{version}/Email/{to}
+     * @secure
+     * @response `200` `VEmailCreateData` Success
+     */
+    vEmailCreate: ({ to, version, ...query }: VEmailCreateParams, params: RequestParams = {}) =>
+      this.request<VEmailCreateData, any>({
+        path: `/api/v${version}/Email/${to}`,
+        method: 'POST',
+        secure: true,
+        ...params,
+      }),
+
     /**
      * No description
      *
@@ -345,7 +467,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserCreateData` Success
      */
-    vUserCreate: (version: string, data: CreateUserReq, params: RequestParams = {}) =>
+    vUserCreate: ({ version, ...query }: VUserCreateParams, data: CreateUserReq, params: RequestParams = {}) =>
       this.request<VUserCreateData, any>({
         path: `/api/v${version}/User`,
         method: 'POST',
@@ -365,12 +487,11 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserMeListData` Success
      */
-    vUserMeList: (version: string, params: RequestParams = {}) =>
+    vUserMeList: ({ version, ...query }: VUserMeListParams, params: RequestParams = {}) =>
       this.request<VUserMeListData, any>({
         path: `/api/v${version}/User/Me`,
         method: 'GET',
         secure: true,
-        format: 'json',
         ...params,
       }),
 
@@ -383,7 +504,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserMeAllListData` Success
      */
-    vUserMeAllList: (version: string, params: RequestParams = {}) =>
+    vUserMeAllList: ({ version, ...query }: VUserMeAllListParams, params: RequestParams = {}) =>
       this.request<VUserMeAllListData, any>({
         path: `/api/v${version}/User/Me/All`,
         method: 'GET',
@@ -401,7 +522,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserDetailData` Success
      */
-    vUserDetail: (id: string, version: string, params: RequestParams = {}) =>
+    vUserDetail: ({ id, version, ...query }: VUserDetailParams, params: RequestParams = {}) =>
       this.request<VUserDetailData, any>({
         path: `/api/v${version}/User/${id}`,
         method: 'GET',
@@ -419,7 +540,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserUpdateData` Success
      */
-    vUserUpdate: (id: string, version: string, data: UpdateUserReq, params: RequestParams = {}) =>
+    vUserUpdate: ({ id, version, ...query }: VUserUpdateParams, data: UpdateUserReq, params: RequestParams = {}) =>
       this.request<VUserUpdateData, any>({
         path: `/api/v${version}/User/${id}`,
         method: 'PUT',
@@ -439,7 +560,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserDeleteData` Success
      */
-    vUserDelete: (id: string, version: string, params: RequestParams = {}) =>
+    vUserDelete: ({ id, version, ...query }: VUserDeleteParams, params: RequestParams = {}) =>
       this.request<VUserDeleteData, any>({
         path: `/api/v${version}/User/${id}`,
         method: 'DELETE',
@@ -456,27 +577,9 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VUserUsernameDetailData` Success
      */
-    vUserUsernameDetail: (username: string, version: string, params: RequestParams = {}) =>
+    vUserUsernameDetail: ({ username, version, ...query }: VUserUsernameDetailParams, params: RequestParams = {}) =>
       this.request<VUserUsernameDetailData, any>({
         path: `/api/v${version}/User/username/${username}`,
-        method: 'GET',
-        secure: true,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags User
-     * @name VUserExistDetail
-     * @request GET:/api/v{version}/User/exist/{username}
-     * @secure
-     * @response `200` `VUserExistDetailData` Success
-     */
-    vUserExistDetail: (username: string, version: string, params: RequestParams = {}) =>
-      this.request<VUserExistDetailData, any>({
-        path: `/api/v${version}/User/exist/${username}`,
         method: 'GET',
         secure: true,
         format: 'json',
@@ -492,7 +595,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VErrorInfoListData` Success
      */
-    vErrorInfoList: (version: string, params: RequestParams = {}) =>
+    vErrorInfoList: ({ version, ...query }: VErrorInfoListParams, params: RequestParams = {}) =>
       this.request<VErrorInfoListData, any>({
         path: `/api/v${version}/error-info`,
         method: 'GET',
@@ -510,27 +613,9 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * @secure
      * @response `200` `VErrorInfoDetailData` Success
      */
-    vErrorInfoDetail: (id: string, version: string, params: RequestParams = {}) =>
+    vErrorInfoDetail: ({ id, version, ...query }: VErrorInfoDetailParams, params: RequestParams = {}) =>
       this.request<VErrorInfoDetailData, any>({
         path: `/api/v${version}/error-info/${id}`,
-        method: 'GET',
-        secure: true,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags V1Error
-     * @name VErrorInfoRandomErrorList
-     * @request GET:/api/v{version}/error-info/random-error
-     * @secure
-     * @response `200` `VErrorInfoRandomErrorListData` Success
-     */
-    vErrorInfoRandomErrorList: (version: string, params: RequestParams = {}) =>
-      this.request<VErrorInfoRandomErrorListData, any>({
-        path: `/api/v${version}/error-info/random-error`,
         method: 'GET',
         secure: true,
         format: 'json',

@@ -7,6 +7,6 @@ clients:
       url: http://localhost:9003
 app:
   name: Alcohol Lapras
-  url: http://localhost:8787
+  url: http://localhost:3000
   servicetree:
     landscape: 'lapras'
