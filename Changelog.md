@@ -1,3 +1,11 @@
+## [1.13.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.13.0...v1.13.1) (2025-09-17)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** update support email configuration ([#48](https://github.com/AtomiCloud/alcohol.argon/issues/48)) ([f2a8991](https://github.com/AtomiCloud/alcohol.argon/commit/f2a89917c5d7e3b12b37474b77d93b74c37fab7e))
+* **default:** update support email configuration ([da8c753](https://github.com/AtomiCloud/alcohol.argon/commit/da8c75391bbf50f93136441159e233ba28ecce8c))
+
 ## [1.13.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.12.0...v1.13.0) (2025-09-17)
 
 
