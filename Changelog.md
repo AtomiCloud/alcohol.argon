@@ -1,3 +1,15 @@
+## [1.12.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.11.0...v1.12.0) (2025-09-17)
+
+
+### ✨ Features ✨
+
+* **profile:** allow public and private endpoints ([093bed6](https://github.com/AtomiCloud/alcohol.argon/commit/093bed6d7e2bf1a76c453741baba80e474ccac6e))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** remove testing code ([a10fa8d](https://github.com/AtomiCloud/alcohol.argon/commit/a10fa8dd41e2a1f6a4d3eb27f2657b25eb823a92))
+
 ## [1.11.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.10.0...v1.11.0) (2025-09-16)
 
 
