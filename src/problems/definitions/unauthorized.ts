@@ -4,10 +4,7 @@ import type { ZodProblemDefinition } from '@/lib/problem/core/types';
 /**
  * Zod schema for Unauthorized problem additional properties
  */
-export const UnauthorizedSchema = z.object({
-  requiredPermission: z.string().describe('The permission required to access this resource'),
-  userId: z.string().optional().describe('The ID of the user who attempted access'),
-});
+export const UnauthorizedSchema = z.object({});
 
 /**
  * TypeScript type inferred from schema
@@ -21,8 +18,8 @@ export const unauthorizedDefinition: ZodProblemDefinition<typeof UnauthorizedSch
   id: 'unauthorized',
   title: 'Unauthorized',
   version: 'v1',
-  description: 'Access denied due to insufficient permissions or invalid credentials.',
+  description: 'Access denied due not being logged in.',
   status: 401,
   schema: UnauthorizedSchema,
-  createDetail: context => `Access denied. Required permission: ${context.requiredPermission}`,
+  createDetail: context => 'Access denied, please login to continue.',
 };

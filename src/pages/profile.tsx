@@ -355,7 +355,7 @@ export default function ProfilePage({ result }: ProfilePageProps) {
   );
 }
 
-export const getServerSideProps = withServerSideAtomi(buildTime, async (_, { auth }) => {
+export const getServerSideProps = withServerSideAtomi({ ...buildTime, guard: 'private' }, async (_, { auth }) => {
   const result = await auth.retriever.getUserInfo().serial();
   return { props: { result } };
 });
