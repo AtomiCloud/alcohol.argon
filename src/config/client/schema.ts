@@ -2,11 +2,9 @@ import { z } from 'zod';
 
 export const clientSchema = z.object({
   landscape: z.string().default('unknown'),
-  support: z
-    .object({
-      email: z.email().default('support@example.com'),
-    })
-    .default({ email: 'support@example.com' }),
+  support: z.object({
+    email: z.email(),
+  }),
   tracker: z.object({
     fathom: z.object({
       enabled: z.boolean().default(false),
