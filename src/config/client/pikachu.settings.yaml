@@ -1,5 +1,7 @@
 # Pre-production environment overrides for client configuration
 landscape: 'pikachu'
+support:
+  email: support@lazytax.club
 faro:
   enabled: true
   collectorurl: 'https://faro-collector-prod-ap-southeast-1.grafana.net/collect/acde1a1cc27485b1800cab08881b90a4'

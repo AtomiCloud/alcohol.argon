@@ -3,6 +3,8 @@ tracker:
   fathom:
     enabled: true
     id: BHLERINB
+support:
+  email: support@localhost
 faro:
   enabled: false
   collectorurl: ''

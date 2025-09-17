@@ -1,5 +1,7 @@
 # Development environment overrides for client configuration
 landscape: 'lapras'
+support:
+  email: support@localhost
 faro:
   enabled: false
   collectorurl: 'https://faro-collector-prod-ap-southeast-1.grafana.net/collect/acde1a1cc27485b1800cab08881b90a4'
