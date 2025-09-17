@@ -1,3 +1,10 @@
+## [1.13.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.12.0...v1.13.0) (2025-09-17)
+
+
+### ✨ Features ✨
+
+* **privacy:** terms and refund policies ([b739262](https://github.com/AtomiCloud/alcohol.argon/commit/b739262b4d72cf1b057b7dc11c50b2c249709a0c))
+
 ## [1.12.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.11.0...v1.12.0) (2025-09-17)
 
 
