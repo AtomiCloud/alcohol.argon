@@ -4,7 +4,7 @@ tracker:
     enabled: true
     id: BHLERINB
 support:
-  email: support@localhost
+  email: support@local.host
 faro:
   enabled: false
   collectorurl: ''
