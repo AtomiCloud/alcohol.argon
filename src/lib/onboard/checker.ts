@@ -38,9 +38,7 @@ class OnboardChecker {
 
   emailExist(idToken: string): boolean {
     const token = this.check.toToken(idToken);
-    return (
-      token.email != null && typeof token.email === 'string' && token.email.length > 0 && token.email.includes('!!')
-    );
+    return token.email != null && typeof token.email === 'string' && token.email.length > 0;
   }
 
   emailVerified(idToken: string): boolean {
