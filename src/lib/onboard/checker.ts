@@ -1,8 +1,9 @@
 import type { AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
-import type { Problem } from '@/lib/problem/core';
+import type { Problem, ProblemRegistry } from '@/lib/problem/core';
 import { Err, Ok, Res, type Result } from '@/lib/monads/result';
 import type { UserInfoResponse } from '@logto/next';
 import type { AuthChecker } from '@/lib/auth/core/checker';
+import type { AdaptedProblemDefinition } from '@/adapters/external/core';
 
 type OnBoardFix = 'verify_email' | 'set_username' | 'set_email';
 
@@ -11,6 +12,7 @@ type OnboardResult = Result<true, OnBoardFix>;
 class OnboardChecker {
   constructor(
     private readonly retriever: IAuthStateRetriever,
+    private readonly problemRegistry: ProblemRegistry<AdaptedProblemDefinition>,
     private readonly check: AuthChecker,
     private readonly api: Record<
       string,
@@ -48,8 +50,9 @@ class OnboardChecker {
     return check.filter(target => !this.isActive(tokenSet.accessTokens[target], target));
   }
 
-  onboard(): Result<OnboardResult, Problem> {
+  onboard(guard: 'public' | 'private'): Result<OnboardResult, Problem> {
     const success = Ok(Ok<true, OnBoardFix>(true));
+    const unauthorized = Err<OnboardResult, Problem>(this.problemRegistry.createProblem('unauthorized', {}));
 
     return this.retriever.getTokenSet().andThen(tokens => {
       if (tokens.value.isAuthed) {
@@ -71,7 +74,7 @@ class OnboardChecker {
             .andThen(state => {
               if (state.value.isAuthed) {
                 const inactive = this.listInactive(state.value.data, this.targets);
-                // somehow, after API server update auth server, the active scope is not refected here
+                // somehow, after API server update auth server, the active scope is not reflected here
                 if (inactive.length > 0)
                   throw new Error(
                     `Failed to update API servers despite all API calls succeeded. Failed: ${JSON.stringify(inactive)}`,
@@ -83,7 +86,7 @@ class OnboardChecker {
             })
         );
       }
-      return success;
+      return guard === 'private' ? unauthorized : success;
     });
   }
 }

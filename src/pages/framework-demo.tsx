@@ -93,10 +93,7 @@ export default function FrameworkDemo({ result, error }: FrameworkDemoProps) {
   };
 
   const handleShowUnauthorizedProblem = () => {
-    const problem = problemRegistry.createProblem('unauthorized', {
-      requiredPermission: 'admin:write',
-      userId: 'demo-user-123',
-    });
+    const problem = problemRegistry.createProblem('unauthorized', {});
     setManualProblem(problem);
   };
 
@@ -408,10 +405,7 @@ export const getServerSideProps = withServerSideAtomi(
 
       case 'unauthorized':
         // Return error directly in props
-        const unauthorizedProblem = problemRegistry.createProblem('unauthorized', {
-          requiredPermission: 'framework-demo:view',
-          userId: 'demo-user',
-        });
+        const unauthorizedProblem = problemRegistry.createProblem('unauthorized', {});
         // Remove undefined properties for Next.js serialization
         const { instance: instance2, ...serializableProblem2 } = unauthorizedProblem;
         const problemForSerialization2 =

@@ -1,4 +1,4 @@
-import type { WithApiHandler, WithServerSideHandler } from '@/lib/module/next';
+import type { ServerSideHandler, WithApiHandler, WithServerSideHandler } from '@/lib/module/next';
 import { withApiLandscape, withServerSideLandscape } from '@/lib/landscape/next';
 import {
   withApiConfig,
@@ -150,8 +150,16 @@ const withApiLogtoOnly: WithApiHandler<AdaptedInput, LogtoClient> = (
   });
 };
 
-const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
-  { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas, problemDefinitions },
+const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'public' | 'private' }, AtomiOutput> = (
+  {
+    importedConfigurations,
+    landscapeSource,
+    defaultInstance,
+    clientTree,
+    configSchemas,
+    problemDefinitions,
+    guard = 'public',
+  },
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
@@ -207,7 +215,7 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                       },
                     });
 
-                    const onboarder = new OnboardChecker(retriever, checker, {
+                    const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
                       'alcohol-zinc': {
                         creator: (idToken, accessToken) =>
                           Res.fromAsync(
@@ -222,13 +230,12 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput, AtomiOutput> = (
                       },
                     });
 
-                    const onboardResult = await onboarder.onboard();
-
-                    return onboardResult.match({
+                    return onboarder.onboard(guard).match({
                       ok: onboardSuccess => {
                         return onboardSuccess.match({
                           ok: () => result,
                           err: errorMessage => {
+                            if (guard === 'public') return result;
                             const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
                             return {
                               redirect: {
