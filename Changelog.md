@@ -1,3 +1,16 @@
+## [1.14.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.13.1...v1.14.0) (2025-09-25)
+
+
+### ✨ Features ✨
+
+* **codex:** update repository guidelines and project structure ([#50](https://github.com/AtomiCloud/alcohol.argon/issues/50)) ([81c674a](https://github.com/AtomiCloud/alcohol.argon/commit/81c674a12828e96bee75857cf8d1886510728fab))
+* **codex:** update repository guidelines and project structure ([d45ec3e](https://github.com/AtomiCloud/alcohol.argon/commit/d45ec3e234963eaa495b0e63933c9d1369fe3805))
+
+
+### 🐛 Bug Fixes 🐛
+
+* correct agent 18 ([6a6dfe0](https://github.com/AtomiCloud/alcohol.argon/commit/6a6dfe0668be5a55d59aa7cd0fc4deada60e6a08))
+
 ## [1.13.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.13.0...v1.13.1) (2025-09-17)
 
 
