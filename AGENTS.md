@@ -9,8 +9,8 @@
 
 ## Architecture & Stack
 
-- Next.js Pages Router (React 19) with Bun.
-- UI: Tailwind CSS 4, shadcn-style primitives in `src/components/ui/*`, Lucide icons.
+- Next.js Pages Router (React 18) with Bun.
+- UI: Tailwind CSS 3.x, shadcn-style primitives in `src/components/ui/*`, Lucide icons.
 - Data/Types: Zod, SWR, Result/Option monads.
 - Platform: OpenNext → Cloudflare (Wrangler), Infisical for secrets.
 - Observability/Auth: Grafana Faro, Logto.
