@@ -14,10 +14,10 @@ export default function WhyItWorks() {
         className="absolute inset-x-0 -top-24 h-40 bg-gradient-to-b from-slate-900/0 via-violet-500/5 to-transparent dark:from-slate-900/0 dark:via-violet-500/10 dark:to-transparent pointer-events-none -z-10"
         aria-hidden
       />
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-5xl">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
               Why it works
             </h2>
             <div className="mt-4 space-y-5">

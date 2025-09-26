@@ -56,9 +56,9 @@ export default function Features() {
         className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-orange-500/10 to-transparent blur-3xl pointer-events-none -z-10 animate-blob-slow"
         aria-hidden
       />
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-5xl">
         <div className="flex flex-col items-start">
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+          <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
             Designed to keep you consistent
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-2xl text-base sm:text-lg text-justify md:text-left mx-auto md:mx-0">

@@ -46,7 +46,7 @@ export default function Hero() {
         className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-orange-500/10 via-transparent to-violet-500/10"
         aria-hidden="true"
       />
-      <div className="container relative z-10 mx-auto px-4 pt-14 pb-10 sm:pt-20 sm:pb-16">
+      <div className="container relative z-10 mx-auto px-4 max-w-5xl pt-14 pb-10 sm:pt-20 sm:pb-16">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
             <Image
@@ -60,7 +60,7 @@ export default function Hero() {
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
               Build habits that stick — if you miss, help a cause.
             </h1>
-            <p className="mt-3 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg text-justify md:text-left">
+            <p className="mt-3 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-justify md:text-left">
               Set daily or weekly habits and stake money. Check in to keep your streak. Miss a check‑in, and the amount
               you set helps a cause you choose. <sup aria-label="footnote">[1]</sup>
             </p>

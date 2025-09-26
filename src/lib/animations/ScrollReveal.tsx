@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 export default function ScrollReveal() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
     const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
     if (reduce || els.length === 0) return;
@@ -28,7 +30,12 @@ export default function ScrollReveal() {
     for (const el of els) {
       io.observe(el);
     }
-    return () => io.disconnect();
+
+    return () => {
+      if (io) {
+        io.disconnect();
+      }
+    };
   }, []);
 
   return null;

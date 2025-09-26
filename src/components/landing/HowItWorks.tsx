@@ -19,8 +19,8 @@ export default function HowItWorks() {
         aria-hidden
       />
 
-      <div className="container mx-auto px-4">
-        <h2 className="font-heading text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <h2 className="font-heading text-4xl sm:text-5xl lg:text-5xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           How it works
         </h2>
 
@@ -31,7 +31,7 @@ export default function HowItWorks() {
               <span className="inline-flex w-8 aspect-square items-center justify-center rounded-full bg-orange-500 text-white text-[13px] sm:text-sm font-semibold leading-none shrink-0">
                 1
               </span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl lg:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
                 Pick your habit and schedule
               </h3>
             </div>
@@ -77,7 +77,7 @@ export default function HowItWorks() {
               <span className="inline-flex w-8 aspect-square items-center justify-center rounded-full bg-violet-500 text-white text-[13px] sm:text-sm font-semibold leading-none shrink-0">
                 2
               </span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl lg:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
                 Stake money and choose your cause
               </h3>
             </div>
@@ -95,7 +95,7 @@ export default function HowItWorks() {
               <span className="inline-flex w-8 aspect-square items-center justify-center rounded-full bg-orange-500 text-white text-[13px] sm:text-sm font-semibold leading-none shrink-0">
                 3
               </span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl lg:text-3xl font-semibold text-slate-900 dark:text-white text-center md:text-left">
                 Check in — if you miss, help a cause
               </h3>
             </div>

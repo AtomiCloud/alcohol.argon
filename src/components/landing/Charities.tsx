@@ -18,10 +18,10 @@ export default function Charities() {
         className="absolute inset-x-0 -bottom-24 h-40 bg-gradient-to-t from-violet-500/10 to-transparent blur-3xl pointer-events-none -z-10 animate-blob-slow"
         aria-hidden
       />
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-5xl">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
               Causes you can support
             </h2>
             <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg text-justify md:text-left">

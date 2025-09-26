@@ -32,8 +32,8 @@ export default function FAQ() {
 
   return (
     <section className="py-16 sm:py-20" data-reveal>
-      <div className="container mx-auto px-4">
-        <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           FAQ
         </h2>
         <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/80 shadow-md dark:shadow-lg dark:shadow-black/50 backdrop-blur-sm">
