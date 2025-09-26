@@ -1,3 +1,11 @@
+## [1.16.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.15.1...v1.16.0) (2025-09-26)
+
+
+### ✨ Features ✨
+
+* **loader:** custom loader ([#53](https://github.com/AtomiCloud/alcohol.argon/issues/53)) ([8d1bf27](https://github.com/AtomiCloud/alcohol.argon/commit/8d1bf27500c0ab7e8d7fca270c80073ab2763461))
+* **loader:** custom loader ([679b4e6](https://github.com/AtomiCloud/alcohol.argon/commit/679b4e65cc554be277235143cb5836177d033092))
+
 ## [1.15.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.15.0...v1.15.1) (2025-09-26)
 
 
