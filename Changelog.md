@@ -1,3 +1,11 @@
+## [1.15.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.15.0...v1.15.1) (2025-09-26)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** change primary and bg color ([183452d](https://github.com/AtomiCloud/alcohol.argon/commit/183452d7a917b2d8789039e81b20ebc94a8b4281)), closes [#00C30](https://github.com/AtomiCloud/alcohol.argon/issues/00C30) [#F97316](https://github.com/AtomiCloud/alcohol.argon/issues/F97316) [#00C30](https://github.com/AtomiCloud/alcohol.argon/issues/00C30) [#8B5CF6](https://github.com/AtomiCloud/alcohol.argon/issues/8B5CF6) [#52](https://github.com/AtomiCloud/alcohol.argon/issues/52)
+* **default:** change primary and bg color ([d47a102](https://github.com/AtomiCloud/alcohol.argon/commit/d47a102c373e9a97ad46521b06a36cb893e86a9c)), closes [#00C30](https://github.com/AtomiCloud/alcohol.argon/issues/00C30) [#F97316](https://github.com/AtomiCloud/alcohol.argon/issues/F97316) [#00C30](https://github.com/AtomiCloud/alcohol.argon/issues/00C30) [#8B5CF6](https://github.com/AtomiCloud/alcohol.argon/issues/8B5CF6)
+
 ## [1.15.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.14.0...v1.15.0) (2025-09-26)
 
 
