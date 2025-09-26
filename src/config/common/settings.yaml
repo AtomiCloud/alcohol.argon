@@ -20,8 +20,8 @@ seo:
 pwa:
   startUrl: '/'
   scope: '/'
-  themeColor: '#00C30C'
-  backgroundColor: '#00C30C'
+  themeColor: '#F97316'
+  backgroundColor: '#8B5CF6'
   display: standalone
   orientation: portrait-primary
   categories:
