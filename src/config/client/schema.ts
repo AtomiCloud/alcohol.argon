@@ -5,6 +5,15 @@ export const clientSchema = z.object({
   support: z.object({
     email: z.email(),
   }),
+  // Legacy/simple toggle requested: when false, hide auth/login button
+  navbarshowoff: z.boolean().default(true),
+  // UI-related toggles for client rendering
+  navbar: z
+    .object({
+      // When true, show the auth/login controls in the navbar
+      showAuth: z.boolean().default(true),
+    })
+    .default({ showAuth: true }),
   tracker: z.object({
     fathom: z.object({
       enabled: z.boolean().default(false),

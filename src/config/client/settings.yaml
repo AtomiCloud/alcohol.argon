@@ -5,6 +5,9 @@ tracker:
     id: BHLERINB
 support:
   email: support@local.host
+navbarshowoff: false
+navbar:
+  showAuth: false
 faro:
   enabled: false
   collectorurl: ''

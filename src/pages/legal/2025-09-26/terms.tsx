@@ -106,16 +106,35 @@ export default function TermsAndConditions() {
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  You authorize charges for penalties according to your settings when you miss a required daily
-                  check-in.
+                  <strong>Currency:</strong> All payments, penalties, and donations are processed in USD (United States
+                  Dollars).
+                </li>
+                <li>
+                  <strong>Penalty Authorization:</strong> You authorize charges for penalties according to your settings
+                  when you miss a required check-in (daily, weekly, or custom frequency as configured).
+                </li>
+                <li>
+                  <strong>Charity Donation Structure:</strong> {appName} acts as the donor to your selected charities,
+                  not as your agent. You are NOT entitled to tax deductions, receipts, or documentation for penalty
+                  amounts donated to charity. The donation is made by {appName} on its own behalf.
+                </li>
+                <li>
+                  <strong>100% Donation Policy:</strong> We donate 100% of penalty amounts to your selected charity
+                  after deducting third-party processing fees from Airwallex (payment processor) and Pledge.to (donation
+                  platform). These are external service fees that we do not control or profit from.
+                </li>
+                <li>
+                  <strong>Fee Transparency:</strong> Typical fees include payment processing charges (approximately 2.9%
+                  + fixed fees) and donation platform fees (varies by charity). The exact amount reaching your chosen
+                  charity will be the penalty amount minus these third-party fees.
                 </li>
                 <li>
                   Stake amounts and penalties are defined by you within allowed limits. Donations triggered by penalties
                   are final once processed and sent to the selected charity or disbursement partner.
                 </li>
                 <li>
-                  We use third-party payment processors. You agree to their terms and acknowledge that we do not store
-                  full payment card data on our servers.
+                  We use third-party payment processors (Airwallex) and donation platforms (Pledge.to). You agree to
+                  their terms and acknowledge that we do not store full payment card data on our servers.
                 </li>
                 <li>We reserve the right to suspend or reverse transactions suspected of fraud, abuse, or error.</li>
                 <li>
@@ -231,6 +250,75 @@ export default function TermsAndConditions() {
 
           <Card className="mb-6">
             <CardHeader>
+              <CardTitle>Fair Use and Acceptable Use</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>To ensure fair access and protect the Service, you agree not to:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Use automated tools, scripts, or bots to interact with the Service without permission</li>
+                <li>Attempt to circumvent payment processing, penalty systems, or charity donation mechanisms</li>
+                <li>Create multiple accounts to avoid penalties or manipulate the habit tracking system</li>
+                <li>Use the Service for any unlawful purpose or in violation of applicable regulations</li>
+                <li>Reverse engineer, decompile, or attempt to extract source code from the Service</li>
+                <li>Overload or disrupt our systems through excessive requests or resource consumption</li>
+                <li>Impersonate others or provide false information when using the Service</li>
+                <li>Attempt to hack, compromise, or gain unauthorized access to our systems or user accounts</li>
+              </ul>
+              <p>
+                We reserve the right to implement usage limits, rate limiting, or other technical controls to ensure
+                fair access for all users.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Protecting Our Interests</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>
+                To protect {appName}, our users, and the integrity of the habit accountability system, we reserve the
+                right to:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Monitor usage patterns and implement fraud detection systems to identify suspicious account activity,
+                  penalty avoidance, or abuse of streak systems
+                </li>
+                <li>
+                  Verify the authenticity of check-ins through technical means, including device fingerprinting,
+                  behavioral analysis, and timing validation
+                </li>
+                <li>
+                  Withhold, delay, or reverse charity donations where we suspect fraudulent activity, until proper
+                  investigation is completed
+                </li>
+                <li>
+                  Adjust or override penalty calculations if technical errors, system outages, or data inconsistencies
+                  are detected
+                </li>
+                <li>
+                  Share information about suspected fraudulent accounts or payment methods with payment processors, law
+                  enforcement, or regulatory authorities as required
+                </li>
+                <li>
+                  Implement automatic safeguards to prevent excessive penalties that may indicate system manipulation or
+                  user distress
+                </li>
+                <li>
+                  Require additional verification for high-value stakes or unusual donation patterns to prevent money
+                  laundering or abuse
+                </li>
+              </ul>
+              <p>
+                These measures help maintain trust in our accountability system and ensure donated funds reach intended
+                charities rather than being lost to fraudulent activities.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
               <CardTitle>Termination</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
@@ -239,6 +327,38 @@ export default function TermsAndConditions() {
                 <li>
                   You may stop using the Service at any time. Termination does not affect obligations incurred prior to
                   termination (e.g., processed penalties or donations).
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Charity Donations and Tax Implications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Donor Status:</strong> {appName} makes charitable donations on its own behalf, not as an agent
+                  for users.
+                  {appName} is the legal donor for all penalty-triggered charity disbursements.
+                </li>
+                <li>
+                  <strong>No Tax Benefits for Users:</strong> Users are not entitled to tax deductions, receipts, or
+                  documentation for donated penalty amounts. Only {appName} receives any tax benefits from charitable
+                  donations.
+                </li>
+                <li>
+                  <strong>Charity Selection:</strong> User charity selection is for preference only and does not create
+                  any legal or tax relationship between the user and the chosen charity.
+                </li>
+                <li>
+                  <strong>Currency and Processing:</strong> All donations are processed in USD through our third-party
+                  partners (Airwallex for payment processing, Pledge.to for donation fulfillment).
+                </li>
+                <li>
+                  <strong>Fee Deduction:</strong> 100% of penalty amounts are donated after deducting unavoidable
+                  third-party processing fees. {appName} does not retain any portion of penalty amounts for profit.
                 </li>
               </ul>
             </CardContent>

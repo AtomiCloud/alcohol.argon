@@ -193,12 +193,117 @@ export default function PrivacyPolicy() {
             </CardContent>
           </Card>
 
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Data Subject Rights (PDPA/GDPR)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>Subject to applicable laws, you have the following rights regarding your personal data:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Access:</strong> Request a copy of personal data we hold about you
+                </li>
+                <li>
+                  <strong>Correction:</strong> Request correction of inaccurate or incomplete personal data
+                </li>
+                <li>
+                  <strong>Erasure:</strong> Request deletion of personal data (subject to legal retention requirements)
+                </li>
+                <li>
+                  <strong>Portability:</strong> Request personal data in a structured, machine-readable format
+                </li>
+                <li>
+                  <strong>Withdraw Consent:</strong> Withdraw consent for processing where consent is the legal basis
+                </li>
+                <li>
+                  <strong>Object:</strong> Object to processing based on legitimate interests
+                </li>
+                <li>
+                  <strong>Restrict:</strong> Request limitation of processing in certain circumstances
+                </li>
+              </ul>
+              <p>
+                To exercise these rights, submit a request in writing to our Privacy Officer. We will respond within 30
+                days (or as required by applicable law) and may require identity verification.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>International Data Transfers</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>
+                We generally process data within Singapore. If we transfer personal data outside Singapore, we will:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Obtain your consent where required</li>
+                <li>Ensure the receiving jurisdiction provides comparable data protection</li>
+                <li>Implement appropriate safeguards such as standard contractual clauses</li>
+                <li>Comply with applicable cross-border transfer requirements</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Data Security</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>We implement appropriate technical and organizational measures to protect personal data:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Encryption of data in transit and at rest</li>
+                <li>Access controls and need-to-know principles</li>
+                <li>Regular security monitoring and updates</li>
+                <li>Secure payment processing through certified providers</li>
+                <li>Employee training on data protection</li>
+              </ul>
+              <p>
+                Despite our measures, no system is completely secure. We cannot guarantee absolute security but will
+                notify you of any material breaches as required by law.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Regulatory Compliance</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>
+                This policy complies with applicable data protection laws including the Personal Data Protection Act
+                (PDPA) of Singapore and the General Data Protection Regulation (GDPR) where applicable.
+              </p>
+              <p>
+                For Singapore residents: This policy is aligned with PDPA requirements for consent, notification,
+                access, and correction obligations.
+              </p>
+              <p>
+                For EU residents: Where GDPR applies, we process personal data lawfully, fairly, and transparently in
+                accordance with GDPR principles.
+              </p>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
-              <CardTitle>Contact</CardTitle>
+              <CardTitle>Privacy Officer & Contact</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-slate-700 dark:text-slate-300">
-              <p>For privacy questions or requests, contact: {supportEmail}</p>
+            <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p>
+                <strong>Privacy Officer:</strong> Ho Ching Wee
+              </p>
+              <p>
+                <strong>Email:</strong> chingwee@lazytax.club
+              </p>
+              <p>
+                <strong>Address:</strong> 60 PAYA LEBAR ROAD, #07-54, PAYA LEBAR SQUARE, SINGAPORE 409051
+              </p>
+              <p>
+                For general privacy questions or to exercise your data subject rights, contact our Privacy Officer. For
+                technical support, contact: {supportEmail}
+              </p>
             </CardContent>
           </Card>
         </div>
