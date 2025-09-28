@@ -2,10 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 
 const SubscribeSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   source: z.string().optional(),
-  // Accept any simple map of strings for UTM data (keys and values as strings)
-  utm: z.record(z.string(), z.string()).optional(),
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -18,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const parsed = SubscribeSchema.safeParse(data);
     if (!parsed.success) {
+      console.error('[subscribe] invalid payload', parsed.error);
       return res.status(400).json({ ok: false, error: 'invalid_email' });
     }
 
@@ -28,7 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.info('[subscribe] waitlist', {
       email: payload.email,
       source: payload.source ?? 'landing',
-      utm: payload.utm ?? null,
       ts: new Date().toISOString(),
     });
 

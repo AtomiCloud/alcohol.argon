@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ export default function Hero() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source: 'hero', utm: null }),
+        body: JSON.stringify({ email, source: 'hero' }),
       });
       const data: { ok?: boolean } = await res.json();
       if (data?.ok) {
