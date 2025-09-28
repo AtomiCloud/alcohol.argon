@@ -1,3 +1,11 @@
+## [1.19.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.18.0...v1.19.0) (2025-09-28)
+
+
+### ✨ Features ✨
+
+* **default:** plausible integration ([#56](https://github.com/AtomiCloud/alcohol.argon/issues/56)) ([f12996b](https://github.com/AtomiCloud/alcohol.argon/commit/f12996b3764e2b50c39b817a14fe259919101d6b))
+* **default:** plausible integration ([d49fa02](https://github.com/AtomiCloud/alcohol.argon/commit/d49fa02b478de7c648dbbf5ebb4932f198d5db72))
+
 ## [1.18.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.17.0...v1.18.0) (2025-09-28)
 
 
