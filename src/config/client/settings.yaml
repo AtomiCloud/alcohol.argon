@@ -3,9 +3,6 @@ tracker:
   plausible:
     enabled: true
     domain: 'lazytax.club'
-  fathom:
-    enabled: true
-    id: BHLERINB
 support:
   email: support@local.host
 navbarshowoff: false

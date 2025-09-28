@@ -66,7 +66,7 @@ export default function Features() {
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {tiles.map(t => (
             <Card
               key={t.title}

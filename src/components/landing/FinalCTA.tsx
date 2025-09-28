@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { trackEvent } from 'fathom-client';
 import { TrackingEvents } from '@/lib/events';
 import { usePlausible } from 'next-plausible';
 
@@ -19,12 +18,10 @@ export default function FinalCTA() {
   const track = usePlausible();
 
   async function onSubmit(e: React.FormEvent) {
-    trackEvent(TrackingEvents.Landing.FinalCTA.SubmitClicked);
     track(TrackingEvents.Landing.FinalCTA.SubmitClicked);
     e.preventDefault();
     setMessage(null);
     if (!validateEmail(email)) {
-      trackEvent(TrackingEvents.Landing.FinalCTA.ClientInvalid);
       track(TrackingEvents.Landing.FinalCTA.ClientInvalid);
       return;
     }
@@ -39,20 +36,16 @@ export default function FinalCTA() {
       if (data?.ok) {
         setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
         setEmail('');
-        trackEvent(TrackingEvents.Landing.FinalCTA.Success);
         track(TrackingEvents.Landing.FinalCTA.Success);
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
         setMessage({ type: 'error', text: 'You have already subscribed' });
-        trackEvent(TrackingEvents.Landing.FinalCTA.AlreadySubscribed);
         track(TrackingEvents.Landing.FinalCTA.AlreadySubscribed);
       } else {
         setMessage({ type: 'error', text: 'Please enter a valid email and try again.' });
-        trackEvent(TrackingEvents.Landing.FinalCTA.ServerInvalid);
         track(TrackingEvents.Landing.FinalCTA.ServerInvalid);
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
-      trackEvent(TrackingEvents.Landing.FinalCTA.Error);
       track(TrackingEvents.Landing.FinalCTA.Error);
     } finally {
       setSubmitting(false);

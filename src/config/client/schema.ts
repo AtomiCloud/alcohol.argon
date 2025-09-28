@@ -19,10 +19,6 @@ export const clientSchema = z.object({
       enabled: z.boolean().default(false),
       domain: z.string(),
     }),
-    fathom: z.object({
-      enabled: z.boolean().default(false),
-      id: z.string(),
-    }),
   }),
   faro: z.object({
     enabled: z.boolean().default(false),
