@@ -28,7 +28,7 @@ export default function FinalCTA() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source: 'hero' }),
+        body: JSON.stringify({ email, source: 'final-cta' }),
       });
       const data: { ok?: boolean; error?: string } = await res.json();
       if (data?.ok) {
