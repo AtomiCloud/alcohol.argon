@@ -1,8 +1,11 @@
 # Base configuration for client-safe settings
 tracker:
   plausible:
-    enabled: true
     domain: 'lazytax.club'
+    trackLocalhost: true
+    proxy: true
+  fathom: false
+  umami: false
 support:
   email: support@local.host
 navbarshowoff: false

@@ -20,6 +20,7 @@ import {
   buildTime,
 } from '@/adapters/external/core';
 import { useAuth } from '@/lib/auth/providers/hooks';
+import { TrackerProvider } from '@/lib/tracker/provider';
 
 const BridgedConfigProvider = createBridge<ConfigProviderProps<AdaptedConfigSchema>>(ConfigProvider, () => {
   const landscape = useLandscape();
@@ -69,4 +70,20 @@ const BridgedApiClientProvider = createBridge<ApiProviderProps<AdaptedClientTree
   },
 );
 
-export { BridgedProblemProvider, BridgedConfigProvider, BridgedProblemReporterProvider, BridgedApiClientProvider };
+function BridgedTrackerProvider({ children }: { children: React.ReactNode }) {
+  const clientConfig = useClientConfig();
+  const tracker = clientConfig.tracker;
+  return (
+    <TrackerProvider fathomProps={tracker.fathom} plausibleProps={tracker.plausible} umamiProps={tracker.umami}>
+      {children}
+    </TrackerProvider>
+  );
+}
+
+export {
+  BridgedProblemProvider,
+  BridgedTrackerProvider,
+  BridgedConfigProvider,
+  BridgedProblemReporterProvider,
+  BridgedApiClientProvider,
+};
