@@ -1,3 +1,16 @@
+## [1.17.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.16.0...v1.17.0) (2025-09-28)
+
+
+### ✨ Features ✨
+
+* subscribe API ([#54](https://github.com/AtomiCloud/alcohol.argon/issues/54)) ([282932b](https://github.com/AtomiCloud/alcohol.argon/commit/282932b1d5d01ff00ebccd219862f0922e32dd82))
+* **subscribe:** temporary subscribe API ([ed896b4](https://github.com/AtomiCloud/alcohol.argon/commit/ed896b43090ecd612e8bab2f4c3e57ee7e22378c))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** subscribe endpoint ([7e260b2](https://github.com/AtomiCloud/alcohol.argon/commit/7e260b2af33b9217c85220bed2a5047a972a8c7b))
+
 ## [1.16.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.15.1...v1.16.0) (2025-09-26)
 
 
