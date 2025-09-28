@@ -6,10 +6,10 @@ import {
   BridgedConfigProvider,
   BridgedProblemProvider,
   BridgedProblemReporterProvider,
+  BridgedTrackerProvider,
 } from './bridge';
 import FrontendObservability from '../../lib/observability/FrontendObservability';
 import { ThemeProvider } from '@/lib/theme/provider';
-import Tracker from '@/lib/tracker/Tracker';
 
 interface AtomiProviderProps {
   children: ReactNode;
@@ -19,15 +19,16 @@ export function AtomiProvider({ children }: AtomiProviderProps) {
   return (
     <LandscapeProvider config={{ source: envLandscapeSource }}>
       <BridgedConfigProvider>
-        <Tracker />
-        <BridgedProblemReporterProvider>
-          <BridgedProblemProvider>
-            <FrontendObservability />
-            <BridgedApiClientProvider>
-              <ThemeProvider>{children}</ThemeProvider>
-            </BridgedApiClientProvider>
-          </BridgedProblemProvider>
-        </BridgedProblemReporterProvider>
+        <BridgedTrackerProvider>
+          <BridgedProblemReporterProvider>
+            <BridgedProblemProvider>
+              <FrontendObservability />
+              <BridgedApiClientProvider>
+                <ThemeProvider>{children}</ThemeProvider>
+              </BridgedApiClientProvider>
+            </BridgedProblemProvider>
+          </BridgedProblemReporterProvider>
+        </BridgedTrackerProvider>
       </BridgedConfigProvider>
     </LandscapeProvider>
   );

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TrackingEvents } from '@/lib/events';
-import { usePlausible } from 'next-plausible';
+import { useTracker } from '@/lib/tracker/provider';
 
 function validateEmail(email: string) {
   return /\S+@\S+\.\S+/.test(email);
@@ -18,7 +18,7 @@ export default function Hero() {
 
   const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
 
-  const track = usePlausible();
+  const track = useTracker();
 
   async function onSubmit(e: React.FormEvent) {
     track(TrackingEvents.Landing.MainCTA.SubmitClicked);

@@ -41,23 +41,19 @@ function DefaultLoadingComponent() {
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
   const defaultSEO = useDefaultSEO();
-  const clientConfig = useClientConfig();
-  const plausible = clientConfig.tracker.plausible;
 
   return (
     <>
-      <PlausibleProvider domain={plausible.domain} enabled={plausible.enabled}>
-        <DefaultSeo {...defaultSEO} />
-        <ContentSystem
-          Component={Component}
-          pageProps={pageProps}
-          LayoutComponent={Layout}
-          EmptyComponent={DefaultEmptyComponent}
-          LoadingComponent={DefaultLoadingComponent}
-          problemReporter={problemReporter}
-          ErrorComponent={ErrorPage}
-        />
-      </PlausibleProvider>
+      <DefaultSeo {...defaultSEO} />
+      <ContentSystem
+        Component={Component}
+        pageProps={pageProps}
+        LayoutComponent={Layout}
+        EmptyComponent={DefaultEmptyComponent}
+        LoadingComponent={DefaultLoadingComponent}
+        problemReporter={problemReporter}
+        ErrorComponent={ErrorPage}
+      />
     </>
   );
 }
