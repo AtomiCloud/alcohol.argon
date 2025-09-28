@@ -1,13 +1,15 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
-import { AtomiProvider } from '@/adapters/atomi/Provider';
 import { EmptyStateLottie, LoadingLottie } from '@/components/lottie/presets';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { Layout } from '@/components/Layout';
 import { ContentSystem } from '@/lib/content/components/ContentSystem';
 import { useDefaultSEO } from '@/lib/seo';
+import { useClientConfig } from '@/adapters/external/Provider';
+import PlausibleProvider from 'next-plausible';
+import { AtomiProvider } from '@/adapters/atomi/Provider';
 
 function DefaultEmptyComponent({ desc }: { desc?: string }) {
   return (
@@ -39,19 +41,23 @@ function DefaultLoadingComponent() {
 function AppContent({ Component, pageProps }: AppProps) {
   const problemReporter = useProblemReporter();
   const defaultSEO = useDefaultSEO();
+  const clientConfig = useClientConfig();
+  const plausible = clientConfig.tracker.plausible;
 
   return (
     <>
-      <DefaultSeo {...defaultSEO} />
-      <ContentSystem
-        Component={Component}
-        pageProps={pageProps}
-        LayoutComponent={Layout}
-        EmptyComponent={DefaultEmptyComponent}
-        LoadingComponent={DefaultLoadingComponent}
-        problemReporter={problemReporter}
-        ErrorComponent={ErrorPage}
-      />
+      <PlausibleProvider domain={plausible.domain} enabled={plausible.enabled}>
+        <DefaultSeo {...defaultSEO} />
+        <ContentSystem
+          Component={Component}
+          pageProps={pageProps}
+          LayoutComponent={Layout}
+          EmptyComponent={DefaultEmptyComponent}
+          LoadingComponent={DefaultLoadingComponent}
+          problemReporter={problemReporter}
+          ErrorComponent={ErrorPage}
+        />
+      </PlausibleProvider>
     </>
   );
 }
