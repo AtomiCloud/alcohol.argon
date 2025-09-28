@@ -17,6 +17,9 @@ export const serverSchema = z.object({
       scopes: z.array(z.string()).default(['openid', 'profile', 'offline_access', 'email']),
     }),
   }),
+  db: z.object({
+    url: z.string(),
+  }),
 });
 
 export type ServerConfig = z.infer<typeof serverSchema>;

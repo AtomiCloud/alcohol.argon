@@ -1,4 +1,6 @@
 landscape: unknown
+db:
+  url: none
 auth:
   logto:
     app:
