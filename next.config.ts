@@ -11,6 +11,7 @@ import {
   ConfigurationMerger,
   ConfigurationValidator,
 } from '@/lib/config/core';
+import { withPlausibleProxy } from 'next-plausible';
 // Process build-time environment variables
 const buildTimeProcessor = new BuildTimeProcessor();
 const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
@@ -78,6 +79,6 @@ const pwaConfig = withPWA({
 });
 
 // @ts-expect-error - Type incompatibility between Next.js 15 and next-pwa types
-export default pwaConfig(nextConfig);
+export default pwaConfig(withPlausibleProxy()(nextConfig));
 
 initOpenNextCloudflareForDev().then(() => console.log('initOpenNextCloudflareForDev Completed'));
