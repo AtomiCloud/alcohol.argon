@@ -1,3 +1,16 @@
+## [1.21.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.20.0...v1.21.0) (2025-09-28)
+
+
+### ✨ Features ✨
+
+* **default:** remove fathom ([#58](https://github.com/AtomiCloud/alcohol.argon/issues/58)) ([75bd8b3](https://github.com/AtomiCloud/alcohol.argon/commit/75bd8b3c56c485e8e9f7fb919f1ca89c3cdafd5c))
+* **default:** remove fathom ([566f3d0](https://github.com/AtomiCloud/alcohol.argon/commit/566f3d07c4cf3f7de60e9fa233eab3d032e59079))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** bun lock file changes ([bf9b948](https://github.com/AtomiCloud/alcohol.argon/commit/bf9b94897015a32d6b69cd86e57c81b80e427925))
+
 ## [1.20.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.19.0...v1.20.0) (2025-09-28)
 
 
