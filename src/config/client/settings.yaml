@@ -3,7 +3,9 @@ tracker:
   plausible:
     domain: 'lazytax.club'
     trackLocalhost: true
+    proxy: true
   fathom: false
+  umami: false
 support:
   email: support@local.host
 navbarshowoff: false

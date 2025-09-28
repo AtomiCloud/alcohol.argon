@@ -74,7 +74,7 @@ function BridgedTrackerProvider({ children }: { children: React.ReactNode }) {
   const clientConfig = useClientConfig();
   const tracker = clientConfig.tracker;
   return (
-    <TrackerProvider fathomProps={tracker.fathom} plausibleProps={tracker.plausible}>
+    <TrackerProvider fathomProps={tracker.fathom} plausibleProps={tracker.plausible} umamiProps={tracker.umami}>
       {children}
     </TrackerProvider>
   );

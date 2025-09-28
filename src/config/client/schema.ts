@@ -15,6 +15,14 @@ export const clientSchema = z.object({
     })
     .default({ showAuth: true }),
   tracker: z.object({
+    umami: z.union([
+      z.object({
+        host: z.string(),
+        id: z.string(),
+        proxy: z.boolean(),
+      }),
+      z.literal(false),
+    ]),
     fathom: z
       .union([
         z.object({
@@ -27,6 +35,7 @@ export const clientSchema = z.object({
       .union([
         z.object({
           domain: z.string(),
+          proxy: z.boolean(),
           taggedEvents: z.boolean().optional(),
           trackFileDownloads: z.boolean().optional(),
           trackOutboundLinks: z.boolean().optional(),

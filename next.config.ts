@@ -29,6 +29,27 @@ const registry = cfgManager.createRegistry(configSchemas, importedConfigurations
 const common = registry.common as CommonConfig;
 const client = registry.client as ClientConfig;
 
+function proxyModifiers(c: NextConfig): NextConfig {
+  let config = c;
+
+  // biome-ignore lint/complexity/useOptionalChain : this is not optional
+  if (client.tracker.umami && client.tracker.umami.proxy) {
+    const host = client.tracker.umami.host;
+    config.rewrites = async () => [
+      {
+        source: '/stats/:match*',
+        destination: `${host}/:match*`,
+      },
+    ];
+  }
+
+  // biome-ignore lint/complexity/useOptionalChain : this is not optional
+  if (client.tracker.plausible && client.tracker.plausible.proxy) {
+    config = withPlausibleProxy()(config);
+  }
+  return config;
+}
+
 const nextConfig: NextConfig = {
   /* config options here */
   serverExternalPackages: ['jose'],
@@ -79,6 +100,6 @@ const pwaConfig = withPWA({
 });
 
 // @ts-expect-error - Type incompatibility between Next.js 15 and next-pwa types
-export default pwaConfig(withPlausibleProxy()(nextConfig));
+export default pwaConfig(proxyModifiers(nextConfig));
 
 initOpenNextCloudflareForDev().then(() => console.log('initOpenNextCloudflareForDev Completed'));

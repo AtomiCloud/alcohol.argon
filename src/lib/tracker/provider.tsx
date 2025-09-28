@@ -5,26 +5,32 @@ import PlausibleProvider, { usePlausible } from 'next-plausible';
 import FathomTracker, { type FathomProps } from '@/lib/tracker/FathomTracker';
 import type { PlausibleProps } from '@/lib/tracker/PlausibleTracker';
 import { trackEvent } from 'fathom-client';
+import UmamiTracker, { type UmamiProps } from '@/lib/tracker/UmamiTracker';
 
 interface TrackerProps {
   children: React.ReactNode;
   fathomProps: FathomProps | false;
   plausibleProps: PlausibleProps | false;
-  // umamiProps: UmamiProps;
+  umamiProps: UmamiProps | false;
 }
 
 interface TrackerContextType {
   fathomProps: FathomProps | false;
   plausibleProps: PlausibleProps | false;
-  // umamiProps: UmamiProps;
+  umamiProps: UmamiProps | false;
 }
 
 const TrackerContext = createContext<TrackerContextType | undefined>(undefined);
 
-function TrackerProvider({ children, plausibleProps, fathomProps }: TrackerProps) {
+function TrackerProvider({ children, plausibleProps, fathomProps, umamiProps }: TrackerProps) {
   return (
-    <TrackerContext.Provider value={{ plausibleProps, fathomProps }}>
+    <TrackerContext.Provider value={{ plausibleProps, fathomProps, umamiProps }}>
       {fathomProps === false ? <></> : <FathomTracker id={fathomProps.id} />}
+      {umamiProps === false ? (
+        <></>
+      ) : (
+        <UmamiTracker host={umamiProps.host} id={umamiProps.id} proxy={umamiProps.proxy} />
+      )}
       {plausibleProps === false ? (
         <>{children}</>
       ) : (
@@ -53,7 +59,7 @@ function useTracker() {
   if (context === undefined) {
     throw new Error('useTracker must be used within a TrackerProvider');
   }
-  const { plausibleProps, fathomProps } = context;
+  const { plausibleProps, fathomProps, umamiProps } = context;
 
   function track(event: string, value?: number) {
     if (plausibleProps) {
@@ -61,6 +67,11 @@ function useTracker() {
     }
     if (fathomProps) {
       trackEvent(event, { _value: value });
+    }
+    if (umamiProps) {
+      // biome-ignore lint/suspicious/noExplicitAny: umami is external script, not tracked by ts
+      const umami = (window as any).umami;
+      umami.track(event, value);
     }
   }
 
