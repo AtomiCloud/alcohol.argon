@@ -1,5 +1,8 @@
 # Base configuration for client-safe settings
 tracker:
+  plausible:
+    enabled: true
+    domain: 'lazytax.club'
   fathom:
     enabled: true
     id: BHLERINB
