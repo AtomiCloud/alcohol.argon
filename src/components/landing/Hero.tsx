@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { trackEvent } from 'fathom-client';
+import { TrackingEvents } from '@/lib/events';
 
 function validateEmail(email: string) {
   return /\S+@\S+\.\S+/.test(email);
@@ -17,9 +19,13 @@ export default function Hero() {
   const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
 
   async function onSubmit(e: React.FormEvent) {
+    trackEvent(TrackingEvents.Landing.MainCTA.SubmitClicked);
     e.preventDefault();
     setMessage(null);
-    if (!validateEmail(email)) return;
+    if (!validateEmail(email)) {
+      trackEvent(TrackingEvents.Landing.MainCTA.ClientInvalid);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/subscribe', {
@@ -31,13 +37,17 @@ export default function Hero() {
       if (data?.ok) {
         setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
         setEmail('');
+        trackEvent(TrackingEvents.Landing.MainCTA.Success);
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
         setMessage({ type: 'error', text: 'You have already subscribed' });
+        trackEvent(TrackingEvents.Landing.MainCTA.AlreadySubscribed);
       } else {
         setMessage({ type: 'error', text: 'Please enter a valid email and try again.' });
+        trackEvent(TrackingEvents.Landing.MainCTA.ServerInvalid);
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      trackEvent(TrackingEvents.Landing.MainCTA.Error);
     } finally {
       setSubmitting(false);
     }
