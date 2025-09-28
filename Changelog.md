@@ -1,3 +1,11 @@
+## [1.20.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.19.0...v1.20.0) (2025-09-28)
+
+
+### ✨ Features ✨
+
+* **landing:** track with plausible ([47fdb8c](https://github.com/AtomiCloud/alcohol.argon/commit/47fdb8cfbc76d8a45c4417011a0fe0c9b7ef1756))
+* **next.config:** use self-domain as proxy ([6e13b46](https://github.com/AtomiCloud/alcohol.argon/commit/6e13b46b966ccee07611d424219a46544836532e))
+
 ## [1.19.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.18.0...v1.19.0) (2025-09-28)
 
 
