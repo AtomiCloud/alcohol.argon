@@ -2,7 +2,7 @@ import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { AtomiContent } from '@/lib/content/core/types';
 import { useLoadingContext } from '@/lib/content/providers/LoadingContext';
 import { useEmptyContext } from '@/lib/content/providers/EmptyContext';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Res, type ResultSerial } from '@/lib/monads/result';
 
 type ContentLoaderFn = {
@@ -98,13 +98,19 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
   const { throwUnknown } = useErrorHandler();
   const { startLoading, stopLoading } = useLoadingContext();
   const { setDesc, clearDesc } = useEmptyContext();
-  let initial: T | undefined = undefined;
 
-  if (setting?.defaultContent) {
-    const [t, v] = setting.defaultContent;
-    if (t === 'ok') initial = v;
-    else throwUnknown(v);
-  }
+  // Compute initial content and any default error from SSR without causing side‑effects during render.
+  const { initial, defaultErr } = useMemo(() => {
+    let init: T | undefined = undefined;
+    let err: unknown | null = null;
+    if (setting?.defaultContent) {
+      const [t, v] = setting.defaultContent;
+      if (t === 'ok') init = v as T;
+      else err = v;
+    }
+    return { initial: init, defaultErr: err };
+    // Only depend on the serializable tuple; other setters are stable.
+  }, [setting?.defaultContent]);
 
   const loader = {
     startLoading: setting?.loader?.startLoading ?? startLoading,
@@ -116,6 +122,13 @@ function useContent<T, Y>(input: AtomiContent<T, Y>, setting?: ContentSetting<T,
   const onError = setting?.error ?? throwUnknown;
 
   const [content, setContent] = useState<T | undefined>(initial);
+
+  // If SSR provided an error tuple, raise it after mount to avoid setState during render.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: complex hook that doesn't require all these dep
+  useEffect(() => {
+    if (defaultErr != null) onError(defaultErr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultErr]);
 
   const latestRequestId = useRef(0);
 
