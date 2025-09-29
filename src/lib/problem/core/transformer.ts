@@ -269,11 +269,13 @@ class ProblemTransformer<T extends ProblemDefinitions> {
       });
 
       // Create problem using registry
-      const httpErrorContext: HttpErrorContext = {
-        statusCode: status,
-        responseBody: responseBody.trim() || 'unknown',
-        url,
-      };
+      const httpErrorContext: HttpErrorContext = ((): HttpErrorContext => {
+        const base = {
+          statusCode: status,
+          responseBody: responseBody.trim() || 'unknown',
+        } as HttpErrorContext;
+        return url ? { ...base, url } : base;
+      })();
 
       // biome-ignore lint/suspicious/noExplicitAny: Type system not powerful enough to ensure type-fitting
       return this.problemRegistry.createProblem('http_error', httpErrorContext as any, undefined, instance);

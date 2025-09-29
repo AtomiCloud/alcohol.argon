@@ -217,16 +217,41 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
 
                     const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
                       'alcohol-zinc': {
-                        creator: (idToken, accessToken) =>
-                          Res.fromAsync(
-                            apiTree.alcohol.zinc.api.vUserCreate(
-                              { version: '1.0' },
-                              {
-                                accessToken,
-                                idToken,
-                              },
-                            ),
-                          ),
+                        creator: (idToken, accessToken) => {
+                          const timezone = (() => {
+                            try {
+                              // Prefer OIDC zoneinfo claim if present; fallback to Intl default
+                              const claims = checker.toToken(idToken) as Record<string, unknown> & {
+                                zoneinfo?: string;
+                              };
+                              const z = claims.zoneinfo || undefined;
+                              if (z && typeof z === 'string' && z.length > 0) return z;
+                            } catch {}
+                            try {
+                              return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+                            } catch {
+                              return 'UTC';
+                            }
+                          })();
+
+                          return Res.fromAsync(
+                            apiTree.alcohol.zinc.api
+                              .vUserCreate(
+                                { version: '1.0' },
+                                {
+                                  accessToken,
+                                  idToken,
+                                },
+                              )
+                              .then(r =>
+                                r.andThen(() =>
+                                  apiTree.alcohol.zinc.api
+                                    .vConfigurationCreate({ version: '1.0' }, { timezone, defaultCharityId: null })
+                                    .then(cfg => cfg.map(() => undefined)),
+                                ),
+                              ),
+                          );
+                        },
                       },
                     });
 

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
+import { AuthSection } from './AuthSection';
 
 export function Navbar() {
   return (
@@ -20,13 +21,21 @@ export function Navbar() {
           </Link>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/app"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              App
+            </Link>
             <ThemeToggle />
+            <AuthSection />
           </div>
 
           {/* Mobile Right Section */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex items-center gap-2">
             <ThemeToggle />
+            <AuthSection />
           </div>
         </div>
       </div>

@@ -1,58 +1,14 @@
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { TrackingEvents } from '@/lib/events';
-import { usePlausible } from 'next-plausible';
-
-function validateEmail(email: string) {
-  return /\S+@\S+\.\S+/.test(email);
-}
 
 export default function Hero() {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
-
-  const track = usePlausible();
-
-  async function onSubmit(e: React.FormEvent) {
-    track(TrackingEvents.Landing.MainCTA.SubmitClicked);
-    e.preventDefault();
-    setMessage(null);
-    if (!validateEmail(email)) {
-      track(TrackingEvents.Landing.MainCTA.ClientInvalid);
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source: 'hero' }),
-      });
-      const data: { ok?: boolean; error?: string } = await res.json();
-      if (data?.ok) {
-        setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
-        setEmail('');
-        track(TrackingEvents.Landing.MainCTA.Success);
-      } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMessage({ type: 'error', text: 'You have already subscribed' });
-        track(TrackingEvents.Landing.MainCTA.AlreadySubscribed);
-      } else {
-        setMessage({ type: 'error', text: 'Please enter a valid email and try again.' });
-        track(TrackingEvents.Landing.MainCTA.ServerInvalid);
-      }
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
-      track(TrackingEvents.Landing.MainCTA.Error);
-    } finally {
-      setSubmitting(false);
-    }
+  const [signing, setSigning] = useState(false);
+  function onSignIn() {
+    setSigning(true);
+    window.location.assign('/api/logto/sign-in');
   }
 
   return (
@@ -80,33 +36,15 @@ export default function Hero() {
               you set helps a cause you choose. <sup aria-label="footnote">[1]</sup>
             </p>
 
-            <form
-              onSubmit={onSubmit}
-              className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center max-w-md mx-auto md:mx-0"
-              aria-label="Join the waitlist"
-            >
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                placeholder="you@work.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="h-11 w-full sm:w-80 bg-white/90 dark:bg-slate-900/80"
-                required
-                aria-invalid={message?.type === 'error'}
-              />
+            <div className="mt-6 flex">
               <Button
-                type="submit"
-                disabled={disabled}
+                onClick={onSignIn}
+                disabled={signing}
                 className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
               >
-                {submitting ? 'Joining…' : 'Join the waitlist'}
+                {signing ? 'Redirecting…' : 'Sign in to start'}
               </Button>
-            </form>
+            </div>
             <div className="mt-3 flex justify-center md:justify-start">
               <a
                 href="#how-it-works"
@@ -115,14 +53,6 @@ export default function Hero() {
                 See how it works →
               </a>
             </div>
-            {message && (
-              <p
-                role={message.type === 'error' ? 'alert' : undefined}
-                className={`mt-3 text-sm ${message.type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}
-              >
-                {message.text}
-              </p>
-            )}
 
             <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
               <Badge

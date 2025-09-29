@@ -10,6 +10,53 @@
  * ---------------------------------------------------------------
  */
 
+export interface CharityPrincipalRes {
+  id?: string | null;
+  name?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface CharityRes {
+  principal: CharityPrincipalRes;
+}
+
+export interface CompleteHabitReq {
+  notes?: string | null;
+}
+
+export interface ConfigurationPrincipalRes {
+  id?: string | null;
+  userId?: string | null;
+  timezone?: string | null;
+  defaultCharityId?: string | null;
+}
+
+export interface ConfigurationRes {
+  principal: ConfigurationPrincipalRes;
+  charity: CharityPrincipalRes;
+}
+
+export interface CreateCharityReq {
+  name?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface CreateConfigurationReq {
+  timezone?: string | null;
+  defaultCharityId?: string | null;
+}
+
+export interface CreateHabitReq {
+  task?: string | null;
+  daysOfWeek?: string[] | null;
+  notificationTime?: string | null;
+  stake?: string | null;
+  /** @format uuid */
+  charityId: string;
+}
+
 export interface CreateUserReq {
   idToken?: string | null;
   accessToken?: string | null;
@@ -22,6 +69,34 @@ export interface ErrorInfo {
   version?: string | null;
 }
 
+export interface HabitExecutionRes {
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  habitVersionId: string;
+  date?: string | null;
+  status?: string | null;
+  completedAt?: string | null;
+  notes?: string | null;
+  paymentProcessed: boolean;
+}
+
+export interface HabitVersionRes {
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  habitId: string;
+  /** @format int32 */
+  version: number;
+  task?: string | null;
+  daysOfWeek?: string[] | null;
+  notificationTime?: string | null;
+  stake?: string | null;
+  ratio?: string | null;
+  /** @format uuid */
+  charityId: string;
+}
+
 export interface Info {
   landscape?: string | null;
   platform?: string | null;
@@ -31,6 +106,34 @@ export interface Info {
   status?: string | null;
   /** @format date-time */
   timeStamp: string;
+}
+
+export interface MarkDailyFailuresReq {
+  date?: string | null;
+  userIds?: string[] | null;
+}
+
+export type Unit = object;
+
+export interface UpdateCharityReq {
+  name?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface UpdateConfigurationReq {
+  timezone?: string | null;
+  defaultCharityId?: string | null;
+}
+
+export interface UpdateHabitReq {
+  task?: string | null;
+  daysOfWeek?: string[] | null;
+  notificationTime?: string | null;
+  stake?: string | null;
+  /** @format uuid */
+  charityId: string;
+  enabled: boolean;
 }
 
 export interface UpdateUserReq {
@@ -50,6 +153,96 @@ export interface UserRes {
   principal: UserPrincipalRes;
 }
 
+export interface VCharityListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityListData = CharityPrincipalRes[];
+
+export interface VCharityCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityCreateData = CharityPrincipalRes;
+
+export interface VCharityDetailParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityDetailData = CharityRes;
+
+export interface VCharityUpdateParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityUpdateData = CharityPrincipalRes;
+
+export interface VCharityDeleteParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityDeleteData = Unit;
+
+export interface VConfigurationDetailParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VConfigurationDetailData = ConfigurationRes;
+
+export interface VConfigurationUpdateParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VConfigurationUpdateData = ConfigurationPrincipalRes;
+
+export interface VConfigurationCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VConfigurationCreateData = ConfigurationPrincipalRes;
+
 export interface VEmailCreateParams {
   to: string;
   /**
@@ -60,6 +253,96 @@ export interface VEmailCreateParams {
 }
 
 export type VEmailCreateData = any;
+
+export interface VHabitListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitListData = HabitVersionRes[];
+
+export interface VHabitCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitCreateData = HabitVersionRes;
+
+export interface VHabitDetailParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitDetailData = HabitVersionRes;
+
+export interface VHabitUpdateParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitUpdateData = HabitVersionRes;
+
+export interface VHabitDeleteParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitDeleteData = Unit;
+
+export interface VHabitExecutionsCreateParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitExecutionsCreateData = HabitExecutionRes;
+
+export interface VHabitExecutionsListParams {
+  date?: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitExecutionsListData = HabitExecutionRes[];
+
+export interface VHabitExecutionsMarkDailyFailuresCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+/** @format int32 */
+export type VHabitExecutionsMarkDailyFailuresCreateData = number;
 
 export type GetRootData = Info;
 
@@ -425,6 +708,170 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags Charity
+     * @name VCharityList
+     * @request GET:/api/v{version}/Charity
+     * @secure
+     * @response `200` `VCharityListData` Success
+     */
+    vCharityList: ({ version, ...query }: VCharityListParams, params: RequestParams = {}) =>
+      this.request<VCharityListData, any>({
+        path: `/api/v${version}/Charity`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Charity
+     * @name VCharityCreate
+     * @request POST:/api/v{version}/Charity
+     * @secure
+     * @response `200` `VCharityCreateData` Success
+     */
+    vCharityCreate: ({ version, ...query }: VCharityCreateParams, data: CreateCharityReq, params: RequestParams = {}) =>
+      this.request<VCharityCreateData, any>({
+        path: `/api/v${version}/Charity`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Charity
+     * @name VCharityDetail
+     * @request GET:/api/v{version}/Charity/{id}
+     * @secure
+     * @response `200` `VCharityDetailData` Success
+     */
+    vCharityDetail: ({ id, version, ...query }: VCharityDetailParams, params: RequestParams = {}) =>
+      this.request<VCharityDetailData, any>({
+        path: `/api/v${version}/Charity/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Charity
+     * @name VCharityUpdate
+     * @request PUT:/api/v{version}/Charity/{id}
+     * @secure
+     * @response `200` `VCharityUpdateData` Success
+     */
+    vCharityUpdate: (
+      { id, version, ...query }: VCharityUpdateParams,
+      data: UpdateCharityReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VCharityUpdateData, any>({
+        path: `/api/v${version}/Charity/${id}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Charity
+     * @name VCharityDelete
+     * @request DELETE:/api/v{version}/Charity/{id}
+     * @secure
+     * @response `200` `VCharityDeleteData` Success
+     */
+    vCharityDelete: ({ id, version, ...query }: VCharityDeleteParams, params: RequestParams = {}) =>
+      this.request<VCharityDeleteData, any>({
+        path: `/api/v${version}/Charity/${id}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Configuration
+     * @name VConfigurationDetail
+     * @request GET:/api/v{version}/Configuration/{id}
+     * @secure
+     * @response `200` `VConfigurationDetailData` Success
+     */
+    vConfigurationDetail: ({ id, version, ...query }: VConfigurationDetailParams, params: RequestParams = {}) =>
+      this.request<VConfigurationDetailData, any>({
+        path: `/api/v${version}/Configuration/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Configuration
+     * @name VConfigurationUpdate
+     * @request PUT:/api/v{version}/Configuration/{id}
+     * @secure
+     * @response `200` `VConfigurationUpdateData` Success
+     */
+    vConfigurationUpdate: (
+      { id, version, ...query }: VConfigurationUpdateParams,
+      data: UpdateConfigurationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VConfigurationUpdateData, any>({
+        path: `/api/v${version}/Configuration/${id}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Configuration
+     * @name VConfigurationCreate
+     * @request POST:/api/v{version}/Configuration
+     * @secure
+     * @response `200` `VConfigurationCreateData` Success
+     */
+    vConfigurationCreate: (
+      { version, ...query }: VConfigurationCreateParams,
+      data: CreateConfigurationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VConfigurationCreateData, any>({
+        path: `/api/v${version}/Configuration`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Email
      * @name VEmailCreate
      * @request POST:/api/v{version}/Email/{to}
@@ -436,6 +883,167 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         path: `/api/v${version}/Email/${to}`,
         method: 'POST',
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitList
+     * @request GET:/api/v{version}/Habit
+     * @secure
+     * @response `200` `VHabitListData` Success
+     */
+    vHabitList: ({ version, ...query }: VHabitListParams, params: RequestParams = {}) =>
+      this.request<VHabitListData, any>({
+        path: `/api/v${version}/Habit`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitCreate
+     * @request POST:/api/v{version}/Habit
+     * @secure
+     * @response `200` `VHabitCreateData` Success
+     */
+    vHabitCreate: ({ version, ...query }: VHabitCreateParams, data: CreateHabitReq, params: RequestParams = {}) =>
+      this.request<VHabitCreateData, any>({
+        path: `/api/v${version}/Habit`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitDetail
+     * @request GET:/api/v{version}/Habit/{id}
+     * @secure
+     * @response `200` `VHabitDetailData` Success
+     */
+    vHabitDetail: ({ id, version, ...query }: VHabitDetailParams, params: RequestParams = {}) =>
+      this.request<VHabitDetailData, any>({
+        path: `/api/v${version}/Habit/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitUpdate
+     * @request PUT:/api/v{version}/Habit/{id}
+     * @secure
+     * @response `200` `VHabitUpdateData` Success
+     */
+    vHabitUpdate: ({ id, version, ...query }: VHabitUpdateParams, data: UpdateHabitReq, params: RequestParams = {}) =>
+      this.request<VHabitUpdateData, any>({
+        path: `/api/v${version}/Habit/${id}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitDelete
+     * @request DELETE:/api/v{version}/Habit/{id}
+     * @secure
+     * @response `200` `VHabitDeleteData` Success
+     */
+    vHabitDelete: ({ id, version, ...query }: VHabitDeleteParams, params: RequestParams = {}) =>
+      this.request<VHabitDeleteData, any>({
+        path: `/api/v${version}/Habit/${id}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitExecutionsCreate
+     * @request POST:/api/v{version}/Habit/{id}/executions
+     * @secure
+     * @response `200` `VHabitExecutionsCreateData` Success
+     */
+    vHabitExecutionsCreate: (
+      { id, version, ...query }: VHabitExecutionsCreateParams,
+      data: CompleteHabitReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitExecutionsCreateData, any>({
+        path: `/api/v${version}/Habit/${id}/executions`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitExecutionsList
+     * @request GET:/api/v{version}/Habit/executions
+     * @secure
+     * @response `200` `VHabitExecutionsListData` Success
+     */
+    vHabitExecutionsList: ({ version, ...query }: VHabitExecutionsListParams, params: RequestParams = {}) =>
+      this.request<VHabitExecutionsListData, any>({
+        path: `/api/v${version}/Habit/executions`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitExecutionsMarkDailyFailuresCreate
+     * @request POST:/api/v{version}/Habit/executions/mark-daily-failures
+     * @secure
+     * @response `200` `VHabitExecutionsMarkDailyFailuresCreateData` Success
+     */
+    vHabitExecutionsMarkDailyFailuresCreate: (
+      { version, ...query }: VHabitExecutionsMarkDailyFailuresCreateParams,
+      data: MarkDailyFailuresReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitExecutionsMarkDailyFailuresCreateData, any>({
+        path: `/api/v${version}/Habit/executions/mark-daily-failures`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
