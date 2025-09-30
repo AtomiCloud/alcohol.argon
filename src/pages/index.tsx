@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Hero from '@/components/landing/Hero';
+import SubscriberCounter from '@/components/landing/SubscriberCounter';
 import HowItWorks from '@/components/landing/HowItWorks';
 import WhyItWorks from '@/components/landing/WhyItWorks';
 import Features from '@/components/landing/Features';
@@ -20,6 +21,7 @@ export default function HomePage() {
       </Head>
       <ScrollReveal />
       <Hero />
+      <SubscriberCounter />
       <HowItWorks />
       <WhyItWorks />
       <Features />
