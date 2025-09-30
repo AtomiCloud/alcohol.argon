@@ -3,12 +3,18 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useClaims } from '@/lib/auth/providers';
+import { Rocket, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   const [signing, setSigning] = useState(false);
-  function onSignIn() {
+  const [t, v] = useClaims();
+  const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
+
+  function onPrimary() {
     setSigning(true);
-    window.location.assign('/api/logto/sign-in');
+    if (isAuthed) window.location.assign('/app');
+    else window.location.assign('/api/logto/sign-in');
   }
 
   return (
@@ -38,11 +44,13 @@ export default function Hero() {
 
             <div className="mt-6 flex">
               <Button
-                onClick={onSignIn}
+                onClick={onPrimary}
                 disabled={signing}
-                className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
+                className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
               >
-                {signing ? 'Redirecting…' : 'Sign in to start'}
+                <Rocket className="mr-2 h-5 w-5" />
+                {signing ? 'Redirecting…' : isAuthed ? 'Open your app' : 'Start your first habit'}
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
             <div className="mt-3 flex justify-center md:justify-start">
@@ -67,7 +75,6 @@ export default function Hero() {
               >
                 Pledge‑powered giving
               </Badge>
-              <span className="text-xs">Early access: priority invite + 50% off for life if we launch Pro.</span>
             </div>
           </div>
 

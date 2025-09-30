@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import type { CharityPrincipalRes, CreateHabitReq, HabitVersionRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
+import type { CharityPrincipalRes, HabitVersionRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
 import Confetti from '@/components/Confetti';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
@@ -57,6 +59,7 @@ const defaultDraft = (charityId?: string): HabitDraft => ({
 export default function AppPage({ initial }: AppPageProps) {
   const api = useSwaggerClients();
   const problemReporter = useProblemReporter();
+  const router = useRouter();
 
   const [loading, loader] = useFreeLoader();
   const [desc, empty] = useFreeEmpty();
@@ -74,29 +77,32 @@ export default function AppPage({ initial }: AppPageProps) {
   const habits = data?.habits ?? [];
   const charities = data?.charities ?? [];
 
-  const [creating, setCreating] = useState(false);
-  const [createDraft, setCreateDraft] = useState<HabitDraft>(defaultDraft(charities[0]?.id ?? ''));
+  // creation is handled on /app/new
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Record<string, HabitDraft>>({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showCreateAdvanced, setShowCreateAdvanced] = useState(false);
+  // advanced create handled on /app/new
   const [showEditAdvanced, setShowEditAdvanced] = useState<Record<string, boolean>>({});
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
-  const [stakeModalMode, setStakeModalMode] = useState<{ type: 'create' } | { type: 'edit'; habitId: string } | null>(
-    null,
-  );
+  const [stakeModalMode, setStakeModalMode] = useState<{ type: 'edit'; habitId: string } | null>(null);
   const [stakeBuffer, setStakeBuffer] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const charityOptions = useMemo(() => charities.filter(c => !!c.id), [charities]);
 
+  // Celebrate after redirect from /app/new?created=1
   useEffect(() => {
-    if (!createDraft.charityId && charityOptions[0]?.id) {
-      setCreateDraft(d => ({ ...d, charityId: charityOptions[0]!.id! }));
+    const created = router.query?.created;
+    if (created === '1') {
+      setShowConfetti(true);
+      setToast('Created!');
+      router.replace('/app', undefined, { shallow: true });
     }
-  }, [charityOptions, createDraft.charityId]);
+  }, [router, router.query]);
+
+  // no createDraft here
 
   const refreshHabits = async () => {
     const promise: Promise<Result<HabitPageData, Problem>> = api.alcohol.zinc.api
@@ -111,12 +117,7 @@ export default function AppPage({ initial }: AppPageProps) {
     setContentResult(Res.fromAsync(promise));
   };
 
-  const toggleCreateWeekday = (key: string) => {
-    setCreateDraft(d => ({
-      ...d,
-      daysOfWeek: d.daysOfWeek.includes(key) ? d.daysOfWeek.filter(k => k !== key) : [...d.daysOfWeek, key],
-    }));
-  };
+  // create page handles weekday toggle
 
   const toggleEditWeekday = (habitId: string, key: string) => {
     setEditDraft(d => {
@@ -185,11 +186,7 @@ export default function AppPage({ initial }: AppPageProps) {
     return String(Number.isNaN(cents) ? 0 : cents);
   };
 
-  const openStakeModalForCreate = () => {
-    setStakeBuffer(amountToCents(createDraft.amount || ''));
-    setStakeModalMode({ type: 'create' });
-    setStakeModalOpen(true);
-  };
+  // stake for create handled on /app/new
 
   const openStakeModalForEdit = (habitId: string) => {
     const current = editDraft[habitId]?.amount ?? '';
@@ -201,9 +198,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const confirmStakeModal = () => {
     if (!stakeModalMode) return;
     const val = formatCentsToAmount(stakeBuffer);
-    if (stakeModalMode.type === 'create') {
-      setCreateDraft(d => ({ ...d, amount: val }));
-    } else {
+    if (stakeModalMode.type === 'edit') {
       const { habitId } = stakeModalMode;
       setEditDraft(d => ({ ...d, [habitId]: { ...(d[habitId] || defaultDraft()), amount: val } }));
     }
@@ -224,35 +219,7 @@ export default function AppPage({ initial }: AppPageProps) {
     return errs;
   };
 
-  const handleCreate = async () => {
-    const errs = validateDraft(createDraft);
-    if (Object.keys(errs).length > 0) return; // no-op; UI shows errors
-    const payload: CreateHabitReq = {
-      task: createDraft.task || null,
-      daysOfWeek: createDraft.daysOfWeek.length ? createDraft.daysOfWeek : [],
-      notificationTime: toHHMMSS(createDraft.notificationTime),
-      stake: createDraft.amount ? `${createDraft.amount}` : '0',
-      charityId: createDraft.charityId,
-    };
-    loader.startLoading();
-    const res = await api.alcohol.zinc.api.vHabitCreate({ version: '1.0' }, payload);
-    await res.match({
-      ok: _data => {
-        setCreating(false);
-        setCreateDraft(defaultDraft(charityOptions[0]?.id || undefined));
-        setShowConfetti(true);
-        setToast('Created!');
-        refreshHabits();
-      },
-      err: problem => {
-        problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
-          source: 'app/habits/create',
-          problem,
-        });
-      },
-    });
-    loader.stopLoading();
-  };
+  // creation moved to dedicated page
 
   const startEdit = (h: HabitVersionRes) => {
     setEditingId(h.habitId);
@@ -343,197 +310,7 @@ export default function AppPage({ initial }: AppPageProps) {
     loader.stopLoading();
   };
 
-  function renderCreateForm() {
-    const errs = validateDraft(createDraft);
-    return (
-      <Card className="border-2 border-amber-200/60 dark:border-amber-300/20">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Create a new habit ✨</CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setCreating(false)} size="sm">
-                <X className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={handleCreate}
-                disabled={loading || Object.keys(errs).length > 0}
-                size="sm"
-                className="hidden md:inline-flex"
-              >
-                <Save className="h-4 w-4 mr-1" /> Take My Oath
-              </Button>
-            </div>
-          </div>
-          <CardDescription className="text-xs">Set what you’ll do and your stake</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <div>
-              <label className="block text-sm mb-1" htmlFor="create-task">
-                Task
-              </label>
-              <Input
-                id="create-task"
-                placeholder="e.g., Read 15 minutes"
-                value={createDraft.task}
-                onChange={e => setCreateDraft(d => ({ ...d, task: e.target.value }))}
-                className="h-14 text-base"
-              />
-              {errs.task && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errs.task}</p>}
-            </div>
-
-            <div className="text-center">
-              <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1">
-                Stake (optional)
-              </div>
-              <div className="flex flex-col items-center gap-2 py-1">
-                {!createDraft.amount ? (
-                  <Button variant="secondary" size="lg" onClick={openStakeModalForCreate} className="px-6">
-                    <DollarSign className="h-4 w-4 mr-2" /> Select Stake
-                  </Button>
-                ) : (
-                  <>
-                    <div className="text-3xl font-semibold">
-                      <span className="text-emerald-600">$</span>
-                      <span className="tabular-nums">{createDraft.amount}</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">USD</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={openStakeModalForCreate}>
-                        Change
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setCreateDraft(d => ({ ...d, amount: '' }))}
-                        className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </>
-                )}
-                <p className="text-xs text-slate-500 dark:text-slate-400">If you miss, we donate it 💝</p>
-              </div>
-              {errs.amount && <p className="mt-1 text-xs text-red-600 dark:text-red-400 text-center">{errs.amount}</p>}
-            </div>
-          </div>
-
-          {/* Advanced options toggle */}
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => setShowCreateAdvanced(s => !s)}
-              className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1"
-            >
-              {showCreateAdvanced ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-              <Settings className="h-3.5 w-3.5" />
-              Advanced (optional)
-            </button>
-          </div>
-
-          {showCreateAdvanced && (
-            <div className="space-y-4 rounded-lg border p-3 border-slate-200 dark:border-slate-800">
-              <div>
-                <p className="block text-sm mb-2">Days of week</p>
-                <div className="flex flex-wrap gap-2">
-                  {WEEKDAYS.map(d => {
-                    const active = createDraft.daysOfWeek.includes(d.key);
-                    return (
-                      <button
-                        key={d.key}
-                        type="button"
-                        onClick={() => toggleCreateWeekday(d.key)}
-                        className={`text-[11px] rounded-full border px-3 py-1 transition-colors shadow-sm ${
-                          active
-                            ? 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white border-pink-500'
-                            : 'bg-background text-foreground border-input hover:bg-accent hover:text-accent-foreground'
-                        }`}
-                      >
-                        {d.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCreateDraft(d => ({ ...d, daysOfWeek: WEEKDAYS.map(w => w.key) }))}
-                    className="text-[11px] rounded-full border px-3 py-1 bg-sky-50 dark:bg-sky-950/30 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300"
-                  >
-                    Everyday
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreateDraft(d => ({ ...d, daysOfWeek: WEEKDAYS.slice(0, 5).map(w => w.key) }))}
-                    className="text-[11px] rounded-full border px-3 py-1 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300"
-                  >
-                    Weekdays
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreateDraft(d => ({ ...d, daysOfWeek: WEEKDAYS.slice(5).map(w => w.key) }))}
-                    className="text-[11px] rounded-full border px-3 py-1 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300"
-                  >
-                    Weekends
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreateDraft(d => ({ ...d, daysOfWeek: [] }))}
-                    className="text-[11px] rounded-full border px-3 py-1 bg-slate-50 dark:bg-slate-950/30 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm mb-1" htmlFor="create-time">
-                  Notification Time
-                </label>
-                <Input
-                  id="create-time"
-                  type="time"
-                  value={createDraft.notificationTime}
-                  onChange={e => setCreateDraft(d => ({ ...d, notificationTime: e.target.value }))}
-                  className="w-40"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2" htmlFor="create-charity">
-                  Charity
-                </label>
-                <select
-                  id="create-charity"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={createDraft.charityId}
-                  onChange={e => setCreateDraft(d => ({ ...d, charityId: e.target.value }))}
-                >
-                  {charityOptions.map(c => (
-                    <option key={c.id!} value={c.id!}>
-                      {c.name || c.email || c.id}
-                    </option>
-                  ))}
-                </select>
-                {errs.charityId && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errs.charityId}</p>}
-              </div>
-            </div>
-          )}
-          {/* Mobile full-width CTA */}
-          <div className="pt-1 md:hidden">
-            <Button
-              onClick={handleCreate}
-              disabled={loading || Object.keys(errs).length > 0}
-              className="w-full h-12 text-base"
-            >
-              Take My Oath
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // create form removed
 
   function renderHabitRow(h: HabitVersionRes) {
     const isEditing = editingId === h.habitId;
@@ -549,6 +326,7 @@ export default function AppPage({ initial }: AppPageProps) {
           loading={loading}
           onEdit={() => startEdit(h)}
           onComplete={() => handleComplete(h)}
+          onDelete={() => handleDelete(h)}
         />
       );
     }
@@ -760,10 +538,12 @@ export default function AppPage({ initial }: AppPageProps) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold">Your Habits</h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">Keep the streak. Miss a day? We donate. 🧡</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
           </div>
-          <Button onClick={() => setCreating(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" /> New Habit
+          <Button asChild>
+            <Link href="/app/new">
+              <Plus className="h-4 w-4 mr-1" /> New Habit
+            </Link>
           </Button>
         </div>
 
@@ -799,7 +579,7 @@ export default function AppPage({ initial }: AppPageProps) {
           <div className="grid gap-3">{habits.map(h => renderHabitRow(h))}</div>
         </FreeContentManager>
 
-        {creating && <div className="pt-2">{renderCreateForm()}</div>}
+        {/* creation moved to /app/new */}
       </div>
 
       <StakeSheet
@@ -812,7 +592,7 @@ export default function AppPage({ initial }: AppPageProps) {
         onConfirm={confirmStakeModal}
       />
 
-      {showConfetti && <Confetti count={140} durationMs={2400} onDone={() => setShowConfetti(false)} />}
+      {showConfetti && <Confetti onDone={() => setShowConfetti(false)} />}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
     </>
   );

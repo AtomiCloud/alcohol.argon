@@ -1,4 +1,7 @@
 import Head from 'next/head';
+import type { GetServerSidePropsResult } from 'next';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import { buildTime } from '@/adapters/external/core';
 import Hero from '@/components/landing/Hero';
 import HowItWorks from '@/components/landing/HowItWorks';
 import WhyItWorks from '@/components/landing/WhyItWorks';
@@ -29,3 +32,20 @@ export default function HomePage() {
     </>
   );
 }
+
+export const getServerSideProps = withServerSideAtomi(
+  { ...buildTime, guard: 'public' },
+  async (context, { auth }): Promise<GetServerSidePropsResult<Record<string, never>>> => {
+    const stayRaw = context.query?.stay;
+    const stay = Array.isArray(stayRaw) ? stayRaw.includes('true') : stayRaw === 'true';
+    const isAuthed = await auth.retriever
+      .getClaims()
+      .map(x => x.value.isAuthed)
+      .unwrapOr(false);
+
+    if (isAuthed && !stay) {
+      return { redirect: { destination: '/app', permanent: false } };
+    }
+    return { props: {} };
+  },
+);
