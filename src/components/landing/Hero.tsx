@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TrackingEvents } from '@/lib/events';
 import { usePlausible } from 'next-plausible';
+import { useSWRConfig } from 'swr';
 
 function validateEmail(email: string) {
   return /\S+@\S+\.\S+/.test(email);
@@ -19,6 +20,7 @@ export default function Hero() {
   const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
 
   const track = usePlausible();
+  const { mutate } = useSWRConfig();
 
   async function onSubmit(e: React.FormEvent) {
     track(TrackingEvents.Landing.MainCTA.SubmitClicked);
@@ -40,6 +42,8 @@ export default function Hero() {
         setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
         setEmail('');
         track(TrackingEvents.Landing.MainCTA.Success);
+        // Refresh community goal counter
+        mutate('/api/subscribers');
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
         setMessage({ type: 'error', text: 'You have already subscribed' });
         track(TrackingEvents.Landing.MainCTA.AlreadySubscribed);
