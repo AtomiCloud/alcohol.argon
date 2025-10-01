@@ -8,6 +8,9 @@ support:
 navbarshowoff: false
 navbar:
   showAuth: false
+features:
+  showStreaks: false
+  emojiTitles: true
 faro:
   enabled: false
   collectorurl: ''

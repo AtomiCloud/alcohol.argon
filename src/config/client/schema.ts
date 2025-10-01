@@ -2,6 +2,12 @@ import { z } from 'zod';
 
 export const clientSchema = z.object({
   landscape: z.string().default('unknown'),
+  features: z
+    .object({
+      showStreaks: z.boolean().default(false),
+      emojiTitles: z.boolean().default(true),
+    })
+    .default({ showStreaks: false, emojiTitles: true }),
   support: z.object({
     email: z.email(),
   }),

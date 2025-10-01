@@ -8,15 +8,17 @@ import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { CharityPrincipalRes, CreateHabitReq } from '@/clients/alcohol/zinc/api';
 import StakeSheet from '@/components/app/StakeSheet';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
-import { Settings, ChevronDown, ChevronRight, DollarSign, Save, X } from 'lucide-react';
+import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
+import { X } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
 import { Res, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
+import HabitEditorCard from '@/components/app/HabitEditorCard';
 
 type NewHabitPageData = { charities: CharityPrincipalRes[] };
 type NewHabitPageProps = { initial: ResultSerial<NewHabitPageData, Problem> };
@@ -62,6 +64,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const api = useSwaggerClients();
   const [loading, loader] = useFreeLoader();
   const problemReporter = useProblemReporter();
+  const errorHandler = useErrorHandler();
   const router = useRouter();
 
   const [data] = useState(() => Res.fromSerial<NewHabitPageData, Problem>(initial));
@@ -80,16 +83,13 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     }
   }, [charityOptions, draft.charityId]);
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // Advanced controls are handled inside HabitEditorCard
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
   const [stakeBuffer, setStakeBuffer] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [busyCreate, setBusyCreate] = useState(false);
 
-  const toggleWeekday = (key: string) => {
-    setDraft(d => ({
-      ...d,
-      daysOfWeek: d.daysOfWeek.includes(key) ? d.daysOfWeek.filter(k => k !== key) : [...d.daysOfWeek, key],
-    }));
-  };
+  // Weekday toggling handled in HabitEditorCard
 
   const formatCentsToAmount = (cents: string): string => {
     if (!cents) return '0.00';
@@ -132,7 +132,8 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
 
   const validateDraft = (d: HabitDraft): Record<string, string> => {
     const errs: Record<string, string> = {};
-    if (!d.task || d.task.trim().length < 3) errs.task = 'Please enter a task (min 3 chars)';
+    if (!d.task || d.task.trim().length < 3) errs.task = 'Please enter a habit (min 3 chars)';
+    if (!d.daysOfWeek || d.daysOfWeek.length === 0) errs.daysOfWeek = 'Choose at least one day of the week';
     const amt = d.amount?.trim();
     if (amt) {
       const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(amt);
@@ -143,9 +144,10 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   };
 
   const handleCreate = async () => {
+    setSubmitted(true);
     const errs = validateDraft(draft);
     if (Object.keys(errs).length > 0) return;
-    loader.startLoading();
+    setBusyCreate(true);
     const payload: CreateHabitReq = {
       task: draft.task || null,
       daysOfWeek: draft.daysOfWeek.length ? draft.daysOfWeek : [],
@@ -163,12 +165,15 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
           source: 'app/habits/create',
           problem,
         });
+        errorHandler.throwProblem(problem);
       },
     });
-    loader.stopLoading();
+    setBusyCreate(false);
   };
 
   const errs = validateDraft(draft);
+
+  // Charity combobox is provided in HabitEditorCard
 
   return (
     <>
@@ -196,151 +201,33 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
             <CardDescription className="text-xs">Set what you’ll do and your stake</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              <div>
-                <label className="block text-sm mb-1" htmlFor="create-task">
-                  Task
-                </label>
-                <Input
-                  id="create-task"
-                  placeholder="e.g., Read 15 minutes"
-                  value={draft.task}
-                  onChange={e => setDraft(d => ({ ...d, task: e.target.value }))}
-                  className="h-14 text-base"
-                />
-                {errs.task && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errs.task}</p>}
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-slate-700 dark:text-slate-200">Stake (optional)</span>
-                  {!draft.amount ? (
-                    <Button
-                      size="sm"
-                      onClick={openStakeModal}
-                      className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
-                    >
-                      <DollarSign className="h-4 w-4 mr-1" /> Set amount
-                    </Button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="tabular-nums">{draft.amount}</span>
-                        <span className="text-xs ml-0.5">USD</span>
-                      </span>
-                      <Button variant="outline" size="sm" onClick={openStakeModal} aria-label="Change stake">
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDraft(d => ({ ...d, amount: '' }))}
-                        aria-label="Clear stake"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {errs.amount && <p className="text-xs text-red-600 dark:text-red-400">{errs.amount}</p>}
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(s => !s)}
-                className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1"
-              >
-                {showAdvanced ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                <Settings className="h-3.5 w-3.5" /> Advanced (optional)
-              </button>
-            </div>
-
-            {showAdvanced && (
-              <div className="space-y-5 rounded-lg border p-3 border-slate-200 dark:border-slate-800">
-                <div className="space-y-2">
-                  <p className="block text-sm">Days of week</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {WEEKDAYS.map(d => {
-                      const active = draft.daysOfWeek.includes(d.key);
-                      return (
-                        <button
-                          key={d.key}
-                          type="button"
-                          onClick={() => toggleWeekday(d.key)}
-                          className={`text-[11px] rounded-md border px-2.5 py-1 transition-colors ${
-                            active
-                              ? 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white border-pink-500'
-                              : 'bg-background text-foreground border-input hover:bg-accent hover:text-accent-foreground'
-                          }`}
-                        >
-                          {d.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {[
-                      { k: 'Everyday', v: WEEKDAYS.map(w => w.key) },
-                      { k: 'Weekdays', v: WEEKDAYS.slice(0, 5).map(w => w.key) },
-                      { k: 'Weekends', v: WEEKDAYS.slice(5).map(w => w.key) },
-                      { k: 'Clear', v: [] as string[] },
-                    ].map(preset => (
-                      <button
-                        key={preset.k}
-                        type="button"
-                        onClick={() => setDraft(d => ({ ...d, daysOfWeek: preset.v }))}
-                        className="text-[11px] rounded-full border px-3 py-1 bg-slate-50 dark:bg-slate-950/30 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
-                      >
-                        {preset.k}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-sm" htmlFor="create-time">
-                    Notification time
-                  </label>
-                  <Input
-                    id="create-time"
-                    type="time"
-                    value={draft.notificationTime}
-                    onChange={e => setDraft(d => ({ ...d, notificationTime: e.target.value }))}
-                    className="w-40"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-sm" htmlFor="create-charity">
-                    Charity
-                  </label>
-                  <select
-                    id="create-charity"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    value={draft.charityId}
-                    onChange={e => setDraft(d => ({ ...d, charityId: e.target.value }))}
-                  >
-                    {charityOptions.map(c => (
-                      <option key={c.id!} value={c.id!}>
-                        {c.name || c.email || c.id}
-                      </option>
-                    ))}
-                  </select>
-                  {errs.charityId && <p className="text-xs text-red-600 dark:text-red-400">{errs.charityId}</p>}
-                </div>
-              </div>
-            )}
+            <HabitEditorCard
+              draft={{
+                task: draft.task,
+                daysOfWeek: draft.daysOfWeek,
+                notificationTime: draft.notificationTime,
+                amount: draft.amount,
+                charityId: draft.charityId,
+              }}
+              onChange={d => setDraft(prev => ({ ...prev, ...d }))}
+              charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.email || c.id! }))}
+              errors={errs}
+              submitted={submitted}
+              onOpenStake={openStakeModal}
+              onClearStake={() => setDraft(d => ({ ...d, amount: '' }))}
+            />
 
             <div className="pt-1">
               <Button
                 onClick={handleCreate}
-                disabled={loading || Object.keys(errs).length > 0}
-                className="w-full h-12 text-base bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 text-white"
+                disabled={loading || Object.keys(errs).length > 0 || busyCreate}
+                className="relative w-full h-12 text-base bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 text-white"
               >
-                Create Habit
+                <Spinner
+                  className={`absolute left-3 transition-opacity ${busyCreate ? 'opacity-100' : 'opacity-0'}`}
+                  size="sm"
+                />
+                <span className={`${busyCreate ? 'opacity-70' : ''}`}>Create Habit</span>
               </Button>
             </div>
           </CardContent>
