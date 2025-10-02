@@ -2,12 +2,8 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Heart, X, ChevronDown, ChevronRight } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import CharityComboBox from '@/components/app/CharityComboBox';
+import { WEEKDAYS } from '@/models/habit';
 
 type HabitDraftLike = {
   task: string;
@@ -29,15 +25,7 @@ interface HabitEditorCardProps {
   onClearStake: () => void;
 }
 
-const WEEKDAYS = [
-  { key: 'MONDAY', label: 'Mon' },
-  { key: 'TUESDAY', label: 'Tue' },
-  { key: 'WEDNESDAY', label: 'Wed' },
-  { key: 'THURSDAY', label: 'Thu' },
-  { key: 'FRIDAY', label: 'Fri' },
-  { key: 'SATURDAY', label: 'Sat' },
-  { key: 'SUNDAY', label: 'Sun' },
-] as const;
+// WEEKDAYS imported from models
 
 export default function HabitEditorCard({
   draft,
@@ -56,79 +44,7 @@ export default function HabitEditorCard({
     onChange({ ...draft, daysOfWeek: next });
   };
 
-  const CharityComboBox = () => {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState('');
-    const items = useMemo(() => {
-      const q = query.trim().toLowerCase();
-      if (!q) return charities;
-      return charities.filter(x => x.label?.toLowerCase().includes(q));
-    }, [charities, query]);
-    const current = charities.find(c => c.id === draft.charityId);
-    const currentLabel = current?.label || '';
-    return (
-      <div className="space-y-1">
-        <label className="block text-sm" htmlFor="charity-combobox">
-          Charity
-        </label>
-        <div className="flex gap-2 items-center">
-          <DropdownMenu open={open} onOpenChange={setOpen}>
-            <DropdownMenuTrigger asChild>
-              <button
-                id="charity-combobox"
-                type="button"
-                className="w-full md:w-72 h-10 rounded-md border border-input bg-background px-3 text-left text-sm cursor-pointer"
-              >
-                {currentLabel || 'Search or select a charity'}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-72 p-0">
-              <div className="p-2 border-b">
-                <Input
-                  autoFocus
-                  placeholder="Search charity..."
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  className="h-9"
-                />
-              </div>
-              <div className="max-h-64 overflow-auto">
-                {items.length === 0 ? (
-                  <div className="px-3 py-2 text-sm text-slate-500">No results</div>
-                ) : (
-                  items.map(it => (
-                    <DropdownMenuItem
-                      key={it.id}
-                      onClick={() => {
-                        onChange({ ...draft, charityId: it.id });
-                        setOpen(false);
-                        setQuery('');
-                      }}
-                      className="cursor-pointer"
-                    >
-                      {it.label}
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {draft.charityId && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Clear charity"
-              onClick={() => onChange({ ...draft, charityId: '' })}
-              className="h-10 w-10"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        {errors.charityId && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.charityId}</p>}
-      </div>
-    );
-  };
+  // Charity combobox is now a reusable component
 
   return (
     <div className="space-y-4">
@@ -273,7 +189,12 @@ export default function HabitEditorCard({
             />
           </div>
 
-          <CharityComboBox />
+          <CharityComboBox
+            value={draft.charityId}
+            options={charities}
+            onChange={id => onChange({ ...draft, charityId: id })}
+            error={errors.charityId}
+          />
         </div>
       )}
     </div>

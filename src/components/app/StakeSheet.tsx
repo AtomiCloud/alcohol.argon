@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import { formatCentsToAmount } from '@/lib/utility/habit-utils';
 
 interface StakeSheetProps {
   open: boolean;
@@ -10,14 +11,6 @@ interface StakeSheetProps {
   onClear: () => void;
   onClose: () => void;
   onConfirm: () => void;
-}
-
-function formatCentsToAmount(cents: string): string {
-  if (!cents) return '0.00';
-  const n = Math.max(0, Number.parseInt(cents, 10) || 0);
-  const dollars = Math.floor(n / 100);
-  const centsPart = String(n % 100).padStart(2, '0');
-  return `${dollars}.${centsPart}`;
 }
 
 export function StakeSheet({ open, amountCents, onAppend, onQuick, onClear, onClose, onConfirm }: StakeSheetProps) {

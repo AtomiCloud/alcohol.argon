@@ -19,46 +19,12 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { Res, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
+import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
+import { amountToCents, formatCentsToAmount, toHHMMSS } from '@/lib/utility/habit-utils';
+import { normalizeDecimalString } from '@/lib/utility/money-utils';
 
 type NewHabitPageData = { charities: CharityPrincipalRes[] };
 type NewHabitPageProps = { initial: ResultSerial<NewHabitPageData, Problem> };
-
-const WEEKDAYS = [
-  { key: 'MONDAY', label: 'Mon' },
-  { key: 'TUESDAY', label: 'Tue' },
-  { key: 'WEDNESDAY', label: 'Wed' },
-  { key: 'THURSDAY', label: 'Thu' },
-  { key: 'FRIDAY', label: 'Fri' },
-  { key: 'SATURDAY', label: 'Sat' },
-  { key: 'SUNDAY', label: 'Sun' },
-] as const;
-
-type HabitDraft = {
-  task: string;
-  daysOfWeek: string[];
-  notificationTime: string; // UI HH:mm
-  amount: string; // number as string for UI
-  currency: string; // e.g., 'USD'
-  charityId: string;
-  enabled: boolean;
-};
-
-const defaultDraft = (charityId?: string): HabitDraft => ({
-  task: '',
-  daysOfWeek: WEEKDAYS.map(w => w.key),
-  notificationTime: '22:00',
-  amount: '',
-  currency: 'USD',
-  charityId: charityId ?? '',
-  enabled: true,
-});
-
-const toHHMMSS = (t: string | undefined | null): string | null => {
-  if (!t) return null;
-  if (/^\d{2}:\d{2}:\d{2}$/.test(t)) return t;
-  if (/^\d{2}:\d{2}$/.test(t)) return `${t}:00`;
-  return null;
-};
 
 export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const api = useSwaggerClients();
@@ -76,7 +42,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
 
   const charityOptions = useMemo(() => charities.filter(c => !!c.id), [charities]);
 
-  const [draft, setDraft] = useState<HabitDraft>(defaultDraft(charityOptions[0]?.id ?? ''));
+  const [draft, setDraft] = useState<HabitDraft>(defaultHabitDraft(charityOptions[0]?.id ?? ''));
   useEffect(() => {
     if (!draft.charityId && charityOptions[0]?.id) {
       setDraft(d => ({ ...d, charityId: charityOptions[0]!.id! }));
@@ -90,25 +56,6 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const [busyCreate, setBusyCreate] = useState(false);
 
   // Weekday toggling handled in HabitEditorCard
-
-  const formatCentsToAmount = (cents: string): string => {
-    if (!cents) return '0.00';
-    const n = Math.max(0, Number.parseInt(cents, 10) || 0);
-    const dollars = Math.floor(n / 100);
-    const centsPart = String(n % 100).padStart(2, '0');
-    return `${dollars}.${centsPart}`;
-  };
-
-  const amountToCents = (amount: string): string => {
-    if (!amount) return '';
-    const s = amount.replace(/,/g, '.');
-    const [i, f = ''] = s.split('.');
-    const intPart = (i || '0').replace(/\D/g, '') || '0';
-    const fracRaw = f.replace(/\D/g, '').slice(0, 2);
-    const fracPad = `${fracRaw}00`.slice(0, 2);
-    const cents = Number.parseInt(intPart, 10) * 100 + Number.parseInt(fracPad || '0', 10);
-    return String(Number.isNaN(cents) ? 0 : cents);
-  };
 
   const keypadAppend = (k: string) => {
     setStakeBuffer(prev => {
@@ -136,8 +83,9 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     if (!d.daysOfWeek || d.daysOfWeek.length === 0) errs.daysOfWeek = 'Choose at least one day of the week';
     const amt = d.amount?.trim();
     if (amt) {
-      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(amt);
-      if (!isAmountFormat || Number(amt) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
+      const norm = normalizeDecimalString(amt);
+      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
+      if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
       if (!d.charityId) errs.charityId = 'Please select a charity';
     }
     return errs;

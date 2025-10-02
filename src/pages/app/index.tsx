@@ -25,39 +25,14 @@ import { Spinner } from '@/components/ui/spinner';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
+import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
+import { amountToCents, formatCentsToAmount, parseStake, toHHMMSS, toHM } from '@/lib/utility/habit-utils';
+import { normalizeDecimalString } from '@/lib/utility/money-utils';
 
 type HabitPageData = { habits: HabitVersionRes[]; charities: CharityPrincipalRes[] };
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 
-type HabitDraft = {
-  task: string;
-  daysOfWeek: string[];
-  notificationTime: string; // UI HH:mm
-  amount: string; // number as string for UI
-  currency: string; // e.g., 'USD'
-  charityId: string;
-  enabled: boolean;
-};
-
-const WEEKDAYS = [
-  { key: 'MONDAY', label: 'Mon' },
-  { key: 'TUESDAY', label: 'Tue' },
-  { key: 'WEDNESDAY', label: 'Wed' },
-  { key: 'THURSDAY', label: 'Thu' },
-  { key: 'FRIDAY', label: 'Fri' },
-  { key: 'SATURDAY', label: 'Sat' },
-  { key: 'SUNDAY', label: 'Sun' },
-] as const;
-
-const defaultDraft = (charityId?: string): HabitDraft => ({
-  task: '',
-  daysOfWeek: WEEKDAYS.map(w => w.key),
-  notificationTime: '22:00',
-  amount: '',
-  currency: 'USD',
-  charityId: charityId ?? '',
-  enabled: true,
-});
+// HabitDraft + defaults consolidated under models
 
 export default function AppPage({ initial }: AppPageProps) {
   const api = useSwaggerClients();
@@ -129,36 +104,6 @@ export default function AppPage({ initial }: AppPageProps) {
 
   // weekday toggling handled by HabitEditorCard via onChange
 
-  const toHHMMSS = (t: string | undefined | null): string | null => {
-    if (!t) return null;
-    if (/^\d{2}:\d{2}:\d{2}$/.test(t)) return t;
-    if (/^\d{2}:\d{2}$/.test(t)) return `${t}:00`;
-    return null;
-  };
-
-  const toHM = (t: string | undefined | null): string => {
-    if (!t) return '';
-    if (/^\d{2}:\d{2}:\d{2}$/.test(t)) return t.slice(0, 5);
-    if (/^\d{2}:\d{2}$/.test(t)) return t;
-    return '';
-  };
-
-  const parseStake = (s: string | undefined | null): { amount: string; currency: string } => {
-    if (!s) return { amount: '', currency: 'USD' };
-    const match = s.toString().match(/([0-9]+(?:[.,][0-9]+)?)/);
-    const amount = match ? match[1].replace(',', '.') : '';
-    return { amount, currency: 'USD' };
-  };
-
-  const sanitizeAmountInput = (raw: string): string => {
-    // Allow digits and a single dot. Convert commas to dots.
-    const v = raw.replace(/,/g, '.');
-    const cleaned = v.replace(/[^0-9.]/g, '');
-    const parts = cleaned.split('.');
-    if (parts.length <= 1) return cleaned;
-    return `${parts[0]}.${parts.slice(1).join('')}`;
-  };
-
   const keypadAppend = (k: string) => {
     // Treat buffer as cents digits (no dot); 100 => $1.00
     setStakeBuffer(prev => {
@@ -167,25 +112,6 @@ export default function AppPage({ initial }: AppPageProps) {
       if (/^\d$/.test(k)) return (prev + k).replace(/^0+(?=\d)/, '');
       return prev;
     });
-  };
-
-  const formatCentsToAmount = (cents: string): string => {
-    if (!cents) return '0.00';
-    const n = Math.max(0, Number.parseInt(cents, 10) || 0);
-    const dollars = Math.floor(n / 100);
-    const centsPart = String(n % 100).padStart(2, '0');
-    return `${dollars}.${centsPart}`;
-  };
-
-  const amountToCents = (amount: string): string => {
-    if (!amount) return '';
-    const s = amount.replace(/,/g, '.');
-    const [i, f = ''] = s.split('.');
-    const intPart = (i || '0').replace(/\D/g, '') || '0';
-    const fracRaw = f.replace(/\D/g, '').slice(0, 2);
-    const fracPad = `${fracRaw}00`.slice(0, 2);
-    const cents = Number.parseInt(intPart, 10) * 100 + Number.parseInt(fracPad || '0', 10);
-    return String(Number.isNaN(cents) ? 0 : cents);
   };
 
   // stake for create handled on /app/new
@@ -202,7 +128,7 @@ export default function AppPage({ initial }: AppPageProps) {
     const val = formatCentsToAmount(stakeBuffer);
     if (stakeModalMode.type === 'edit') {
       const { habitId } = stakeModalMode;
-      setEditDraft(d => ({ ...d, [habitId]: { ...(d[habitId] || defaultDraft()), amount: val } }));
+      setEditDraft(d => ({ ...d, [habitId]: { ...(d[habitId] || defaultHabitDraft()), amount: val } }));
     }
     setStakeModalOpen(false);
   };
@@ -213,8 +139,9 @@ export default function AppPage({ initial }: AppPageProps) {
     // Stake is optional; if present, must be x or x.xx (up to 2 decimals) and > 0
     const amt = d.amount?.trim();
     if (amt) {
-      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(amt);
-      if (!isAmountFormat || Number(amt) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
+      const norm = normalizeDecimalString(amt);
+      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
+      if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
       // Charity is only required if staking
       if (!d.charityId) errs.charityId = 'Please select a charity';
     }
@@ -277,10 +204,7 @@ export default function AppPage({ initial }: AppPageProps) {
 
   const handleComplete = async (habit: HabitVersionRes) => {
     setBusyComplete(s => ({ ...s, [habit.habitId]: true }));
-    const res = await api.alcohol.zinc.api.vHabitExecutionsCreate(
-      { version: '1.0', id: habit.habitId },
-      { notes: null },
-    );
+    const res = await api.alcohol.zinc.api.vHabitExecutionsCreate({ version: '1.0', id: habit.habitId }, { notes: '' });
     await res.match({
       ok: async () => {
         await refreshHabits();
@@ -356,7 +280,7 @@ export default function AppPage({ initial }: AppPageProps) {
             onChange={d =>
               setEditDraft(prev => ({
                 ...prev,
-                [h.habitId]: { ...(prev[h.habitId] || defaultDraft()), ...d },
+                [h.habitId]: { ...(prev[h.habitId] || defaultHabitDraft()), ...d },
               }))
             }
             charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.email || c.id! }))}
@@ -366,7 +290,7 @@ export default function AppPage({ initial }: AppPageProps) {
             onClearStake={() =>
               setEditDraft(prev => ({
                 ...prev,
-                [h.habitId]: { ...(prev[h.habitId] || defaultDraft()), amount: '' },
+                [h.habitId]: { ...(prev[h.habitId] || defaultHabitDraft()), amount: '' },
               }))
             }
           />

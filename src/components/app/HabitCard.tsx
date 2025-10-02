@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { HabitVersionRes } from '@/clients/alcohol/zinc/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit, Clock, DollarSign, Check, Trash2, Flame, Crown } from 'lucide-react';
+import { Edit, Clock, Check, Trash2, Flame, Crown } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
+import { toHM } from '@/lib/utility/habit-utils';
+import { formatCurrencyFromDecimalString } from '@/lib/utility/money-utils';
 
 interface HabitCardProps {
   habit: HabitVersionRes;
@@ -16,13 +18,6 @@ interface HabitCardProps {
   completing?: boolean;
   deleting?: boolean;
   showStreaks?: boolean;
-}
-
-function toHM(t?: string | null): string {
-  if (!t) return '';
-  if (/^\d{2}:\d{2}:\d{2}$/.test(t)) return t.slice(0, 5);
-  if (/^\d{2}:\d{2}$/.test(t)) return t;
-  return '';
 }
 
 function scheduleSummary(days?: string[] | null): string {
@@ -60,6 +55,7 @@ export function HabitCard({
 }: HabitCardProps) {
   const time = toHM(habit.notificationTime || '');
   const stake = Number.parseFloat(habit.stake || '0');
+  const stakeLabel = formatCurrencyFromDecimalString(habit.stake || '0', 'USD');
   const palette = [
     'from-emerald-400 via-teal-400 to-cyan-400',
     'from-orange-400 via-fuchsia-400 to-violet-500',
@@ -138,7 +134,7 @@ export function HabitCard({
                 <div className="mt-1 text-sm text-slate-700 dark:text-slate-300">
                   {stake > 0 ? (
                     <Badge className="px-2 py-0.5 text-[10px] bg-emerald-500/15 text-emerald-700 border border-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-300 dark:border-emerald-900/40">
-                      ${habit.stake} USD {charityName ? `→ ${charityName}` : ''}
+                      {stakeLabel} {charityName ? `→ ${charityName}` : ''}
                     </Badge>
                   ) : (
                     <span className="text-slate-500">None</span>
