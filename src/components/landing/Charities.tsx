@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 
 const cats = ['Climate', 'Education', 'Health', 'Poverty', 'Animals', 'Human Rights'];
@@ -43,10 +44,11 @@ export default function Charities() {
           <div>
             <div className="relative min-h-48 sm:min-h-64">
               <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px]">
-                <img
+                <Image
                   src="/images/charities-grid-fs8.png"
                   alt="Sloth surrounded by category icons for causes"
-                  className="absolute inset-0 h-full w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>

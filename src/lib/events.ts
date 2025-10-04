@@ -24,6 +24,7 @@ const RawEvents = {
   Landing: {
     MainCTA: WaitList,
     FinalCTA: WaitList,
+    CommunityCTA: WaitList,
   },
 };
 

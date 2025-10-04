@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function HowItWorks() {
   return (
     <section id="how-it-works" className="relative overflow-hidden py-16 sm:py-20" data-reveal>
@@ -46,10 +48,11 @@ export default function HowItWorks() {
               aria-hidden
             />
             <div className="relative mx-auto aspect-[16/10] w-full max-w-[520px]">
-              <img
+              <Image
                 src="/images/how-1-calendar-fs8.png"
                 alt="Sloth placing tiles onto a weekly calendar"
-                className="absolute inset-0 h-full w-full object-contain"
+                fill
+                className="object-contain"
               />
             </div>
           </div>
@@ -64,10 +67,11 @@ export default function HowItWorks() {
                 aria-hidden
               />
               <div className="relative mx-auto aspect-[16/10] w-full max-w-[520px]">
-                <img
+                <Image
                   src="/images/how-2-stake-cause-fs8.png"
                   alt="Sloth holding coins and choosing a cause"
-                  className="absolute inset-0 h-full w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>
@@ -111,10 +115,11 @@ export default function HowItWorks() {
                 aria-hidden
               />
               <div className="relative mx-auto aspect-[16/10] w-full max-w-[520px]">
-                <img
+                <Image
                   src="/images/how-3-checkin-donate-fs8.png"
                   alt="Sloth checking in; donation heart when missed"
-                  className="absolute inset-0 h-full w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>

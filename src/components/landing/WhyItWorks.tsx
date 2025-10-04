@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function WhyItWorks() {
   return (
     <section className="relative overflow-hidden py-16 sm:py-20" data-reveal>
@@ -47,10 +49,11 @@ export default function WhyItWorks() {
                 aria-hidden
               />
               <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px]">
-                <img
+                <Image
                   src="/images/why-it-works-fs8.png"
                   alt="Sloth atop progress blocks, glowing with motivation"
-                  className="absolute inset-0 h-full w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>

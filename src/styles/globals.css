@@ -217,3 +217,16 @@ body {
   transform: translateY(0);
   animation: fade-up 600ms ease-out both;
 }
+
+/* Add vertical spacing to line breaks in paragraphs */
+p br {
+  content: '';
+  display: block;
+  margin-top: 0.5rem;
+}
+
+li br {
+  content: '';
+  display: block;
+  margin-top: 0.25rem;
+}
