@@ -7,6 +7,7 @@ import { Edit, Clock, Check, Trash2, Flame, Crown } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { toHM } from '@/lib/utility/habit-utils';
 import { formatCurrencyFromDecimalString } from '@/lib/utility/money-utils';
+import { WEEKDAY_ORDER, WEEKDAYS_ONLY, WEEKENDS_ONLY, WEEKDAY_SHORT_MAP, type WeekdayKey } from '@/models/habit';
 
 interface HabitCardProps {
   habit: HabitVersionRes;
@@ -23,22 +24,10 @@ interface HabitCardProps {
 function scheduleSummary(days?: string[] | null): string {
   const d = days ?? [];
   if (d.length === 0) return 'No schedule';
-  const order = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as const;
-  const weekdays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
-  const weekends = ['SATURDAY', 'SUNDAY'];
   if (d.length === 7) return 'Everyday';
-  if (d.length === 5 && weekdays.every(x => d.includes(x))) return 'Weekdays';
-  if (d.length === 2 && weekends.every(x => d.includes(x))) return 'Weekends';
-  const short: Record<(typeof order)[number], string> = {
-    MONDAY: 'Mon',
-    TUESDAY: 'Tue',
-    WEDNESDAY: 'Wed',
-    THURSDAY: 'Thu',
-    FRIDAY: 'Fri',
-    SATURDAY: 'Sat',
-    SUNDAY: 'Sun',
-  };
-  const selected = order.filter(k => d.includes(k)).map(k => short[k]);
+  if (d.length === 5 && WEEKDAYS_ONLY.every(x => d.includes(x))) return 'Weekdays';
+  if (d.length === 2 && WEEKENDS_ONLY.every(x => d.includes(x))) return 'Weekends';
+  const selected = WEEKDAY_ORDER.filter(k => d.includes(k)).map(k => WEEKDAY_SHORT_MAP[k]);
   return selected.join(', ');
 }
 
