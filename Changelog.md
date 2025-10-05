@@ -1,3 +1,11 @@
+## [1.24.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.23.0...v1.24.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* **landing:** enhance hero section text and layout ([#63](https://github.com/AtomiCloud/alcohol.argon/issues/63)) ([a5a4e5e](https://github.com/AtomiCloud/alcohol.argon/commit/a5a4e5ece704387df09cc00405a8604378b3128c))
+* **landing:** enhance hero section text and layout ([dd0b9fd](https://github.com/AtomiCloud/alcohol.argon/commit/dd0b9fd7ea3b6ce7ebb84d2598bdfa2e4d9bd432))
+
 ## [1.23.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.22.0...v1.23.0) (2025-10-05)
 
 
