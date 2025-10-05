@@ -77,12 +77,29 @@ export default function Hero() {
               className="h-52 sm:h-64 w-auto mx-auto mb-4 md:hidden"
             />
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
-              Finally, a habit tracker that works
+              Finally, a habit tracker{' '}
+              <span className="relative inline-block whitespace-nowrap">
+                that works
+                <svg
+                  className="absolute left-0 -bottom-1 w-full h-3 text-orange-500/60"
+                  viewBox="0 0 200 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2 9C32 5 68 2 102 4C136 6 172 10 198 7"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+              </span>
             </h1>
             <p className="mt-3 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
-              Simple daily check-ins.{' '}
-              <span className="underline decoration-amber-400/50 underline-offset-4">Optional stakes</span> that donate
-              to charity. Rewards when you succeed.
+              Simple daily check-ins. Optional stakes that donate to charity. Rewards when you succeed.
             </p>
             <p className="mt-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
               Join the waitlist for early access.
