@@ -51,10 +51,10 @@ export default function Differentiation() {
             <div>
               <h3 className="text-xl font-semibold text-slate-900 dark:text-white">Our approach</h3>
               <p className="mt-2 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
-                <span className="bg-emerald-400/20 dark:bg-emerald-300/10 px-1 rounded">Low friction</span> +{' '}
-                <span className="bg-orange-400/20 dark:bg-orange-300/10 px-1 rounded">optional real stakes</span> +{' '}
-                <span className="bg-violet-400/20 dark:bg-violet-300/10 px-1 rounded">earned flexibility</span> +{' '}
-                <span className="bg-sky-400/20 dark:bg-sky-300/10 px-1 rounded">milestone rewards</span> = lasting
+                <span className="bg-emerald-400/20 dark:bg-emerald-400/25 px-1 rounded">Low friction</span> +{' '}
+                <span className="bg-orange-400/20 dark:bg-orange-400/25 px-1 rounded">optional real stakes</span> +{' '}
+                <span className="bg-violet-400/20 dark:bg-violet-400/25 px-1 rounded">earned flexibility</span> +{' '}
+                <span className="bg-sky-400/20 dark:bg-sky-400/25 px-1 rounded">milestone rewards</span> = lasting
                 change.
               </p>
             </div>

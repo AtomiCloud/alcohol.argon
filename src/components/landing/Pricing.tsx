@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
 import Image from 'next/image';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 
 export default function Pricing() {
   return (
@@ -21,190 +22,149 @@ export default function Pricing() {
           </span>
           . Join now before spots run out.
         </p>
-        <TooltipProvider>
-          <div className="mt-6 grid gap-5 grid-cols-1 md:grid-cols-3 items-stretch">
-            <Card className="border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/80 shadow-md h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-slate-900 dark:text-white">Free Forever</CardTitle>
-                <CardDescription>Perfect for getting started</CardDescription>
-              </CardHeader>
-              <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
-                <ul className="list-disc pl-5 space-y-1.5 text-sm">
-                  <li>2 habits with streak tracking</li>
-                  <li>Optional stakes (you control amount)</li>
-                  <li>
-                    <span>Monthly </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          skips
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Voluntary skipping of a habit. Won't damage your streak or charge you. Manual use only.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border-violet-300 dark:border-violet-900/40 bg-gradient-to-b from-violet-500/10 to-transparent shadow-lg h-full flex flex-col relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="rounded-full bg-violet-600 text-white text-xs font-semibold px-3 py-1">
-                  Recommended
-                </span>
-              </div>
-              <CardHeader>
-                <CardTitle className="text-slate-900 dark:text-white">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl">USD $4.99</span>
-                      <span className="text-sm line-through text-slate-400">$9.99</span>
-                      <span className="text-xs text-slate-500">/month</span>
-                    </div>
-                    <span className="text-xs font-normal text-violet-600 dark:text-violet-400">
-                      Launch price locked forever
-                    </span>
+        <div className="mt-6 grid gap-5 grid-cols-1 md:grid-cols-3 items-stretch">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/80 shadow-md h-full flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-slate-900 dark:text-white">Free Forever</CardTitle>
+              <CardDescription>Perfect for getting started</CardDescription>
+            </CardHeader>
+            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
+              <ul className="list-disc pl-5 space-y-1.5 text-sm">
+                <li>2 habits with streak tracking</li>
+                <li>Optional stakes (you control amount)</li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Monthly skips</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Voluntary skipping of a habit. Won't damage your streak or charge you. Manual use only."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+          <Card className="border-violet-300 dark:border-violet-900/40 bg-gradient-to-b from-violet-500/10 to-transparent shadow-lg h-full flex flex-col relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="rounded-full bg-violet-600 text-white text-xs font-semibold px-3 py-1">Recommended</span>
+            </div>
+            <CardHeader>
+              <CardTitle className="text-slate-900 dark:text-white">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl">USD $4.99</span>
+                    <span className="text-sm line-through text-slate-400">$9.99</span>
+                    <span className="text-xs text-slate-500">/month</span>
                   </div>
-                </CardTitle>
-                <CardDescription>Pro — Everything in Free, plus:</CardDescription>
-              </CardHeader>
-              <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
-                <ul className="list-disc pl-5 space-y-1.5 text-sm">
-                  <li>Up to 10 habits</li>
-                  <li>
-                    <span>Earn </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          freezes
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn 1
-                          per 7-day streak.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          Flexible habits
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Set goals like "3 times per week" instead of daily. Perfect for gym, meditation, or any habit
-                          that doesn't need to be daily.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                  <li>Tuned notifications</li>
-                  <li>Milestone rewards (free months)</li>
-                  <li>We donate USD $5 at 100 days</li>
-                  <li>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          Vacation mode
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Pause your entire account when you're on holiday or business trips. No check-ins required, no
-                          streaks broken, no charges accumulated.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border-emerald-300 dark:border-emerald-900/40 bg-gradient-to-b from-emerald-500/10 to-transparent shadow-md h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-slate-900 dark:text-white">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl">USD $6.99</span>
-                      <span className="text-sm line-through text-slate-400">$13.99</span>
-                      <span className="text-xs text-slate-500">/month</span>
-                    </div>
-                    <span className="text-xs font-normal text-emerald-600 dark:text-emerald-400">
-                      Launch price locked forever
-                    </span>
+                  <span className="text-xs font-normal text-violet-600 dark:text-violet-400">
+                    Launch price locked forever
+                  </span>
+                </div>
+              </CardTitle>
+              <CardDescription>Pro — Everything in Free, plus:</CardDescription>
+            </CardHeader>
+            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
+              <ul className="list-disc pl-5 space-y-1.5 text-sm">
+                <li>Up to 10 habits</li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Earn freezes</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn 1 per 7-day streak."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Flexible habits</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Set goals like '3 times per week' instead of daily. Perfect for gym, meditation, or any habit that doesn't need to be daily."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+                <li>Tuned notifications</li>
+                <li>Milestone rewards (free months)</li>
+                <li>We donate USD $5 at 100 days</li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Vacation mode</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Pause your entire account when you're on holiday or business trips. No check-ins required, no streaks broken, no charges accumulated."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-300 dark:border-emerald-900/40 bg-gradient-to-b from-emerald-500/10 to-transparent shadow-md h-full flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-slate-900 dark:text-white">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl">USD $6.99</span>
+                    <span className="text-sm line-through text-slate-400">$13.99</span>
+                    <span className="text-xs text-slate-500">/month</span>
                   </div>
-                </CardTitle>
-                <CardDescription>Ultimate — Everything in Pro, plus:</CardDescription>
-              </CardHeader>
-              <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
-                <ul className="list-disc pl-5 space-y-1.5 text-sm">
-                  <li>Unlimited habits</li>
-                  <li>
-                    <span>More </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          freezes
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn
-                          more per streak in Ultimate.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          Debt cap
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Set a maximum amount you can donate per month. This prevents overspending and gives you full
-                          control over your budget.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <span>Future </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center">
-                          device sync
-                          <HelpCircle className="h-3 w-3 ml-0.5 text-slate-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">
-                          Sync with Garmin, Apple Watch, todo lists, and other productivity tools. Coming soon.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                  <li>We donate USD $7 at 100 days</li>
-                  <li>Priority support</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </TooltipProvider>
+                  <span className="text-xs font-normal text-emerald-600 dark:text-emerald-400">
+                    Launch price locked forever
+                  </span>
+                </div>
+              </CardTitle>
+              <CardDescription>Ultimate — Everything in Pro, plus:</CardDescription>
+            </CardHeader>
+            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
+              <ul className="list-disc pl-5 space-y-1.5 text-sm">
+                <li>Unlimited habits</li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>More freezes</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn more per streak in Ultimate."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Debt cap</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Set a maximum amount you can donate per month. This prevents overspending and gives you full control over your budget."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+                <li>
+                  <span className="inline-flex items-center gap-1">
+                    <span>Future device sync</span>
+                    <HelpCircle
+                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+                      data-tooltip-id="pricing-tooltip"
+                      data-tooltip-content="Sync with Garmin, Apple Watch, todo lists, and other productivity tools. Coming soon."
+                      data-tooltip-place="top"
+                    />
+                  </span>
+                </li>
+                <li>We donate USD $7 at 100 days</li>
+                <li>Priority support</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="mt-6 rounded-xl border border-orange-200 dark:border-orange-900/40 p-6 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 shadow-lg grid md:grid-cols-2 gap-4 items-center">
           <div>
@@ -240,7 +200,7 @@ export default function Pricing() {
                   21-100
                 </span>
                 <span>
-                  <strong>Next 80 signups:</strong> Ultimate FREE for 1 Year
+                  <strong>Next 80 signups:</strong> Pro FREE for 1 Year
                 </span>
               </div>
             </div>
@@ -251,15 +211,19 @@ export default function Pricing() {
             </p>
           </div>
           <div className="relative aspect-[16/10] w-full">
-            <Image
-              src="/images/feature-clear-analytics-fs8.png"
-              alt="Launch bonus analytics showcase"
-              fill
-              className="object-contain"
-            />
+            <Image src="/images/rocky-fs8.png" alt="Launch bonus analytics showcase" fill className="object-contain" />
           </div>
         </div>
       </div>
+      <Tooltip
+        id="pricing-tooltip"
+        className="max-w-[200px] !bg-slate-900 dark:!bg-slate-100 !text-white dark:!text-slate-900 !opacity-100 z-50"
+        clickable
+        openOnClick
+        closeOnEsc
+        closeOnScroll={false}
+        events={['click']}
+      />
     </section>
   );
 }

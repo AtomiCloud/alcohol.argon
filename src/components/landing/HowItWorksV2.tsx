@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { X, Check } from 'lucide-react';
 
 const steps = [
   {
@@ -10,13 +11,13 @@ const steps = [
   {
     title: 'Check in daily',
     body: "Tap the button. That's it. No photos, no verification, no friction. We're not your parent—we trust you.",
-    img: '/images/how-3-checkin-donate-fs8.png',
+    img: '/images/how-2-checkin-fs8.png',
     color: 'from-violet-500/10 to-transparent',
   },
   {
     title: 'Optional stakes for accountability',
     body: "Here's what makes us different: put small money on the line (you choose the amount—start with USD $1-2). Miss a day without freezes or skips? That money goes 100% to YOUR chosen charity. This isn't punishment. It's making your commitment real.",
-    img: '/images/feature-usd-stake-fs8.png',
+    img: '/images/how-3-accountability-fs8.png',
     color: 'from-emerald-500/10 to-transparent',
   },
   {
@@ -27,8 +28,8 @@ const steps = [
   },
   {
     title: 'Celebrate your success',
-    body: '50-day milestone: Free month on us. 100-day milestone: We donate $5 to charity in your honor (Pro/Ultimate paying subscribers). 200 & 500 days: More free months. When you succeed, we invest in the causes you care about.',
-    img: '/images/feature-clear-analytics-fs8.png',
+    body: 'Your first 50-day streak: Free month on us. Your first 100-day streak: We donate $5 to charity in your honor (Pro) or $7 (Ultimate). Your first 200 & 500-day streaks: More free months. When you succeed, we invest in the causes you care about.',
+    img: '/images/how-5-celebrate-fs8.png',
     color: 'from-pink-500/10 to-transparent',
   },
 ];
@@ -64,69 +65,108 @@ export default function HowItWorksV2() {
                   <p className="mt-3 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
                     {idx === 0 && (
                       <>
-                        Not "go to the gym." <strong>Start with "put on gym clothes."</strong>
-                        <br />
-                        Not "write 1000 words." <strong>Just "open the document for 5 minutes."</strong>
-                        <br />
-                        <span className="underline decoration-orange-400/50 underline-offset-4">
-                          Research shows: tiny habits stick.
-                          <sup>
-                            <a href="#ref-4" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
-                              [4]
-                            </a>
-                          </sup>
-                        </span>{' '}
-                        Overpromising kills momentum before you start.
+                        <div className="my-2.5 flex items-center gap-2">
+                          <X className="h-4 w-4 text-red-500 shrink-0" />
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Go to the gym</span>
+                        </div>
+                        <div className="my-2.5 flex items-center gap-2">
+                          <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="text-sm font-semibold">Put on gym clothes</span>
+                        </div>
+                        <div className="my-2.5 flex items-center gap-2">
+                          <X className="h-4 w-4 text-red-500 shrink-0" />
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Write 1000 words</span>
+                        </div>
+                        <div className="my-2.5 flex items-center gap-2">
+                          <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="text-sm font-semibold">Open the document for 5 minutes</span>
+                        </div>
+                        <p className="mt-4">
+                          <span className="underline decoration-orange-400/50 underline-offset-4">
+                            Research shows: tiny habits stick
+                            <sup>
+                              <a href="#ref-4" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
+                                [4]
+                              </a>
+                            </sup>
+                          </span>{' '}
+                          Overpromising kills momentum before you start
+                        </p>
                       </>
                     )}
                     {idx === 1 && (
                       <>
-                        Simply tap the check-in button. <strong>No photos, no verification, no friction.</strong>
-                        <br />
-                        Built on{' '}
-                        <span className="underline decoration-violet-400/50 underline-offset-4">
-                          trust and self-accountability
-                        </span>
-                        .
+                        <p className="my-2">
+                          Simply tap the check-in button. <strong>No photos, no verification, no friction.</strong>
+                        </p>
+                        <p className="my-2">
+                          Built on{' '}
+                          <span className="underline decoration-violet-400/50 underline-offset-4">
+                            trust and self-accountability
+                          </span>
+                          .
+                        </p>
                       </>
                     )}
                     {idx === 2 && (
                       <>
-                        Stake <strong>small amounts</strong> you choose (start with USD $1–2). Miss a day without
-                        freezes or skips? That money goes{' '}
-                        <span className="underline decoration-emerald-400/50 underline-offset-4">
-                          100% to your chosen charity
-                        </span>
-                        . This creates real commitment without punishment.
+                        <p className="my-2">
+                          Stake <strong>small amounts</strong> you choose (start with USD 1–2).
+                        </p>
+                        <p className="my-2">
+                          Miss a day without freezes or skips? That money goes{' '}
+                          <span className="underline decoration-emerald-400/50 underline-offset-4">
+                            100% to your chosen charity
+                          </span>
+                          .{' '}
+                        </p>
+                        <p className="my-2">This creates real commitment without punishment.</p>
                       </>
                     )}
                     {idx === 3 && (
                       <>
-                        <strong>Every 7‑day streak earns you a freeze</strong> that auto‑protects you when life happens.
-                        <br />
-                        Get monthly skips. Pause habits during vacation.
-                        <br />
-                        We{' '}
-                        <span className="underline decoration-sky-400/50 underline-offset-4">
-                          reward consistency with flexibility
-                        </span>
-                        .
+                        <p className="my-2">
+                          Earns freezes that <strong>auto‑protects</strong> your streaks when life happens.
+                        </p>
+                        <p className="my-2">Get monthly skips. Pause habits during vacation.</p>
+                        <p className="my-2">
+                          We{' '}
+                          <span className="underline decoration-sky-400/50 underline-offset-4">
+                            reward consistency with flexibility
+                          </span>
+                          .
+                        </p>
                       </>
                     )}
                     {idx === 4 && (
                       <>
-                        <strong>50‑day milestone:</strong> Free month on us.
-                        <br />
-                        <strong>100‑day milestone:</strong> We donate USD $5 to charity in your honor (Pro subscribers)
-                        or USD $7 (Ultimate subscribers).
-                        <br />
-                        <strong>200 & 500 days:</strong> More free months.
-                        <br />
-                        When you succeed, we{' '}
-                        <span className="underline decoration-pink-400/50 underline-offset-4">
-                          invest in the causes you care about
-                        </span>
-                        .
+                        <div className="my-3">
+                          <span className="px-2 py-0.5 rounded bg-orange-500/15 text-orange-700 dark:text-orange-300 text-xs font-semibold">
+                            Your first 50-day streak
+                          </span>
+                          <p className="mt-1 text-sm">Free month on us.</p>
+                        </div>
+                        <div className="my-3">
+                          <span className="px-2 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-300 text-xs font-semibold">
+                            Your first 100-day streak
+                          </span>
+                          <p className="mt-1 text-sm">
+                            We donate USD $5 to charity in your honor (Pro) or USD $7 (Ultimate).
+                          </p>
+                        </div>
+                        <div className="my-3">
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                            Your first 200 & 500-day streaks
+                          </span>
+                          <p className="mt-1 text-sm">More free months.</p>
+                        </div>
+                        <p className="my-2">
+                          When you succeed, we{' '}
+                          <span className="underline decoration-pink-400/50 underline-offset-4">
+                            invest in the causes you care about
+                          </span>
+                          .
+                        </p>
                       </>
                     )}
                   </p>

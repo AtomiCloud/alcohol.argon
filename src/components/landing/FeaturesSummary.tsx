@@ -1,6 +1,30 @@
-import { CheckCircle2, Zap, Shield, Heart, TrendingUp, Gift, Pause, Calendar, Bell, DollarSign } from 'lucide-react';
+import {
+  CheckCircle2,
+  Zap,
+  Shield,
+  Heart,
+  TrendingUp,
+  Gift,
+  Pause,
+  Calendar,
+  Bell,
+  DollarSign,
+  Link2,
+  Lock,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-const features = [
+type FeatureTier = 'pro' | 'ultimate' | 'both';
+
+interface Feature {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  tier?: FeatureTier;
+  tooltipText?: string;
+}
+
+const features: Feature[] = [
   {
     icon: Zap,
     title: 'Simple Check-Ins',
@@ -12,34 +36,14 @@ const features = [
     description: 'Choose your amount (USD $1-2+). 100% goes to your chosen charity if you miss.',
   },
   {
-    icon: Shield,
-    title: 'Earned Freezes',
-    description: 'Every 7-day streak earns auto-protection when life happens.',
-  },
-  {
-    icon: Calendar,
-    title: 'Flexible Habits',
-    description: 'Set "X times per week" instead of daily (Pro/Ultimate).',
-  },
-  {
     icon: Pause,
     title: 'Monthly Skips',
     description: "Voluntary pauses that won't damage your streak or charge you.",
   },
   {
-    icon: Pause,
-    title: 'Vacation Mode',
-    description: 'Pause everything during holidays or business trips (Pro/Ultimate).',
-  },
-  {
     icon: Gift,
     title: 'Milestone Rewards',
     description: 'Free months at 50, 200, 500 days. Charity donation at 100 days.',
-  },
-  {
-    icon: Bell,
-    title: 'Smart Notifications',
-    description: 'Tuned reminders that adapt to your routine (Pro/Ultimate).',
   },
   {
     icon: TrendingUp,
@@ -51,7 +55,72 @@ const features = [
     title: 'Transparent Giving',
     description: 'Monthly livestream of all donations. See where every dollar goes.',
   },
+  {
+    icon: Shield,
+    title: 'Earned Freezes',
+    description: 'Every 7-day streak earns auto-protection when life happens.',
+    tier: 'both',
+    tooltipText: 'Available in Pro and Ultimate plans',
+  },
+  {
+    icon: Calendar,
+    title: 'Flexible Habits',
+    description: 'Set "X times per week" instead of daily.',
+    tier: 'both',
+    tooltipText: 'Available in Pro and Ultimate plans',
+  },
+  {
+    icon: Pause,
+    title: 'Vacation Mode',
+    description: 'Pause everything during holidays or business trips.',
+    tier: 'both',
+    tooltipText: 'Available in Pro and Ultimate plans',
+  },
+  {
+    icon: Bell,
+    title: 'Smart Notifications',
+    description: 'Tuned reminders that adapt to your routine.',
+    tier: 'both',
+    tooltipText: 'Available in Pro and Ultimate plans',
+  },
+  {
+    icon: Link2,
+    title: 'External Sync',
+    description: 'Connect with Apple Health, Strava, and other fitness apps.',
+    tier: 'ultimate',
+    tooltipText: 'Available in Ultimate plan only',
+  },
+  {
+    icon: Lock,
+    title: 'Debt Cap',
+    description: 'Set a maximum monthly limit on potential donations for peace of mind.',
+    tier: 'ultimate',
+    tooltipText: 'Available in Ultimate plan only',
+  },
 ];
+
+const TierBadges = ({ tier }: { tier: FeatureTier }) => {
+  return (
+    <div className="flex gap-1.5 mt-2 items-center">
+      {(tier === 'pro' || tier === 'both') && (
+        <Badge
+          variant="secondary"
+          className="bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-500/20"
+        >
+          Pro
+        </Badge>
+      )}
+      {(tier === 'ultimate' || tier === 'both') && (
+        <Badge
+          variant="secondary"
+          className="bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20"
+        >
+          Ultimate
+        </Badge>
+      )}
+    </div>
+  );
+};
 
 export default function FeaturesSummary() {
   return (
@@ -81,9 +150,10 @@ export default function FeaturesSummary() {
                   <div className="rounded-lg bg-gradient-to-br from-violet-500/10 to-orange-500/10 p-2 shrink-0">
                     <Icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-slate-900 dark:text-white text-base">{feature.title}</h3>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{feature.description}</p>
+                    {feature.tier && <TierBadges tier={feature.tier} />}
                   </div>
                 </div>
               </div>

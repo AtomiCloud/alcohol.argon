@@ -6,7 +6,7 @@ export default function FAQ() {
     },
     {
       q: 'How do the promotional spots work?',
-      a: "First 10 users get Ultimate free forever. Next 10 get Pro free forever. Next 80 get Ultimate free for 1 year. After 100 users, standard pricing applies. Note: Lifetime free members don't receive the charity donation at 100 days (Pro paying subscribers get USD $5, Ultimate get USD $7).",
+      a: "First 10 users get Ultimate free forever. Next 10 get Pro free forever. Next 80 get Pro free for 1 year. After 100 users, standard pricing applies. Note: Lifetime free members don't receive the charity donation at 100 days (Pro paying subscribers get USD $5, Ultimate get USD $7).",
     },
     {
       q: 'Do I have to use stakes?',
@@ -22,7 +22,7 @@ export default function FAQ() {
     },
     {
       q: 'What about the donation at 100 days?',
-      a: 'That comes directly from our company revenue as a celebration of your success. We donate USD $5 (Pro) or USD $7 (Ultimate) in your honor to your chosen charity (paying subscribers only). Same transparency: included in our monthly donation livestream.',
+      a: 'That comes directly from our company revenue as a celebration of your success. We donate USD $5 (Pro) or USD $7 (Ultimate) in your honor to your chosen charity when your first habit reaches a 100-day streak (paying subscribers only). This milestone reward is only awarded once—when your first habit completes the streak. Subsequent habits reaching 100 days will not trigger additional donations. Same transparency: included in our monthly donation livestream.',
     },
     {
       q: 'What if I miss because of travel, sickness, or emergencies?',

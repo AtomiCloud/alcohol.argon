@@ -30,7 +30,7 @@ export default function Transparency() {
           <div className="rounded-xl border border-orange-200 dark:border-orange-900/40 p-6 bg-gradient-to-br from-orange-500/10 to-transparent shadow-md">
             <div className="relative mb-4 aspect-[16/10] w-full">
               <Image
-                src="/images/feature-usd-stake-fs8.png"
+                src="/images/transparency-stakes-fs8.png"
                 alt="Stakes transparency"
                 fill
                 className="object-contain"
@@ -52,12 +52,7 @@ export default function Transparency() {
           </div>
           <div className="rounded-xl border border-violet-200 dark:border-violet-900/40 p-6 bg-gradient-to-br from-violet-500/10 to-transparent shadow-md">
             <div className="relative mb-4 aspect-[16/10] w-full">
-              <Image
-                src="/images/feature-clear-analytics-fs8.png"
-                alt="Milestone donations"
-                fill
-                className="object-contain"
-              />
+              <Image src="/images/100day-fs8.png" alt="Milestone donations" fill className="object-contain" />
             </div>
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white">100‑day donation (paid plans)</h3>
             <p className="mt-2 text-slate-700 dark:text-slate-300">

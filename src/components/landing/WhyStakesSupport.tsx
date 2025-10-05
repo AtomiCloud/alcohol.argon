@@ -11,7 +11,7 @@ export default function WhyStakesSupport() {
           <div className="rounded-xl border border-orange-200 dark:border-orange-900/40 bg-gradient-to-tr from-orange-500/10 to-transparent p-6 shadow-md md:min-h-[360px]">
             <div className="relative mb-4 aspect-[16/10] w-full">
               <Image
-                src="/images/feature-usd-stake-fs8.png"
+                src="/images/balanced-accountability-fs8.png"
                 alt="Accountability visual"
                 fill
                 className="object-contain"
@@ -41,7 +41,7 @@ export default function WhyStakesSupport() {
           <div className="rounded-xl border border-violet-200 dark:border-violet-900/40 bg-gradient-to-tr from-violet-500/10 to-transparent p-6 shadow-md md:min-h-[360px]">
             <div className="relative mb-4 aspect-[16/10] w-full">
               <Image
-                src="/images/feature-streaks-freeze-fs8.png"
+                src="/images/balanced-celebration-fs8.png"
                 alt="Celebration visual"
                 fill
                 className="object-contain"

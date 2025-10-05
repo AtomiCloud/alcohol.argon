@@ -10,12 +10,7 @@ export default function StakesExplained() {
         <div className="mt-6 grid md:grid-cols-2 gap-6 md:gap-8">
           <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-gradient-to-tr from-orange-500/10 to-transparent md:min-h-[360px]">
             <div className="relative mb-4 aspect-[16/10] w-full">
-              <Image
-                src="/images/feature-usd-stake-fs8.png"
-                alt="Stakes control visual"
-                fill
-                className="object-contain"
-              />
+              <Image src="/images/stakes-control-fs8.png" alt="Stakes control visual" fill className="object-contain" />
             </div>
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white">You're in control</h3>
             <ul className="mt-2 list-disc pl-5 text-slate-700 dark:text-slate-300 space-y-1">
@@ -38,7 +33,7 @@ export default function StakesExplained() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-gradient-to-tr from-emerald-500/10 to-transparent md:min-h-[360px]">
             <div className="relative mb-4 aspect-[16/10] w-full">
               <Image
-                src="/images/feature-streaks-freeze-fs8.png"
+                src="/images/stakes-flexibility-fs8.png"
                 alt="Flexibility visual"
                 fill
                 className="object-contain"

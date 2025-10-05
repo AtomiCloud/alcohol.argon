@@ -56,7 +56,7 @@ export default function RealResults() {
           </ul>
           <div className="relative aspect-[16/10] w-full max-w-[540px] mx-auto">
             <Image
-              src="/images/feature-clear-analytics-fs8.png"
+              src="/images/research-fs8.png"
               alt="Analytics dashboard showing research-backed metrics"
               fill
               className="object-contain"
