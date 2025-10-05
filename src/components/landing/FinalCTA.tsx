@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TrackingEvents } from '@/lib/events';
 import { usePlausible } from 'next-plausible';
+import { useSWRConfig } from 'swr';
 
 function validateEmail(email: string) {
   return /\S+@\S+\.\S+/.test(email);
@@ -16,6 +17,7 @@ export default function FinalCTA() {
   const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
 
   const track = usePlausible();
+  const { mutate } = useSWRConfig();
 
   async function onSubmit(e: React.FormEvent) {
     track(TrackingEvents.Landing.FinalCTA.SubmitClicked);
@@ -37,6 +39,8 @@ export default function FinalCTA() {
         setMessage({ type: 'success', text: 'Successfully added to waitlist! We will contact you soon.' });
         setEmail('');
         track(TrackingEvents.Landing.FinalCTA.Success);
+        // Refresh community goal counter
+        mutate('/api/subscribers');
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
         setMessage({ type: 'error', text: 'This email is already registered on our waitlist.' });
         track(TrackingEvents.Landing.FinalCTA.AlreadySubscribed);

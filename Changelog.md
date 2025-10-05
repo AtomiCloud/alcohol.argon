@@ -1,3 +1,11 @@
+## [1.22.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.21.0...v1.22.0) (2025-09-30)
+
+
+### ✨ Features ✨
+
+* **subscriber count:** community CTA ([#60](https://github.com/AtomiCloud/alcohol.argon/issues/60)) ([26aab38](https://github.com/AtomiCloud/alcohol.argon/commit/26aab38ca5c8026ddf3d97e3835f98de9422ea4b))
+* **subscriber count:** community CTA ([5b05b13](https://github.com/AtomiCloud/alcohol.argon/commit/5b05b1319f3a12f8dfbbd6b77bf25ae9954bd9f0))
+
 ## [1.21.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.20.0...v1.21.0) (2025-09-28)
 
 
