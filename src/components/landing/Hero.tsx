@@ -89,11 +89,22 @@ export default function Hero() {
                   aria-hidden="true"
                 >
                   <path
-                    d="M2 9C32 5 68 2 102 4C136 6 172 10 198 7"
+                    d="M0 4 L200 4"
                     stroke="currentColor"
-                    strokeWidth="3"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
-                    vectorEffect="non-scaling-stroke"
+                    strokeDasharray="200"
+                    strokeDashoffset="200"
+                    style={{ animation: 'draw-underline 0.3s ease-out 0.1s forwards' }}
+                  />
+                  <path
+                    d="M25 9 L165 9"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray="140"
+                    strokeDashoffset="140"
+                    style={{ animation: 'draw-underline-fade 0.25s ease-out 0.4s forwards', opacity: 0 }}
                   />
                 </svg>
               </span>
@@ -102,7 +113,25 @@ export default function Hero() {
               Simple daily check-ins. Optional stakes that donate to charity. Rewards when you succeed.
             </p>
             <p className="mt-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
-              Join the waitlist for early access.
+              <span className="relative inline-block px-1 -mx-1">
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none [&_path]:stroke-yellow-300/70 dark:[&_path]:stroke-yellow-700/80"
+                  viewBox="0 0 300 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 25 Q80 18, 150 20 T295 22"
+                    fill="none"
+                    strokeWidth="18"
+                    strokeLinecap="round"
+                    strokeDasharray="300"
+                    strokeDashoffset="300"
+                    style={{ animation: 'draw-underline 0.3s ease-out 0.7s forwards' }}
+                  />
+                </svg>
+                <span className="relative">Join the waitlist for early access.</span>
+              </span>
             </p>
 
             <form

@@ -218,6 +218,39 @@ body {
   animation: fade-up 600ms ease-out both;
 }
 
+/* Underline drawing animation */
+@keyframes draw-underline {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes draw-underline-fade {
+  0% {
+    stroke-dashoffset: 140;
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes highlight-draw {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
 /* Add vertical spacing to line breaks in paragraphs */
 p br {
   content: '';
