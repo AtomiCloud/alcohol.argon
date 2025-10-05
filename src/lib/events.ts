@@ -25,7 +25,6 @@ const RawEvents = {
     MainCTA: WaitList,
     CommunityCTA: WaitList,
     FinalCTA: WaitList,
-    CommunityCTA: WaitList,
   },
 };
 
