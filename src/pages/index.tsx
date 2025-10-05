@@ -1,11 +1,19 @@
 import Head from 'next/head';
 import Hero from '@/components/landing/Hero';
-import SubscriberCounter from '@/components/landing/SubscriberCounter';
-import HowItWorks from '@/components/landing/HowItWorks';
-import WhyItWorks from '@/components/landing/WhyItWorks';
-import Features from '@/components/landing/Features';
-import Charities from '@/components/landing/Charities';
+import Problem from '@/components/landing/Problem';
+import HowItWorksV2 from '@/components/landing/HowItWorksV2';
+import FeaturesSummary from '@/components/landing/FeaturesSummary';
+import WhyStakesSupport from '@/components/landing/WhyStakesSupport';
+import RealResults from '@/components/landing/RealResults';
+import Differentiation from '@/components/landing/Differentiation';
+import Pricing from '@/components/landing/Pricing';
+import HowWeMakeMoney from '@/components/landing/HowWeMakeMoney';
+import StakesExplained from '@/components/landing/StakesExplained';
+import Transparency from '@/components/landing/Transparency';
+import SocialProof from '@/components/landing/SocialProof';
+import CommunityGoal from '@/components/landing/CommunityGoal';
 import FAQ from '@/components/landing/FAQ';
+import References from '@/components/landing/References';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 
@@ -21,13 +29,21 @@ export default function HomePage() {
       </Head>
       <ScrollReveal />
       <Hero />
-      <SubscriberCounter />
-      <HowItWorks />
-      <WhyItWorks />
-      <Features />
-      <Charities />
+      <Problem />
+      <CommunityGoal />
+      <HowItWorksV2 />
+      <FeaturesSummary />
+      <WhyStakesSupport />
+      <RealResults />
+      <Differentiation />
+      <Pricing />
+      <HowWeMakeMoney />
+      <StakesExplained />
+      <Transparency />
+      <SocialProof />
       <FAQ />
       <FinalCTA />
+      <References />
     </>
   );
 }

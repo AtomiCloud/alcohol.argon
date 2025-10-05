@@ -36,20 +36,20 @@ export default function FinalCTA() {
       });
       const data: { ok?: boolean; error?: string } = await res.json();
       if (data?.ok) {
-        setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
+        setMessage({ type: 'success', text: 'Successfully added to waitlist! We will contact you soon.' });
         setEmail('');
         track(TrackingEvents.Landing.FinalCTA.Success);
         // Refresh community goal counter
         mutate('/api/subscribers');
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMessage({ type: 'error', text: 'You have already subscribed' });
+        setMessage({ type: 'error', text: 'This email is already registered on our waitlist.' });
         track(TrackingEvents.Landing.FinalCTA.AlreadySubscribed);
       } else {
-        setMessage({ type: 'error', text: 'Please enter a valid email and try again.' });
+        setMessage({ type: 'error', text: 'Please enter a valid email address and try again.' });
         track(TrackingEvents.Landing.FinalCTA.ServerInvalid);
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      setMessage({ type: 'error', text: 'Connection error. Please try again.' });
       track(TrackingEvents.Landing.FinalCTA.Error);
     } finally {
       setSubmitting(false);
@@ -61,16 +61,12 @@ export default function FinalCTA() {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 p-8 sm:p-10">
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Get early access
+            Ready to build habits that actually stick?
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300">
-            Join the waitlist for priority invites and 50% off for life if we launch Pro.
+            Join the waitlist for early access. Be one of the first 100 users to get lifetime or yearly free access.
           </p>
-          <form
-            onSubmit={onSubmit}
-            className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center"
-            aria-label="Join the waitlist"
-          >
+          <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" aria-label="Join the waitlist">
             <label htmlFor="email-final" className="sr-only">
               Email address
             </label>
@@ -85,13 +81,21 @@ export default function FinalCTA() {
               required
               aria-invalid={message?.type === 'error'}
             />
-            <Button
-              type="submit"
-              disabled={disabled}
-              className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
-            >
-              {submitting ? 'Joining…' : 'Join the waitlist'}
-            </Button>
+            <label htmlFor="habit-final" className="sr-only">
+              What habit do you want to build first?
+            </label>
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+              <Button
+                type="submit"
+                disabled={disabled}
+                className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
+              >
+                {submitting ? 'Joining…' : 'Get Early Access'}
+              </Button>
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                We'll email you once at launch. No spam. Unsubscribe anytime. Only 100 promotional spots available.
+              </p>
+            </div>
           </form>
           {message && (
             <p

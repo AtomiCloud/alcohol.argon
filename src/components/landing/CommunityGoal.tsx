@@ -25,7 +25,7 @@ function emojiFor(percent: number): string {
   return '🌱';
 }
 
-export default function SubscriberCounter() {
+export default function CommunityGoal() {
   const { data, error, isLoading } = useSWR<SubsResponse>('/api/subscribers', fetcher, {
     refreshInterval: 30_000,
     revalidateOnFocus: true,
@@ -102,22 +102,22 @@ export default function SubscriberCounter() {
       });
       const data: { ok?: boolean; error?: string } = await res.json();
       if (data?.ok) {
-        setMsg({ type: 'success', text: 'You are on the list! Thanks for the boost.' });
+        setMsg({ type: 'success', text: 'Successfully added to waitlist! Thank you for your support.' });
         setEmail('');
         track(TrackingEvents.Landing.CommunityCTA.Success);
         // Refresh the counter immediately
         mutate('/api/subscribers');
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMsg({ type: 'error', text: 'You have already subscribed' });
+        setMsg({ type: 'error', text: 'This email is already registered on our waitlist.' });
         track(TrackingEvents.Landing.CommunityCTA.AlreadySubscribed);
         // Optional: still refresh in case of prior race conditions
         mutate('/api/subscribers');
       } else {
-        setMsg({ type: 'error', text: 'Something looks off. Try again.' });
+        setMsg({ type: 'error', text: 'An error occurred. Please try again.' });
         track(TrackingEvents.Landing.CommunityCTA.ServerInvalid);
       }
     } catch {
-      setMsg({ type: 'error', text: 'Something went wrong. Please try again.' });
+      setMsg({ type: 'error', text: 'Connection error. Please try again.' });
       track(TrackingEvents.Landing.CommunityCTA.Error);
     } finally {
       setSubmitting(false);
@@ -140,7 +140,8 @@ export default function SubscriberCounter() {
               Community Goal
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-slate-300">
-              We’ll donate $100 live on stream when we reach 100 waitlisters.
+              When we reach 100 waitlist members, we'll donate USD $100 live on stream to a charitable cause. Plus,
+              every waitlist member gets an exclusive discount code and locks in launch pricing forever.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
@@ -186,14 +187,18 @@ export default function SubscriberCounter() {
                   <LottieAnimation animationName="success" loop={false} />
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-400">
-                  We did it! Tune in for the $100 donation livestream 🎥💚
+                  Goal reached! Watch for our $100 charity donation livestream announcement.
                 </p>
               </div>
             ) : error ? (
-              <p className="mt-3 text-sm text-red-600 dark:text-red-400">Couldn’t load the counter. Try again soon.</p>
+              <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+                Unable to load counter. Please try again shortly.
+              </p>
             ) : (
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                You’re {Math.max(0, goal - targetCount)} away from unlocking a $100 live donation.
+                Only {Math.max(0, goal - targetCount)} more{' '}
+                {Math.max(0, goal - targetCount) === 1 ? 'signup' : 'signups'} needed to unlock our $100 charitable
+                donation livestream.
               </p>
             )}
 

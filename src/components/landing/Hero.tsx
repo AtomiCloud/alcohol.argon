@@ -39,20 +39,20 @@ export default function Hero() {
       });
       const data: { ok?: boolean; error?: string } = await res.json();
       if (data?.ok) {
-        setMessage({ type: 'success', text: 'You are on the list! We will be in touch soon.' });
+        setMessage({ type: 'success', text: 'Successfully added to waitlist! We will contact you soon.' });
         setEmail('');
         track(TrackingEvents.Landing.MainCTA.Success);
         // Refresh community goal counter
         mutate('/api/subscribers');
       } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMessage({ type: 'error', text: 'You have already subscribed' });
+        setMessage({ type: 'error', text: 'This email is already registered on our waitlist.' });
         track(TrackingEvents.Landing.MainCTA.AlreadySubscribed);
       } else {
-        setMessage({ type: 'error', text: 'Please enter a valid email and try again.' });
+        setMessage({ type: 'error', text: 'Please enter a valid email address and try again.' });
         track(TrackingEvents.Landing.MainCTA.ServerInvalid);
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      setMessage({ type: 'error', text: 'Connection error. Please try again.' });
       track(TrackingEvents.Landing.MainCTA.Error);
     } finally {
       setSubmitting(false);
@@ -77,11 +77,15 @@ export default function Hero() {
               className="h-52 sm:h-64 w-auto mx-auto mb-4 md:hidden"
             />
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
-              Build habits that stick — if you miss, help a cause.
+              Finally, a habit tracker that works
             </h1>
-            <p className="mt-3 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-justify md:text-left">
-              Set daily or weekly habits and stake money. Check in to keep your streak. Miss a check‑in, and the amount
-              you set helps a cause you choose. <sup aria-label="footnote">[1]</sup>
+            <p className="mt-3 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
+              Simple daily check-ins.{' '}
+              <span className="underline decoration-amber-400/50 underline-offset-4">Optional stakes</span> that donate
+              to charity. Rewards when you succeed.
+            </p>
+            <p className="mt-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
+              Join the waitlist for early access.
             </p>
 
             <form
@@ -108,15 +112,33 @@ export default function Hero() {
                 disabled={disabled}
                 className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
               >
-                {submitting ? 'Joining…' : 'Join the waitlist'}
+                {submitting ? 'Joining…' : 'Join the Waitlist'}
               </Button>
             </form>
-            <div className="mt-3 flex justify-center md:justify-start">
+            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 text-center md:text-left">
+              Join the waitlist to secure your exclusive discount code, lock in launch pricing forever, and help unlock
+              our USD $100 charity donation.
+            </p>
+            <div className="mt-3 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
               <a
                 href="#how-it-works"
                 className="inline-flex items-center text-sm text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
               >
                 See how it works →
+              </a>
+              <a
+                href="#references"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/40 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Backed by Research
               </a>
             </div>
             {message && (
@@ -127,22 +149,6 @@ export default function Hero() {
                 {message.text}
               </p>
             )}
-
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-              <Badge
-                variant="secondary"
-                className="bg-orange-500/15 text-orange-700 border border-orange-200 dark:bg-orange-400/10 dark:text-orange-300 dark:border-orange-900/40"
-              >
-                Payments via Airwallex
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-violet-500/15 text-violet-700 border border-violet-200 dark:bg-violet-400/10 dark:text-violet-300 dark:border-violet-900/40"
-              >
-                Pledge‑powered giving
-              </Badge>
-              <span className="text-xs">Early access: priority invite + 50% off for life if we launch Pro.</span>
-            </div>
           </div>
 
           <div className="relative min-h-48 sm:min-h-64 md:min-h-72 hidden md:block">
@@ -166,12 +172,6 @@ export default function Hero() {
             </div>
           </div>
         </div>
-
-        <p className="mt-6 text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
-          [1] LazyTax is the donor; you won’t receive a tax receipt. 100% of the amount you set goes to your selected
-          cause after payment (Airwallex) and donation (Pledge) fees. LazyTax receives 0% and is not affiliated with
-          Airwallex or Pledge.
-        </p>
       </div>
     </section>
   );

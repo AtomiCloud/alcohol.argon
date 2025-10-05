@@ -22,6 +22,7 @@ let
           # standard
           git
           infisical
+          pngquant
 
           treefmt
           gitlint

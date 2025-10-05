@@ -13,6 +13,7 @@ with packages;
   main = [
     bun
     infisical
+    pngquant
   ];
 
   lint = [
