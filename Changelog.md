@@ -1,3 +1,16 @@
+## [1.23.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.22.0...v1.23.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* new landing page ([96f2fc5](https://github.com/AtomiCloud/alcohol.argon/commit/96f2fc53793a07607fae7ecc90e23010f324106e))
+* **landing:** new layout for landing page ([fc4f96d](https://github.com/AtomiCloud/alcohol.argon/commit/fc4f96d5e1eacd9f037cd66a809bbf10b4d1b218))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** clean up ([7b617d1](https://github.com/AtomiCloud/alcohol.argon/commit/7b617d1fd17a915a943f0032b860963715dc5429))
+
 ## [1.22.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.21.0...v1.22.0) (2025-09-30)
 
 
