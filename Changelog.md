@@ -1,3 +1,11 @@
+## [1.25.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.24.0...v1.25.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* **landing:** highlight to make it nicer ([#64](https://github.com/AtomiCloud/alcohol.argon/issues/64)) ([78b47ad](https://github.com/AtomiCloud/alcohol.argon/commit/78b47ad1110551cc72f62f4f423b395a16ea3dcd))
+* **landing:** highlight to make it nicer ([8f0e29a](https://github.com/AtomiCloud/alcohol.argon/commit/8f0e29a6a7c96896f40592d199c1c331eb4b9db3))
+
 ## [1.24.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.23.0...v1.24.0) (2025-10-05)
 
 
