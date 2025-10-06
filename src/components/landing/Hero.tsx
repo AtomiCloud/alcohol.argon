@@ -81,7 +81,7 @@ export default function Hero() {
               <span className="relative inline-block whitespace-nowrap">
                 that works
                 <svg
-                  className="absolute left-0 -bottom-1 w-full h-3 text-orange-500/60"
+                  className="absolute left-0 -bottom-1 w-full h-3 text-orange-500/60 animate-underline"
                   viewBox="0 0 200 12"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -95,7 +95,6 @@ export default function Hero() {
                     strokeLinecap="round"
                     strokeDasharray="200"
                     strokeDashoffset="200"
-                    style={{ animation: 'draw-underline 0.3s ease-out 0.1s forwards' }}
                   />
                   <path
                     d="M25 9 L165 9"
@@ -104,7 +103,7 @@ export default function Hero() {
                     strokeLinecap="round"
                     strokeDasharray="140"
                     strokeDashoffset="140"
-                    style={{ animation: 'draw-underline-fade 0.25s ease-out 0.4s forwards', opacity: 0 }}
+                    className="opacity-0 animate-underline-fade"
                   />
                 </svg>
               </span>
@@ -115,7 +114,7 @@ export default function Hero() {
             <p className="mt-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
               <span className="relative inline-block px-1 -mx-1">
                 <svg
-                  className="absolute inset-0 w-full h-full pointer-events-none [&_path]:stroke-yellow-300/70 dark:[&_path]:stroke-yellow-700/80"
+                  className="absolute inset-0 w-full h-full pointer-events-none [&_path]:stroke-yellow-300/70 dark:[&_path]:stroke-yellow-700/80 animate-highlight"
                   viewBox="0 0 300 40"
                   preserveAspectRatio="none"
                   aria-hidden="true"
@@ -127,7 +126,6 @@ export default function Hero() {
                     strokeLinecap="round"
                     strokeDasharray="300"
                     strokeDashoffset="300"
-                    style={{ animation: 'draw-underline 0.3s ease-out 0.7s forwards' }}
                   />
                 </svg>
                 <span className="relative">Join the waitlist for early access.</span>

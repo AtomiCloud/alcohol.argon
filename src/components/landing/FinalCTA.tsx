@@ -61,7 +61,8 @@ export default function FinalCTA() {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 p-8 sm:p-10">
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Ready to build habits that actually stick?
+            Ready to build habits that{' '}
+            <span className="underline decoration-orange-400/50 underline-offset-4">actually stick</span>?
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300">
             Join the waitlist for early access. Be one of the first 100 users to get lifetime or yearly free access.
