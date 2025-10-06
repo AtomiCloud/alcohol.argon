@@ -1,3 +1,11 @@
+## [1.25.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.25.0...v1.25.1) (2025-10-06)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** social links in footer ([#65](https://github.com/AtomiCloud/alcohol.argon/issues/65)) ([00fbf97](https://github.com/AtomiCloud/alcohol.argon/commit/00fbf97ef57addf7dda584b7b8fe00f702602121))
+* **default:** social links in footer ([6f38125](https://github.com/AtomiCloud/alcohol.argon/commit/6f3812569c925d97f6d375e78641c5f3e0189ae4))
+
 ## [1.25.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.24.0...v1.25.0) (2025-10-05)
 
 
