@@ -1,3 +1,22 @@
+## [1.26.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.25.1...v1.26.0) (2025-10-07)
+
+
+### ✨ Features ✨
+
+* **snapshot:** enhance habit tracking features and UI ([67b19d8](https://github.com/AtomiCloud/alcohol.argon/commit/67b19d8b1e1b517ccd8302407f4403ebd338079c))
+* **config:** first working demo ([44a4d09](https://github.com/AtomiCloud/alcohol.argon/commit/44a4d09f5ed38671f6cf645d21258ac8a3630074))
+* **button:** fix layout ([9da5224](https://github.com/AtomiCloud/alcohol.argon/commit/9da522462e048d26df285aa194587845237d2250))
+* **app:** implement new features and improvements ([b531b0d](https://github.com/AtomiCloud/alcohol.argon/commit/b531b0d15b312ffd8d82a1627c0a8167be69104f))
+* **app:** implement working demo with charity selection ([e296bb0](https://github.com/AtomiCloud/alcohol.argon/commit/e296bb0a256f041bbf708e44740e9861509906e6))
+* initial working model ([93fce29](https://github.com/AtomiCloud/alcohol.argon/commit/93fce29a1e7fdff2ff70acfcb51b406bb12af73f))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **useContent:** incorrect error rendering ([e0dbff0](https://github.com/AtomiCloud/alcohol.argon/commit/e0dbff0eda9590c29b113c709c92abf6652aa7a8))
+* **default:** remove dev_server.log ([5ed44a8](https://github.com/AtomiCloud/alcohol.argon/commit/5ed44a8f1aacd3a0dd956ae73bc14ba8c60c705d))
+* **default:** update cmdk dependency version ([4686f58](https://github.com/AtomiCloud/alcohol.argon/commit/4686f5833de1fced8fa3d36068f903df61022cda))
+
 ## [1.25.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.25.0...v1.25.1) (2025-10-06)
 
 
