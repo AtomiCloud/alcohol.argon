@@ -217,8 +217,8 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
 
                     const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
                       'alcohol-zinc': {
-                        creator: (idToken, accessToken) =>
-                          Res.fromAsync(
+                        creator: (idToken, accessToken) => {
+                          return Res.fromAsync(
                             apiTree.alcohol.zinc.api.vUserCreate(
                               { version: '1.0' },
                               {
@@ -226,7 +226,8 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
                                 idToken,
                               },
                             ),
-                          ),
+                          );
+                        },
                       },
                     });
 
@@ -236,6 +237,16 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
                           ok: () => result,
                           err: errorMessage => {
                             if (guard === 'public') return result;
+                            // If setup_config, redirect directly to onboarding page
+                            if (errorMessage === 'setup_config') {
+                              return {
+                                redirect: {
+                                  permanent: false,
+                                  destination: '/onboarding',
+                                },
+                                // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
+                              } as any;
+                            }
                             const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
                             return {
                               redirect: {

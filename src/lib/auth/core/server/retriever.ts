@@ -86,11 +86,7 @@ class ServerAuthStateRetriever implements IAuthStateRetriever {
   }
 
   private async getNodeClient() {
-    const client = await this.nodeClientCache.unwrapOr(() =>
-      this.client.createNodeClientFromNextApi(this.req, this.res),
-    );
-    this.nodeClientCache = Some(client);
-    return client;
+    return await this.client.createNodeClientFromNextApi(this.req, this.res);
   }
 
   private async fetchClaims(): Promise<IdTokenClaims> {

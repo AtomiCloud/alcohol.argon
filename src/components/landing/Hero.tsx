@@ -1,63 +1,15 @@
 import type React from 'react';
-import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { TrackingEvents } from '@/lib/events';
-import { usePlausible } from 'next-plausible';
-import { useSWRConfig } from 'swr';
-
-function validateEmail(email: string) {
-  return /\S+@\S+\.\S+/.test(email);
-}
+// Removed email collection — switched to a simple CTA based on auth state
+import { useClaims } from '@/lib/auth/providers';
+import { ArrowRight, Rocket } from 'lucide-react';
 
 export default function Hero() {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
-
-  const track = usePlausible();
-  const { mutate } = useSWRConfig();
-
-  async function onSubmit(e: React.FormEvent) {
-    track(TrackingEvents.Landing.MainCTA.SubmitClicked);
-    e.preventDefault();
-    setMessage(null);
-    if (!validateEmail(email)) {
-      track(TrackingEvents.Landing.MainCTA.ClientInvalid);
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source: 'hero' }),
-      });
-      const data: { ok?: boolean; error?: string } = await res.json();
-      if (data?.ok) {
-        setMessage({ type: 'success', text: 'Successfully added to waitlist! We will contact you soon.' });
-        setEmail('');
-        track(TrackingEvents.Landing.MainCTA.Success);
-        // Refresh community goal counter
-        mutate('/api/subscribers');
-      } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMessage({ type: 'error', text: 'This email is already registered on our waitlist.' });
-        track(TrackingEvents.Landing.MainCTA.AlreadySubscribed);
-      } else {
-        setMessage({ type: 'error', text: 'Please enter a valid email address and try again.' });
-        track(TrackingEvents.Landing.MainCTA.ServerInvalid);
-      }
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Connection error. Please try again.' });
-      track(TrackingEvents.Landing.MainCTA.Error);
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const [t, v] = useClaims();
+  const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
+  const ctaLabel = isAuthed ? 'Open your app' : 'Get started';
+  const ctaHref = isAuthed ? '/app' : '/api/logto/sign-in';
 
   return (
     <section className="relative overflow-hidden" data-reveal>
@@ -112,57 +64,21 @@ export default function Hero() {
               Simple daily check-ins. Optional stakes that donate to charity. Rewards when you succeed.
             </p>
             <p className="mt-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg lg:text-lg text-center md:text-left">
-              <span className="relative inline-block px-1 -mx-1">
-                <svg
-                  className="absolute inset-0 w-full h-full pointer-events-none [&_path]:stroke-yellow-300/70 dark:[&_path]:stroke-yellow-700/80 animate-highlight"
-                  viewBox="0 0 300 40"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M5 25 Q80 18, 150 20 T295 22"
-                    fill="none"
-                    strokeWidth="18"
-                    strokeLinecap="round"
-                    strokeDasharray="300"
-                    strokeDashoffset="300"
-                  />
-                </svg>
-                <span className="relative">Join the waitlist for early access.</span>
-              </span>
+              Get started in under a minute.
             </p>
 
-            <form
-              onSubmit={onSubmit}
-              className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center max-w-md mx-auto md:mx-0"
-              aria-label="Join the waitlist"
-            >
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                placeholder="you@work.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="h-11 w-full sm:w-80 bg-white/90 dark:bg-slate-900/80"
-                required
-                aria-invalid={message?.type === 'error'}
-              />
+            <div className="mt-6 flex justify-center md:justify-start">
               <Button
-                type="submit"
-                disabled={disabled}
-                className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
+                asChild
+                className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
               >
-                {submitting ? 'Joining…' : 'Join the Waitlist'}
+                <a href={ctaHref} className="inline-flex items-center">
+                  <Rocket className="mr-2 h-5 w-5" />
+                  {ctaLabel}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
               </Button>
-            </form>
-            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 text-center md:text-left">
-              Join the waitlist to secure your exclusive discount code, lock in launch pricing forever, and help unlock
-              our USD $100 charity donation.
-            </p>
+            </div>
             <div className="mt-3 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
               <a
                 href="#how-it-works"
@@ -185,14 +101,7 @@ export default function Hero() {
                 Backed by Research
               </a>
             </div>
-            {message && (
-              <p
-                role={message.type === 'error' ? 'alert' : undefined}
-                className={`mt-3 text-sm ${message.type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}
-              >
-                {message.text}
-              </p>
-            )}
+            {/* No email capture — simplified CTA only */}
           </div>
 
           <div className="relative min-h-48 sm:min-h-64 md:min-h-72 hidden md:block">

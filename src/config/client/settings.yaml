@@ -7,7 +7,10 @@ support:
   email: support@local.host
 navbarshowoff: false
 navbar:
-  showAuth: false
+  showAuth: true
+features:
+  showStreaks: true
+  emojiTitles: true
 faro:
   enabled: false
   collectorurl: ''

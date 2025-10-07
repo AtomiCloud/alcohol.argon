@@ -1,111 +1,36 @@
-import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { TrackingEvents } from '@/lib/events';
-import { usePlausible } from 'next-plausible';
-import { useSWRConfig } from 'swr';
-
-function validateEmail(email: string) {
-  return /\S+@\S+\.\S+/.test(email);
-}
+import { useClaims } from '@/lib/auth/providers';
+import { ArrowRight, Rocket } from 'lucide-react';
 
 export default function FinalCTA() {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [t, v] = useClaims();
+  const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
 
-  const disabled = useMemo(() => submitting || !validateEmail(email), [email, submitting]);
-
-  const track = usePlausible();
-  const { mutate } = useSWRConfig();
-
-  async function onSubmit(e: React.FormEvent) {
-    track(TrackingEvents.Landing.FinalCTA.SubmitClicked);
-    e.preventDefault();
-    setMessage(null);
-    if (!validateEmail(email)) {
-      track(TrackingEvents.Landing.FinalCTA.ClientInvalid);
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source: 'final-cta' }),
-      });
-      const data: { ok?: boolean; error?: string } = await res.json();
-      if (data?.ok) {
-        setMessage({ type: 'success', text: 'Successfully added to waitlist! We will contact you soon.' });
-        setEmail('');
-        track(TrackingEvents.Landing.FinalCTA.Success);
-        // Refresh community goal counter
-        mutate('/api/subscribers');
-      } else if (res.status === 409 || data?.error === 'already_subscribed') {
-        setMessage({ type: 'error', text: 'This email is already registered on our waitlist.' });
-        track(TrackingEvents.Landing.FinalCTA.AlreadySubscribed);
-      } else {
-        setMessage({ type: 'error', text: 'Please enter a valid email address and try again.' });
-        track(TrackingEvents.Landing.FinalCTA.ServerInvalid);
-      }
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Connection error. Please try again.' });
-      track(TrackingEvents.Landing.FinalCTA.Error);
-    } finally {
-      setSubmitting(false);
-    }
+  function onPrimary() {
+    if (isAuthed) window.location.assign('/app');
+    else window.location.assign('/api/logto/sign-in');
   }
 
   return (
     <section className="py-16 sm:py-20" data-reveal>
       <div className="container mx-auto px-4 max-w-5xl">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 p-8 sm:p-10">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 p-8 sm:p-10 text-center md:text-left">
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Ready to build habits that{' '}
-            <span className="underline decoration-orange-400/50 underline-offset-4">actually stick</span>?
+            Ready to build habits that stick?
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300">
-            Join the waitlist for early access. Be one of the first 100 users to get lifetime or yearly free access.
+            {isAuthed ? 'Jump back in and continue your streak.' : 'Start now — it takes under a minute.'}
           </p>
-          <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" aria-label="Join the waitlist">
-            <label htmlFor="email-final" className="sr-only">
-              Email address
-            </label>
-            <Input
-              id="email-final"
-              type="email"
-              inputMode="email"
-              placeholder="you@work.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="h-11 w-full sm:w-80 bg-white/90 dark:bg-slate-900/80"
-              required
-              aria-invalid={message?.type === 'error'}
-            />
-            <label htmlFor="habit-final" className="sr-only">
-              What habit do you want to build first?
-            </label>
-            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-              <Button
-                type="submit"
-                disabled={disabled}
-                className="h-11 px-6 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white"
-              >
-                {submitting ? 'Joining…' : 'Get Early Access'}
-              </Button>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                We'll email you once at launch. No spam. Unsubscribe anytime. Only 100 promotional spots available.
-              </p>
-            </div>
-          </form>
-          {message && (
-            <p
-              role={message.type === 'error' ? 'alert' : undefined}
-              className={`mt-3 text-sm ${message.type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}
+          <div className="mt-6">
+            <Button
+              onClick={onPrimary}
+              className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
             >
-              {message.text}
-            </p>
-          )}
+              <Rocket className="mr-2 h-5 w-5" />
+              {isAuthed ? 'Open your app' : 'Start your first habit'}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </section>
