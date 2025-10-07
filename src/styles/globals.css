@@ -224,6 +224,89 @@ body {
   animation: fade-up 600ms ease-out both;
 }
 
+/* Underline drawing animation */
+@keyframes draw-underline {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes draw-underline-fade {
+  0% {
+    stroke-dashoffset: 140;
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes highlight-draw {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+/* Add vertical spacing to line breaks in paragraphs */
+p br {
+  content: '';
+  display: block;
+  margin-top: 0.5rem;
+}
+
+li br {
+  content: '';
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Reveal-triggered animations - only animate after section is revealed */
+/* Desktop: No delay */
+.reveal-visible .animate-underline path {
+  animation: draw-underline 0.3s ease-out 0.1s forwards;
+}
+
+.reveal-visible .animate-underline-delay path {
+  animation: draw-underline 0.3s ease-out 0.3s forwards;
+}
+
+.reveal-visible .animate-underline-fade path {
+  animation: draw-underline-fade 0.25s ease-out 0.4s forwards;
+}
+
+.reveal-visible .animate-highlight path {
+  animation: draw-underline 0.3s ease-out 0.7s forwards;
+}
+
+/* Mobile: Add 1.5s delay */
+@media (max-width: 768px) {
+  .reveal-visible .animate-underline path {
+    animation: draw-underline 0.3s ease-out 1.6s forwards;
+  }
+
+  .reveal-visible .animate-underline-delay path {
+    animation: draw-underline 0.3s ease-out 1.8s forwards;
+  }
+
+  .reveal-visible .animate-underline-fade path {
+    animation: draw-underline-fade 0.25s ease-out 1.9s forwards;
+  }
+
+  .reveal-visible .animate-highlight path {
+    animation: draw-underline 0.3s ease-out 2.2s forwards;
+  }
+}
+
 /* Subtle pulse for urgent habits */
 @keyframes pulse-subtle {
   0%,

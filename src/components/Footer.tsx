@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useConfig } from '@/adapters/external/Provider';
-import { MessageCircle, Send, Instagram, Music2, MessageSquare, Twitter, Mail, Phone } from 'lucide-react';
+import { Send, Instagram, MessageSquare, Twitter, Mail, Phone } from 'lucide-react';
+import { FaDiscord, FaWhatsapp, FaTiktok } from 'react-icons/fa';
 
 export function Footer() {
   const { common } = useConfig();
@@ -11,7 +12,7 @@ export function Footer() {
     {
       name: 'WhatsApp',
       url: 'https://wa.me/message/BXGMZ4HV5M32K1',
-      icon: MessageCircle,
+      icon: FaWhatsapp,
     },
     {
       name: 'Telegram',
@@ -26,7 +27,7 @@ export function Footer() {
     {
       name: 'TikTok',
       url: 'https://www.tiktok.com/@lazytaxclub',
-      icon: Music2,
+      icon: FaTiktok,
     },
     {
       name: 'Reddit',
@@ -37,6 +38,11 @@ export function Footer() {
       name: 'X (Twitter)',
       url: 'https://x.com/lazytaxclub',
       icon: Twitter,
+    },
+    {
+      name: 'Discord',
+      url: 'https://discord.gg/T7AtTQXr',
+      icon: FaDiscord,
     },
     {
       name: 'Email',

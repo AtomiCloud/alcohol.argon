@@ -1,1 +1,9 @@
 landscape: 'pichu'
+auth:
+  logto:
+    app:
+      id: '11cw3gr3dxszeymr92bs8'
+      endpoint: https://api.lithium.alcohol.pichu.cluster.atomi.cloud/
+    url: https://argon-alcohol-pichu.kirinnee.workers.dev
+    resources:
+      alcohol-zinc: https://api.zinc.alcohol.pichu

@@ -1,32 +1,48 @@
 export default function FAQ() {
   const items = [
     {
-      q: 'Who is the donor? Will I receive a tax receipt?',
-      a: 'LazyTax is the donor. You will not receive a tax receipt. [1]',
+      q: 'When do you launch?',
+      a: "We're aiming for late October 2025. Waitlist members will be notified first with priority access to the 100 promotional spots.",
     },
     {
-      q: 'Why is LazyTax the donor instead of donating on my behalf?',
-      a: 'Donating in your name is legally complex and requires additional registration, compliance, and ongoing operational costs. To keep things simple and affordable, LazyTax donates as the donor. This means you will not receive a tax receipt, but it lets us operate transparently and direct funds to your selected cause without passing on compliance overheads.',
+      q: 'How do the promotional spots work?',
+      a: "First 10 users get Ultimate free forever. Next 10 get Pro free forever. Next 80 get Pro free for 1 year. After 100 users, standard pricing applies. Note: Lifetime free members don't receive the charity donation at 100 days (Pro paying subscribers get USD $5, Ultimate get USD $7).",
     },
     {
-      q: 'What does “100% after fees” mean?',
-      a: 'We direct the full amount you set to your selected cause after partner fees from the payment gateway (Airwallex) and donation platform (Pledge). LazyTax receives 0% and is not affiliated with Airwallex or Pledge.',
+      q: 'Do I have to use stakes?',
+      a: 'No. Stakes are completely optional. Start without them, add them later if you need extra accountability.',
     },
     {
-      q: 'When do donations happen? Is there proof?',
-      a: 'We donate at the end of every month and show it on a public livestream. We also maintain a permanent history page with proof of donations to keep ourselves accountable. LazyTax donates 100% of our money after fees from Airwallex (payments) and Pledge (donations); we take 0%.',
+      q: 'How exactly does the donation process work?',
+      a: 'When you miss a day with stakes, you pay us at the end of the month. We then donate 100% of what you paid, minus payment gateway fees (Airwallex) and donation platform fees (Pledge.to), to your chosen charity. This means you will not receive a tax receipt for your missed stakes, since the donation is made in our name. We are working with Pledge.to to enable direct tax receipts in the future.',
     },
     {
-      q: 'Which currency is supported?',
-      a: 'You stake money in supported regions. Currency support varies by payment partner; we’ll expand coverage over time.',
+      q: 'How do I know the money actually goes to charity?',
+      a: 'Transparency is critical to us. At the end of every month, we will livestream the donation process so you can see exactly where the money goes. No hidden fees. No money kept by us beyond covering transaction costs.',
     },
     {
-      q: 'How do you track misses?',
-      a: 'You set a schedule and check in. If a required check‑in is missed, the amount you set goes to your selected cause.',
+      q: 'What about the donation at 100 days?',
+      a: 'That comes directly from our company revenue as a celebration of your success. We donate USD $5 (Pro) or USD $7 (Ultimate) in your honor to your chosen charity when your first habit reaches a 100-day streak (paying subscribers only). This milestone reward is only awarded once—when your first habit completes the streak. Subsequent habits reaching 100 days will not trigger additional donations. Same transparency: included in our monthly donation livestream.',
     },
     {
-      q: 'How does LazyTax make money?',
-      a: 'Through an optional Pro subscription that unlocks more habits, enhanced streak freezes, smarter notifications, and integrations (e.g., Garmin auto‑sync).',
+      q: 'What if I miss because of travel, sickness, or emergencies?',
+      a: "You earn freezes every 7 days that auto-protect your streak. Plus monthly skips and vacation mode. We're not trying to catch you—we're trying to help you succeed.",
+    },
+    {
+      q: 'How is this different from StickK or Forfeit?',
+      a: 'Lower price (USD $5 vs USD $20-99), no verification friction, earned flexibility, milestone rewards, balanced positive reinforcement—and complete transparency on where every dollar goes.',
+    },
+    {
+      q: "Can I change my charity after I've started?",
+      a: 'Yes. You can update your default charity anytime. Any accumulated debt for the current month will go to your newly selected charity.',
+    },
+    {
+      q: 'What happens if my payment fails at the end of the month?',
+      a: "We'll only donate what we successfully collect. We won't pursue collections or charge late fees—this is about accountability, not debt collection. If your payment method fails, your debt simply doesn't get donated that month.",
+    },
+    {
+      q: 'Where does the money go?',
+      a: 'You pay us for missed stakes. We donate 100% of what we collect, minus payment gateway (Airwallex) and donation platform (Pledge.to) fees, to your chosen charity. We livestream donations monthly for full transparency. Tax receipts are not available yet (donation is in our name), but we are working with Pledge.to to enable them in the future.',
     },
   ];
 

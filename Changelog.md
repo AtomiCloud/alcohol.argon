@@ -1,3 +1,48 @@
+## [1.25.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.25.0...v1.25.1) (2025-10-06)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** social links in footer ([#65](https://github.com/AtomiCloud/alcohol.argon/issues/65)) ([00fbf97](https://github.com/AtomiCloud/alcohol.argon/commit/00fbf97ef57addf7dda584b7b8fe00f702602121))
+* **default:** social links in footer ([6f38125](https://github.com/AtomiCloud/alcohol.argon/commit/6f3812569c925d97f6d375e78641c5f3e0189ae4))
+
+## [1.25.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.24.0...v1.25.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* **landing:** highlight to make it nicer ([#64](https://github.com/AtomiCloud/alcohol.argon/issues/64)) ([78b47ad](https://github.com/AtomiCloud/alcohol.argon/commit/78b47ad1110551cc72f62f4f423b395a16ea3dcd))
+* **landing:** highlight to make it nicer ([8f0e29a](https://github.com/AtomiCloud/alcohol.argon/commit/8f0e29a6a7c96896f40592d199c1c331eb4b9db3))
+
+## [1.24.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.23.0...v1.24.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* **landing:** enhance hero section text and layout ([#63](https://github.com/AtomiCloud/alcohol.argon/issues/63)) ([a5a4e5e](https://github.com/AtomiCloud/alcohol.argon/commit/a5a4e5ece704387df09cc00405a8604378b3128c))
+* **landing:** enhance hero section text and layout ([dd0b9fd](https://github.com/AtomiCloud/alcohol.argon/commit/dd0b9fd7ea3b6ce7ebb84d2598bdfa2e4d9bd432))
+
+## [1.23.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.22.0...v1.23.0) (2025-10-05)
+
+
+### ✨ Features ✨
+
+* new landing page ([96f2fc5](https://github.com/AtomiCloud/alcohol.argon/commit/96f2fc53793a07607fae7ecc90e23010f324106e))
+* **landing:** new layout for landing page ([fc4f96d](https://github.com/AtomiCloud/alcohol.argon/commit/fc4f96d5e1eacd9f037cd66a809bbf10b4d1b218))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** clean up ([7b617d1](https://github.com/AtomiCloud/alcohol.argon/commit/7b617d1fd17a915a943f0032b860963715dc5429))
+
+## [1.22.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.21.0...v1.22.0) (2025-09-30)
+
+
+### ✨ Features ✨
+
+* **subscriber count:** community CTA ([#60](https://github.com/AtomiCloud/alcohol.argon/issues/60)) ([26aab38](https://github.com/AtomiCloud/alcohol.argon/commit/26aab38ca5c8026ddf3d97e3835f98de9422ea4b))
+* **subscriber count:** community CTA ([5b05b13](https://github.com/AtomiCloud/alcohol.argon/commit/5b05b1319f3a12f8dfbbd6b77bf25ae9954bd9f0))
+
 ## [1.21.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.20.0...v1.21.0) (2025-09-28)
 
 

@@ -1,1 +1,9 @@
 landscape: 'raichu'
+auth:
+  logto:
+    app:
+      id: 'ztz4u19te56jowqzdrtw1'
+      endpoint: https://api.lithium.alcohol.raichu.cluster.atomi.cloud/
+    url: https://lazytax.club
+    resources:
+      alcohol-zinc: https://api.zinc.alcohol.raichu

@@ -9,7 +9,12 @@ tasks:
     cmds:
       - bun i
       - ./scripts/local/secrets.sh
-
+  image:
+    desc: 'Compress images'
+    dir: 'public/images'
+    cmds:
+      - rm *-fs8.png
+      - pngquant *.png
   build:
     desc: 'Build the application with OpenNext'
     cmds:
