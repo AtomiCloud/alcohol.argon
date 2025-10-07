@@ -218,38 +218,14 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
                     const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
                       'alcohol-zinc': {
                         creator: (idToken, accessToken) => {
-                          const timezone = (() => {
-                            try {
-                              // Prefer OIDC zoneinfo claim if present; fallback to Intl default
-                              const claims = checker.toToken(idToken) as Record<string, unknown> & {
-                                zoneinfo?: string;
-                              };
-                              const z = claims.zoneinfo || undefined;
-                              if (z && typeof z === 'string' && z.length > 0) return z;
-                            } catch {}
-                            try {
-                              return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-                            } catch {
-                              return 'UTC';
-                            }
-                          })();
-
                           return Res.fromAsync(
-                            apiTree.alcohol.zinc.api
-                              .vUserCreate(
-                                { version: '1.0' },
-                                {
-                                  accessToken,
-                                  idToken,
-                                },
-                              )
-                              .then(r =>
-                                r.andThen(() =>
-                                  apiTree.alcohol.zinc.api
-                                    .vConfigurationCreate({ version: '1.0' }, { timezone, defaultCharityId: null })
-                                    .then(cfg => cfg.map(() => undefined)),
-                                ),
-                              ),
+                            apiTree.alcohol.zinc.api.vUserCreate(
+                              { version: '1.0' },
+                              {
+                                accessToken,
+                                idToken,
+                              },
+                            ),
                           );
                         },
                       },
@@ -261,6 +237,16 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
                           ok: () => result,
                           err: errorMessage => {
                             if (guard === 'public') return result;
+                            // If setup_config, redirect directly to onboarding page
+                            if (errorMessage === 'setup_config') {
+                              return {
+                                redirect: {
+                                  permanent: false,
+                                  destination: '/onboarding',
+                                },
+                                // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
+                              } as any;
+                            }
                             const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
                             return {
                               redirect: {

@@ -26,6 +26,13 @@ const onboardingMessages = {
     action: 'Retry',
     actionHint: 'Add an email address you check regularly to your profile',
   },
+  setup_config: {
+    title: 'Complete Your Setup',
+    description: 'Just a few more details to get you started with LazyTax.',
+    icon: User,
+    action: 'Go to Setup',
+    actionHint: 'Complete your timezone and charity preferences',
+  },
 } as const;
 
 export default function Finish() {
@@ -44,6 +51,12 @@ export default function Finish() {
   const IconComponent = config.icon;
 
   const handleRefresh = () => {
+    // If setup_config, redirect to onboarding page
+    if (message === 'setup_config') {
+      router.push('/onboarding');
+      return;
+    }
+
     if (returnTo) {
       try {
         const decodedPath = decodeURIComponent(returnTo);

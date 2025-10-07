@@ -176,19 +176,6 @@ export default function HabitEditorCard({
             {errors.daysOfWeek && <p className="text-xs text-red-600 dark:text-red-400">{errors.daysOfWeek}</p>}
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-sm" htmlFor="habit-time">
-              Notification time
-            </label>
-            <Input
-              id="habit-time"
-              type="time"
-              value={draft.notificationTime}
-              onChange={e => onChange({ ...draft, notificationTime: e.target.value })}
-              className="w-40"
-            />
-          </div>
-
           <CharityComboBox
             value={draft.charityId}
             options={charities}

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -94,6 +94,24 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
             <Link href="/profile" className="w-full flex items-center">
               <User className="mr-2 h-4 w-4" />
               View Profile
+            </Link>
+          )}
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          {pathname === '/settings' ? (
+            <span
+              role="menuitem"
+              aria-disabled="true"
+              tabIndex={-1}
+              className="w-full flex items-center opacity-50 cursor-default"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </span>
+          ) : (
+            <Link href="/settings" className="w-full flex items-center">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
             </Link>
           )}
         </DropdownMenuItem>

@@ -9,7 +9,7 @@ navbarshowoff: false
 navbar:
   showAuth: false
 features:
-  showStreaks: false
+  showStreaks: true
   emojiTitles: true
 faro:
   enabled: false

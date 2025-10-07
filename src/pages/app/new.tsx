@@ -16,14 +16,18 @@ import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import { X } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, type Result } from '@/lib/monads/result';
+import { Res, Ok, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
 import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
 import { amountToCents, formatCentsToAmount, toHHMMSS } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
 
-type NewHabitPageData = { charities: CharityPrincipalRes[] };
+type NewHabitPageData = {
+  charities: CharityPrincipalRes[];
+  defaultCharityId: string | null;
+  timezone: string | null;
+};
 type NewHabitPageProps = { initial: ResultSerial<NewHabitPageData, Problem> };
 
 export default function NewHabitPage({ initial }: NewHabitPageProps) {
@@ -35,19 +39,30 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
 
   const [data] = useState(() => Res.fromSerial<NewHabitPageData, Problem>(initial));
   const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
+  const [defaultCharityId, setDefaultCharityId] = useState<string>('');
+  const [timezone, setTimezone] = useState<string>('UTC');
 
   useEffect(() => {
-    data.map(d => setCharities(d.charities));
+    data.map(d => {
+      setCharities(d.charities);
+      setDefaultCharityId(d.defaultCharityId || '');
+      setTimezone(d.timezone || 'UTC');
+    });
   }, [data]);
 
   const charityOptions = useMemo(() => charities.filter(c => !!c.id), [charities]);
 
-  const [draft, setDraft] = useState<HabitDraft>(defaultHabitDraft(charityOptions[0]?.id ?? ''));
+  const [draft, setDraft] = useState<HabitDraft>(defaultHabitDraft(''));
+
+  // Set default charity from config when data loads
   useEffect(() => {
-    if (!draft.charityId && charityOptions[0]?.id) {
-      setDraft(d => ({ ...d, charityId: charityOptions[0]!.id! }));
+    if (!draft.charityId && charityOptions.length > 0) {
+      const charityId = defaultCharityId || charityOptions[0]?.id || '';
+      if (charityId) {
+        setDraft(d => ({ ...d, charityId }));
+      }
     }
-  }, [charityOptions, draft.charityId]);
+  }, [defaultCharityId, charityOptions, draft.charityId]);
 
   // Advanced controls are handled inside HabitEditorCard
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
@@ -96,14 +111,25 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     const errs = validateDraft(draft);
     if (Object.keys(errs).length > 0) return;
     setBusyCreate(true);
+
+    // Get userId first
+    const userIdResult = await api.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
+    const userIdOk = userIdResult.isOk();
+    if (!userIdOk) {
+      setBusyCreate(false);
+      return;
+    }
+
+    const userId = await userIdResult.unwrap();
     const payload: CreateHabitReq = {
       task: draft.task || null,
       daysOfWeek: draft.daysOfWeek.length ? draft.daysOfWeek : [],
       notificationTime: toHHMMSS(draft.notificationTime),
       stake: draft.amount ? `${draft.amount}` : '0',
       charityId: draft.charityId,
+      timezone: timezone,
     };
-    const res = await api.alcohol.zinc.api.vHabitCreate({ version: '1.0' }, payload);
+    const res = await api.alcohol.zinc.api.vHabitCreate({ version: '1.0', userId }, payload);
     await res.match({
       ok: async () => {
         await router.replace('/app?created=1');
@@ -158,7 +184,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
                 charityId: draft.charityId,
               }}
               onChange={d => setDraft(prev => ({ ...prev, ...d }))}
-              charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.email || c.id! }))}
+              charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.id! }))}
               errors={errs}
               submitted={submitted}
               onOpenStake={openStakeModal}
@@ -198,13 +224,22 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'private' },
   async (_, { apiTree }): Promise<GetServerSidePropsResult<NewHabitPageProps>> => {
-    const charities: Result<NewHabitPageData, Problem> = await apiTree.alcohol.zinc.api
-      .vCharityList({ version: '1.0' })
-      .then(r => r.map(list => ({ charities: list })));
+    const charitiesResult = await apiTree.alcohol.zinc.api.vCharityList({ version: '1.0' });
+    const configResult = await apiTree.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' });
+
+    const result = charitiesResult.andThen(charities =>
+      configResult.map(config => ({
+        charities,
+        defaultCharityId: config.principal.defaultCharityId || null,
+        timezone: config.principal.timezone || null,
+      })),
+    );
+
+    const initial = await result.serial();
 
     return {
       props: {
-        initial: await charities.serial(),
+        initial,
       },
     };
   },

@@ -1,11 +1,10 @@
-import type { AuthState, IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
+import type { IAuthStateRetriever, TokenSet } from '@/lib/auth/core/types';
 import type { Problem, ProblemRegistry } from '@/lib/problem/core';
 import { Err, Ok, Res, type Result } from '@/lib/monads/result';
-import type { UserInfoResponse } from '@logto/next';
 import type { AuthChecker } from '@/lib/auth/core/checker';
 import type { AdaptedProblemDefinition } from '@/adapters/external/core';
 
-type OnBoardFix = 'verify_email' | 'set_username' | 'set_email';
+type OnBoardFix = 'verify_email' | 'set_username' | 'set_email' | 'setup_config';
 
 type OnboardResult = Result<true, OnBoardFix>;
 
@@ -29,6 +28,13 @@ class OnboardChecker {
   isActive(accessToken: string, target: string): boolean {
     const token = this.check.toToken(accessToken);
     return (token[target.replace('-', '_')] as string | undefined) === 'true';
+  }
+
+  hasConfig(accessToken: string): boolean {
+    const token = this.check.toToken(accessToken);
+    return (
+      token.configuration_id != null && typeof token.configuration_id === 'string' && token.configuration_id.length > 0
+    );
   }
 
   usernameExist(idToken: string): boolean {
@@ -64,7 +70,24 @@ class OnboardChecker {
         if (!this.emailVerified(idToken)) return Ok(Err<true, OnBoardFix>('verify_email'));
 
         const inactive = this.listInactive(tokenSet, this.targets);
-        if (inactive.length === 0) return success;
+        if (inactive.length === 0) {
+          // Check if config exists for alcohol-zinc via access token claim
+          if (this.api['alcohol-zinc'] && !this.hasConfig(tokenSet.accessTokens['alcohol-zinc'])) {
+            // Try to refresh token once in case backend just created config
+            return this.retriever.forceTokenSet().andThen(refreshedState => {
+              if (refreshedState.value.isAuthed) {
+                // Check again after refresh
+                if (!this.hasConfig(refreshedState.value.data.accessTokens['alcohol-zinc'])) {
+                  return Ok(Err<true, OnBoardFix>('setup_config'));
+                }
+                return success;
+              }
+              // If logged out during refresh, treat as unauthorized
+              return guard === 'private' ? unauthorized : success;
+            });
+          }
+          return success;
+        }
 
         return (
           Res.all(...inactive.map(target => this.api[target].creator(idToken, tokenSet.accessTokens[target])))
@@ -79,6 +102,12 @@ class OnboardChecker {
                   throw new Error(
                     `Failed to update API servers despite all API calls succeeded. Failed: ${JSON.stringify(inactive)}`,
                   );
+
+                // Check if config exists for alcohol-zinc via access token claim
+                if (this.api['alcohol-zinc'] && !this.hasConfig(state.value.data.accessTokens['alcohol-zinc'])) {
+                  return Ok(Err<true, OnBoardFix>('setup_config'));
+                }
+
                 return success;
               }
               // if this happens, somehow user logged out during this refetched access tokens
