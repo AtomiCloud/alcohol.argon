@@ -23,6 +23,7 @@ import {
   MinusCircle,
   MoreHorizontal,
   Palmtree,
+  ChevronDown,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -246,42 +247,58 @@ export function HabitCard({
         {/* Top content area */}
         <CardContent className="pt-1 px-4">
           <div className="flex items-center gap-4">
-            {/* Left side: Schedule and Stake stacked vertically */}
-            <div className="flex-1 space-y-3">
-              {/* Schedule block */}
+            {/* Left side: Streaks info (moved from bottom) */}
+            <div className="flex-1 space-y-2">
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Schedule</div>
-                <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-3 flex-wrap">
-                  <Badge className="px-2 py-0.5 text-[10px]">{scheduleSummary(habit.days)}</Badge>
-                  {showTimezone && (
-                    <>
-                      <span className="text-slate-400">•</span>
-                      <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                        <Globe className="h-3 w-3" />
-                        {habit.timezone}
-                      </span>
-                    </>
-                  )}
+                <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Streaks</div>
+                <div className="mt-1 flex items-center gap-3 text-sm md:text-base">
+                  <span
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
+                    title="Current streak"
+                  >
+                    <Flame className="h-5 w-5 text-amber-500" />
+                    <span className="text-base">{currentStreak}</span>
+                    <span className="text-xs font-normal text-slate-500">day{currentStreak !== 1 ? 's' : ''}</span>
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
+                    title="Max streak"
+                  >
+                    <Crown className="h-5 w-5 text-amber-500" />
+                    <span className="text-base">{maxStreak}</span>
+                    <span className="text-xs font-normal text-slate-500">best</span>
+                  </span>
                 </div>
-              </div>
+                {showStreaks && weekStatus && (
+                  <div className="mt-1 flex items-center gap-1.5">
+                    {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(day => {
+                      const status = weekStatus[day as keyof typeof weekStatus] as string | undefined;
 
-              {/* Stake & Time Left block */}
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Stake{' '}
-                  {!isCompleteToday && timeLeftMinutes > 0 && (
-                    <span className="text-amber-600">• {timeLeftLabel} left</span>
-                  )}
-                </div>
-                <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
-                  {stake > 0 ? (
-                    <Badge className="px-2 py-0.5 text-[10px] bg-emerald-500/15 text-emerald-700 border border-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-300 dark:border-emerald-900/40">
-                      {stakeLabel} {charityName ? `→ ${charityName}` : ''}
-                    </Badge>
-                  ) : (
-                    <span className="text-slate-500">None</span>
-                  )}
-                </div>
+                      if (!status || status === 'not_applicable') {
+                        return <span key={day} className="size-5 rounded-full bg-slate-200 dark:bg-slate-700" />;
+                      }
+
+                      const statusInfo = statusIconMap[status] || {
+                        icon: CheckCircle,
+                        color: 'text-slate-500',
+                        bgColor: 'bg-slate-200 dark:bg-slate-700',
+                        label: status,
+                      };
+                      const Icon = statusInfo.icon;
+
+                      return (
+                        <span
+                          key={day}
+                          className={`size-5 flex items-center justify-center rounded-full ${statusInfo.bgColor}`}
+                          title={`${day.charAt(0).toUpperCase() + day.slice(1)}: ${statusInfo.label}`}
+                        >
+                          <Icon className={`size-3.5 ${statusInfo.color}`} strokeWidth={2.5} />
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -315,64 +332,53 @@ export function HabitCard({
           </div>
         </CardContent>
 
-        {/* Bottom section */}
+        {/* Bottom section: Details accordion (Schedule + Stake) */}
         <CardContent className="px-4">
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-            {/* Streaks section - centered on mobile, left on desktop */}
-            {showStreaks && weekStatus && (
-              <div className="flex flex-col gap-3 items-center md:items-start">
-                {/* Week status indicators */}
-                <div className="flex items-center gap-1.5">
-                  {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(day => {
-                    const status = weekStatus[day as keyof typeof weekStatus] as string | undefined;
-
-                    // Empty circle for not applicable or null
-                    if (!status || status === 'not_applicable') {
-                      return <span key={day} className="size-5 rounded-full bg-slate-200 dark:bg-slate-700" />;
-                    }
-
-                    // Get status info, fallback to a default if status not recognized
-                    const statusInfo = statusIconMap[status] || {
-                      icon: CheckCircle,
-                      color: 'text-slate-500',
-                      bgColor: 'bg-slate-200 dark:bg-slate-700',
-                      label: status,
-                    };
-                    const Icon = statusInfo.icon;
-
-                    return (
-                      <span
-                        key={day}
-                        className={`size-5 flex items-center justify-center rounded-full ${statusInfo.bgColor}`}
-                        title={`${day.charAt(0).toUpperCase() + day.slice(1)}: ${statusInfo.label}`}
-                      >
-                        <Icon className={`size-3.5 ${statusInfo.color}`} strokeWidth={2.5} />
-                      </span>
-                    );
-                  })}
+          <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <details className="group">
+              <summary className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer select-none flex items-center justify-start gap-2 py-1">
+                <ChevronDown className="h-4 w-4 text-slate-500 transition-transform duration-200 group-open:rotate-180" />
+                <span className="text-xs text-slate-500 group-open:hidden">Show details</span>
+                <span className="text-xs text-slate-500 hidden group-open:inline">Hide details</span>
+              </summary>
+              <div className="mt-2 space-y-3">
+                {/* Schedule block */}
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Schedule</div>
+                  <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-3 flex-wrap">
+                    <Badge className="px-2 py-0.5 text-[10px]">{scheduleSummary(habit.days)}</Badge>
+                    {showTimezone && (
+                      <>
+                        <span className="text-slate-400">•</span>
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                          <Globe className="h-3 w-3" />
+                          {habit.timezone}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-                {/* Streak stats - same line for both mobile and desktop */}
-                <div className="flex items-center gap-3 text-sm md:text-base">
-                  <span
-                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
-                    title="Current streak"
-                  >
-                    <Flame className="h-5 w-5 text-amber-500" />
-                    <span className="text-base">{currentStreak}</span>
-                    <span className="text-xs font-normal text-slate-500">day{currentStreak !== 1 ? 's' : ''}</span>
-                  </span>
-                  <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <span
-                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
-                    title="Max streak"
-                  >
-                    <Crown className="h-5 w-5 text-amber-500" />
-                    <span className="text-base">{maxStreak}</span>
-                    <span className="text-xs font-normal text-slate-500">best</span>
-                  </span>
+
+                {/* Stake & Time Left block */}
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Stake{' '}
+                    {!isCompleteToday && timeLeftMinutes > 0 && (
+                      <span className="text-amber-600">• {timeLeftLabel} left</span>
+                    )}
+                  </div>
+                  <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
+                    {stake > 0 ? (
+                      <Badge className="px-2 py-0.5 text-[10px] bg-emerald-500/15 text-emerald-700 border border-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-300 dark:border-emerald-900/40">
+                        {stakeLabel} {charityName ? `→ ${charityName}` : ''}
+                      </Badge>
+                    ) : (
+                      <span className="text-slate-500">None</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
+            </details>
           </div>
         </CardContent>
       </Card>

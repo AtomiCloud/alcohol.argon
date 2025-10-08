@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useContent } from '@/lib/content/providers/useContent';
 import { Res, type Result, type ResultSerial } from '@/lib/monads/result';
-import { Plus, Flame, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle } from 'lucide-react';
+import { Plus, Flame, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle, ChevronDown } from 'lucide-react';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
@@ -137,6 +137,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
   const [confettiKey, setConfettiKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const lastProgressRef = useRef(0);
 
   const userTimezone = config?.principal?.timezone || 'UTC';
   const defaultCharity = config?.charity;
@@ -191,8 +192,6 @@ export default function AppPage({ initial }: AppPageProps) {
 
     // Optimistically mark as complete immediately
     setOptimisticCompletions(prev => new Set(prev).add(habit.id as string));
-    setConfettiKey(k => k + 1);
-    setToast('Nice work! 🎉');
 
     setBusyComplete(s => ({ ...s, [habit.id as string]: true }));
     const res = await api.alcohol.zinc.api.vHabitExecutionsCreate(
@@ -221,6 +220,17 @@ export default function AppPage({ initial }: AppPageProps) {
     });
     setBusyComplete(s => ({ ...s, [habit.id as string]: false }));
   };
+
+  // Celebrate when progress reaches 100% (transition into complete state)
+  useEffect(() => {
+    const percent = totalScheduledToday > 0 ? Math.round((completedToday / totalScheduledToday) * 100) : 0;
+    const prev = lastProgressRef.current;
+    if (prev < 100 && percent >= 100) {
+      setConfettiKey(k => k + 1);
+      setToast("You're all done today! 🎉");
+    }
+    lastProgressRef.current = percent;
+  }, [completedToday, totalScheduledToday]);
 
   const handleDelete = async (habit: HabitOverviewHabitRes) => {
     if (!habit.id || !userId) return;
@@ -270,95 +280,26 @@ export default function AppPage({ initial }: AppPageProps) {
         <meta name="robots" content="noindex" />
       </Head>
 
-      <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
+      <div className="container mx-auto max-w-5xl px-4 pt-3 pb-8 space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-xl font-semibold">Your Habits</h1>
             <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
           </div>
           <div className="flex flex-row flex-wrap items-stretch gap-2 w-full md:w-auto">
-            <Button
-              variant="outline"
-              onClick={() => {
-                // TODO: Wire up vacation mode API when available
-                alert('Vacation mode coming soon! This will pause all your habits globally.');
-              }}
-              size="sm"
-              className="flex-1 basis-1/2 md:basis-auto md:flex-none w-full md:w-auto md:h-9 md:px-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
-            >
-              <Palmtree className="h-4 w-4 mr-1.5 text-yellow-600 dark:text-yellow-500" />
-              Start Vacation
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="flex-1 basis-1/2 md:basis-auto md:flex-none w-full md:w-auto md:h-9 md:px-4"
-            >
+            <Button asChild size="sm" className="w-full md:w-auto md:h-9 md:px-4">
               <Link href="/app/new">
                 <Plus className="h-4 w-4 mr-1" /> New Habit
               </Link>
             </Button>
           </div>
         </div>
-        {/* Stats Card (now first) */}
-        <Card className="border-2">
-          <CardContent className="pt-5">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex flex-col">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
-                  <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-amber-500" />
-                    <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{overallStreak}</span>
-                    <span className="text-sm text-slate-500">days</span>
-                  </div>
-                </div>
 
-                <div className="flex flex-col">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">To Donate (EOM)</p>
-                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">${totalDebt.toFixed(2)}</p>
-                </div>
-
-                <div className="flex flex-col">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Left</p>
-                  <div className="flex items-center gap-2">
-                    <Snowflake className="h-4 w-4 text-blue-500" />
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      {5 - weekStats.freezes}/{5}
-                    </span>
-                    <span className="text-xs text-slate-500">this month</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Left</p>
-                  <div className="flex items-center gap-2">
-                    <MinusCircle className="h-4 w-4 text-slate-500" />
-                    <span className="text-lg font-bold text-slate-700 dark:text-slate-300">
-                      {5 - weekStats.skips}/{5}
-                    </span>
-                    <span className="text-xs text-slate-500">this month</span>
-                  </div>
-                </div>
-              </div>
-
-              {completedToday === totalScheduledToday && totalScheduledToday > 0 && (
-                <div className="flex justify-center pt-1">
-                  <Badge className="bg-emerald-600 text-white border-0 px-3 py-1 flex items-center gap-1">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    All done today!
-                  </Badge>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Progress Card (sticky, now second) */}
-        <div className="sticky top-4 z-10">
+        {/* Progress Card (sticky) */}
+        <div className="sticky top-14 z-10">
           <Card className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-2">
-            <CardContent className="pt-5">
-              <div className="space-y-3">
+            <CardContent className="pt-4">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">Today's Progress</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
@@ -376,6 +317,78 @@ export default function AppPage({ initial }: AppPageProps) {
                 ) : (
                   <div className="text-xs text-slate-500 dark:text-slate-400">No habits scheduled today</div>
                 )}
+                {completedToday === totalScheduledToday && totalScheduledToday > 0 && (
+                  <div className="flex justify-center pt-1">
+                    <Badge className="bg-emerald-600 text-white border-0 px-3 py-1 flex items-center gap-1">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      All done today!
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              {/* Embedded stats accordion */}
+              <div className="mt-2 border-t border-slate-200 dark:border-slate-800">
+                <details className="group">
+                  <summary className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer select-none flex items-center justify-start gap-2 py-1">
+                    <ChevronDown className="h-4 w-4 text-slate-500 transition-transform duration-200 group-open:rotate-180" />
+                    <span className="text-xs text-slate-500 group-open:hidden">Show stats</span>
+                    <span className="text-xs text-slate-500 hidden group-open:inline">Hide stats</span>
+                  </summary>
+                  <div className="mt-0 space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="flex flex-col">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
+                        <div className="flex items-center gap-2">
+                          <Flame className="h-5 w-5 text-amber-500" />
+                          <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{overallStreak}</span>
+                          <span className="text-sm text-slate-500">days</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">To Donate (EOM)</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          ${totalDebt.toFixed(2)}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Left</p>
+                        <div className="flex items-center gap-2">
+                          <Snowflake className="h-4 w-4 text-blue-500" />
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {5 - weekStats.freezes}/{5}
+                          </span>
+                          <span className="text-xs text-slate-500">this month</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Left</p>
+                        <div className="flex items-center gap-2">
+                          <MinusCircle className="h-4 w-4 text-slate-500" />
+                          <span className="text-lg font-bold text-slate-700 dark:text-slate-300">
+                            {5 - weekStats.skips}/{5}
+                          </span>
+                          <span className="text-xs text-slate-500">this month</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          alert('Vacation mode coming soon! This will pause all your habits globally.');
+                        }}
+                        className="w-full md:w-auto bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
+                      >
+                        <Palmtree className="h-4 w-4 mr-1.5 text-yellow-600 dark:text-yellow-500" />
+                        Start Vacation
+                      </Button>
+                    </div>
+                  </div>
+                </details>
               </div>
             </CardContent>
           </Card>
@@ -448,7 +461,7 @@ export default function AppPage({ initial }: AppPageProps) {
 
       {confettiKey > 0 && (
         <div className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <ConfettiExplosion key={confettiKey} force={0.35} duration={500} particleCount={15} width={600} />
+          <ConfettiExplosion key={confettiKey} force={0.4} duration={1000} particleCount={65} width={600} />
         </div>
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
