@@ -97,7 +97,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     if (!d.task || d.task.trim().length < 3) errs.task = 'Please enter a habit (min 3 chars)';
     if (!d.daysOfWeek || d.daysOfWeek.length === 0) errs.daysOfWeek = 'Choose at least one day of the week';
     const amt = d.amount?.trim();
-    if (amt) {
+    if (amt && Number(amt) > 0) {
       const norm = normalizeDecimalString(amt);
       const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
       if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
@@ -121,11 +121,12 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     }
 
     const userId = await userIdResult.unwrap();
+    const hasStake = draft.amount && Number(draft.amount) > 0;
     const payload: CreateHabitReq = {
       task: draft.task || null,
       daysOfWeek: draft.daysOfWeek.length ? draft.daysOfWeek : [],
       notificationTime: toHHMMSS(draft.notificationTime),
-      stake: draft.amount ? `${draft.amount}` : '0',
+      stake: hasStake ? `${draft.amount}` : '0',
       charityId: draft.charityId,
       timezone: timezone,
     };

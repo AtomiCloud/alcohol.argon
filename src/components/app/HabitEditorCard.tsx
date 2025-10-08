@@ -69,7 +69,7 @@ export default function HabitEditorCard({
         {/* Stake */}
         <div className="flex flex-col items-start text-left">
           <div className="text-sm text-slate-700 dark:text-slate-200 mb-1">Stake (optional)</div>
-          {!draft.amount ? (
+          {!draft.amount || Number(draft.amount) === 0 ? (
             <Button
               size="lg"
               onClick={onOpenStake}
@@ -176,12 +176,14 @@ export default function HabitEditorCard({
             {errors.daysOfWeek && <p className="text-xs text-red-600 dark:text-red-400">{errors.daysOfWeek}</p>}
           </div>
 
-          <CharityComboBox
-            value={draft.charityId}
-            options={charities}
-            onChange={id => onChange({ ...draft, charityId: id })}
-            error={errors.charityId}
-          />
+          {draft.amount && Number(draft.amount) > 0 && (
+            <CharityComboBox
+              value={draft.charityId}
+              options={charities}
+              onChange={id => onChange({ ...draft, charityId: id })}
+              error={errors.charityId}
+            />
+          )}
         </div>
       )}
     </div>
