@@ -81,7 +81,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const completedToday = completedHabits.length;
   const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak || 0), 0);
 
-  // Calculate week stats (freeze, skip, debt/fails)
+  // Calculate week stats (freeze, skip, debt/fails) - using actual API status values
   const weekStats = habits.reduce(
     (acc, habit) => {
       const week = habit.status?.week;
@@ -91,7 +91,7 @@ export default function AppPage({ initial }: AppPageProps) {
         const status = week[day];
         if (status === 'freeze') acc.freezes++;
         if (status === 'skip') acc.skips++;
-        if (status === 'fail') acc.fails++;
+        if (status === 'failed') acc.fails++;
       }
       return acc;
     },
@@ -239,16 +239,29 @@ export default function AppPage({ initial }: AppPageProps) {
       </Head>
 
       <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-xl font-semibold">Your Habits</h1>
             <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
           </div>
-          <Button asChild>
-            <Link href="/app/new">
-              <Plus className="h-4 w-4 mr-1" /> New Habit
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                // TODO: Wire up vacation mode API when available
+                alert('Vacation mode coming soon! This will pause all your habits globally.');
+              }}
+              className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
+            >
+              <Palmtree className="h-4 w-4 mr-1.5 text-yellow-600 dark:text-yellow-500" />
+              Start Vacation
+            </Button>
+            <Button asChild>
+              <Link href="/app/new">
+                <Plus className="h-4 w-4 mr-1" /> New Habit
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Progress Summary */}
@@ -276,7 +289,7 @@ export default function AppPage({ initial }: AppPageProps) {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   <div className="flex flex-col">
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
                     <div className="flex items-center gap-2">
@@ -292,46 +305,34 @@ export default function AppPage({ initial }: AppPageProps) {
                   </div>
 
                   <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Used</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Left</p>
                     <div className="flex items-center gap-2">
                       <Snowflake className="h-4 w-4 text-blue-500" />
-                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{weekStats.freezes}</span>
-                      <span className="text-xs text-slate-500">this week</span>
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                        {5 - weekStats.freezes}/{5}
+                      </span>
+                      <span className="text-xs text-slate-500">this month</span>
                     </div>
                   </div>
 
                   <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Used</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Left</p>
                     <div className="flex items-center gap-2">
                       <MinusCircle className="h-4 w-4 text-slate-500" />
-                      <span className="text-lg font-bold text-slate-700 dark:text-slate-300">{weekStats.skips}</span>
-                      <span className="text-xs text-slate-500">this week</span>
+                      <span className="text-lg font-bold text-slate-700 dark:text-slate-300">
+                        {5 - weekStats.skips}/{5}
+                      </span>
+                      <span className="text-xs text-slate-500">this month</span>
                     </div>
                   </div>
 
                   <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Vacation Days</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Vacation Left</p>
                     <div className="flex items-center gap-2">
                       <Palmtree className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-                      <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">0</span>
-                      <span className="text-xs text-slate-500">left</span>
+                      <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">14/14</span>
+                      <span className="text-xs text-slate-500">days/year</span>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col col-span-2 md:col-span-1">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Need a break?</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // TODO: Wire up vacation mode API when available
-                        alert('Vacation mode coming soon! This will pause all your habits globally.');
-                      }}
-                      className="h-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
-                    >
-                      <Palmtree className="h-3.5 w-3.5 mr-1.5 text-yellow-600 dark:text-yellow-500" />
-                      <span className="text-sm">Start Vacation</span>
-                    </Button>
                   </div>
                 </div>
 
@@ -341,19 +342,6 @@ export default function AppPage({ initial }: AppPageProps) {
                       <Sparkles className="h-3.5 w-3.5" />
                       All done today!
                     </Badge>
-                  </div>
-                )}
-
-                {/* Bottom row: fails only */}
-                {weekStats.fails > 0 && (
-                  <div className="flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">This Week:</p>
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-2 w-2 rounded-full bg-red-500" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300">
-                        {weekStats.fails} {weekStats.fails === 1 ? 'miss' : 'misses'}
-                      </span>
-                    </div>
                   </div>
                 )}
               </div>

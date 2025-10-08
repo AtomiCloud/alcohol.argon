@@ -59,15 +59,29 @@ function scheduleSummary(days?: boolean[] | null): string {
   return selectedDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
 }
 
-// Status icon mapping for streak display
-const statusIconMap = {
-  success: { icon: CheckCircle, color: 'text-emerald-500', label: 'Success' },
-  fail: { icon: XCircle, color: 'text-red-500', label: 'Failed' },
-  freeze: { icon: Snowflake, color: 'text-blue-400', label: 'Frozen' },
-  skip: { icon: MinusCircle, color: 'text-gray-400', label: 'Skipped' },
-  vacation: { icon: Palmtree, color: 'text-yellow-500', label: 'Vacation' },
-  not_applicable: { icon: AlertCircle, color: 'text-slate-300', label: 'N/A' },
-} as const;
+// Status icon mapping for streak display - using actual API status values
+const statusIconMap: Record<string, { icon: typeof CheckCircle; color: string; bgColor: string; label: string }> = {
+  succeeded: {
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
+    label: 'Completed',
+  },
+  failed: { icon: XCircle, color: 'text-red-500', bgColor: 'bg-red-100 dark:bg-red-900/30', label: 'Failed' },
+  frozen: { icon: Snowflake, color: 'text-blue-400', bgColor: 'bg-blue-100 dark:bg-blue-900/30', label: 'Frozen' },
+  skip: {
+    icon: MinusCircle,
+    color: 'text-gray-500',
+    bgColor: 'bg-gray-100 dark:bg-gray-800',
+    label: 'Skipped',
+  },
+  vacation: {
+    icon: Palmtree,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+    label: 'Vacation',
+  },
+};
 
 export function HabitCard({
   habit,
@@ -298,19 +312,28 @@ export function HabitCard({
                 <div className="flex items-center gap-1.5">
                   {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(day => {
                     const status = weekStatus[day as keyof typeof weekStatus] as string | undefined;
+
+                    // Empty circle for not applicable or null
                     if (!status || status === 'not_applicable') {
                       return <span key={day} className="size-5 rounded-full bg-slate-200 dark:bg-slate-700" />;
                     }
-                    const statusInfo =
-                      statusIconMap[status as keyof typeof statusIconMap] || statusIconMap.not_applicable;
+
+                    // Get status info, fallback to a default if status not recognized
+                    const statusInfo = statusIconMap[status] || {
+                      icon: CheckCircle,
+                      color: 'text-slate-500',
+                      bgColor: 'bg-slate-200 dark:bg-slate-700',
+                      label: status,
+                    };
                     const Icon = statusInfo.icon;
+
                     return (
                       <span
                         key={day}
-                        className={`size-5 flex items-center justify-center rounded-full ${statusInfo.color}`}
-                        title={statusInfo.label}
+                        className={`size-5 flex items-center justify-center rounded-full ${statusInfo.bgColor}`}
+                        title={`${day.charAt(0).toUpperCase() + day.slice(1)}: ${statusInfo.label}`}
                       >
-                        <Icon className="size-4" strokeWidth={2.5} />
+                        <Icon className={`size-3.5 ${statusInfo.color}`} strokeWidth={2.5} />
                       </span>
                     );
                   })}
