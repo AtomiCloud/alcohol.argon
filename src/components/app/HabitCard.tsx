@@ -293,29 +293,46 @@ export function HabitCard({
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
             {/* Streak row */}
             {showStreaks && weekStatus && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-col gap-3">
+                {/* Week status indicators */}
+                <div className="flex items-center gap-1.5">
                   {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(day => {
                     const status = weekStatus[day as keyof typeof weekStatus] as string | undefined;
                     if (!status || status === 'not_applicable') {
-                      return <span key={day} className="size-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />;
+                      return <span key={day} className="size-5 rounded-full bg-slate-200 dark:bg-slate-700" />;
                     }
                     const statusInfo =
                       statusIconMap[status as keyof typeof statusIconMap] || statusIconMap.not_applicable;
                     const Icon = statusInfo.icon;
                     return (
-                      <span key={day} className={`size-2.5 ${statusInfo.color}`} title={statusInfo.label}>
-                        <Icon className="size-2.5" />
+                      <span
+                        key={day}
+                        className={`size-5 flex items-center justify-center rounded-full ${statusInfo.color}`}
+                        title={statusInfo.label}
+                      >
+                        <Icon className="size-4" strokeWidth={2.5} />
                       </span>
                     );
                   })}
                 </div>
-                <div className="flex items-center gap-3 text-xs md:text-sm text-slate-600 dark:text-slate-400">
-                  <span className="inline-flex items-center gap-1" title="Current streak">
-                    <Flame className="h-4 w-4 text-amber-500" /> {currentStreak}
+                {/* Streak stats */}
+                <div className="flex items-center gap-4 text-sm md:text-base">
+                  <span
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
+                    title="Current streak"
+                  >
+                    <Flame className="h-5 w-5 text-amber-500" />
+                    <span className="text-base">{currentStreak}</span>
+                    <span className="text-xs font-normal text-slate-500">day{currentStreak !== 1 ? 's' : ''}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1" title="Max streak">
-                    <Crown className="h-4 w-4 text-amber-500" /> {maxStreak}
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
+                    title="Max streak"
+                  >
+                    <Crown className="h-5 w-5 text-amber-500" />
+                    <span className="text-base">{maxStreak}</span>
+                    <span className="text-xs font-normal text-slate-500">best</span>
                   </span>
                 </div>
               </div>
@@ -328,6 +345,24 @@ export function HabitCard({
                   <Edit className="h-4 w-4 mr-1" /> Edit
                 </Button>
               )}
+
+              {/* Skip button - placeholder for future API integration */}
+              {!isCompleteToday && !isRestDay && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={loading}
+                  onClick={() => {
+                    // TODO: Wire up skip API when available
+                    alert('Skip feature coming soon!');
+                  }}
+                  aria-label="Skip today"
+                >
+                  <MinusCircle className="h-4 w-4 mr-1" />
+                  Skip
+                </Button>
+              )}
+
               {onDelete && (
                 <Button
                   variant="outline"

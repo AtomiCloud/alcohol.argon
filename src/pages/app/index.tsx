@@ -9,27 +9,24 @@ import { useClientConfig, useSwaggerClients } from '@/adapters/external/Provider
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { ConfigurationRes, HabitOverviewHabitRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
+import type { ConfigurationRes, HabitOverviewHabitRes } from '@/clients/alcohol/zinc/api';
 import ConfettiExplosion from 'react-confetti-explosion';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
-import StakeSheet from '@/components/app/StakeSheet';
 import { FreeContentManager } from '@/lib/content/components/FreeContentManager';
 import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useContent } from '@/lib/content/providers/useContent';
 import { Res, type Result, type ResultSerial } from '@/lib/monads/result';
-import { Plus, Flame, CheckCircle2, CalendarX, Sparkles } from 'lucide-react';
+import { Plus, Flame, CheckCircle2, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle } from 'lucide-react';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
-import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
-import { amountToCents, formatCentsToAmount, toHHMMSS, toHM } from '@/lib/utility/habit-utils';
-import { normalizeDecimalString } from '@/lib/utility/money-utils';
 
 type HabitPageData = {
   habits: HabitOverviewHabitRes[];
   config: ConfigurationRes;
+  totalDebt: string | null;
 };
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 
@@ -58,6 +55,7 @@ export default function AppPage({ initial }: AppPageProps) {
   });
   const habits = data?.habits ?? [];
   const config = data?.config;
+  const totalDebt = data?.totalDebt ? Number.parseFloat(data.totalDebt) : 0;
 
   // Group habits by state
   const now = new Date();
@@ -103,18 +101,10 @@ export default function AppPage({ initial }: AppPageProps) {
   // creation is handled on /app/new
 
   const [userId, setUserId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState<Record<string, HabitDraft>>({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
   const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
-  const [busyUpdate, setBusyUpdate] = useState<Record<string, boolean>>({});
   const [transitioningComplete, setTransitioningComplete] = useState<Record<string, boolean>>({});
-  // advanced create handled on /app/new
-  // advanced edit options are handled within HabitEditorCard
-  const [stakeModalOpen, setStakeModalOpen] = useState(false);
-  const [stakeModalMode, setStakeModalMode] = useState<{ type: 'edit'; habitId: string } | null>(null);
-  const [stakeBuffer, setStakeBuffer] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -146,9 +136,13 @@ export default function AppPage({ initial }: AppPageProps) {
       .vHabitOverviewList({ version: '1.0', userId })
       .then(r =>
         r.andThen(overviewResponse =>
-          api.alcohol.zinc.api
-            .vConfigurationMeList({ version: '1.0' })
-            .then(r2 => r2.map(config => ({ habits: overviewResponse.habits || [], config }))),
+          api.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' }).then(r2 =>
+            r2.map(config => ({
+              habits: overviewResponse.habits || [],
+              config,
+              totalDebt: overviewResponse.totalDebt || null,
+            })),
+          ),
         ),
       );
     setContentResult(Res.fromAsync(promise));
@@ -156,116 +150,9 @@ export default function AppPage({ initial }: AppPageProps) {
 
   // create page handles weekday toggle
 
-  // weekday toggling handled by HabitEditorCard via onChange
-
-  const keypadAppend = (k: string) => {
-    // Treat buffer as cents digits (no dot); 100 => $1.00
-    setStakeBuffer(prev => {
-      if (k === 'C') return '';
-      if (k === '⌫') return prev.slice(0, -1);
-      if (/^\d$/.test(k)) return (prev + k).replace(/^0+(?=\d)/, '');
-      return prev;
-    });
-  };
-
-  // stake for create handled on /app/new
-
-  const openStakeModalForEdit = (habitId: string) => {
-    const current = editDraft[habitId]?.amount ?? '';
-    setStakeBuffer(amountToCents(current));
-    setStakeModalMode({ type: 'edit', habitId });
-    setStakeModalOpen(true);
-  };
-
-  const confirmStakeModal = () => {
-    if (!stakeModalMode) return;
-    const val = formatCentsToAmount(stakeBuffer);
-    if (stakeModalMode.type === 'edit') {
-      const { habitId } = stakeModalMode;
-      setEditDraft(d => ({ ...d, [habitId]: { ...(d[habitId] || defaultHabitDraft()), amount: val } }));
-    }
-    setStakeModalOpen(false);
-  };
-
-  const validateDraft = (d: HabitDraft): Record<string, string> => {
-    const errs: Record<string, string> = {};
-    if (!d.task || d.task.trim().length < 3) errs.task = 'Please enter a habit (min 3 chars)';
-    // Stake is optional; if present, must be x or x.xx (up to 2 decimals) and > 0
-    const amt = d.amount?.trim();
-    if (amt) {
-      const norm = normalizeDecimalString(amt);
-      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
-      if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
-      // Charity is only required if staking
-      if (!d.charityId) errs.charityId = 'Please select a charity';
-    }
-    return errs;
-  };
-
-  // creation moved to dedicated page
-
   const startEdit = (h: HabitOverviewHabitRes) => {
     if (!h.id) return;
-    setEditingId(h.id);
-    // Convert boolean array to weekday strings
-    const daysOfWeek = (h.days || [])
-      .map((active, index) => {
-        if (!active) return null;
-        const dayMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        return dayMap[index];
-      })
-      .filter((d): d is string => d !== null);
-
-    setEditDraft(prev => ({
-      ...prev,
-      [h.id as string]: {
-        task: h.name ?? '',
-        daysOfWeek,
-        notificationTime: toHM(h.notificationTime ?? ''),
-        amount: h.stake?.amount ? String(h.stake.amount) : '',
-        currency: h.stake?.currency ?? 'USD',
-        charityId: h.charity?.id ?? '',
-        enabled: h.enabled,
-      },
-    }));
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-  };
-
-  const handleUpdate = async (habit: HabitOverviewHabitRes) => {
-    if (!habit.id || !userId) return;
-    const draft = editDraft[habit.id];
-    if (!draft) return;
-    const errs = validateDraft(draft);
-    if (Object.keys(errs).length > 0) return;
-
-    const payload: UpdateHabitReq = {
-      task: draft.task || null,
-      daysOfWeek: draft.daysOfWeek?.length ? draft.daysOfWeek : [],
-      notificationTime: draft.notificationTime ? toHHMMSS(draft.notificationTime) : null,
-      stake: draft.amount ? `${draft.amount}` : '0',
-      charityId: draft.charityId,
-      enabled: draft.enabled,
-    };
-
-    setBusyUpdate(s => ({ ...s, [habit.id as string]: true }));
-    const res = await api.alcohol.zinc.api.vHabitUpdate({ version: '1.0', userId, id: habit.id }, payload);
-    await res.match({
-      ok: _data => {
-        setEditingId(null);
-        refreshHabits();
-      },
-      err: problem => {
-        problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
-          source: 'app/habits/update',
-          problem,
-        });
-        errorHandler.throwProblem(problem);
-      },
-    });
-    setBusyUpdate(s => ({ ...s, [habit.id as string]: false }));
+    router.push(`/app/edit/${h.id}`);
   };
 
   const handleComplete = async (habit: HabitOverviewHabitRes) => {
@@ -325,31 +212,21 @@ export default function AppPage({ initial }: AppPageProps) {
 
   function renderHabitRow(h: HabitOverviewHabitRes) {
     if (!h.id) return null;
-    const isEditing = editingId === h.id;
-    const draft = editDraft[h.id];
-    const errs = draft ? validateDraft(draft) : {};
-
-    if (!isEditing) {
-      return (
-        <HabitCard
-          key={h.id}
-          habit={h}
-          userTimezone={userTimezone}
-          loading={loading}
-          onEdit={() => startEdit(h)}
-          onComplete={() => handleComplete(h)}
-          onDelete={() => handleDelete(h)}
-          completing={!!busyComplete[h.id]}
-          deleting={!!busyDelete[h.id]}
-          transitioning={!!transitioningComplete[h.id]}
-          showStreaks={clientConfig?.features?.showStreaks ?? false}
-        />
-      );
-    }
-
-    // For now, editing is disabled since we need to fetch full habit details for editing
-    // The HabitOverviewHabitRes doesn't contain all the fields needed for editing
-    return null;
+    return (
+      <HabitCard
+        key={h.id}
+        habit={h}
+        userTimezone={userTimezone}
+        loading={loading}
+        onEdit={() => startEdit(h)}
+        onComplete={() => handleComplete(h)}
+        onDelete={() => handleDelete(h)}
+        completing={!!busyComplete[h.id]}
+        deleting={!!busyDelete[h.id]}
+        transitioning={!!transitioningComplete[h.id]}
+        showStreaks={clientConfig?.features?.showStreaks ?? false}
+      />
+    );
   }
 
   // (renderScheduleBadges) now handled inside HabitCard component
@@ -379,66 +256,104 @@ export default function AppPage({ initial }: AppPageProps) {
           <Card className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-2">
             <CardContent className="pt-6">
               <div className="space-y-4">
-                {/* Top row: main stats */}
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div className="flex items-center gap-6">
-                    <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Today's Progress</p>
-                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                        {completedToday}/{totalScheduledToday}
-                        <span className="text-base font-normal text-slate-500 ml-2">
-                          {totalScheduledToday > 0
-                            ? `${Math.round((completedToday / totalScheduledToday) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </p>
+                {/* Progress bar */}
+                {totalScheduledToday > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Today's Progress</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">
+                        {completedToday}/{totalScheduledToday} (
+                        {Math.round((completedToday / totalScheduledToday) * 100)}%)
+                      </span>
                     </div>
-                    {overallStreak > 0 && (
-                      <div className="border-l pl-6 border-slate-300 dark:border-slate-600">
-                        <p className="text-sm text-slate-600 dark:text-slate-400">Best Streak</p>
-                        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                          <Flame className="h-6 w-6" />
-                          {overallStreak} days
-                        </p>
-                      </div>
-                    )}
+                    <div className="relative h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${Math.round((completedToday / totalScheduledToday) * 100)}%` }}
+                      />
+                    </div>
                   </div>
-                  {completedToday === totalScheduledToday && totalScheduledToday > 0 && (
+                )}
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
+                    <div className="flex items-center gap-2">
+                      <Flame className="h-5 w-5 text-amber-500" />
+                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{overallStreak}</span>
+                      <span className="text-sm text-slate-500">days</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">To Donate (EOM)</p>
+                    <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">${totalDebt.toFixed(2)}</p>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Used</p>
+                    <div className="flex items-center gap-2">
+                      <Snowflake className="h-4 w-4 text-blue-500" />
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{weekStats.freezes}</span>
+                      <span className="text-xs text-slate-500">this week</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Used</p>
+                    <div className="flex items-center gap-2">
+                      <MinusCircle className="h-4 w-4 text-slate-500" />
+                      <span className="text-lg font-bold text-slate-700 dark:text-slate-300">{weekStats.skips}</span>
+                      <span className="text-xs text-slate-500">this week</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Vacation Days</p>
+                    <div className="flex items-center gap-2">
+                      <Palmtree className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
+                      <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">0</span>
+                      <span className="text-xs text-slate-500">left</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col col-span-2 md:col-span-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Need a break?</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // TODO: Wire up vacation mode API when available
+                        alert('Vacation mode coming soon! This will pause all your habits globally.');
+                      }}
+                      className="h-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
+                    >
+                      <Palmtree className="h-3.5 w-3.5 mr-1.5 text-yellow-600 dark:text-yellow-500" />
+                      <span className="text-sm">Start Vacation</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {completedToday === totalScheduledToday && totalScheduledToday > 0 && (
+                  <div className="flex justify-center pt-2">
                     <Badge className="bg-emerald-600 text-white border-0 px-3 py-1 flex items-center gap-1">
                       <Sparkles className="h-3.5 w-3.5" />
                       All done today!
                     </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
 
-                {/* Bottom row: week stats */}
-                {(weekStats.freezes > 0 || weekStats.skips > 0 || weekStats.fails > 0) && (
-                  <div className="flex items-center gap-6 pt-3 border-t border-slate-200 dark:border-slate-700">
+                {/* Bottom row: fails only */}
+                {weekStats.fails > 0 && (
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
                     <p className="text-xs text-slate-500 dark:text-slate-400">This Week:</p>
-                    {weekStats.fails > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-2 w-2 rounded-full bg-red-500" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">
-                          {weekStats.fails} {weekStats.fails === 1 ? 'miss' : 'misses'}
-                        </span>
-                      </div>
-                    )}
-                    {weekStats.freezes > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-2 w-2 rounded-full bg-blue-400" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">
-                          {weekStats.freezes} {weekStats.freezes === 1 ? 'freeze' : 'freezes'}
-                        </span>
-                      </div>
-                    )}
-                    {weekStats.skips > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-2 w-2 rounded-full bg-gray-400" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">
-                          {weekStats.skips} {weekStats.skips === 1 ? 'skip' : 'skips'}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-2 w-2 rounded-full bg-red-500" />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">
+                        {weekStats.fails} {weekStats.fails === 1 ? 'miss' : 'misses'}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -525,16 +440,6 @@ export default function AppPage({ initial }: AppPageProps) {
         {/* creation moved to /app/new */}
       </div>
 
-      <StakeSheet
-        open={stakeModalOpen}
-        amountCents={stakeBuffer}
-        onAppend={keypadAppend}
-        onQuick={v => setStakeBuffer(String(v * 100))}
-        onClear={() => setStakeBuffer('')}
-        onClose={() => setStakeModalOpen(false)}
-        onConfirm={confirmStakeModal}
-      />
-
       {showConfetti && (
         <div className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
           <ConfettiExplosion
@@ -558,15 +463,17 @@ export const getServerSideProps = withServerSideAtomi(
     const userIdResult = await apiTree.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
 
     const merged: Result<HabitPageData, Problem> = userIdResult.andThen(userId =>
-      apiTree.alcohol.zinc.api
-        .vHabitOverviewList({ version: '1.0', userId })
-        .then(r =>
-          r.andThen(overviewResponse =>
-            apiTree.alcohol.zinc.api
-              .vConfigurationMeList({ version: '1.0' })
-              .then(r2 => r2.map(config => ({ habits: overviewResponse.habits || [], config }))),
+      apiTree.alcohol.zinc.api.vHabitOverviewList({ version: '1.0', userId }).then(r =>
+        r.andThen(overviewResponse =>
+          apiTree.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' }).then(r2 =>
+            r2.map(config => ({
+              habits: overviewResponse.habits || [],
+              config,
+              totalDebt: overviewResponse.totalDebt || null,
+            })),
           ),
         ),
+      ),
     );
 
     return {
