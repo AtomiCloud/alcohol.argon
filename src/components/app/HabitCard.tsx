@@ -36,7 +36,6 @@ interface HabitCardProps {
   completing?: boolean;
   deleting?: boolean;
   showStreaks?: boolean;
-  transitioning?: boolean;
 }
 
 function scheduleSummary(days?: boolean[] | null): string {
@@ -96,7 +95,6 @@ export function HabitCard({
   completing,
   deleting,
   showStreaks = false,
-  transitioning = false,
 }: HabitCardProps) {
   const stake = habit.stake?.amount || 0;
   const stakeCurrency = habit.stake?.currency || 'USD';
@@ -161,30 +159,16 @@ export function HabitCard({
 
   // Determine card styling based on state
   const baseClassName = isCompleteToday
-    ? 'relative overflow-hidden opacity-40 grayscale'
+    ? 'relative overflow-hidden opacity-60'
     : isRestDay
       ? 'relative overflow-hidden opacity-40 grayscale'
       : isUrgent
         ? 'relative overflow-hidden hover:shadow-lg shadow-md ring-2 ring-amber-400/50 animate-pulse-subtle'
         : 'relative overflow-hidden hover:shadow-md transition-shadow';
 
-  // Add motion transition classes; when transitioning out (after completion),
-  // fade quickly and slide slightly so the list can collapse smoothly.
-  const isTransitioningOut = transitioning && !isCompleteToday && !isRestDay;
-  const motionClassName = isTransitioningOut
-    ? 'opacity-0 translate-y-2 scale-[0.99] pointer-events-none'
-    : 'opacity-100 translate-y-0';
-
-  const cardClassName = `${baseClassName} transform-gpu will-change-[opacity,transform] ease-out motion-reduce:transition-none ${motionClassName}`;
-
-  // Wrapper collapses height so siblings shift upward smoothly as this card exits
-  const wrapperClassName = `overflow-hidden will-change-[max-height] transition-[max-height] duration-700 ease-out ${
-    isTransitioningOut ? 'max-h-0' : 'max-h-[1000px]'
-  }`;
-
   return (
-    <div className={wrapperClassName}>
-      <Card className={cardClassName} style={{ transition: 'opacity 160ms ease, transform 260ms ease' }}>
+    <div>
+      <Card className={baseClassName}>
         <div
           className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient} ${isCompleteToday ? 'opacity-0' : 'opacity-80'}`}
           aria-hidden
@@ -268,10 +252,10 @@ export function HabitCard({
 
         {/* Top content area */}
         <CardContent className="pt-2">
-          {/* Info grid */}
-          <div className="mt-1 grid gap-4 md:grid-cols-2">
+          {/* Info row */}
+          <div className="mt-1 flex items-start gap-6">
             {/* Schedule block */}
-            <div>
+            <div className="flex-1">
               <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Schedule</div>
               <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-3 flex-wrap">
                 <Badge className="px-2 py-0.5 text-[10px]">{scheduleSummary(habit.days)}</Badge>
@@ -288,7 +272,7 @@ export function HabitCard({
             </div>
 
             {/* Stake & Time Left block */}
-            <div>
+            <div className="flex-shrink-0">
               <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Stake{' '}
                 {!isCompleteToday && timeLeftMinutes > 0 && (

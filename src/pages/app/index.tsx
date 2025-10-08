@@ -18,7 +18,7 @@ import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useContent } from '@/lib/content/providers/useContent';
 import { Res, type Result, type ResultSerial } from '@/lib/monads/result';
-import { Plus, Flame, CheckCircle2, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle } from 'lucide-react';
+import { Plus, Flame, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle } from 'lucide-react';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
@@ -61,14 +61,11 @@ export default function AppPage({ initial }: AppPageProps) {
   const now = new Date();
   const currentDayIndex = now.getDay();
 
-  const activeHabits = habits.filter(h => {
-    const isCompleted = h.status?.isCompleteToday || false;
+  const todayHabits = habits.filter(h => {
     const isDayScheduled = h.days?.[currentDayIndex] ?? false;
     const isEnabled = h.enabled ?? true;
-    return !isCompleted && isDayScheduled && isEnabled;
+    return isDayScheduled && isEnabled;
   });
-
-  const completedHabits = habits.filter(h => h.status?.isCompleteToday || false);
 
   const restDayHabits = habits.filter(h => {
     const isCompleted = h.status?.isCompleteToday || false;
@@ -77,8 +74,8 @@ export default function AppPage({ initial }: AppPageProps) {
   });
 
   // Calculate progress
-  const totalScheduledToday = activeHabits.length + completedHabits.length;
-  const completedToday = completedHabits.length;
+  const totalScheduledToday = todayHabits.length;
+  const completedToday = todayHabits.filter(h => h.status?.isCompleteToday).length;
   const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak || 0), 0);
 
   // Calculate week stats (freeze, skip, debt/fails) - using actual API status values
@@ -101,10 +98,8 @@ export default function AppPage({ initial }: AppPageProps) {
   // creation is handled on /app/new
 
   const [userId, setUserId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
   const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
-  const [transitioningComplete, setTransitioningComplete] = useState<Record<string, boolean>>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -164,18 +159,9 @@ export default function AppPage({ initial }: AppPageProps) {
     );
     await res.match({
       ok: async () => {
-        // Trigger transition-out on the card before we move it to Completed
-        setTransitioningComplete(s => ({ ...s, [habit.id as string]: true }));
         setShowConfetti(true);
         setToast('Nice work! 🎉');
-        // Let the animation play before reloading data so movement feels smooth
-        await new Promise(resolve => setTimeout(resolve, 800));
         await refreshHabits();
-        // Clear transition state after refresh
-        setTransitioningComplete(s => {
-          const { [habit.id as string]: _omit, ...rest } = s;
-          return rest;
-        });
       },
       err: problem => {
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
@@ -194,7 +180,6 @@ export default function AppPage({ initial }: AppPageProps) {
     const res = await api.alcohol.zinc.api.vHabitDelete({ version: '1.0', userId, id: habit.id });
     await res.match({
       ok: async () => {
-        setDeletingId(null);
         await refreshHabits();
       },
       err: problem => {
@@ -223,7 +208,6 @@ export default function AppPage({ initial }: AppPageProps) {
         onDelete={() => handleDelete(h)}
         completing={!!busyComplete[h.id]}
         deleting={!!busyDelete[h.id]}
-        transitioning={!!transitioningComplete[h.id]}
         showStreaks={clientConfig?.features?.showStreaks ?? false}
       />
     );
@@ -371,31 +355,17 @@ export default function AppPage({ initial }: AppPageProps) {
         >
           {habits.length === 0 ? null : (
             <div className="space-y-6">
-              {/* Active Habits Section */}
-              {activeHabits.length > 0 && (
+              {/* Today's Habits Section */}
+              {todayHabits.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Flame className="h-5 w-5 text-amber-500" />
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Active Today</h2>
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Today</h2>
                     <Badge variant="secondary" className="text-xs">
-                      {activeHabits.length}
+                      {completedToday}/{todayHabits.length}
                     </Badge>
                   </div>
-                  <div className="flex flex-col gap-3">{activeHabits.map(h => renderHabitRow(h))}</div>
-                </div>
-              )}
-
-              {/* Completed Habits Section */}
-              {completedHabits.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    <h2 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">Completed</h2>
-                    <Badge variant="secondary" className="text-xs bg-emerald-100 dark:bg-emerald-900/30">
-                      {completedHabits.length}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-col gap-3">{completedHabits.map(h => renderHabitRow(h))}</div>
+                  <div className="flex flex-col gap-3">{todayHabits.map(h => renderHabitRow(h))}</div>
                 </div>
               )}
 
