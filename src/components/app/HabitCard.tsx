@@ -155,11 +155,9 @@ export function HabitCard({
   };
 
   // Determine card styling based on state
-  const baseClassName = isCompleteToday
-    ? 'relative overflow-hidden opacity-60'
-    : isRestDay
-      ? 'relative overflow-hidden opacity-40 grayscale'
-      : 'relative overflow-hidden hover:shadow-md transition-shadow';
+  const baseClassName = `${
+    isCompleteToday ? 'opacity-60' : isRestDay ? 'opacity-40 grayscale' : 'hover:shadow-md'
+  } relative overflow-hidden transition-shadow py-3 gap-3`;
 
   return (
     <div>
@@ -170,7 +168,7 @@ export function HabitCard({
         />
 
         {/* Top row: title on left, menu on right */}
-        <CardHeader className="pb-1">
+        <CardHeader className="pb-1 px-4">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className="h-8 w-8 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden text-base"
@@ -246,7 +244,7 @@ export function HabitCard({
         </CardHeader>
 
         {/* Top content area */}
-        <CardContent className="pt-2">
+        <CardContent className="pt-1 px-4">
           <div className="flex items-center gap-4">
             {/* Left side: Schedule and Stake stacked vertically */}
             <div className="flex-1 space-y-3">
@@ -288,13 +286,13 @@ export function HabitCard({
             </div>
 
             {/* Right side: Complete checkbox (fixed width to prevent reflow) */}
-            <div className="flex items-center justify-center w-12 flex-shrink-0">
+            <div className="flex items-center justify-center w-11 flex-shrink-0">
               {onComplete && !isCompleteToday && !isRestDay ? (
                 <Button
                   onClick={onComplete}
                   disabled={loading || completing || !canComplete}
                   size="icon"
-                  className="relative h-12 w-12 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative h-10 w-10 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Mark complete"
                   title={
                     !canComplete ? (!isEnabled ? 'Habit is disabled' : 'Not scheduled for today') : 'Mark complete'
@@ -307,19 +305,19 @@ export function HabitCard({
                   />
                 </Button>
               ) : isCompleteToday ? (
-                <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                   <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
               ) : (
-                <div className="h-12 w-12" />
+                <div className="h-10 w-10" />
               )}
             </div>
           </div>
         </CardContent>
 
         {/* Bottom section */}
-        <CardContent>
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+        <CardContent className="px-4">
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
             {/* Streaks section - centered on mobile, left on desktop */}
             {showStreaks && weekStatus && (
               <div className="flex flex-col gap-3 items-center md:items-start">
@@ -354,7 +352,7 @@ export function HabitCard({
                   })}
                 </div>
                 {/* Streak stats - same line for both mobile and desktop */}
-                <div className="flex items-center gap-4 text-sm md:text-base">
+                <div className="flex items-center gap-3 text-sm md:text-base">
                   <span
                     className="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200"
                     title="Current streak"
