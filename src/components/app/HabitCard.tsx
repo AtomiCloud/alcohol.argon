@@ -135,9 +135,6 @@ export function HabitCard({
   const isEnabled = habit.enabled ?? true;
   const canComplete = !isCompleteToday && isEnabled && isDayScheduled;
 
-  // Urgency indicator (if less than 3 hours remaining)
-  const isUrgent = !isCompleteToday && timeLeftMinutes > 0 && timeLeftMinutes < 180;
-
   const guessEmoji = (text: string | null | undefined): string => {
     const t = (text || '').toLowerCase();
     const map: Array<[RegExp, string]> = [
@@ -162,9 +159,7 @@ export function HabitCard({
     ? 'relative overflow-hidden opacity-60'
     : isRestDay
       ? 'relative overflow-hidden opacity-40 grayscale'
-      : isUrgent
-        ? 'relative overflow-hidden hover:shadow-lg shadow-md ring-2 ring-amber-400/50 animate-pulse-subtle'
-        : 'relative overflow-hidden hover:shadow-md transition-shadow';
+      : 'relative overflow-hidden hover:shadow-md transition-shadow';
 
   return (
     <div>
@@ -276,9 +271,7 @@ export function HabitCard({
               <div className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Stake{' '}
                 {!isCompleteToday && timeLeftMinutes > 0 && (
-                  <span className={isUrgent ? 'text-amber-600 font-semibold animate-pulse' : 'text-amber-600'}>
-                    • {timeLeftLabel} left
-                  </span>
+                  <span className="text-amber-600">• {timeLeftLabel} left</span>
                 )}
               </div>
               <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
@@ -288,11 +281,6 @@ export function HabitCard({
                   </Badge>
                 ) : (
                   <span className="text-slate-500">None</span>
-                )}
-                {isUrgent && !isCompleteToday && (
-                  <Badge className="px-2 py-0.5 text-[10px] bg-amber-500 text-white border-0 animate-pulse">
-                    ⏰ Urgent
-                  </Badge>
                 )}
               </div>
             </div>
@@ -307,7 +295,7 @@ export function HabitCard({
               <Button
                 onClick={onComplete}
                 disabled={loading || completing || !canComplete}
-                className={`md:hidden w-full relative bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed ${isUrgent ? 'animate-pulse' : ''}`}
+                className="md:hidden w-full relative bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Mark complete"
                 title={!canComplete ? (!isEnabled ? 'Habit is disabled' : 'Not scheduled for today') : 'Mark complete'}
               >
@@ -384,7 +372,7 @@ export function HabitCard({
                   <Button
                     onClick={onComplete}
                     disabled={loading || completing || !canComplete}
-                    className={`relative bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed ${isUrgent ? 'animate-pulse' : ''}`}
+                    className="relative bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Mark complete"
                     title={
                       !canComplete ? (!isEnabled ? 'Habit is disabled' : 'Not scheduled for today') : 'Mark complete'

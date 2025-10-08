@@ -41,6 +41,8 @@ export default function AppPage({ initial }: AppPageProps) {
 
   const [loading, loader] = useFreeLoader();
   const [desc, empty] = useFreeEmpty();
+  const [optimisticCompletions, setOptimisticCompletions] = useState<Set<string>>(new Set());
+
   // Errors are reported via ProblemReporter; no local error state rendered
   const [contentResult, setContentResult] = useState<Result<HabitPageData, Problem>>(() =>
     Res.fromSerial<HabitPageData, Problem>(initial),
@@ -53,7 +55,22 @@ export default function AppPage({ initial }: AppPageProps) {
     // Longer delay to avoid brief loader flashes during quick refreshes
     loaderDelay: 900,
   });
-  const habits = data?.habits ?? [];
+
+  // Merge server data with optimistic completions
+  const serverHabits = data?.habits ?? [];
+  const habits = serverHabits.map(habit => {
+    if (habit.id && optimisticCompletions.has(habit.id)) {
+      return {
+        ...habit,
+        status: {
+          ...habit.status,
+          isCompleteToday: true,
+        },
+      };
+    }
+    return habit;
+  });
+
   const config = data?.config;
   const totalDebt = data?.totalDebt ? Number.parseFloat(data.totalDebt) : 0;
 
@@ -100,7 +117,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
   const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiKey, setConfettiKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
   const userTimezone = config?.principal?.timezone || 'UTC';
@@ -117,7 +134,7 @@ export default function AppPage({ initial }: AppPageProps) {
   useEffect(() => {
     const created = router.query?.created;
     if (created === '1') {
-      setShowConfetti(true);
+      setConfettiKey(k => k + 1);
       setToast('Created!');
       router.replace('/app', undefined, { shallow: true });
     }
@@ -152,6 +169,12 @@ export default function AppPage({ initial }: AppPageProps) {
 
   const handleComplete = async (habit: HabitOverviewHabitRes) => {
     if (!habit.id || !habit.version?.id || !userId) return;
+
+    // Optimistically mark as complete immediately
+    setOptimisticCompletions(prev => new Set(prev).add(habit.id as string));
+    setConfettiKey(k => k + 1);
+    setToast('Nice work! 🎉');
+
     setBusyComplete(s => ({ ...s, [habit.id as string]: true }));
     const res = await api.alcohol.zinc.api.vHabitExecutionsCreate(
       { version: '1.0', userId, habitVersionId: habit.version.id },
@@ -159,11 +182,21 @@ export default function AppPage({ initial }: AppPageProps) {
     );
     await res.match({
       ok: async () => {
-        setShowConfetti(true);
-        setToast('Nice work! 🎉');
+        // Refresh from server and clear optimistic state
         await refreshHabits();
+        setOptimisticCompletions(prev => {
+          const next = new Set(prev);
+          next.delete(habit.id as string);
+          return next;
+        });
       },
       err: problem => {
+        // Roll back optimistic completion on error
+        setOptimisticCompletions(prev => {
+          const next = new Set(prev);
+          next.delete(habit.id as string);
+          return next;
+        });
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
           source: 'app/habits/complete',
           problem,
@@ -389,15 +422,9 @@ export default function AppPage({ initial }: AppPageProps) {
         {/* creation moved to /app/new */}
       </div>
 
-      {showConfetti && (
+      {confettiKey > 0 && (
         <div className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <ConfettiExplosion
-            force={0.8}
-            duration={3000}
-            particleCount={250}
-            width={1600}
-            onComplete={() => setShowConfetti(false)}
-          />
+          <ConfettiExplosion key={confettiKey} force={0.8} duration={3000} particleCount={250} width={1600} />
         </div>
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
