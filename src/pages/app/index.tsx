@@ -439,7 +439,7 @@ export default function AppPage({ initial }: AppPageProps) {
 
       {confettiKey > 0 && (
         <div className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <ConfettiExplosion key={confettiKey} force={0.8} duration={3000} particleCount={250} width={1600} />
+          <ConfettiExplosion key={confettiKey} force={0.4} duration={1000} particleCount={60} width={700} />
         </div>
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
