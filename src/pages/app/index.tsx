@@ -71,6 +71,24 @@ export default function AppPage({ initial }: AppPageProps) {
     return habit;
   });
 
+  // Clear optimistic completions once server confirms the update.
+  useEffect(() => {
+    if (!serverHabits || optimisticCompletions.size === 0) return;
+    const toRemove: string[] = [];
+    for (const h of serverHabits) {
+      if (h.id && optimisticCompletions.has(h.id) && (h.status?.isCompleteToday ?? false)) {
+        toRemove.push(h.id);
+      }
+    }
+    if (toRemove.length > 0) {
+      setOptimisticCompletions(prev => {
+        const next = new Set(prev);
+        for (const id of toRemove) next.delete(id);
+        return next;
+      });
+    }
+  }, [serverHabits, optimisticCompletions]);
+
   const config = data?.config;
   const totalDebt = data?.totalDebt ? Number.parseFloat(data.totalDebt) : 0;
 
@@ -142,8 +160,8 @@ export default function AppPage({ initial }: AppPageProps) {
 
   // no createDraft here
 
-  const refreshHabits = async () => {
-    if (!userId) return;
+  const refreshHabits = async (): Promise<Result<HabitPageData, Problem> | undefined> => {
+    if (!userId) return undefined;
     const promise: Promise<Result<HabitPageData, Problem>> = api.alcohol.zinc.api
       .vHabitOverviewList({ version: '1.0', userId })
       .then(r =>
@@ -158,6 +176,7 @@ export default function AppPage({ initial }: AppPageProps) {
         ),
       );
     setContentResult(Res.fromAsync(promise));
+    return promise;
   };
 
   // create page handles weekday toggle
@@ -182,13 +201,9 @@ export default function AppPage({ initial }: AppPageProps) {
     );
     await res.match({
       ok: async () => {
-        // Refresh from server and clear optimistic state
+        // Refresh from server; optimistic flag will be cleared by an effect
+        // once the server reports the completion (prevents UI flicker).
         await refreshHabits();
-        setOptimisticCompletions(prev => {
-          const next = new Set(prev);
-          next.delete(habit.id as string);
-          return next;
-        });
       },
       err: problem => {
         // Roll back optimistic completion on error
