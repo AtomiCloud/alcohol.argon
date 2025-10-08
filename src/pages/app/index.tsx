@@ -244,19 +244,19 @@ export default function AppPage({ initial }: AppPageProps) {
             <h1 className="text-xl font-semibold">Your Habits</h1>
             <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
             <Button
               variant="outline"
               onClick={() => {
                 // TODO: Wire up vacation mode API when available
                 alert('Vacation mode coming soon! This will pause all your habits globally.');
               }}
-              className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
+              className="w-full md:w-auto bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
             >
               <Palmtree className="h-4 w-4 mr-1.5 text-yellow-600 dark:text-yellow-500" />
               Start Vacation
             </Button>
-            <Button asChild>
+            <Button asChild className="w-full md:w-auto">
               <Link href="/app/new">
                 <Plus className="h-4 w-4 mr-1" /> New Habit
               </Link>
@@ -289,7 +289,7 @@ export default function AppPage({ initial }: AppPageProps) {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col">
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
                     <div className="flex items-center gap-2">
@@ -323,15 +323,6 @@ export default function AppPage({ initial }: AppPageProps) {
                         {5 - weekStats.skips}/{5}
                       </span>
                       <span className="text-xs text-slate-500">this month</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Vacation Left</p>
-                    <div className="flex items-center gap-2">
-                      <Palmtree className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-                      <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">14/14</span>
-                      <span className="text-xs text-slate-500">days/year</span>
                     </div>
                   </div>
                 </div>
