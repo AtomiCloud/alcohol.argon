@@ -103,9 +103,8 @@ export default function AppPage({ initial }: AppPageProps) {
   });
 
   const restDayHabits = habits.filter(h => {
-    const isCompleted = h.status?.isCompleteToday || false;
     const isDayScheduled = h.days?.[currentDayIndex] ?? false;
-    return !isCompleted && !isDayScheduled;
+    return !isDayScheduled;
   });
 
   // Calculate progress
@@ -439,13 +438,13 @@ export default function AppPage({ initial }: AppPageProps) {
                 </div>
               )}
 
-              {/* Rest Days Section */}
+              {/* Rest Day Habits Section */}
               {restDayHabits.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <CalendarX className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-                    <h2 className="text-lg font-semibold text-slate-500 dark:text-slate-400">Rest Days</h2>
-                    <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-800">
+                    <CalendarX className="h-5 w-5 text-slate-400" />
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Rest Day</h2>
+                    <Badge variant="outline" className="text-xs text-slate-500">
                       {restDayHabits.length}
                     </Badge>
                   </div>
