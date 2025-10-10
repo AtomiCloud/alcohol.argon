@@ -37,12 +37,48 @@ export function Navbar() {
 
           {/* Right Section */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/why-lazytax"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-semibold"
+            >
+              Why LazyTax
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              Blog
+            </Link>
             <ThemeToggle />
             <AuthSection />
           </div>
 
           {/* Mobile Right Section */}
           <div className="md:hidden flex items-center gap-2">
+            <Link
+              href="/why-lazytax"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-semibold"
+            >
+              Why LazyTax
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              Blog
+            </Link>
             <ThemeToggle />
             <AuthSection />
           </div>
