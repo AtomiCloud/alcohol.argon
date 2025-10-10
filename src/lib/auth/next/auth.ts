@@ -18,13 +18,14 @@ async function resultResult<T, P>(result: Result<T, P>, res: NextApiResponse): P
 }
 
 async function handleAuthData(
-  action: 'claims' | 'user' | 'tokens',
+  action: 'claims' | 'user' | 'tokens' | 'force_tokens',
   auth: IAuthStateRetriever,
   res: NextApiResponse,
 ): Promise<void> {
   if (action === 'claims') return resultResult(auth.getClaims(), res);
   if (action === 'user') return resultResult(auth.getUserInfo(), res);
   if (action === 'tokens') return resultResult(auth.getTokenSet(), res);
+  if (action === 'force_tokens') return resultResult(auth.forceTokenSet(), res);
 }
 
 const authStateApiHandler: (auth: IAuthStateRetriever) => NextApiHandler =
