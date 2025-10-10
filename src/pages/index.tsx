@@ -7,10 +7,11 @@ import Differentiation from '@/components/landing/Differentiation';
 import Problem from '@/components/landing/Problem';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
 import RealResults from '@/components/landing/RealResults';
+import Testimonials from '@/components/landing/Testimonials';
 import SocialProof from '@/components/landing/SocialProof';
-import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
+import FAQ from '@/components/landing/FAQ';
 
 export default function HomePage() {
   return (
@@ -28,8 +29,8 @@ export default function HomePage() {
       <Problem />
       <HowItWorksV2 />
       <RealResults />
+      <Testimonials />
       <SocialProof />
-      <FAQ />
       <FinalCTA />
       <section className="py-10 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
         <div className="container mx-auto px-4 max-w-5xl text-center md:text-left">
@@ -46,6 +47,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+      <FAQ />
     </>
   );
 }

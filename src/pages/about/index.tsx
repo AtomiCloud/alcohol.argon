@@ -85,32 +85,32 @@ export default function AboutPage() {
       <section className="py-16 sm:py-20 bg-slate-50/60 dark:bg-slate-900/50" data-reveal>
         <div className="container mx-auto px-4 max-w-5xl grid gap-10 md:grid-cols-[1.1fr_0.9fr] items-center">
           <div className="space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">Meet the team</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">Meet the Team</h2>
             <p className="text-slate-600 dark:text-slate-300">
-              We&apos;re product builders, coaches, and behaviour nerds spread across Singapore, Kuala Lumpur, and
-              Vancouver. Together we&apos;ve spent over a decade helping founders and operators design habits that
-              stick.
+              We&apos;re a diverse group of product builders and behavioral design enthusiasts based in Singapore, Kuala
+              Lumpur, and San Francisco. With over a decade of experience, we specialize in helping founders create
+              lasting habits.
             </p>
             <p className="text-slate-600 dark:text-slate-300">
-              Want to partner or jam on behavioural design? Reach out—we love swapping notes with people obsessed with
-              long-term consistency.
+              Interested in collaboration or insights on behavioral design? We welcome exchanges with others committed
+              to long-term success.
             </p>
           </div>
           <div className="rounded-3xl border border-violet-200 dark:border-violet-900/40 bg-white/80 dark:bg-slate-900/60 p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Say hello 👋</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Get in Touch 👋</h3>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              Email{' '}
+              Email us at{' '}
               <a
                 className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
-                href="mailto:hello@lazytax.app"
+                href="mailto:admin@lazytax.club"
               >
-                hello@lazytax.app
+                admin@lazytax.club
               </a>{' '}
-              or hop into the LazyTax Club community to share feedback, success stories, or feature ideas.
+              or join the LazyTax Club community to share feedback, success stories, or ideas.
             </p>
             <div className="mt-4 flex flex-col sm:flex-row gap-3">
               <Button asChild size="sm">
-                <Link href="mailto:hello@lazytax.app">Email the founders</Link>
+                <Link href="mailto:admin@lazytax.club">Email the Team</Link>
               </Button>
               <Button asChild size="sm" variant="outline">
                 <Link href="https://discord.gg/T7AtTQXr" target="_blank" rel="noopener noreferrer">

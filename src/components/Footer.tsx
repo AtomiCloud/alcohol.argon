@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useConfig } from '@/adapters/external/Provider';
-import { Send, Instagram, MessageSquare, Twitter, Mail, Phone } from 'lucide-react';
+import { Send, Instagram, MessageSquare, Twitter, Mail } from 'lucide-react';
 import { FaDiscord, FaWhatsapp, FaTiktok } from 'react-icons/fa';
 
 export function Footer() {
@@ -93,6 +93,22 @@ export function Footer() {
           {/* Legal Links */}
           <nav aria-label="Legal" className="text-center">
             <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
+              <li>
+                <Link
+                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                  href="/blog"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                  href="/#faq"
+                >
+                  FAQ
+                </Link>
+              </li>
               <li>
                 <Link
                   className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
