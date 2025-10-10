@@ -6,21 +6,21 @@ import 'react-tooltip/dist/react-tooltip.css';
 
 export default function Pricing() {
   return (
-    <section className="relative overflow-hidden py-16 sm:py-20" data-reveal>
+    <section
+      id="pricing"
+      className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 bg-gradient-to-br from-orange-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
+      data-reveal
+    >
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-violet-500/5 via-transparent to-orange-500/5"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_bottom_left,_rgba(15,118,110,0.18),_transparent_45%)]"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 max-w-6xl rounded-3xl border border-white/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/85 backdrop-blur-sm shadow-2xl py-12 sm:py-16">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
-          Launch pricing for waitlist members
+          Pricing plans for every habit builder
         </h2>
-        <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg text-center md:text-left max-w-2xl">
-          Early adopters get{' '}
-          <span className="underline decoration-violet-400/50 underline-offset-4">
-            locked-in launch pricing forever
-          </span>
-          . Join now before spots run out.
+        <p className="mt-2 text-slate-600 dark:text-slate-300 text-base sm:text-lg text-center md:text-left max-w-2xl mx-auto md:mx-0">
+          Pick the plan that matches how you like to stay accountable. Upgrade any time as your streaks grow.
         </p>
         <div className="mt-6 grid gap-5 grid-cols-1 md:grid-cols-3 items-stretch">
           <Card className="border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/80 shadow-md h-full flex flex-col">
@@ -54,13 +54,10 @@ export default function Pricing() {
               <CardTitle className="text-slate-900 dark:text-white">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl">USD $4.99</span>
-                    <span className="text-sm line-through text-slate-400">$9.99</span>
+                    <span className="text-2xl">USD $9.99</span>
                     <span className="text-xs text-slate-500">/month</span>
                   </div>
-                  <span className="text-xs font-normal text-violet-600 dark:text-violet-400">
-                    Launch price locked forever
-                  </span>
+                  <span className="text-xs font-normal text-violet-600 dark:text-violet-400">Most popular plan</span>
                 </div>
               </CardTitle>
               <CardDescription>Pro — Everything in Free, plus:</CardDescription>
@@ -112,12 +109,11 @@ export default function Pricing() {
               <CardTitle className="text-slate-900 dark:text-white">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl">USD $6.99</span>
-                    <span className="text-sm line-through text-slate-400">$13.99</span>
+                    <span className="text-2xl">USD $13.99</span>
                     <span className="text-xs text-slate-500">/month</span>
                   </div>
                   <span className="text-xs font-normal text-emerald-600 dark:text-emerald-400">
-                    Launch price locked forever
+                    For maximum flexibility & support
                   </span>
                 </div>
               </CardTitle>
