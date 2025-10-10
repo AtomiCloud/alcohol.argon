@@ -12,7 +12,6 @@ import StakesExplained from '@/components/landing/StakesExplained';
 import Transparency from '@/components/landing/Transparency';
 import SocialProof from '@/components/landing/SocialProof';
 import FAQ from '@/components/landing/FAQ';
-import References from '@/components/landing/References';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 
@@ -38,7 +37,21 @@ export default function HomePage() {
       <SocialProof />
       <FAQ />
       <FinalCTA />
-      <References />
+      <section className="py-10 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
+        <div className="container mx-auto px-4 max-w-5xl text-center md:text-left">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Curious about the science behind LazyTax?{' '}
+            <a
+              href="https://www.notion.so/lazytaxclub/LazyTax-Research-References-52d5ec1b28f8455590982cf49e3613ea"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
+            >
+              View the full research references →
+            </a>
+          </p>
+        </div>
+      </section>
     </>
   );
 }
