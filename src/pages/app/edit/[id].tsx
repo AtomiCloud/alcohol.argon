@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -22,6 +22,9 @@ import HabitEditorCard from '@/components/app/HabitEditorCard';
 import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
 import { amountToCents, formatCentsToAmount, toHHMMSS, toHM } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
+import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
+import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
+import { useClaims } from '@/lib/auth/providers';
 
 type EditHabitPageData = {
   habit: HabitVersionRes;
@@ -37,45 +40,113 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
   const problemReporter = useProblemReporter();
   const errorHandler = useErrorHandler();
   const router = useRouter();
+  const [claimsResult, claimsContent] = useClaims();
 
+  // Extract server data synchronously from serialized initial prop
+  const initialData: EditHabitPageData =
+    initial[0] === 'ok'
+      ? initial[1]
+      : { habit: {} as HabitVersionRes, charities: [], defaultCharityId: null, timezone: null };
+
+  const habit = initialData.habit;
+  const charityOptions = useMemo(() => initialData.charities.filter(c => !!c.id), [initialData.charities]);
+  const timezone = initialData.timezone || habit.timezone || 'UTC';
+
+  // Keep Result monad version for error handling
   const [data] = useState(() => Res.fromSerial<EditHabitPageData, Problem>(initial));
-  const [habit, setHabit] = useState<HabitVersionRes | null>(null);
-  const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
-  const [defaultCharityId, setDefaultCharityId] = useState<string>('');
-  const [timezone, setTimezone] = useState<string>('UTC');
 
-  useEffect(() => {
-    data.map(d => {
-      setHabit(d.habit);
-      setCharities(d.charities);
-      setDefaultCharityId(d.defaultCharityId || '');
-      setTimezone(d.timezone || 'UTC');
-    });
-  }, [data]);
+  // Unified form state with URL sync (batched updates prevent navigation loops)
+  const { state: formState, updateFields } = useFormUrlState({
+    task: habit.task || '',
+    days: JSON.stringify(habit.daysOfWeek || []),
+    time: toHM(habit.notificationTime || ''),
+    amount: habit.stake ? String(habit.stake) : '',
+    charity: habit.charityId || '',
+  });
 
-  const charityOptions = useMemo(() => charities.filter(c => !!c.id), [charities]);
+  // Convenience accessors
+  const task = formState.task;
+  const daysOfWeekRaw = formState.days;
+  const notificationTime = formState.time;
+  const amount = formState.amount;
+  const charityId = formState.charity;
 
-  const [draft, setDraft] = useState<HabitDraft>(defaultHabitDraft(''));
+  // Convenience setters (wrap updateFields)
+  const setTask = useCallback((value: string) => updateFields({ task: value }), [updateFields]);
+  const setDaysOfWeekRaw = useCallback((value: string) => updateFields({ days: value }), [updateFields]);
+  const setNotificationTime = useCallback((value: string) => updateFields({ time: value }), [updateFields]);
+  const setAmount = useCallback((value: string) => updateFields({ amount: value }), [updateFields]);
+  const setCharityId = useCallback((value: string) => updateFields({ charity: value }), [updateFields]);
 
-  // Initialize draft from habit data
-  useEffect(() => {
-    if (habit) {
-      setDraft({
-        task: habit.task || '',
-        daysOfWeek: habit.daysOfWeek || [],
-        notificationTime: toHM(habit.notificationTime || ''),
-        amount: habit.stake ? String(habit.stake) : '',
-        currency: 'USD',
-        charityId: habit.charityId || '',
-        enabled: true,
-      });
+  // Parse daysOfWeek from JSON string
+  const daysOfWeek: string[] = useMemo(() => {
+    try {
+      return JSON.parse(daysOfWeekRaw);
+    } catch {
+      return [];
     }
-  }, [habit]);
+  }, [daysOfWeekRaw]);
+
+  const setDaysOfWeek = useCallback(
+    (days: string[]) => {
+      setDaysOfWeekRaw(JSON.stringify(days));
+    },
+    [setDaysOfWeekRaw],
+  );
+
+  const draft: HabitDraft = {
+    task,
+    daysOfWeek,
+    notificationTime,
+    amount,
+    currency: 'USD',
+    charityId,
+    enabled: true,
+  };
+
+  const setDraft = (updater: (prev: HabitDraft) => HabitDraft) => {
+    const updated = updater(draft);
+    setTask(updated.task);
+    setDaysOfWeek(updated.daysOfWeek);
+    setNotificationTime(updated.notificationTime);
+    setAmount(updated.amount);
+    setCharityId(updated.charityId);
+  };
 
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
   const [stakeBuffer, setStakeBuffer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [busyUpdate, setBusyUpdate] = useState(false);
+
+  // Payment consent hook
+  const { checking: checkingPayment, checkAndInitiatePayment, pollPaymentConsent } = usePaymentConsent();
+  const [pollingPayment, setPollingPayment] = useState(false);
+
+  // Check for payment status on mount (after HPP redirect)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: router and pollPaymentConsent cause infinite loop
+  useEffect(() => {
+    const paymentStatus = router.query.payment_status;
+    const habitId = router.query.id as string;
+
+    if (paymentStatus === 'success') {
+      setPollingPayment(true);
+      pollPaymentConsent(
+        () => {
+          setPollingPayment(false);
+          // Clean up URL
+          router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
+        },
+        () => {
+          setPollingPayment(false);
+          alert('Payment consent setup failed or timed out. Please try again.');
+          router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
+        },
+      );
+    } else if (paymentStatus === 'failed') {
+      alert('Payment consent setup failed. Please try again.');
+      router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
+    }
+  }, [router.query.payment_status, router.query.id]);
 
   const keypadAppend = (k: string) => {
     setStakeBuffer(prev => {
@@ -91,10 +162,37 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     setStakeModalOpen(true);
   };
 
-  const confirmStakeModal = () => {
+  const confirmStakeModal = async () => {
     const val = formatCentsToAmount(stakeBuffer);
-    setDraft(d => ({ ...d, amount: val }));
-    setStakeModalOpen(false);
+
+    // Check if amount is non-zero and if user needs payment consent
+    if (Number(val) > 0) {
+      try {
+        // Build return URL with all current form state
+        const habitId = router.query.id as string;
+        const returnParams = new URLSearchParams({
+          task: task || '',
+          days: JSON.stringify(daysOfWeek),
+          time: notificationTime || '',
+          amount: val,
+          charity: charityId || '',
+        });
+        const returnUrl = `/app/edit/${habitId}?${returnParams.toString()}`;
+
+        await checkAndInitiatePayment(() => {
+          // Has consent - proceed
+          setAmount(val);
+          setStakeModalOpen(false);
+        }, returnUrl);
+      } catch (error) {
+        console.error('Payment consent error:', error);
+        alert('Failed to initiate payment consent. Please try again.');
+      }
+    } else {
+      // Zero amount - no consent needed
+      setAmount(val);
+      setStakeModalOpen(false);
+    }
   };
 
   const validateDraft = (d: HabitDraft): Record<string, string> => {
@@ -118,15 +216,25 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     if (Object.keys(errs).length > 0) return;
     setBusyUpdate(true);
 
-    // Get userId first
-    const userIdResult = await api.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
-    const userIdOk = userIdResult.isOk();
-    if (!userIdOk) {
+    // Get userId from claims (no API call needed)
+    if (claimsResult === 'err') {
+      setBusyUpdate(false);
+      return;
+    }
+    const [hasData, authState] = claimsContent;
+    if (!hasData) {
       setBusyUpdate(false);
       return;
     }
 
-    const userId = await userIdResult.unwrap();
+    // Check if user is authenticated
+    if (authState.__kind !== 'authed') {
+      setBusyUpdate(false);
+      return;
+    }
+
+    const userId = authState.value.data.sub;
+
     const hasStake = draft.amount && Number(draft.amount) > 0;
     const payload: UpdateHabitReq = {
       task: draft.task || null,
@@ -223,6 +331,20 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
         onClose={() => setStakeModalOpen(false)}
         onConfirm={confirmStakeModal}
       />
+
+      {/* Show polling indicator */}
+      {pollingPayment && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <Card className="p-6 max-w-sm">
+            <CardContent className="space-y-4 text-center">
+              <Spinner size="lg" />
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Setting up payment consent... This may take up to a minute.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

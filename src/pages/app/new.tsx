@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -19,9 +19,12 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { Res, Ok, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
-import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
+import { defaultHabitDraft, type HabitDraft, WEEKDAY_ORDER } from '@/models/habit';
 import { amountToCents, formatCentsToAmount, toHHMMSS } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
+import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
+import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
+import { useClaims } from '@/lib/auth/providers';
 
 type NewHabitPageData = {
   charities: CharityPrincipalRes[];
@@ -36,39 +39,112 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const problemReporter = useProblemReporter();
   const errorHandler = useErrorHandler();
   const router = useRouter();
+  const [claimsResult, claimsContent] = useClaims();
 
+  // Extract server data synchronously from serialized initial prop
+  const initialData: NewHabitPageData =
+    initial[0] === 'ok' ? initial[1] : { charities: [], defaultCharityId: null, timezone: null };
+
+  const charityOptions = useMemo(() => initialData.charities.filter(c => !!c.id), [initialData.charities]);
+  const timezone = initialData.timezone || 'UTC';
+
+  // Determine initial charity ID for URL defaults
+  const initialCharityId = initialData.defaultCharityId || charityOptions[0]?.id || '';
+
+  // Keep Result monad version for error handling
   const [data] = useState(() => Res.fromSerial<NewHabitPageData, Problem>(initial));
-  const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
-  const [defaultCharityId, setDefaultCharityId] = useState<string>('');
-  const [timezone, setTimezone] = useState<string>('UTC');
 
-  useEffect(() => {
-    data.map(d => {
-      setCharities(d.charities);
-      setDefaultCharityId(d.defaultCharityId || '');
-      setTimezone(d.timezone || 'UTC');
-    });
-  }, [data]);
+  // Unified form state with URL sync (batched updates prevent navigation loops)
+  const { state: formState, updateFields } = useFormUrlState({
+    task: '',
+    days: JSON.stringify(WEEKDAY_ORDER),
+    time: '22:00',
+    amount: '',
+    charity: initialCharityId,
+  });
 
-  const charityOptions = useMemo(() => charities.filter(c => !!c.id), [charities]);
+  // Convenience accessors
+  const task = formState.task;
+  const daysOfWeekRaw = formState.days;
+  const notificationTime = formState.time;
+  const amount = formState.amount;
+  const charityId = formState.charity;
 
-  const [draft, setDraft] = useState<HabitDraft>(defaultHabitDraft(''));
+  // Convenience setters (wrap updateFields)
+  const setTask = useCallback((value: string) => updateFields({ task: value }), [updateFields]);
+  const setDaysOfWeekRaw = useCallback((value: string) => updateFields({ days: value }), [updateFields]);
+  const setNotificationTime = useCallback((value: string) => updateFields({ time: value }), [updateFields]);
+  const setAmount = useCallback((value: string) => updateFields({ amount: value }), [updateFields]);
+  const setCharityId = useCallback((value: string) => updateFields({ charity: value }), [updateFields]);
 
-  // Set default charity from config when data loads
-  useEffect(() => {
-    if (!draft.charityId && charityOptions.length > 0) {
-      const charityId = defaultCharityId || charityOptions[0]?.id || '';
-      if (charityId) {
-        setDraft(d => ({ ...d, charityId }));
-      }
+  // Parse daysOfWeek from JSON string
+  const daysOfWeek: string[] = useMemo(() => {
+    try {
+      return JSON.parse(daysOfWeekRaw);
+    } catch {
+      return [];
     }
-  }, [defaultCharityId, charityOptions, draft.charityId]);
+  }, [daysOfWeekRaw]);
+
+  const setDaysOfWeek = useCallback(
+    (days: string[]) => {
+      setDaysOfWeekRaw(JSON.stringify(days));
+    },
+    [setDaysOfWeekRaw],
+  );
+
+  const draft: HabitDraft = {
+    task,
+    daysOfWeek,
+    notificationTime,
+    amount,
+    currency: 'USD',
+    charityId,
+    enabled: true,
+  };
+
+  const setDraft = (updater: (prev: HabitDraft) => HabitDraft) => {
+    const updated = updater(draft);
+    setTask(updated.task);
+    setDaysOfWeek(updated.daysOfWeek);
+    setNotificationTime(updated.notificationTime);
+    setAmount(updated.amount);
+    setCharityId(updated.charityId);
+  };
 
   // Advanced controls are handled inside HabitEditorCard
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
   const [stakeBuffer, setStakeBuffer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [busyCreate, setBusyCreate] = useState(false);
+
+  // Payment consent hook
+  const { checking: checkingPayment, checkAndInitiatePayment, pollPaymentConsent } = usePaymentConsent();
+  const [pollingPayment, setPollingPayment] = useState(false);
+
+  // Check for payment status on mount (after HPP redirect)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: router and pollPaymentConsent cause infinite loop
+  useEffect(() => {
+    const paymentStatus = router.query.payment_status;
+    if (paymentStatus === 'success') {
+      setPollingPayment(true);
+      pollPaymentConsent(
+        () => {
+          setPollingPayment(false);
+          // Clean up URL
+          router.replace('/app/new', undefined, { shallow: true });
+        },
+        () => {
+          setPollingPayment(false);
+          alert('Payment consent setup failed or timed out. Please try again.');
+          router.replace('/app/new', undefined, { shallow: true });
+        },
+      );
+    } else if (paymentStatus === 'failed') {
+      alert('Payment consent setup failed. Please try again.');
+      router.replace('/app/new', undefined, { shallow: true });
+    }
+  }, [router.query.payment_status]);
 
   // Weekday toggling handled in HabitEditorCard
 
@@ -86,10 +162,36 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     setStakeModalOpen(true);
   };
 
-  const confirmStakeModal = () => {
+  const confirmStakeModal = async () => {
     const val = formatCentsToAmount(stakeBuffer);
-    setDraft(d => ({ ...d, amount: val }));
-    setStakeModalOpen(false);
+
+    // Check if amount is non-zero and if user needs payment consent
+    if (Number(val) > 0) {
+      try {
+        // Build return URL with all current form state
+        const returnParams = new URLSearchParams({
+          task: task || '',
+          days: JSON.stringify(daysOfWeek),
+          time: notificationTime || '',
+          amount: val,
+          charity: charityId || '',
+        });
+        const returnUrl = `/app/new?${returnParams.toString()}`;
+
+        await checkAndInitiatePayment(() => {
+          // Has consent - proceed
+          setAmount(val);
+          setStakeModalOpen(false);
+        }, returnUrl);
+      } catch (error) {
+        console.error('Payment consent error:', error);
+        alert('Failed to initiate payment consent. Please try again.');
+      }
+    } else {
+      // Zero amount - no consent needed
+      setAmount(val);
+      setStakeModalOpen(false);
+    }
   };
 
   const validateDraft = (d: HabitDraft): Record<string, string> => {
@@ -112,15 +214,25 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     if (Object.keys(errs).length > 0) return;
     setBusyCreate(true);
 
-    // Get userId first
-    const userIdResult = await api.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
-    const userIdOk = userIdResult.isOk();
-    if (!userIdOk) {
+    // Get userId from claims (no API call needed)
+    if (claimsResult === 'err') {
+      setBusyCreate(false);
+      return;
+    }
+    const [hasData, authState] = claimsContent;
+    if (!hasData) {
       setBusyCreate(false);
       return;
     }
 
-    const userId = await userIdResult.unwrap();
+    // Check if user is authenticated
+    if (authState.__kind !== 'authed') {
+      setBusyCreate(false);
+      return;
+    }
+
+    const userId = authState.value.data.sub;
+
     const hasStake = draft.amount && Number(draft.amount) > 0;
     const payload: CreateHabitReq = {
       task: draft.task || null,
@@ -218,6 +330,20 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
         onClose={() => setStakeModalOpen(false)}
         onConfirm={confirmStakeModal}
       />
+
+      {/* Show polling indicator */}
+      {pollingPayment && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <Card className="p-6 max-w-sm">
+            <CardContent className="space-y-4 text-center">
+              <Spinner size="lg" />
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Setting up payment consent... This may take up to a minute.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

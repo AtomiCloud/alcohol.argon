@@ -750,6 +750,17 @@ export interface VPaymentConsentListParams {
 
 export type VPaymentConsentListData = PaymentConsentRes;
 
+export interface VPaymentConsentDeleteParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VPaymentConsentDeleteData = any;
+
 export interface VPaymentIntentCreateParams {
   userId: string;
   /**
@@ -1810,6 +1821,23 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         method: 'GET',
         secure: true,
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Payment
+     * @name VPaymentConsentDelete
+     * @request DELETE:/api/v{version}/Payment/{userId}/consent
+     * @secure
+     * @response `200` `VPaymentConsentDeleteData` Success
+     */
+    vPaymentConsentDelete: ({ userId, version, ...query }: VPaymentConsentDeleteParams, params: RequestParams = {}) =>
+      this.request<VPaymentConsentDeleteData, any>({
+        path: `/api/v${version}/Payment/${userId}/consent`,
+        method: 'DELETE',
+        secure: true,
         ...params,
       }),
 
