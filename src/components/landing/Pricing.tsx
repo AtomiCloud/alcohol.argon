@@ -167,44 +167,38 @@ export default function Pricing() {
             <p className="text-slate-900 dark:text-white font-semibold text-xl flex items-center gap-2">
               🚀{' '}
               <span className="bg-gradient-to-r from-orange-600 to-violet-600 bg-clip-text text-transparent">
-                Waitlist Exclusive Bonuses
+                Limited Exclusive Bonuses
               </span>
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              When you join the waitlist, you'll receive an exclusive discount code for launch day. The first 100
-              sign-ups on launch get:
+              Join now to lock in a spot as a founding member and unlock limited, high-touch perks:
             </p>
             <div className="mt-3 space-y-2 text-slate-700 dark:text-slate-300">
               <div className="flex items-start gap-2">
-                <span className="px-2 py-0.5 rounded bg-orange-500/15 text-orange-700 dark:text-orange-300 text-xs font-semibold shrink-0">
-                  1-10
+                <span className="px-2 py-0.5 rounded bg-slate-500/15 text-slate-700 dark:text-slate-200 text-xs font-semibold shrink-0">
+                  All
                 </span>
                 <span>
-                  <strong>First 10 signups:</strong> Ultimate FREE Forever
+                  <strong>Founders Badge:</strong> A profile tag that celebrates founding members
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="px-2 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-300 text-xs font-semibold shrink-0">
-                  11-20
+                <span className="px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-xs font-semibold shrink-0">
+                  All
                 </span>
                 <span>
-                  <strong>Next 10 signups:</strong> Pro FREE Forever
+                  <strong>Priority support:</strong> Direct line to the team with fast-track responses
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shrink-0">
-                  21-100
+                <span className="px-2 py-0.5 rounded bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold shrink-0">
+                  All
                 </span>
                 <span>
-                  <strong>Next 80 signups:</strong> Pro FREE for 1 Year
+                  <strong>Feature influence:</strong> Vote on upcoming features and join private betas
                 </span>
               </div>
             </div>
-            <p className="mt-4 text-xs text-slate-600 dark:text-slate-400">
-              <strong>Note:</strong> All waitlist members can lock in launch pricing (USD $4.99 Pro, USD $6.99 Ultimate)
-              forever. The charity donation at 100 days is only available for paying subscribers. Lifetime free members
-              are not eligible. First-year free members become eligible after converting to a paid plan.
-            </p>
           </div>
           <div className="relative aspect-[16/10] w-full">
             <Image src="/images/rocky-fs8.png" alt="Launch bonus analytics showcase" fill className="object-contain" />
