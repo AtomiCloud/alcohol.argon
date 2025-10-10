@@ -7,9 +7,6 @@ import Differentiation from '@/components/landing/Differentiation';
 import Problem from '@/components/landing/Problem';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
 import RealResults from '@/components/landing/RealResults';
-import HowWeMakeMoney from '@/components/landing/HowWeMakeMoney';
-import StakesExplained from '@/components/landing/StakesExplained';
-import Transparency from '@/components/landing/Transparency';
 import SocialProof from '@/components/landing/SocialProof';
 import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
@@ -31,9 +28,6 @@ export default function HomePage() {
       <Problem />
       <HowItWorksV2 />
       <RealResults />
-      <HowWeMakeMoney />
-      <StakesExplained />
-      <Transparency />
       <SocialProof />
       <FAQ />
       <FinalCTA />
