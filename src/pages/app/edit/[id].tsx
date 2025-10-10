@@ -19,7 +19,7 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { Res, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
-import { defaultHabitDraft, type HabitDraft } from '@/models/habit';
+import type { HabitDraft } from '@/models/habit';
 import { amountToCents, formatCentsToAmount, toHHMMSS, toHM } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
 import { usePaymentConsent } from '@/lib/payment/use-payment-consent';

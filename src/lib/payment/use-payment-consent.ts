@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { useClaims } from '@/lib/auth/providers';
 import type { ExtendedClaims } from '@/lib/auth/core/extended-claims';
-import type { ClientSecretRes, PaymentConsentRes } from '@/clients/alcohol/zinc/api';
+import type { ClientSecretRes, CreateCustomerRes, PaymentConsentRes } from '@/clients/alcohol/zinc/api';
 import { loadAirwallex, redirectToCheckout } from 'airwallex-payment-elements';
 
 interface UsePaymentConsentReturn {
@@ -30,7 +30,7 @@ interface UsePaymentConsentReturn {
  */
 export function usePaymentConsent(): UsePaymentConsentReturn {
   const api = useSwaggerClients();
-  const [claimsResult] = useClaims();
+  const claimsResult = useClaims();
   const [checking, setChecking] = useState(false);
   const router = useRouter();
 
@@ -79,13 +79,24 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
           throw new Error('User ID not available');
         }
 
-        // Get client secret and customer ID
+        // Create customer (idempotent)
+        const customerResult = await api.alcohol.zinc.api.vPaymentCustomersUpdate({ version: '1.0', userId });
+        const customerData: CreateCustomerRes = await customerResult.unwrap();
+
+        if (!customerData.customerId) {
+          throw new Error('Failed to create customer');
+        }
+
+        // Get client secret (uses the customer we just created/verified)
         const clientSecretResult = await api.alcohol.zinc.api.vPaymentClientSecretList({ version: '1.0', userId });
         const clientSecretData: ClientSecretRes = await clientSecretResult.unwrap();
 
-        if (!clientSecretData.clientSecret || !clientSecretData.customerId) {
-          throw new Error('Failed to obtain payment credentials');
+        if (!clientSecretData.clientSecret) {
+          throw new Error('Failed to obtain client secret');
         }
+
+        // Use customerId from customer creation (more reliable)
+        const customerId = customerData.customerId;
 
         // Initialize Airwallex
         await loadAirwallex({
@@ -94,11 +105,11 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         });
 
         // Redirect to Airwallex HPP
-        await redirectToCheckout({
+        redirectToCheckout({
           env: 'prod',
           client_secret: clientSecretData.clientSecret,
           currency: 'USD',
-          customer_id: clientSecretData.customerId,
+          customer_id: customerId,
           appearance: {
             mode: 'dark',
           },
