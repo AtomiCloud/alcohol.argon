@@ -3,12 +3,10 @@ import type { GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import Hero from '@/components/landing/Hero';
+import Differentiation from '@/components/landing/Differentiation';
 import Problem from '@/components/landing/Problem';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
-import FeaturesSummary from '@/components/landing/FeaturesSummary';
-import WhyStakesSupport from '@/components/landing/WhyStakesSupport';
 import RealResults from '@/components/landing/RealResults';
-import Differentiation from '@/components/landing/Differentiation';
 import Pricing from '@/components/landing/Pricing';
 import HowWeMakeMoney from '@/components/landing/HowWeMakeMoney';
 import StakesExplained from '@/components/landing/StakesExplained';
@@ -31,12 +29,10 @@ export default function HomePage() {
       </Head>
       <ScrollReveal />
       <Hero />
+      <Differentiation />
       <Problem />
       <HowItWorksV2 />
-      <FeaturesSummary />
-      <WhyStakesSupport />
       <RealResults />
-      <Differentiation />
       <Pricing />
       <HowWeMakeMoney />
       <StakesExplained />
