@@ -4,7 +4,6 @@ import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import Hero from '@/components/landing/Hero';
 import Differentiation from '@/components/landing/Differentiation';
-import Problem from '@/components/landing/Problem';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
 import RealResults from '@/components/landing/RealResults';
 import Testimonials from '@/components/landing/Testimonials';
@@ -26,7 +25,6 @@ export default function HomePage() {
       <ScrollReveal />
       <Hero />
       <Differentiation />
-      <Problem />
       <HowItWorksV2 />
       <RealResults />
       <Testimonials />
