@@ -49,13 +49,13 @@ export default function PricingPage() {
           </h2>
           <p className="text-slate-600 dark:text-slate-300">
             We love helping people build systems that stick. Email{' '}
-            <a className="underline decoration-violet-400/50 underline-offset-4" href="mailto:hello@lazytax.app">
-              hello@lazytax.app
+            <a className="underline decoration-violet-400/50 underline-offset-4" href="mailto:hello@lazytax.club">
+              hello@lazytax.club
             </a>{' '}
             and we&apos;ll help you figure out the right plan for your routines.
           </p>
           <Button asChild variant="outline" size="lg">
-            <a href="mailto:hello@lazytax.app">Contact support</a>
+            <a href="mailto:hello@lazytax.club">Contact support</a>
           </Button>
         </div>
       </section>
