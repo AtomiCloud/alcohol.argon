@@ -6,7 +6,6 @@ import Hero from '@/components/landing/Hero';
 import Differentiation from '@/components/landing/Differentiation';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
 import RealResults from '@/components/landing/RealResults';
-import Testimonials from '@/components/landing/Testimonials';
 import SocialProof from '@/components/landing/SocialProof';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
@@ -27,7 +26,6 @@ export default function HomePage() {
       <Differentiation />
       <HowItWorksV2 />
       <RealResults />
-      <Testimonials />
       <SocialProof />
       <FinalCTA />
       <section className="py-10 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>

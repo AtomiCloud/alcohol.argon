@@ -44,6 +44,12 @@ export function Navbar() {
               Why LazyTax
             </Link>
             <Link
+              href="/about"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              About
+            </Link>
+            <Link
               href="/pricing"
               className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
             >
@@ -66,6 +72,12 @@ export function Navbar() {
               className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-semibold"
             >
               Why LazyTax
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              About
             </Link>
             <Link
               href="/pricing"

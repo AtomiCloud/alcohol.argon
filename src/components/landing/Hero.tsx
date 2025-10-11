@@ -21,12 +21,12 @@ export default function Hero() {
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
             <Image
-              src="/mascot.svg"
-              alt="LazyTax sloth mascot"
-              width={360}
-              height={320}
+              src="/images/finally-a-habit-tracker-fs8.png"
+              alt="LazyTax habit tracker preview"
+              width={640}
+              height={520}
               priority
-              className="h-52 sm:h-64 w-auto mx-auto mb-4 md:hidden"
+              className="w-full max-w-[420px] h-auto mx-auto mb-4 rounded-xl shadow-lg md:hidden"
             />
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
               Finally, a habit tracker{' '}
@@ -115,12 +115,12 @@ export default function Hero() {
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <Image
-                src="/mascot.svg"
-                alt="LazyTax sloth mascot"
-                width={520}
-                height={400}
+                src="/images/finally-a-habit-tracker-fs8.png"
+                alt="LazyTax habit tracker preview"
+                width={960}
+                height={640}
                 priority
-                className="h-auto w-[85%] max-w-[560px] object-contain drop-shadow-md animate-float-slow"
+                className="h-auto w-full max-w-[520px] object-contain drop-shadow-xl rounded-2xl animate-float-slow"
               />
             </div>
           </div>
