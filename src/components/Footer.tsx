@@ -53,7 +53,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90">
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-6 sm:px-8 py-10">
         <div className="space-y-8">
           {/* Company Info */}
           <div className="text-center space-y-2">

@@ -29,7 +29,7 @@ export default function HomePage() {
       <SocialProof />
       <FinalCTA />
       <section className="py-10 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
-        <div className="container mx-auto px-4 max-w-5xl text-center md:text-left">
+        <div className="container mx-auto px-6 sm:px-8 max-w-5xl text-center md:text-left">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Curious about the science behind LazyTax?{' '}
             <a

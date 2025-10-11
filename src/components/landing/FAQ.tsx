@@ -48,7 +48,7 @@ export default function FAQ() {
 
   return (
     <section id="faq" className="py-12 sm:py-16 bg-slate-50/40 dark:bg-slate-950/40" data-reveal>
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <details className="group rounded-xl border border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur-sm shadow-sm">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-slate-800 dark:text-slate-100">
             <span>Explore Our FAQs</span>

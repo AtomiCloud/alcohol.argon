@@ -189,7 +189,7 @@ function TokensSection() {
 
 function Unauthenticated() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 sm:px-8 py-8">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader className="text-center">
@@ -233,7 +233,7 @@ export default function ProfilePage({ result }: ProfilePageProps) {
   const typedUserInfo = userInfo.value.data;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 sm:px-8 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">

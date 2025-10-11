@@ -64,7 +64,7 @@ export default function Differentiation({ tone = 'brand' }: DifferentiationProps
   return (
     <section className={sectionClasses} data-reveal>
       <div className={overlayClasses} aria-hidden />
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Why we're different from other habit apps
         </h2>

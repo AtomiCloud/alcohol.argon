@@ -11,7 +11,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm">
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <div className="flex h-16 items-center justify-between">
           {/* Left Section: Logo + App (when authed) */}
           <div className="flex items-center space-x-4">

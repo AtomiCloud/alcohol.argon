@@ -17,7 +17,7 @@ export default function Hero() {
         className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-orange-500/10 via-transparent to-violet-500/10"
         aria-hidden="true"
       />
-      <div className="container relative z-10 mx-auto px-4 max-w-5xl pt-14 pb-10 sm:pt-20 sm:pb-16">
+      <div className="container relative z-10 mx-auto px-6 sm:px-8 max-w-5xl pt-14 pb-10 sm:pt-20 sm:pb-16">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
             <Image

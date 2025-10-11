@@ -22,7 +22,7 @@ export default function AboutPage() {
         data-reveal
       >
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(249,115,22,0.14),_transparent_60%)] dark:bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.16),_transparent_55%)]" />
-        <div className="container mx-auto px-4 max-w-4xl text-center space-y-6">
+        <div className="container mx-auto px-6 sm:px-8 max-w-4xl text-center space-y-6">
           <span className="inline-flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-900/70 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-300 ring-1 ring-violet-500/30 dark:ring-violet-500/40">
             About
           </span>
@@ -45,7 +45,7 @@ export default function AboutPage() {
       </section>
 
       <section className="py-16 sm:py-20" data-reveal>
-        <div className="container mx-auto px-4 max-w-5xl grid gap-10 md:grid-cols-2">
+        <div className="container mx-auto px-6 sm:px-8 max-w-5xl grid gap-10 md:grid-cols-2">
           <div className="space-y-4">
             <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">Our mission</h2>
             <p className="text-slate-600 dark:text-slate-300">
@@ -83,7 +83,7 @@ export default function AboutPage() {
       <Transparency />
 
       <section className="py-16 sm:py-20 bg-slate-50/60 dark:bg-slate-900/50" data-reveal>
-        <div className="container mx-auto px-4 max-w-5xl grid gap-10 md:grid-cols-[1.1fr_0.9fr] items-center">
+        <div className="container mx-auto px-6 sm:px-8 max-w-5xl grid gap-10 md:grid-cols-[1.1fr_0.9fr] items-center">
           <div className="space-y-4">
             <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">Meet the Team</h2>
             <p className="text-slate-600 dark:text-slate-300">

@@ -18,7 +18,7 @@ export default function WhyLazyTaxPage() {
       <ScrollReveal />
       <section className="relative overflow-hidden py-16 sm:py-20">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-orange-500/10 via-transparent to-violet-500/10" />
-        <div className="container mx-auto px-4 max-w-4xl text-center space-y-6">
+        <div className="container mx-auto px-6 sm:px-8 max-w-4xl text-center space-y-6">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
             <strong>Everything you need to build lasting habits.</strong>
           </h1>

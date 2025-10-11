@@ -15,7 +15,7 @@ export default function Pricing() {
         className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_bottom_left,_rgba(15,118,110,0.18),_transparent_45%)]"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-6xl rounded-3xl border border-white/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/85 backdrop-blur-sm shadow-2xl py-12 sm:py-16">
+      <div className="container mx-auto px-6 sm:px-8 max-w-6xl rounded-3xl border border-white/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/85 backdrop-blur-sm shadow-2xl py-12 sm:py-16">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Pricing plans for every habit builder
         </h2>

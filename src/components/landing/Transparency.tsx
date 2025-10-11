@@ -8,7 +8,7 @@ export default function Transparency() {
         className="absolute inset-0 -z-10 bg-gradient-to-r from-orange-500/5 via-transparent to-violet-500/5 pointer-events-none"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Complete transparency on where your money goes
         </h2>

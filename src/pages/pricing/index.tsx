@@ -20,7 +20,7 @@ export default function PricingPage() {
         data-reveal
       >
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_55%)] dark:bg-[radial-gradient(circle_at_top,_rgba(147,51,234,0.15),_transparent_55%)]" />
-        <div className="container mx-auto px-4 max-w-4xl text-center space-y-6">
+        <div className="container mx-auto px-6 sm:px-8 max-w-4xl text-center space-y-6">
           <span className="inline-flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-900/70 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-300 ring-1 ring-violet-500/30 dark:ring-violet-500/40">
             Pricing
           </span>
@@ -43,7 +43,7 @@ export default function PricingPage() {
       </section>
       <Pricing />
       <section className="py-16 sm:py-20" data-reveal>
-        <div className="container mx-auto px-4 max-w-4xl text-center space-y-6">
+        <div className="container mx-auto px-6 sm:px-8 max-w-4xl text-center space-y-6">
           <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">
             Still deciding? Talk to the team.
           </h2>
