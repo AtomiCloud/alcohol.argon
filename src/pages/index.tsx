@@ -28,7 +28,7 @@ export default function HomePage() {
       <RealResults />
       <SocialProof />
       <FinalCTA />
-      <section className="py-10 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
+      <section className="py-6 sm:py-8 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
         <div className="container mx-auto px-6 sm:px-8 max-w-5xl text-center md:text-left">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Curious about the science behind LazyTax?{' '}

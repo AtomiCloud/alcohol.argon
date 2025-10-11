@@ -41,7 +41,7 @@ export default function SocialProof() {
   };
 
   return (
-    <section className="py-16 sm:py-20" data-reveal>
+    <section className="pt-14 sm:pt-18 pb-6 sm:pb-8" data-reveal>
       <div className="container mx-auto px-6 sm:px-8 max-w-5xl space-y-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
