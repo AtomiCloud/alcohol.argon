@@ -1,4 +1,5 @@
-import { Quote, Star } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
 
 const testimonials = [
   {
@@ -19,6 +20,20 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const items = useMemo(() => testimonials, []);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % items.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [items.length]);
+
+  const goTo = (index: number) => {
+    setActiveIndex((index + items.length) % items.length);
+  };
+
   return (
     <section
       className="py-16 sm:py-20 bg-gradient-to-br from-violet-50 via-white to-orange-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
@@ -40,21 +55,57 @@ export default function Testimonials() {
             practices.
           </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map(testimonial => (
-            <figure
-              key={testimonial.name}
-              className="h-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 shadow-md p-6 flex flex-col justify-between"
-            >
-              <Quote className="h-6 w-6 text-orange-500 dark:text-orange-300" aria-hidden />
-              <blockquote className="mt-4 text-base text-slate-700 dark:text-slate-200">
-                “{testimonial.quote}”
-              </blockquote>
-              <figcaption className="mt-6 text-sm font-medium text-slate-900 dark:text-white">
-                {testimonial.name}
-              </figcaption>
-            </figure>
-          ))}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 shadow-xl">
+          <div
+            className="flex transition-transform duration-700 ease-in-out"
+            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          >
+            {items.map(testimonial => (
+              <figure
+                key={testimonial.name}
+                className="w-full shrink-0 px-8 py-10 sm:px-12 sm:py-12 flex flex-col gap-6"
+              >
+                <Quote className="h-7 w-7 text-orange-500 dark:text-orange-300" aria-hidden />
+                <blockquote className="text-lg sm:text-xl text-slate-700 dark:text-slate-200 leading-relaxed">
+                  “{testimonial.quote}”
+                </blockquote>
+                <figcaption className="text-sm font-semibold uppercase tracking-wide text-slate-900 dark:text-white">
+                  {testimonial.name}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-label="Previous testimonial"
+            onClick={() => goTo(activeIndex - 1)}
+            className="absolute left-4 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 p-2 text-slate-600 dark:text-slate-300 backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 md:inline-flex"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next testimonial"
+            onClick={() => goTo(activeIndex + 1)}
+            className="absolute right-4 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 p-2 text-slate-600 dark:text-slate-300 backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 md:inline-flex"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
+            {items.map((testimonial, index) => (
+              <button
+                key={testimonial.name}
+                type="button"
+                aria-label={`View testimonial ${index + 1}`}
+                onClick={() => goTo(index)}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  activeIndex === index
+                    ? 'bg-orange-500 dark:bg-orange-300 scale-110'
+                    : 'bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
