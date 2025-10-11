@@ -102,15 +102,15 @@ export default function AboutPage() {
               Email us at{' '}
               <a
                 className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
-                href="mailto:admin@lazytax.club"
+                href="mailto:hello@lazytax.club"
               >
-                admin@lazytax.club
+                hello@lazytax.club
               </a>{' '}
               or join the LazyTax Club community to share feedback, success stories, or ideas.
             </p>
             <div className="mt-4 flex flex-col sm:flex-row gap-3">
               <Button asChild size="sm">
-                <Link href="mailto:admin@lazytax.club">Email the Team</Link>
+                <Link href="mailto:hello@lazytax.club">Email the Team</Link>
               </Button>
               <Button asChild size="sm" variant="outline">
                 <Link href="https://discord.gg/T7AtTQXr" target="_blank" rel="noopener noreferrer">
