@@ -30,7 +30,7 @@ export default function Transparency() {
           <div className="rounded-xl border border-orange-200 dark:border-orange-900/40 p-6 bg-gradient-to-br from-orange-500/10 to-transparent shadow-md">
             <div className="relative mb-4 aspect-[16/10] w-full">
               <Image
-                src="/images/transparency-stakes-fs8.png"
+                src="/images/transparency-stakes2-fs8.png"
                 alt="Stakes transparency"
                 fill
                 className="object-contain"
