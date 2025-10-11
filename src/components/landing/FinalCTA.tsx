@@ -12,8 +12,8 @@ export default function FinalCTA() {
   }
 
   return (
-    <section className="py-16 sm:py-20" data-reveal>
-      <div className="container mx-auto px-4 max-w-5xl">
+    <section className="py-10 sm:py-14" data-reveal>
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 p-8 sm:p-10 text-center md:text-left">
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
             Ready to build habits that stick?

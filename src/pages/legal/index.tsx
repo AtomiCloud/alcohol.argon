@@ -41,7 +41,7 @@ export default function LegalIndex() {
       </Head>
 
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="container mx-auto px-6 sm:px-8 py-12 max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Legal Documents</h1>
             <p className="mt-2 text-slate-600 dark:text-slate-400">

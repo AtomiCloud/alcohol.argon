@@ -3,21 +3,13 @@ import type { GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import Hero from '@/components/landing/Hero';
-import Problem from '@/components/landing/Problem';
-import HowItWorksV2 from '@/components/landing/HowItWorksV2';
-import FeaturesSummary from '@/components/landing/FeaturesSummary';
-import WhyStakesSupport from '@/components/landing/WhyStakesSupport';
-import RealResults from '@/components/landing/RealResults';
 import Differentiation from '@/components/landing/Differentiation';
-import Pricing from '@/components/landing/Pricing';
-import HowWeMakeMoney from '@/components/landing/HowWeMakeMoney';
-import StakesExplained from '@/components/landing/StakesExplained';
-import Transparency from '@/components/landing/Transparency';
+import HowItWorksV2 from '@/components/landing/HowItWorksV2';
+import RealResults from '@/components/landing/RealResults';
 import SocialProof from '@/components/landing/SocialProof';
-import FAQ from '@/components/landing/FAQ';
-import References from '@/components/landing/References';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
+import FAQ from '@/components/landing/FAQ';
 
 export default function HomePage() {
   return (
@@ -31,20 +23,27 @@ export default function HomePage() {
       </Head>
       <ScrollReveal />
       <Hero />
-      <Problem />
-      <HowItWorksV2 />
-      <FeaturesSummary />
-      <WhyStakesSupport />
-      <RealResults />
       <Differentiation />
-      <Pricing />
-      <HowWeMakeMoney />
-      <StakesExplained />
-      <Transparency />
+      <HowItWorksV2 />
+      <RealResults />
       <SocialProof />
-      <FAQ />
       <FinalCTA />
-      <References />
+      <section className="py-6 sm:py-8 bg-slate-50/50 dark:bg-slate-900/50" data-reveal>
+        <div className="container mx-auto px-6 sm:px-8 max-w-5xl text-center md:text-left">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Curious about the science behind LazyTax?{' '}
+            <a
+              href="https://www.notion.so/lazytaxclub/LazyTax-Research-References-52d5ec1b28f8455590982cf49e3613ea"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
+            >
+              View the full research references →
+            </a>
+          </p>
+        </div>
+      </section>
+      <FAQ />
     </>
   );
 }
