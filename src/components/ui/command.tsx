@@ -11,10 +11,7 @@ const Command = React.forwardRef<
     <CommandPrimitive
       ref={ref}
       data-slot="command"
-      className={cn(
-        'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md border',
-        className,
-      )}
+      className={cn('bg-popover text-popover-foreground flex h-full w-full flex-col rounded-md border', className)}
       {...props}
     />
   );
@@ -23,15 +20,16 @@ const Command = React.forwardRef<
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(function CommandInput({ className, ...props }, ref) {
+>(function CommandInput({ className, style, ...props }, ref) {
   return (
     <div className="flex items-center border-b px-3" data-slot="command-input-wrapper">
       <CommandPrimitive.Input
         ref={ref}
         className={cn(
-          'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden',
+          'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-base sm:text-sm outline-hidden',
           className,
         )}
+        style={{ fontSize: '16px', ...style }}
         {...props}
       />
     </div>
@@ -41,12 +39,13 @@ const CommandInput = React.forwardRef<
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
->(function CommandList({ className, ...props }, ref) {
+>(function CommandList({ className, style, ...props }, ref) {
   return (
     <CommandPrimitive.List
       ref={ref}
       data-slot="command-list"
-      className={cn('max-h-64 overflow-y-auto overflow-x-hidden p-1', className)}
+      className={cn('max-h-64 overflow-y-auto overflow-x-hidden p-1 [touch-action:pan-y]', className)}
+      style={{ WebkitOverflowScrolling: 'touch', ...style }}
       {...props}
     />
   );

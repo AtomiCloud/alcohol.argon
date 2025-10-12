@@ -153,7 +153,13 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                     <Heart className="w-4 h-4" />
                     Default Charity
                   </label>
-                  <CharityComboBox options={charityOptions} value={selectedCharityId} onChange={setSelectedCharityId} />
+                  <div className="border border-input rounded-lg p-3 bg-background">
+                    <CharityComboBox
+                      options={charityOptions}
+                      value={selectedCharityId}
+                      onChange={setSelectedCharityId}
+                    />
+                  </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Choose where your stakes will go when you miss a habit.
                   </p>
