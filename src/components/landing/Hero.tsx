@@ -1,6 +1,7 @@
 import type React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 // Removed email collection — switched to a simple CTA based on auth state
 import { useClaims } from '@/lib/auth/providers';
 import { ArrowRight, Rocket } from 'lucide-react';
@@ -29,6 +30,14 @@ export default function Hero() {
               className="w-full max-w-[420px] h-auto mx-auto mb-4 rounded-xl shadow-lg md:hidden"
             />
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
+              <span className="inline-flex items-center gap-2 align-middle mr-2">
+                <Badge
+                  variant="secondary"
+                  className="uppercase tracking-wide text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800"
+                >
+                  Beta
+                </Badge>
+              </span>
               Finally, a habit tracker{' '}
               <span className="relative inline-block whitespace-nowrap">
                 that works
