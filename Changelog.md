@@ -1,3 +1,11 @@
+## [1.30.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.0...v1.30.1) (2025-10-12)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** image missing ([9ad21f1](https://github.com/AtomiCloud/alcohol.argon/commit/9ad21f1dfaa4d45d97f886bd5eb6210cd738f019))
+* **default:** update CharityComboBox component ([1226689](https://github.com/AtomiCloud/alcohol.argon/commit/122668908c2fb5b9fc2b34d0553a3cdd95a63c6a))
+
 ## [1.30.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.29.1...v1.30.0) (2025-10-12)
 
 
