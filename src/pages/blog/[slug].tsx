@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Script from 'next/script';
-import type { GetStaticPaths, GetStaticProps } from 'next';
+import type { GetServerSideProps } from 'next';
 import { Badge } from '@/components/ui/badge';
 import { blogPosts, getBlogPost, type BlogPost } from '@/lib/blog/posts';
 
@@ -145,32 +145,15 @@ export default function BlogPostPage({ post, relatedPosts }: BlogPostPageProps) 
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: blogPosts.map(post => ({ params: { slug: post.slug } })),
-    fallback: false,
-  };
-};
+export const getServerSideProps: GetServerSideProps<BlogPostPageProps> = async context => {
+  const slugParam = context.params?.slug;
+  const slug = typeof slugParam === 'string' ? slugParam : Array.isArray(slugParam) ? slugParam[0] : undefined;
 
-export const getStaticProps: GetStaticProps<BlogPostPageProps> = async context => {
-  const slug = context.params?.slug;
-
-  if (typeof slug !== 'string') {
-    return { notFound: true };
-  }
+  if (!slug) return { notFound: true };
 
   const post = getBlogPost(slug);
-
-  if (!post) {
-    return { notFound: true };
-  }
+  if (!post) return { notFound: true };
 
   const relatedPosts = blogPosts.filter(other => other.slug !== post.slug).slice(0, 2);
-
-  return {
-    props: {
-      post,
-      relatedPosts,
-    },
-  };
+  return { props: { post, relatedPosts } };
 };
