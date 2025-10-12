@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Ensure extensionless URLs like /blog/slug resolve to static HTML
   trailingSlash: true,
+  // Cloudflare/OpenNext does not support Next's default image optimization
+  // route (`/_next/image`). Use unoptimized images so `next/image` serves
+  // files directly from `public/`.
+  images: { unoptimized: true },
   serverExternalPackages: ['jose'],
   webpack: config => {
     // Allow importing JSON files as modules
