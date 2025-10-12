@@ -1,3 +1,15 @@
+## [1.30.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.29.1...v1.30.0) (2025-10-12)
+
+
+### ✨ Features ✨
+
+* **landing:** add research references page ([5a60abd](https://github.com/AtomiCloud/alcohol.argon/commit/5a60abd742ffce660a776f85396ad103d62b25fc))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **landing:** update research contact link ([ce20013](https://github.com/AtomiCloud/alcohol.argon/commit/ce200135f932bc92162c67ee4b8c5751687de33d))
+
 ## [1.29.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.29.0...v1.29.1) (2025-10-12)
 
 
