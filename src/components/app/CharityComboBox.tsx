@@ -7,6 +7,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import type { CausePrincipalRes, CharityPrincipalRes } from '@/clients/alcohol/zinc/api';
 import { Badge } from '@/components/ui/badge';
+import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 type Props = {
@@ -21,6 +22,7 @@ type CharitySearchItem = CharityPrincipalRes;
 
 export default function CharityComboBox({ value, options = [], onChange, error }: Props) {
   const api = useSwaggerClients();
+  const reporter = useProblemReporter();
 
   // Open state for chooser (modal)
   const [open, setOpen] = useState(false);
@@ -65,20 +67,32 @@ export default function CharityComboBox({ value, options = [], onChange, error }
         ok: cs => {
           if (!disposed) setCountries(cs);
         },
-        err: () => {},
+        err: problem => {
+          reporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
+            source: 'CharityComboBox',
+            context: { action: 'loadFilters' },
+            problem,
+          });
+        },
       });
       causesRes.match({
         ok: cc => {
           if (!disposed)
             setCauses([...cc].sort((a, b) => (a.name || a.key || '').localeCompare(b.name || b.key || '')));
         },
-        err: () => {},
+        err: problem => {
+          reporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
+            source: 'CharityComboBox',
+            context: { action: 'loadFilters' },
+            problem,
+          });
+        },
       });
     })();
     return () => {
       disposed = true;
     };
-  }, [api]);
+  }, [api, reporter]);
 
   // If a value is provided but we don't have its label, fetch it
   useEffect(() => {
@@ -92,13 +106,19 @@ export default function CharityComboBox({ value, options = [], onChange, error }
         ok: d => {
           if (!disposed) setLoadedInitialLabel(d.principal.name || 'Selected charity');
         },
-        err: () => {},
+        err: problem => {
+          reporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
+            source: 'CharityComboBox',
+            context: { action: 'loadDetail' },
+            problem,
+          });
+        },
       });
     })();
     return () => {
       disposed = true;
     };
-  }, [value, api, options, items]);
+  }, [value, api, options, items, reporter]);
 
   // Debounced server-side search
   const runSearch = useCallback(

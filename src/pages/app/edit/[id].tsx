@@ -7,7 +7,7 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
-import AsyncButton from '@/components/ui/async-button';
+import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, HabitVersionRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
 import StakeSheet from '@/components/app/StakeSheet';

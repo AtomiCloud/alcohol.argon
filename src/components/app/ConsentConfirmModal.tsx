@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
 interface ConsentConfirmModalProps {
@@ -43,19 +44,10 @@ export default function ConsentConfirmModal({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <button
-            className="text-sm px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
-            onClick={onCancel}
-            type="button"
-          >
+          <Button variant="outline" onClick={onCancel} type="button">
             {cancelLabel}
-          </button>
-          <button
-            className="relative text-sm px-3 py-1.5 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 pl-8"
-            onClick={onConfirm}
-            disabled={loading}
-            type="button"
-          >
+          </Button>
+          <Button className="relative pl-8" variant="default" onClick={onConfirm} disabled={loading} type="button">
             {/* Left icon: shows a static logo when idle; swaps to fast spinning rays when loading */}
             <span className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center">
               {loading ? (
@@ -66,7 +58,7 @@ export default function ConsentConfirmModal({
               )}
             </span>
             <span>{confirmLabel}</span>
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
