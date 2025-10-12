@@ -1,3 +1,11 @@
+## [1.30.3](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.2...v1.30.3) (2025-10-12)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** charity combobox ([#75](https://github.com/AtomiCloud/alcohol.argon/issues/75)) ([e2e41cd](https://github.com/AtomiCloud/alcohol.argon/commit/e2e41cda6231418559a686d2cefda3e804bdb6f8))
+* **default:** charity combobox ([2494f77](https://github.com/AtomiCloud/alcohol.argon/commit/2494f77937db755b4f16890afb2719184a9a772a))
+
 ## [1.30.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.1...v1.30.2) (2025-10-12)
 
 
