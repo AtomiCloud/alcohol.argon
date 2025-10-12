@@ -4,6 +4,7 @@ import { Menu } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthSection } from './AuthSection';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,7 @@ export function Navbar() {
       <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <div className="flex h-16 items-center justify-between">
           {/* Left Section: Logo */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <Link href={logoHref} className="flex items-center space-x-3" aria-label="LazyTax home">
               <Image
                 src="/logo-source.svg"
@@ -35,6 +36,13 @@ export function Navbar() {
                 className="h-8 md:h-7 lg:h-6 w-auto"
               />
             </Link>
+            <Badge
+              variant="secondary"
+              className="uppercase tracking-wide text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800"
+              aria-label="Beta"
+            >
+              Beta
+            </Badge>
           </div>
 
           {/* Right Section */}
@@ -109,7 +117,7 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/#faq">FAQs</Link>
+                  <Link href="/#faq?stay=true">FAQs</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

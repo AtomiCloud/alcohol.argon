@@ -104,14 +104,6 @@ export function Footer() {
               <li>
                 <Link
                   className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/#faq"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
                   href="/?stay=true"
                 >
                   Landing Page

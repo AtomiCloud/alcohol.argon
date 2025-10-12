@@ -32,6 +32,8 @@ const client = registry.client as ClientConfig;
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Ensure extensionless URLs like /blog/slug resolve to static HTML
+  trailingSlash: true,
   serverExternalPackages: ['jose'],
   webpack: config => {
     // Allow importing JSON files as modules
