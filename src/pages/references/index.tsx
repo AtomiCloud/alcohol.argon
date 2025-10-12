@@ -239,7 +239,7 @@ export default function ReferencesPage() {
             collaborate on new studies that explore accountability-based habit building.
           </p>
           <Button asChild size="lg">
-            <Link href="/about#contact">Talk to the team</Link>
+            <a href="mailto:hello@lazytax.club">Talk to the team</a>
           </Button>
         </div>
       </section>
