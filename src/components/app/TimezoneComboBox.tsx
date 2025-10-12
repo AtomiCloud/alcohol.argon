@@ -35,7 +35,7 @@ export default function TimezoneComboBox({ value, options, onChange, error }: Pr
           <PopoverContent id="timezone-combobox-menu" className="p-0" align="start">
             <Command shouldFilter className="w-full">
               <CommandInput placeholder="Search timezone..." autoFocus />
-              <CommandList>
+              <CommandList className="max-h-[200px]">
                 <CommandEmpty>No results</CommandEmpty>
                 <CommandGroup>
                   {options.map(it => (
