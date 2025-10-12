@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import type { GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
@@ -32,14 +33,9 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8 max-w-5xl text-center md:text-left">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Curious about the science behind LazyTax?{' '}
-            <a
-              href="https://www.notion.so/lazytaxclub/LazyTax-Research-References-52d5ec1b28f8455590982cf49e3613ea"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
-            >
+            <Link href="/references" className="text-violet-600 dark:text-violet-400 font-semibold hover:underline">
               View the full research references →
-            </a>
+            </Link>
           </p>
         </div>
       </section>
