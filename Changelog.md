@@ -1,3 +1,11 @@
+## [1.29.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.29.0...v1.29.1) (2025-10-12)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** pricing page ([#71](https://github.com/AtomiCloud/alcohol.argon/issues/71)) ([61eb3f5](https://github.com/AtomiCloud/alcohol.argon/commit/61eb3f5a6dfb0cee6cb40e757018c9ad4b58835f))
+* **default:** pricing page ([d47cbfb](https://github.com/AtomiCloud/alcohol.argon/commit/d47cbfb95362d316f3056c1aa3c689f2e8acadef))
+
 ## [1.29.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.28.0...v1.29.0) (2025-10-12)
 
 
