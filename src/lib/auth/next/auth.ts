@@ -31,8 +31,8 @@ async function handleAuthData(
 const authStateApiHandler: (auth: IAuthStateRetriever) => NextApiHandler =
   (auth: IAuthStateRetriever) => async (req, res) => {
     const { action } = req.query;
-    if (action && typeof action === 'string' && ['claims', 'user', 'tokens'].includes(action))
-      return await handleAuthData(action as 'claims' | 'user' | 'tokens', auth, res);
+    if (action && typeof action === 'string' && ['claims', 'user', 'tokens', 'force_tokens'].includes(action))
+      return await handleAuthData(action as 'claims' | 'user' | 'tokens' | 'force_tokens', auth, res);
     res.status(404);
     res.end();
   };
