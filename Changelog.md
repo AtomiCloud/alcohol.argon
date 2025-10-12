@@ -1,3 +1,11 @@
+## [1.30.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.1...v1.30.2) (2025-10-12)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** payment url ([#74](https://github.com/AtomiCloud/alcohol.argon/issues/74)) ([8a95249](https://github.com/AtomiCloud/alcohol.argon/commit/8a952499229a10a9eb9513c14803d0c9741094da))
+* **default:** payment url ([ef5feb5](https://github.com/AtomiCloud/alcohol.argon/commit/ef5feb5b98021837d67f4a4b72c6048e24b8f866))
+
 ## [1.30.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.0...v1.30.1) (2025-10-12)
 
 
