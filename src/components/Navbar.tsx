@@ -7,7 +7,7 @@ import { useClaims } from '@/lib/auth/providers';
 export function Navbar() {
   const [t, v] = useClaims();
   const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
-  const logoHref = isAuthed ? '/?stay=true' : '/';
+  const logoHref = isAuthed ? '/app' : '/';
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm">

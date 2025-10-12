@@ -3,6 +3,9 @@ tracker:
   plausible:
     enabled: true
     domain: 'lazytax.club'
+payment:
+  airwallex:
+    env: 'demo'
 support:
   email: support@local.host
 navbarshowoff: false

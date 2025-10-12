@@ -2,6 +2,7 @@ import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 type SpinnerSize = 'xs' | 'sm' | 'md' | 'lg';
+type SpinnerVariant = 'ring' | 'rays';
 
 const sizeClass: Record<SpinnerSize, string> = {
   xs: 'h-3 w-3',
@@ -12,13 +13,28 @@ const sizeClass: Record<SpinnerSize, string> = {
 
 interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   size?: SpinnerSize;
+  variant?: SpinnerVariant;
 }
 
-export function Spinner({ size = 'md', className, ...props }: SpinnerProps) {
+export function Spinner({ size = 'md', variant = 'ring', className, ...props }: SpinnerProps) {
+  if (variant === 'rays') {
+    // SVG with 12 radial bars using currentColor, spins via CSS
+    const bars = Array.from({ length: 12 }, (_, i) => i);
+    return (
+      <output aria-live="polite" className={cn('inline-block', sizeClass[size], className)} {...props}>
+        <svg viewBox="0 0 24 24" width="100%" height="100%" className="animate-spin">
+          {bars.map(i => (
+            <g key={i} transform={`rotate(${i * 30} 12 12)`}>
+              <rect x="11" y="1.5" width="2" height="5" rx="1" fill="currentColor" />
+            </g>
+          ))}
+        </svg>
+      </output>
+    );
+  }
   return (
-    <span
-      role="status"
-      aria-label="loading"
+    <output
+      aria-live="polite"
       className={cn(
         'inline-block rounded-full border-2 border-current border-t-transparent animate-spin',
         sizeClass[size],

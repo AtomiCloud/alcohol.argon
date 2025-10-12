@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -7,24 +7,25 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
+import AsyncButton from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, HabitVersionRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
 import StakeSheet from '@/components/app/StakeSheet';
-import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
+import ConsentConfirmModal from '@/components/app/ConsentConfirmModal';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
-import { X } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, type Result } from '@/lib/monads/result';
+import type { Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
 import type { HabitDraft } from '@/models/habit';
-import { amountToCents, formatCentsToAmount, toHHMMSS, toHM } from '@/lib/utility/habit-utils';
+import { toHHMMSS, toHM } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
-import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
+import { useStakeFlow } from '@/lib/payment/use-stake-flow';
 
 type EditHabitPageData = {
   habit: HabitVersionRes;
@@ -36,7 +37,6 @@ type EditHabitPageProps = { initial: ResultSerial<EditHabitPageData, Problem> };
 
 export default function EditHabitPage({ initial }: EditHabitPageProps) {
   const api = useSwaggerClients();
-  const [loading, loader] = useFreeLoader();
   const problemReporter = useProblemReporter();
   const errorHandler = useErrorHandler();
   const router = useRouter();
@@ -50,10 +50,6 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
 
   const habit = initialData.habit;
   const charityOptions = useMemo(() => initialData.charities.filter(c => !!c.id), [initialData.charities]);
-  const timezone = initialData.timezone || habit.timezone || 'UTC';
-
-  // Keep Result monad version for error handling
-  const [data] = useState(() => Res.fromSerial<EditHabitPageData, Problem>(initial));
 
   // Unified form state with URL sync (batched updates prevent navigation loops)
   const { state: formState, updateFields } = useFormUrlState({
@@ -113,87 +109,37 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     setCharityId(updated.charityId);
   };
 
-  const [stakeModalOpen, setStakeModalOpen] = useState(false);
-  const [stakeBuffer, setStakeBuffer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [busyUpdate, setBusyUpdate] = useState(false);
 
-  // Payment consent hook
-  const { checking: checkingPayment, checkAndInitiatePayment, pollPaymentConsent } = usePaymentConsent();
-  const [pollingPayment, setPollingPayment] = useState(false);
+  // Get habitId from router
+  const habitId = router.query.id as string;
 
-  // Check for payment status on mount (after HPP redirect)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: router and pollPaymentConsent cause infinite loop
-  useEffect(() => {
-    const paymentStatus = router.query.payment_status;
-    const habitId = router.query.id as string;
-
-    if (paymentStatus === 'success') {
-      setPollingPayment(true);
-      pollPaymentConsent(
-        () => {
-          setPollingPayment(false);
-          // Clean up URL
-          router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
-        },
-        () => {
-          setPollingPayment(false);
-          alert('Payment consent setup failed or timed out. Please try again.');
-          router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
-        },
-      );
-    } else if (paymentStatus === 'failed') {
-      alert('Payment consent setup failed. Please try again.');
-      router.replace(`/app/edit/${habitId}`, undefined, { shallow: true });
-    }
-  }, [router.query.payment_status, router.query.id]);
-
-  const keypadAppend = (k: string) => {
-    setStakeBuffer(prev => {
-      if (k === 'C') return '';
-      if (k === '⌫') return prev.slice(0, -1);
-      if (/^\d$/.test(k)) return (prev + k).replace(/^0+(?=\d)/, '');
-      return prev;
-    });
-  };
-
-  const openStakeModal = () => {
-    setStakeBuffer(amountToCents(draft.amount || ''));
-    setStakeModalOpen(true);
-  };
-
-  const confirmStakeModal = async () => {
-    const val = formatCentsToAmount(stakeBuffer);
-
-    // Check if amount is non-zero and if user needs payment consent
-    if (Number(val) > 0) {
-      try {
-        // Build return URL with all current form state
-        const habitId = router.query.id as string;
-        const returnParams = new URLSearchParams({
-          task: task || '',
-          days: JSON.stringify(daysOfWeek),
-          time: notificationTime || '',
-          amount: val,
-          charity: charityId || '',
-        });
-        const returnUrl = `/app/edit/${habitId}?${returnParams.toString()}`;
-
-        await checkAndInitiatePayment(() => {
-          // Has consent - proceed
-          setAmount(val);
-          setStakeModalOpen(false);
-        }, returnUrl);
-      } catch (error) {
-        console.error('Payment consent error:', error);
-        alert('Failed to initiate payment consent. Please try again.');
-      }
-    } else {
-      // Zero amount - no consent needed
-      setAmount(val);
-      setStakeModalOpen(false);
-    }
-  };
+  // Stake flow hook (handles payment consent)
+  const {
+    stakeModalOpen,
+    stakeBuffer,
+    openStakeModal,
+    closeStakeModal,
+    keypadAppend,
+    setQuickAmount,
+    clearBuffer,
+    confirmStake,
+    checking,
+    showConsentConfirm,
+    startConsentFlow,
+    cancelConsent,
+  } = useStakeFlow({
+    currentAmount: amount,
+    onAmountChange: setAmount,
+    formState: {
+      task: task || '',
+      days: JSON.stringify(daysOfWeek),
+      time: notificationTime || '',
+      charity: charityId || '',
+    },
+    returnPath: `/app/edit/${habitId}`,
+  });
 
   const validateDraft = (d: HabitDraft): Record<string, string> => {
     const errs: Record<string, string> = {};
@@ -306,17 +252,15 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
             />
 
             <div className="pt-1">
-              <Button
+              <AsyncButton
                 onClick={handleUpdate}
-                disabled={loading || Object.keys(errs).length > 0 || busyUpdate}
+                disabled={Object.keys(errs).length > 0}
+                loading={busyUpdate}
                 className="relative w-full h-12 text-base bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 text-white"
+                idleIcon={<Save className="w-4 h-4" />}
               >
-                <Spinner
-                  className={`absolute left-3 transition-opacity ${busyUpdate ? 'opacity-100' : 'opacity-0'}`}
-                  size="sm"
-                />
-                <span className={`${busyUpdate ? 'opacity-70' : ''}`}>Update Habit</span>
-              </Button>
+                Update Habit
+              </AsyncButton>
             </div>
           </CardContent>
         </Card>
@@ -326,25 +270,18 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
         open={stakeModalOpen}
         amountCents={stakeBuffer}
         onAppend={keypadAppend}
-        onQuick={v => setStakeBuffer(String(v * 100))}
-        onClear={() => setStakeBuffer('')}
-        onClose={() => setStakeModalOpen(false)}
-        onConfirm={confirmStakeModal}
+        onQuick={setQuickAmount}
+        onClear={clearBuffer}
+        onClose={closeStakeModal}
+        onConfirm={confirmStake}
       />
 
-      {/* Show polling indicator */}
-      {pollingPayment && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <Card className="p-6 max-w-sm">
-            <CardContent className="space-y-4 text-center">
-              <Spinner size="lg" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Setting up payment consent... This may take up to a minute.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <ConsentConfirmModal
+        open={showConsentConfirm}
+        onCancel={cancelConsent}
+        onConfirm={startConsentFlow}
+        loading={checking}
+      />
     </>
   );
 }
@@ -354,14 +291,14 @@ export const getServerSideProps = withServerSideAtomi(
   async (context: GetServerSidePropsContext, { apiTree }): Promise<GetServerSidePropsResult<EditHabitPageProps>> => {
     const { id } = context.params as { id: string };
 
+    const zinc = apiTree.alcohol.zinc.api;
     // Get userId first
-    const userIdResult = await apiTree.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
+    const userIdResult = await zinc.vUserMeList({ version: '1.0' }, { format: 'text' });
 
-    const result: Result<EditHabitPageData, Problem> = await userIdResult.andThen(async userId => {
+    const result: Result<EditHabitPageData, Problem> = userIdResult.andThen(async userId => {
       // Fetch habit details
-      const habitResult = await apiTree.alcohol.zinc.api.vHabitDetail2({ version: '1.0', userId, id });
-
-      return habitResult.andThen(habit => {
+      const habitResult = await zinc.vHabitDetail2({ version: '1.0', userId, id });
+      return habitResult.andThen(async habit => {
         // Fetch charities and config in parallel
         return apiTree.alcohol.zinc.api.vCharityList({ version: '1.0' }).then(charitiesResult =>
           charitiesResult.andThen(charities =>

@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useTokens } from '@/lib/auth/providers';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
@@ -10,6 +12,8 @@ import { Res, type ResultSerial } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import type { AuthState } from '@/lib/auth/core/types';
 import { useContent } from '@/lib/content/providers';
+import { Input } from '@/components/ui/input';
+import { useLandscape } from '@/lib/landscape/providers';
 
 interface ClaimItemProps {
   label: string;
@@ -219,134 +223,257 @@ function Unauthenticated() {
 
 interface ProfilePageProps {
   result: ResultSerial<AuthState<UserInfoResponse>, Problem>;
+  isAdmin?: boolean;
 }
 
-export default function ProfilePage({ result }: ProfilePageProps) {
+interface FieldCardProps {
+  label: string;
+  value: string;
+  subtitle?: string;
+  restriction?: string;
+}
+
+function FieldCard({ label, value, subtitle, restriction }: FieldCardProps) {
+  return (
+    <Card className="rounded-md shadow-md">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-base font-medium">{label}</CardTitle>
+        {subtitle ? <CardDescription>{subtitle}</CardDescription> : null}
+      </CardHeader>
+      <CardContent className="pb-0">
+        <Input value={value} disabled readOnly className="bg-muted/40 mb-3" />
+        {restriction ? (
+          <div className="mt-5 -mx-6 -mb-6 px-6 py-3 bg-black/5 dark:bg-white/5 text-muted-foreground border-t border-border text-xs">
+            {restriction}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function ProfilePage({ result, isAdmin = false }: ProfilePageProps) {
   const contentResult = Res.fromSerial<AuthState<UserInfoResponse>, Problem>(result);
 
   const userInfo = useContent(contentResult, { notFound: 'User not authenticated' });
+  const router = useRouter();
+  const landscape = useLandscape();
 
   if (!userInfo) return <></>;
 
   if (!userInfo.value.isAuthed) return <Unauthenticated />;
 
   const typedUserInfo = userInfo.value.data;
+  const appendDetails = router.query.append === '1' || router.query.details === '1' || router.query.dev === '1';
+
+  // Some identity providers may include a custom `username` claim; fall back safely
+  const username = (typedUserInfo as Record<string, unknown>)?.username as string | undefined;
+  const displayName = username ?? typedUserInfo.name ?? typedUserInfo.email ?? 'User';
+  const userInitial = (username ?? typedUserInfo.email ?? 'U').charAt(0).toUpperCase();
+  const userId = typedUserInfo.sub as string | undefined;
+  const emailVerified = typedUserInfo.email_verified as boolean | undefined;
+  const canShowDeveloperSections = isAdmin || ['lapras', 'pichu'].includes(landscape);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <span className="text-xl font-bold text-white">
-                {(typedUserInfo.name ?? 'Unknown').charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                {typedUserInfo.name ?? 'User Profile'}
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400">{typedUserInfo.email ?? 'Authenticated User'}</p>
+    <>
+      <Head>
+        <title>Profile - LazyTax</title>
+      </Head>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto max-w-3xl">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <span className="text-xl font-bold text-white">{userInitial}</span>
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 truncate">Profile</h1>
+                <p className="text-slate-600 dark:text-slate-400 truncate">{displayName}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2" />
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <Badge
+          {/* Account fields: one card per field (disabled inputs) */}
+          <div className="grid grid-cols-1 gap-4">
+            <FieldCard
+              label="Username"
+              value={String(username ?? '')}
+              subtitle="Your unique handle used across the app"
+              restriction="Alphanumeric, 3–30 characters"
+            />
+            <FieldCard
+              label="Email"
+              value={String(typedUserInfo.email ?? '')}
+              subtitle="Used for sign-in and notifications"
+              restriction="Must be a valid email address"
+            />
+            {userId && (
+              <FieldCard
+                label="User ID"
+                value={userId}
+                subtitle="Internal identifier for your account"
+                restriction="Read-only"
+              />
+            )}
+            {emailVerified !== undefined && (
+              <FieldCard
+                label="Email Verified"
+                value={emailVerified ? 'Yes' : 'No'}
+                subtitle="Indicates whether your email is verified"
+                restriction="Read-only"
+              />
+            )}
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/settings">Manage Settings</Link>
+            </Button>
+            {canShowDeveloperSections &&
+              (!appendDetails ? (
+                <Button
+                  variant="outline"
+                  onClick={() => router.push({ pathname: router.pathname, query: { ...router.query, append: '1' } })}
+                >
+                  Show developer settings
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const { append, details, dev, ...rest } = router.query;
+                    router.push({ pathname: router.pathname, query: { ...rest } });
+                  }}
+                >
+                  Hide developer settings
+                </Button>
+              ))}
+          </div>
+
+          {/* Optional: append full details at the end */}
+          {appendDetails && canShowDeveloperSections && (
+            <>
+              <div className="h-6" />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-slate-600 dark:text-slate-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span>User Information (Server-Side)</span>
+                  </CardTitle>
+                  <CardDescription>
+                    User profile information from your identity provider (loaded server-side)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {Object.keys(typedUserInfo).length > 0 ? (
+                    <div className="space-y-0">
+                      {Object.entries(typedUserInfo).map(([key, value]) => (
+                        <ClaimItem key={key} label={key} value={value} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <svg
+                        className="mx-auto h-12 w-12 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                        />
+                      </svg>
+                      <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                        No claims available
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        No user claims were found in your authentication data.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <TokensSection />
+            </>
+          )}
+
+          {/* Footer actions */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            <Button variant="outline" asChild>
+              <Link href="/">
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Home
+              </Link>
+            </Button>
+            <Button
               variant="outline"
-              className="text-green-700 border-green-200 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-green-950/20"
+              className="text-red-700 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950/20"
+              onClick={() => window.location.assign('/api/logto/sign-out')}
             >
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Authenticated
-            </Badge>
-            <Badge variant="secondary">Fields: {Object.keys(typedUserInfo || {}).length}</Badge>
-          </div>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <svg
-                className="h-5 w-5 text-slate-600 dark:text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              <span>User Information (Server-Side)</span>
-            </CardTitle>
-            <CardDescription>User profile information from your identity provider (loaded server-side)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(typedUserInfo).length > 0 ? (
-              <div className="space-y-0">
-                {Object.entries(typedUserInfo).map(([key, value]) => (
-                  <ClaimItem key={key} label={key} value={value} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">No claims available</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  No user claims were found in your authentication data.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <TokensSection />
-
-        <div className="mt-8 flex flex-col sm:flex-row gap-4">
-          <Button variant="outline" asChild>
-            <Link href="/">
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Home
-            </Link>
-          </Button>
-          <Button
-            variant="outline"
-            className="text-red-700 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950/20"
-            onClick={() => window.location.assign('/api/logto/sign-out')}
-          >
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            Sign Out
-          </Button>
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export const getServerSideProps = withServerSideAtomi({ ...buildTime, guard: 'private' }, async (_, { auth }) => {
   const result = await auth.retriever.getUserInfo().serial();
-  return { props: { result } };
+
+  // Determine admin scope from tokens (access token scopes or id token claims)
+  let isAdmin = false;
+  const tokenSetResult = await auth.retriever.getTokenSet();
+  tokenSetResult.map(tokenState => {
+    if (!tokenState.value.isAuthed) return tokenState;
+    const { idToken, accessTokens } = tokenState.value.data;
+    const claims = auth.checker.toToken(idToken) as Record<string, unknown>;
+    const scopeStr = (claims.scope as string) || '';
+    const scopesArr = (claims.scopes as string[]) || [];
+
+    const accessTokensArr = Object.values(accessTokens || {});
+    const accessScopes: string[] = [];
+    for (const t of accessTokensArr) {
+      try {
+        const p = auth.checker.toToken(t) as Record<string, unknown>;
+        if (typeof p.scope === 'string') accessScopes.push(...String(p.scope).split(' '));
+        if (Array.isArray(p.scopes)) accessScopes.push(...(p.scopes as string[]));
+      } catch {}
+    }
+
+    const allScopes = new Set<string>([...scopeStr.split(' ').filter(Boolean), ...scopesArr, ...accessScopes]);
+    isAdmin = allScopes.has('admin');
+    return tokenState;
+  });
+
+  return { props: { result, isAdmin } };
 });

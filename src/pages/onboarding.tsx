@@ -6,6 +6,7 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
+import AsyncButton from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, CreateConfigurationReq } from '@/clients/alcohol/zinc/api';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
@@ -13,7 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
 import { Res, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
-import { Settings, Heart } from 'lucide-react';
+import { Settings, Heart, ArrowRight } from 'lucide-react';
 import CharityComboBox from '@/components/app/CharityComboBox';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
@@ -81,9 +82,17 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
     const result = await api.alcohol.zinc.api.vConfigurationCreate2({ version: '1.0' }, payload);
 
     result.match({
-      ok: () => {
+      ok: async () => {
+        // After creating config, refresh tokens so access token claims include configuration_id
+        try {
+          await fetch('/api/auth/force_tokens');
+          // small delay to allow upstream claim propagation
+          await new Promise(res => setTimeout(res, 150));
+        } catch {
+          // best-effort; proceed regardless
+        }
         // Redirect to app page after successful onboarding
-        router.push('/app');
+        router.replace('/app');
       },
       err: problem => {
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
@@ -152,21 +161,16 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
 
                 {/* Submit Button */}
                 <div className="pt-4">
-                  <Button
+                  <AsyncButton
                     onClick={handleSubmit}
-                    disabled={!canSubmit || submitting}
+                    disabled={!canSubmit}
+                    loading={submitting}
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     size="lg"
+                    idleIcon={<Settings className="w-4 h-4" />}
                   >
-                    {submitting ? (
-                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Setting up...
-                      </>
-                    ) : (
-                      'Complete Setup'
-                    )}
-                  </Button>
+                    {submitting ? 'Setting up...' : 'Complete Setup'}
+                  </AsyncButton>
                 </div>
               </CardContent>
             </Card>
