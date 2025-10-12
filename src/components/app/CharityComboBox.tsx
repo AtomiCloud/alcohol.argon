@@ -417,8 +417,8 @@ export default function CharityComboBox({ value, options = [], onChange, error }
             </PopoverTrigger>
             <PopoverContent
               id="charity-dropdown"
-              className="p-0 w-[min(92vw,24rem)] data-[state=open]:animate-none data-[state=closed]:animate-none"
-              align="start"
+              className="p-0 w-[var(--radix-popover-trigger-width)] data-[state=open]:animate-none data-[state=closed]:animate-none"
+              align="center"
               side="bottom"
               avoidCollisions
               collisionPadding={8}
@@ -442,7 +442,7 @@ export default function CharityComboBox({ value, options = [], onChange, error }
                   onValueChange={setQuery}
                   autoFocus
                 />
-                <CommandList className="max-h-[300px] min-h-[200px] overflow-y-auto overscroll-contain relative">
+                <CommandList className="max-h-[100px] min-h-[100px] overflow-y-auto overscroll-contain relative">
                   {loading && (
                     <div className="sticky top-0 z-10 bg-background/90 backdrop-blur px-3 py-1 text-[11px] text-slate-500 dark:text-slate-400">
                       Searching…
@@ -520,7 +520,7 @@ export default function CharityComboBox({ value, options = [], onChange, error }
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent
             id="charity-combobox-modal"
-            className="p-0 w-[calc(100vw-1.25rem)] max-w-[24rem] sm:max-w-[28rem] max-h-[80vh] rounded-lg overflow-hidden"
+            className="p-6 w-[calc(100vw-1.25rem)] max-w-[24rem] sm:max-w-[28rem] max-h-[80vh] rounded-lg overflow-hidden"
           >
             <SearchPanel />
           </DialogContent>
