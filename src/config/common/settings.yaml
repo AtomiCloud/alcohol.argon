@@ -14,7 +14,9 @@ app:
     service: 'argon'
     module: 'webapp'
 seo:
-  twitter: {}
+  twitter:
+    site: '@lazytaxclub'
+    creator: '@lazytaxclub'
   og:
     locale: en_US
 pwa:

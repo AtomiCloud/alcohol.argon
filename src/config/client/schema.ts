@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 export const clientSchema = z.object({
   landscape: z.string().default('unknown'),
+  payment: z.object({
+    airwallex: z.object({
+      env: z.union([z.literal('demo'), z.literal('prod')]),
+    }),
+  }),
   features: z
     .object({
       showStreaks: z.boolean().default(false),

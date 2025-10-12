@@ -79,14 +79,9 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild className={pathname === '/profile' ? 'bg-accent text-accent-foreground' : ''}>
           {pathname === '/profile' ? (
-            <span
-              role="menuitem"
-              aria-disabled="true"
-              tabIndex={-1}
-              className="w-full flex items-center opacity-50 cursor-default"
-            >
+            <span role="menuitem" aria-disabled="true" tabIndex={-1} className="w-full flex items-center">
               <User className="mr-2 h-4 w-4" />
               View Profile
             </span>
@@ -97,14 +92,9 @@ export function ProfileDropdown({ data, onSignOut, isMobile = false, onMenuClose
             </Link>
           )}
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild className={pathname === '/settings' ? 'bg-accent text-accent-foreground' : ''}>
           {pathname === '/settings' ? (
-            <span
-              role="menuitem"
-              aria-disabled="true"
-              tabIndex={-1}
-              className="w-full flex items-center opacity-50 cursor-default"
-            >
+            <span role="menuitem" aria-disabled="true" tabIndex={-1} className="w-full flex items-center">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </span>

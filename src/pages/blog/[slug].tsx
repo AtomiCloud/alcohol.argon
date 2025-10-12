@@ -109,7 +109,7 @@ export default function BlogPostPage({ post, relatedPosts }: BlogPostPageProps) 
                 and get the reminders you need to keep your new habit alive.
               </p>
               <Link
-                href="/api/logto/sign-in"
+                href="/"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 px-4 py-2 rounded-lg transition-all"
               >
                 Start your commitment

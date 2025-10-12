@@ -18,6 +18,86 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'productivity-person-just-anxious',
+    title: 'I\'ve been a "productivity person" for years. Turns out I was just anxious',
+    description:
+      "I chased new systems for years and blamed discipline. The fix wasn't willpower—it was simple habits, flexible streaks, and tiny stakes that made commitment feel real.",
+    excerpt:
+      "If you've cycled through habit apps and still quit around week three, you're not broken. You're running a pass/fail playbook on a process that needs flexibility and accountability.",
+    publishedAt: '2025-10-12',
+    readTime: '7 min read',
+    categories: ['Mindset', 'Habit Design'],
+    seoKeywords: [
+      'productivity anxiety',
+      'habit formation 66 days',
+      'accountability stakes',
+      'habit tracker with charity',
+      'lazy tax',
+      'streaks that last',
+    ],
+    sections: [
+      {
+        heading: 'The loop I kept repeating',
+        paragraphs: [
+          "New habit tracker? This is the one. New system? This changes everything. New framework? Finally, I'll be consistent. I've tried more apps than I can count—Habitica, Streaks, Loop, Way of Life, Productive, Done, Strides, Momentum, and a parade of Notion templates.",
+          "Week one, I'm obsessed. Week two, the streak looks like proof I'm a new person. Week three, I miss once—travel, illness, or I simply forget. The streak breaks, I feel lousy, stop opening the app, and a few weeks later I delete it. Then three months pass and I repeat the cycle with a different app.",
+        ],
+      },
+      {
+        heading: 'The pass/fail trap',
+        paragraphs: [
+          "For years I diagnosed the problem as discipline. If I just tried harder, I'd become the person who meditates daily, hits the gym, and chips away at side projects.",
+          "But I treated habits like tests. Miss once equals failed. Delete app. Try a new system. I rarely asked why I missed or whether it mattered. I didn't question whether the habit design was even realistic.",
+        ],
+      },
+      {
+        heading: 'What the research actually says',
+        paragraphs: [
+          'The boring academic literature—not influencer posts—puts average habit automaticity around 66 days, not 21. The range is wide: 18 to 254 days depending on the person and behavior.',
+          "That means the notorious week three slump is normal. It's the valley between novelty and automaticity. I kept quitting right before the curve bent upward.",
+        ],
+      },
+      {
+        heading: 'Why small stakes help',
+        paragraphs: [
+          'Even tiny financial stakes—one or two dollars—can meaningfully increase follow-through. Not because the money hurts, but because the commitment feels real. Your brain treats it differently.',
+          'The trick is calibration. Stakes should nudge, not punish. When the system feels punitive, people disengage to avoid the discomfort.',
+        ],
+      },
+      {
+        heading: 'I tried the stakes apps',
+        paragraphs: [
+          'StickK felt frozen in 2008. Beeminder was too technical for how my brain works. Forfeit wanted photo or video proof every day, which added enough friction that I avoided it.',
+          'The pattern: apps with real consequences were hard to use; apps that were easy to use had no meaningful consequences.',
+        ],
+      },
+      {
+        heading: 'So I built the tool I needed',
+        paragraphs: [
+          "I wasn't trying to launch a product. I was trying to stop repeating the same loop. I needed optional small stakes, five-second check-ins, grace for sick days and travel, and a way to see patterns instead of just feeling shame.",
+          "I also needed any forfeited money to go somewhere aligned with my values. If I miss, it goes to charity—not into a company's pocket.",
+        ],
+      },
+      {
+        heading: 'How LazyTax works (in short)',
+        paragraphs: [
+          'Pick one tiny habit—think “put on gym shoes” rather than “go to the gym.” Check-ins take seconds. Add a small stake if you want extra friction; I often use $2.',
+          "Miss a check-in and don't have protection? The stake goes to a charity you chose. As your streak grows, you earn automatic “freezes” that cover an occasional miss so life doesn't equal failure.",
+          'When you do miss, we ask what happened. Not to shame you, but to help you spot patterns like “I miss on Fridays” or “Travel derails me.”',
+        ],
+      },
+      {
+        heading: 'Three months in',
+        paragraphs: [
+          "I'm on a 94‑day streak for “open project file for five minutes.” Most days that turns into 30–60 minutes of work; on rough days, I still do the five.",
+          "For the first time in years, I'm not stuck in week three.",
+        ],
+      },
+    ],
+    conclusion:
+      "If you've got a folder of abandoned productivity apps, you're not alone. Trade the pass/fail mindset for simple habits, gentle accountability, and calibrated stakes—and finally get past week three. When you're ready, use the CTA below to start from our landing page.",
+  },
+  {
     slug: 'simple-habit-planning-system',
     title: 'A Simple System to Plan, Track, and Stay Accountable',
     description:

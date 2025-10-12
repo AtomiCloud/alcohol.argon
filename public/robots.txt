@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Sitemap: /sitemap.xml
+
+# Directories
+Disallow: /api/
+Disallow: /_next/
+Disallow: /app/

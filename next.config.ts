@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import withPWA from 'next-pwa';
+// Intentionally do not import next-pwa/cache; we want zero runtime caches
 import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
 import { type ClientConfig, type CommonConfig, configSchemas } from '@/config';
@@ -52,6 +53,8 @@ const nextConfig: NextConfig = {
       new webpack.DefinePlugin({
         'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
         'process.env.LANDSCAPE': JSON.stringify(landscape),
+        'process.env.BUILD_TIME_COMMON_CONFIG': JSON.stringify(common),
+        'process.env.BUILD_TIME_CLIENT_CONFIG': JSON.stringify(client),
       }),
     );
 
@@ -76,6 +79,12 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development', // Disable PWA in dev mode
+  // Disable all runtime caching so no pages or APIs are cached by the SW.
+  // Keep SW only for manifest + installability + theme-color control.
+  runtimeCaching: [],
+  // Prevent next-pwa from precaching any assets/pages at build time.
+  // This ensures the SW does not serve stale HTML or assets.
+  buildExcludes: [/^.*$/],
 });
 
 // @ts-expect-error - Type incompatibility between Next.js 15 and next-pwa types

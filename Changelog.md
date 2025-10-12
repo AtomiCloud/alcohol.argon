@@ -1,3 +1,16 @@
+## [1.28.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.27.0...v1.28.0) (2025-10-12)
+
+
+### ✨ Features ✨
+
+* **beta:** add new features and updates for beta demo ([#70](https://github.com/AtomiCloud/alcohol.argon/issues/70)) ([7de1fbc](https://github.com/AtomiCloud/alcohol.argon/commit/7de1fbcac4cf66bf5c2edaf5abb21b1cd487f7a1))
+* **beta:** add new features and updates for beta demo ([35e18ad](https://github.com/AtomiCloud/alcohol.argon/commit/35e18ad078f93327b310fde60d5582741a65189e))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** pr comments ([cd8f2df](https://github.com/AtomiCloud/alcohol.argon/commit/cd8f2df6944ef6444bda7ebf9bf53992e3a08fad))
+
 ## [1.27.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.26.0...v1.27.0) (2025-10-10)
 
 

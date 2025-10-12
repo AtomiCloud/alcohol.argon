@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -7,24 +7,25 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
+import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, CreateHabitReq } from '@/clients/alcohol/zinc/api';
 import StakeSheet from '@/components/app/StakeSheet';
-import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
+import ConsentConfirmModal from '@/components/app/ConsentConfirmModal';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
-import { X } from 'lucide-react';
+import { X, PlusCircle } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, Ok, type Result } from '@/lib/monads/result';
+import { Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
-import { defaultHabitDraft, type HabitDraft, WEEKDAY_ORDER } from '@/models/habit';
-import { amountToCents, formatCentsToAmount, toHHMMSS } from '@/lib/utility/habit-utils';
+import { type HabitDraft, WEEKDAY_ORDER } from '@/models/habit';
+import { toHHMMSS } from '@/lib/utility/habit-utils';
 import { normalizeDecimalString } from '@/lib/utility/money-utils';
-import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
+import { useStakeFlow } from '@/lib/payment/use-stake-flow';
 
 type NewHabitPageData = {
   charities: CharityPrincipalRes[];
@@ -35,7 +36,6 @@ type NewHabitPageProps = { initial: ResultSerial<NewHabitPageData, Problem> };
 
 export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const api = useSwaggerClients();
-  const [loading, loader] = useFreeLoader();
   const problemReporter = useProblemReporter();
   const errorHandler = useErrorHandler();
   const router = useRouter();
@@ -112,87 +112,34 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     setCharityId(updated.charityId);
   };
 
-  // Advanced controls are handled inside HabitEditorCard
-  const [stakeModalOpen, setStakeModalOpen] = useState(false);
-  const [stakeBuffer, setStakeBuffer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [busyCreate, setBusyCreate] = useState(false);
 
-  // Payment consent hook
-  const { checking: checkingPayment, checkAndInitiatePayment, pollPaymentConsent } = usePaymentConsent();
-  const [pollingPayment, setPollingPayment] = useState(false);
-
-  // Check for payment status on mount (after HPP redirect)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: router and pollPaymentConsent cause infinite loop
-  useEffect(() => {
-    const paymentStatus = router.query.payment_status;
-    if (paymentStatus === 'success') {
-      setPollingPayment(true);
-      pollPaymentConsent(
-        () => {
-          setPollingPayment(false);
-          // Clean up URL
-          router.replace('/app/new', undefined, { shallow: true });
-        },
-        () => {
-          setPollingPayment(false);
-          alert('Payment consent setup failed or timed out. Please try again.');
-          router.replace('/app/new', undefined, { shallow: true });
-        },
-      );
-    } else if (paymentStatus === 'failed') {
-      alert('Payment consent setup failed. Please try again.');
-      router.replace('/app/new', undefined, { shallow: true });
-    }
-  }, [router.query.payment_status]);
-
-  // Weekday toggling handled in HabitEditorCard
-
-  const keypadAppend = (k: string) => {
-    setStakeBuffer(prev => {
-      if (k === 'C') return '';
-      if (k === '⌫') return prev.slice(0, -1);
-      if (/^\d$/.test(k)) return (prev + k).replace(/^0+(?=\d)/, '');
-      return prev;
-    });
-  };
-
-  const openStakeModal = () => {
-    setStakeBuffer(amountToCents(draft.amount || ''));
-    setStakeModalOpen(true);
-  };
-
-  const confirmStakeModal = async () => {
-    const val = formatCentsToAmount(stakeBuffer);
-
-    // Check if amount is non-zero and if user needs payment consent
-    if (Number(val) > 0) {
-      try {
-        // Build return URL with all current form state
-        const returnParams = new URLSearchParams({
-          task: task || '',
-          days: JSON.stringify(daysOfWeek),
-          time: notificationTime || '',
-          amount: val,
-          charity: charityId || '',
-        });
-        const returnUrl = `/app/new?${returnParams.toString()}`;
-
-        await checkAndInitiatePayment(() => {
-          // Has consent - proceed
-          setAmount(val);
-          setStakeModalOpen(false);
-        }, returnUrl);
-      } catch (error) {
-        console.error('Payment consent error:', error);
-        alert('Failed to initiate payment consent. Please try again.');
-      }
-    } else {
-      // Zero amount - no consent needed
-      setAmount(val);
-      setStakeModalOpen(false);
-    }
-  };
+  // Stake flow hook (handles payment consent)
+  const {
+    stakeModalOpen,
+    stakeBuffer,
+    openStakeModal,
+    closeStakeModal,
+    keypadAppend,
+    setQuickAmount,
+    clearBuffer,
+    confirmStake,
+    checking,
+    showConsentConfirm,
+    startConsentFlow,
+    cancelConsent,
+  } = useStakeFlow({
+    currentAmount: amount,
+    onAmountChange: setAmount,
+    formState: {
+      task: task || '',
+      days: JSON.stringify(daysOfWeek),
+      time: notificationTime || '',
+      charity: charityId || '',
+    },
+    returnPath: '/app/new',
+  });
 
   const validateDraft = (d: HabitDraft): Record<string, string> => {
     const errs: Record<string, string> = {};
@@ -305,17 +252,15 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
             />
 
             <div className="pt-1">
-              <Button
+              <AsyncButton
                 onClick={handleCreate}
-                disabled={loading || Object.keys(errs).length > 0 || busyCreate}
+                disabled={Object.keys(errs).length > 0}
+                loading={busyCreate}
                 className="relative w-full h-12 text-base bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 text-white"
+                idleIcon={<PlusCircle className="w-4 h-4" />}
               >
-                <Spinner
-                  className={`absolute left-3 transition-opacity ${busyCreate ? 'opacity-100' : 'opacity-0'}`}
-                  size="sm"
-                />
-                <span className={`${busyCreate ? 'opacity-70' : ''}`}>Create Habit</span>
-              </Button>
+                Create Habit
+              </AsyncButton>
             </div>
           </CardContent>
         </Card>
@@ -325,25 +270,18 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
         open={stakeModalOpen}
         amountCents={stakeBuffer}
         onAppend={keypadAppend}
-        onQuick={v => setStakeBuffer(String(v * 100))}
-        onClear={() => setStakeBuffer('')}
-        onClose={() => setStakeModalOpen(false)}
-        onConfirm={confirmStakeModal}
+        onQuick={setQuickAmount}
+        onClear={clearBuffer}
+        onClose={closeStakeModal}
+        onConfirm={confirmStake}
       />
 
-      {/* Show polling indicator */}
-      {pollingPayment && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <Card className="p-6 max-w-sm">
-            <CardContent className="space-y-4 text-center">
-              <Spinner size="lg" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Setting up payment consent... This may take up to a minute.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <ConsentConfirmModal
+        open={showConsentConfirm}
+        onCancel={cancelConsent}
+        onConfirm={startConsentFlow}
+        loading={checking}
+      />
     </>
   );
 }

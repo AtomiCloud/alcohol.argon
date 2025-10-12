@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react';
-import { useRouter } from 'next/router';
-import { useSwaggerClients } from '@/adapters/external/Provider';
-import { useClaims } from '@/lib/auth/providers';
-import type { ExtendedClaims } from '@/lib/auth/core/extended-claims';
+import { useClientConfig, useCommonConfig, useSwaggerClients } from '@/adapters/external/Provider';
 import type { ClientSecretRes, CreateCustomerRes, PaymentConsentRes } from '@/clients/alcohol/zinc/api';
-import { loadAirwallex, redirectToCheckout } from 'airwallex-payment-elements';
+import { init } from '@airwallex/components-sdk';
+import { useTheme } from '@/lib/theme/provider';
+import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
 
 interface UsePaymentConsentReturn {
   /**
@@ -30,51 +29,24 @@ interface UsePaymentConsentReturn {
  */
 export function usePaymentConsent(): UsePaymentConsentReturn {
   const api = useSwaggerClients();
-  const claimsResult = useClaims();
   const [checking, setChecking] = useState(false);
-  const router = useRouter();
-
-  const getUserId = useCallback((): string | null => {
-    const [resultType, content] = claimsResult;
-    if (resultType !== 'ok') return null;
-
-    const [hasData, authStateRaw] = content;
-    if (!hasData || !authStateRaw) return null;
-
-    const authState = authStateRaw as unknown as { __kind: string; value: { data: ExtendedClaims } };
-    if (authState.__kind !== 'authed') return null;
-
-    return authState.value.data.sub;
-  }, [claimsResult]);
-
-  const hasPaymentConsent = useCallback((): boolean => {
-    const [resultType, content] = claimsResult;
-    if (resultType !== 'ok') return false;
-
-    const [hasData, authStateRaw] = content;
-    if (!hasData || !authStateRaw) return false;
-
-    const authState = authStateRaw as unknown as { __kind: string; value: { data: ExtendedClaims } };
-    if (authState.__kind !== 'authed') return false;
-
-    const claims = authState.value.data;
-    // has_payment_consent can be boolean or string "true"
-    return claims.has_payment_consent === 'true' || claims.has_payment_consent === true;
-  }, [claimsResult]);
+  const clientConfig = useClientConfig();
+  const commonConfig = useCommonConfig();
+  const theme = useTheme();
+  const userId = useUserId();
+  const hasConsent = useHasPaymentConsent();
 
   const checkAndInitiatePayment = useCallback(
     async (onSuccess: () => void, returnUrl: string) => {
       // Check if user already has consent
-      if (hasPaymentConsent()) {
+      if (hasConsent) {
         onSuccess();
         return;
       }
-
       setChecking(true);
 
       try {
         // Get userId from claims (no API call needed)
-        const userId = getUserId();
         if (!userId) {
           throw new Error('User ID not available');
         }
@@ -87,31 +59,40 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
           throw new Error('Failed to create customer');
         }
 
-        // Get client secret (uses the customer we just created/verified)
+        // Get clientConfig secret (uses the customer we just created/verified)
         const clientSecretResult = await api.alcohol.zinc.api.vPaymentClientSecretList({ version: '1.0', userId });
         const clientSecretData: ClientSecretRes = await clientSecretResult.unwrap();
 
         if (!clientSecretData.clientSecret) {
-          throw new Error('Failed to obtain client secret');
+          throw new Error('Failed to obtain clientConfig secret');
         }
 
         // Use customerId from customer creation (more reliable)
         const customerId = customerData.customerId;
 
-        // Initialize Airwallex
-        await loadAirwallex({
-          env: 'prod', // TODO: Make this configurable based on environment
-          origin: window.location.origin,
+        const { payments } = await init({
+          env: clientConfig.payment.airwallex.env,
+          enabledElements: ['payments'],
         });
 
+        if (!payments) {
+          throw new Error('Failed to initialize airwallex clientConfig');
+        }
         // Redirect to Airwallex HPP
-        redirectToCheckout({
-          env: 'prod',
+        // After payment, user will be redirected to callback page which handles polling and token refresh
+        const encodedReturnUrl = encodeURIComponent(returnUrl);
+        const callbackUrl = `${window.location.origin}/app/payment/callback?payment_status=success&return_url=${encodedReturnUrl}`;
+
+        payments?.redirectToCheckout({
+          env: clientConfig.payment.airwallex.env,
           client_secret: clientSecretData.clientSecret,
           currency: 'USD',
           customer_id: customerId,
           appearance: {
-            mode: 'dark',
+            mode: theme.theme === 'dark' ? 'dark' : 'light',
+            variables: {
+              colorBrand: commonConfig.pwa.themeColor,
+            },
           },
           mode: 'recurring',
           recurringOptions: {
@@ -119,8 +100,8 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
             currency: 'USD',
             merchant_trigger_reason: 'unscheduled',
           },
-          successUrl: `${window.location.origin}${returnUrl}?payment_status=success`,
-          failUrl: `${window.location.origin}${returnUrl}?payment_status=failed`,
+          logoUrl: 'https://lazytax.club/logo-source.svg',
+          successUrl: callbackUrl,
         });
       } catch (error) {
         console.error('Payment consent initiation error:', error);
@@ -128,45 +109,59 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         throw error;
       }
     },
-    [api, hasPaymentConsent, getUserId],
+    [api, hasConsent, userId, clientConfig.payment.airwallex.env, theme.theme, commonConfig.pwa.themeColor],
   );
 
   const pollPaymentConsent = useCallback(
     async (onSuccess: () => void, onError: () => void) => {
       try {
         // Get userId from claims (no API call needed)
-        const userId = getUserId();
         if (!userId) {
           onError();
           return;
         }
 
-        // Poll for up to 1 minute (60 seconds)
-        const maxAttempts = 60;
-        const pollInterval = 1000; // 1 second
+        // Polling strategy: 5 attempts at 1s intervals, then exponential backoff up to 2 minutes total
+        const MAX_DURATION = 120000; // 2 minutes
+        const INITIAL_ATTEMPTS = 5;
+        const INITIAL_INTERVAL = 1000; // 1 second
+        const startTime = Date.now();
         let attempts = 0;
+        let currentInterval = INITIAL_INTERVAL;
 
         const poll = async (): Promise<void> => {
           attempts++;
 
-          const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId });
-          const consentData: PaymentConsentRes = await consentResult.unwrap();
+          try {
+            const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId });
+            const consentData: PaymentConsentRes = await consentResult.unwrap();
 
-          if (consentData.hasPaymentConsent) {
-            // Success! Refresh tokens and call onSuccess
-            await fetch('/api/auth/force_tokens', { method: 'POST' });
-            onSuccess();
-            return;
+            if (consentData.hasPaymentConsent) {
+              // Success! Refresh tokens to get updated claims
+              await fetch('/api/auth/force_tokens');
+              onSuccess();
+              return;
+            }
+          } catch (pollError) {
+            console.error('Error checking payment consent:', pollError);
+            // Continue polling even if individual check fails
           }
 
-          if (attempts >= maxAttempts) {
-            // Timeout
+          // Check if we've exceeded the maximum duration
+          const elapsed = Date.now() - startTime;
+          if (elapsed >= MAX_DURATION) {
             onError();
             return;
           }
 
-          // Continue polling
-          setTimeout(poll, pollInterval);
+          // Calculate next interval
+          if (attempts >= INITIAL_ATTEMPTS) {
+            // Exponential backoff: double the interval each time, capped at 30 seconds
+            currentInterval = Math.min(currentInterval * 2, 30000);
+          }
+
+          // Schedule next poll
+          setTimeout(poll, currentInterval);
         };
 
         await poll();
@@ -175,7 +170,7 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         onError();
       }
     },
-    [api, getUserId],
+    [api, userId],
   );
 
   return {
