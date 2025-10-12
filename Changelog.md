@@ -1,3 +1,25 @@
+## [1.27.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.26.0...v1.27.0) (2025-10-10)
+
+
+### ✨ Features ✨
+
+* **HabitCard:** better click performance ([533b3f6](https://github.com/AtomiCloud/alcohol.argon/commit/533b3f6bd0dcea87a75ff6636f6ab7c6d1e3bc09))
+* **habit card:** fix streak bar and layout adjustments ([7250c30](https://github.com/AtomiCloud/alcohol.argon/commit/7250c30457df0d0651253146ec378531e6cec40d))
+* **layout:** improve layout of app page ([4060ab6](https://github.com/AtomiCloud/alcohol.argon/commit/4060ab6f019a1084032ea2a8dc408ed051625983))
+* **progress bar:** improve progress bar functionality and styling ([c869659](https://github.com/AtomiCloud/alcohol.argon/commit/c869659bdea499a17a2411342d2c8ae7b5a80964))
+* **HabitCard:** remove urgent completion ([a9ca30f](https://github.com/AtomiCloud/alcohol.argon/commit/a9ca30f6b2fced2de36f8168f03105e217fdd1cc))
+
+
+### 🐛 Bug Fixes 🐛
+
+* all rest days missing ([a19e883](https://github.com/AtomiCloud/alcohol.argon/commit/a19e883a912db00be75c40eb9c983d361ef6914f))
+* **landing page:** clean landing page ([b86fbf3](https://github.com/AtomiCloud/alcohol.argon/commit/b86fbf32bfceb4b74363e7659ec7dd3b81d4695a))
+* edit and new habit correctly mapping to url ([8fef8a9](https://github.com/AtomiCloud/alcohol.argon/commit/8fef8a9b0c7282d46f9492b434cd626c5ac5813c))
+* **habit:** edit button and stake handling ([90c0497](https://github.com/AtomiCloud/alcohol.argon/commit/90c0497fca55f9ea9c5412f88f0581fb725bebdb))
+* payment consent ([9146a6f](https://github.com/AtomiCloud/alcohol.argon/commit/9146a6fe94e79cae33c6582985fcf1803bd977c3))
+* **default:** smaller and faster confetti ([92f73bf](https://github.com/AtomiCloud/alcohol.argon/commit/92f73bfc6cf569850ba78b7c386f0e6254f59f28))
+* **habit:** update habit card and edit page ([1fc62e9](https://github.com/AtomiCloud/alcohol.argon/commit/1fc62e9c14f5a384c1dcd3ad92ef9de8527acfac))
+
 ## [1.26.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.25.1...v1.26.0) (2025-10-07)
 
 

@@ -164,6 +164,12 @@ export interface CreateUserReq {
   accessToken?: string | null;
 }
 
+export interface CreateVacationReq {
+  startDate?: string | null;
+  endDate?: string | null;
+  timezone?: string | null;
+}
+
 export interface ErrorInfo {
   schema?: any;
   id?: string | null;
@@ -282,6 +288,10 @@ export interface SetCharityCausesReq {
   keys?: string[] | null;
 }
 
+export interface SkipHabitReq {
+  notes?: string | null;
+}
+
 export interface StakeRes {
   /** @format double */
   amount: number;
@@ -334,6 +344,16 @@ export interface UserPrincipalRes {
 
 export interface UserRes {
   principal: UserPrincipalRes;
+}
+
+export interface VacationRes {
+  /** @format uuid */
+  id: string;
+  userId?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  timezone?: string | null;
+  createdAt?: string | null;
 }
 
 export interface WeekStatusRes {
@@ -673,6 +693,19 @@ export interface VHabitExecutionsCreateParams {
 
 export type VHabitExecutionsCreateData = HabitExecutionRes;
 
+export interface VHabitExecutionsSkipCreateParams {
+  userId: string;
+  /** @format uuid */
+  habitVersionId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitExecutionsSkipCreateData = HabitExecutionRes;
+
 export interface VHabitExecutionsListParams {
   /** @format uuid */
   Id?: string;
@@ -717,7 +750,7 @@ export interface VHabitExecutionsMarkDailyFailuresCreateParams {
 /** @format int32 */
 export type VHabitExecutionsMarkDailyFailuresCreateData = number;
 
-export interface VPaymentCustomersCreateParams {
+export interface VPaymentCustomersUpdateParams {
   userId: string;
   /**
    * The requested API version
@@ -726,7 +759,7 @@ export interface VPaymentCustomersCreateParams {
   version: string;
 }
 
-export type VPaymentCustomersCreateData = CreateCustomerRes;
+export type VPaymentCustomersUpdateData = CreateCustomerRes;
 
 export interface VPaymentClientSecretListParams {
   userId: string;
@@ -749,6 +782,17 @@ export interface VPaymentConsentListParams {
 }
 
 export type VPaymentConsentListData = PaymentConsentRes;
+
+export interface VPaymentConsentDeleteParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VPaymentConsentDeleteData = any;
 
 export interface VPaymentIntentCreateParams {
   userId: string;
@@ -908,6 +952,60 @@ export interface VErrorInfoDetailParams {
 }
 
 export type VErrorInfoDetailData = ErrorInfo;
+
+export interface VVacationCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VVacationCreateData = VacationRes;
+
+export interface VVacationDetailParams {
+  /** @format int32 */
+  Year?: number;
+  /** @format int32 */
+  Limit?: number;
+  /** @format int32 */
+  Skip?: number;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VVacationDetailData = VacationRes[];
+
+export interface VVacationDeleteParams {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VVacationDeleteData = any;
+
+export interface VVacationEndTodayPartialUpdateParams {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VVacationEndTodayPartialUpdateData = VacationRes;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
@@ -1695,6 +1793,30 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * No description
      *
      * @tags Habit
+     * @name VHabitExecutionsSkipCreate
+     * @request POST:/api/v{version}/Habit/{userId}/{habitVersionId}/executions/skip
+     * @secure
+     * @response `200` `VHabitExecutionsSkipCreateData` Success
+     */
+    vHabitExecutionsSkipCreate: (
+      { userId, habitVersionId, version, ...query }: VHabitExecutionsSkipCreateParams,
+      data: SkipHabitReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitExecutionsSkipCreateData, any>({
+        path: `/api/v${version}/Habit/${userId}/${habitVersionId}/executions/skip`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
      * @name VHabitExecutionsList
      * @request GET:/api/v{version}/Habit/{userId}/executions
      * @secure
@@ -1757,18 +1879,18 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * No description
      *
      * @tags Payment
-     * @name VPaymentCustomersCreate
-     * @request POST:/api/v{version}/Payment/{userId}/customers
+     * @name VPaymentCustomersUpdate
+     * @request PUT:/api/v{version}/Payment/{userId}/customers
      * @secure
-     * @response `200` `VPaymentCustomersCreateData` Success
+     * @response `200` `VPaymentCustomersUpdateData` Success
      */
-    vPaymentCustomersCreate: (
-      { userId, version, ...query }: VPaymentCustomersCreateParams,
+    vPaymentCustomersUpdate: (
+      { userId, version, ...query }: VPaymentCustomersUpdateParams,
       params: RequestParams = {},
     ) =>
-      this.request<VPaymentCustomersCreateData, any>({
+      this.request<VPaymentCustomersUpdateData, any>({
         path: `/api/v${version}/Payment/${userId}/customers`,
-        method: 'POST',
+        method: 'PUT',
         secure: true,
         format: 'json',
         ...params,
@@ -1810,6 +1932,23 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         method: 'GET',
         secure: true,
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Payment
+     * @name VPaymentConsentDelete
+     * @request DELETE:/api/v{version}/Payment/{userId}/consent
+     * @secure
+     * @response `200` `VPaymentConsentDeleteData` Success
+     */
+    vPaymentConsentDelete: ({ userId, version, ...query }: VPaymentConsentDeleteParams, params: RequestParams = {}) =>
+      this.request<VPaymentConsentDeleteData, any>({
+        path: `/api/v${version}/Payment/${userId}/consent`,
+        method: 'DELETE',
+        secure: true,
         ...params,
       }),
 
@@ -2082,6 +2221,87 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VErrorInfoDetailData, any>({
         path: `/api/v${version}/error-info/${id}`,
         method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Vacation
+     * @name VVacationCreate
+     * @request POST:/api/v{version}/Vacation/{userId}
+     * @secure
+     * @response `200` `VVacationCreateData` Success
+     */
+    vVacationCreate: (
+      { userId, version, ...query }: VVacationCreateParams,
+      data: CreateVacationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VVacationCreateData, any>({
+        path: `/api/v${version}/Vacation/${userId}`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Vacation
+     * @name VVacationDetail
+     * @request GET:/api/v{version}/Vacation/{userId}
+     * @secure
+     * @response `200` `VVacationDetailData` Success
+     */
+    vVacationDetail: ({ userId, version, ...query }: VVacationDetailParams, params: RequestParams = {}) =>
+      this.request<VVacationDetailData, any>({
+        path: `/api/v${version}/Vacation/${userId}`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Vacation
+     * @name VVacationDelete
+     * @request DELETE:/api/v{version}/Vacation/{userId}/{id}
+     * @secure
+     * @response `200` `VVacationDeleteData` Success
+     */
+    vVacationDelete: ({ userId, id, version, ...query }: VVacationDeleteParams, params: RequestParams = {}) =>
+      this.request<VVacationDeleteData, any>({
+        path: `/api/v${version}/Vacation/${userId}/${id}`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Vacation
+     * @name VVacationEndTodayPartialUpdate
+     * @request PATCH:/api/v{version}/Vacation/{userId}/{id}/end-today
+     * @secure
+     * @response `200` `VVacationEndTodayPartialUpdateData` Success
+     */
+    vVacationEndTodayPartialUpdate: (
+      { userId, id, version, ...query }: VVacationEndTodayPartialUpdateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VVacationEndTodayPartialUpdateData, any>({
+        path: `/api/v${version}/Vacation/${userId}/${id}/end-today`,
+        method: 'PATCH',
         secure: true,
         format: 'json',
         ...params,
