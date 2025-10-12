@@ -31,9 +31,13 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
     if (status === 'success' && userId && !polling && !pollingComplete && !pollingError) {
       setPolling(true);
       pollPaymentConsent(
-        () => {
+        async () => {
           setPolling(false);
           setPollingComplete(true);
+          // Force-refresh tokens to ensure claims updated, then redirect
+          try {
+            await fetch('/api/auth/force_tokens');
+          } catch {}
           // Redirect back to the return URL with all preserved query params
           if (returnUrl) {
             router.replace(returnUrl);
@@ -120,9 +124,12 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
                     setPollingError(false);
                     setPolling(true);
                     pollPaymentConsent(
-                      () => {
+                      async () => {
                         setPolling(false);
                         setPollingComplete(true);
+                        try {
+                          await fetch('/api/auth/force_tokens');
+                        } catch {}
                         router.replace(returnUrl || '/app');
                       },
                       () => {

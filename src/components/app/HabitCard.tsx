@@ -26,6 +26,8 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
+import { useState } from 'react';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface HabitCardProps {
   habit: HabitOverviewHabitRes;
@@ -97,6 +99,7 @@ export function HabitCard({
   deleting,
   showStreaks = false,
 }: HabitCardProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const stake = habit.stake?.amount || 0;
   const stakeCurrency = habit.stake?.currency || 'USD';
   const stakeLabel = stake > 0 ? `${stakeCurrency} ${stake.toFixed(2)}` : 'None';
@@ -228,9 +231,7 @@ export function HabitCard({
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => {
-                        if (window.confirm('Delete this habit?')) onDelete();
-                      }}
+                      onClick={() => setConfirmOpen(true)}
                       disabled={deleting}
                       className="text-red-600 dark:text-red-400"
                     >
@@ -331,6 +332,25 @@ export function HabitCard({
             </div>
           </div>
         </CardContent>
+
+        {/* Confirm deletion dialog */}
+        {onDelete ? (
+          <ConfirmDialog
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={() => {
+              setConfirmOpen(false);
+              onDelete();
+            }}
+            title="Delete this habit?"
+            description="This action cannot be undone."
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            confirmVariant="destructive"
+            loading={!!deleting}
+          />
+        ) : null}
 
         {/* Bottom section: Details accordion (Schedule + Stake) */}
         <CardContent className="px-4">

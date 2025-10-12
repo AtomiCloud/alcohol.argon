@@ -6,6 +6,7 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, UpdateConfigurationReq, ConfigurationRes } from '@/clients/alcohol/zinc/api';
@@ -13,11 +14,14 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks'
 import type { ResultSerial } from '@/lib/monads/result';
 import { Res, Ok, Err, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
-import { Settings } from 'lucide-react';
+import { Settings, ShieldX } from 'lucide-react';
 import CharityComboBox from '@/components/app/CharityComboBox';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
 import { FieldCard } from '@/components/ui/field-card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
+import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 
 type SettingsPageData = {
   charities: CharityPrincipalRes[];
@@ -29,6 +33,9 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   const api = useSwaggerClients();
   const problemReporter = useProblemReporter();
   const router = useRouter();
+  const userId = useUserId();
+  const hasPaymentConsent = useHasPaymentConsent();
+  const { checkAndInitiatePayment, checking } = usePaymentConsent();
 
   const [data] = useState(() => Res.fromSerial<SettingsPageData, Problem>(initial));
   const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
@@ -38,6 +45,8 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   const [selectedCharityId, setSelectedCharityId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [awaitingSync, setAwaitingSync] = useState<null | { tz: string; charityId: string }>(null);
+  const [removingConsent, setRemovingConsent] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     data.map(d => {
@@ -54,6 +63,28 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   );
 
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
+
+  const handleRemoveConsent = async () => {
+    if (!userId || !hasPaymentConsent) return;
+    try {
+      setRemovingConsent(true);
+      // Revoke payment consent via Alcohol-Zinc API
+      await api.alcohol.zinc.api.vPaymentConsentDelete({ version: '1.0', userId });
+      // Force-refresh tokens so claims reflect removal immediately
+      await fetch('/api/auth/force_tokens');
+      // Reload settings to reflect updated consent state
+      await router.replace(router.asPath);
+    } catch (error) {
+      console.error('Failed to remove payment consent:', error);
+      problemReporter.pushError(new Error('Failed to remove payment consent'), {
+        source: 'settings/payment-consent-remove',
+        context: { userId },
+      });
+    } finally {
+      setRemovingConsent(false);
+      setConfirmOpen(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!configuration?.principal.id) return;
@@ -150,6 +181,11 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
             Settings
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-2">Manage your account preferences</p>
+          {hasPaymentConsent && (
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+              Payment consent active — you can remove it below.
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -170,6 +206,79 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
           >
             <CharityComboBox options={charityOptions} value={selectedCharityId} onChange={setSelectedCharityId} />
           </FieldCard>
+
+          {hasPaymentConsent && (
+            <FieldCard
+              label="Payment Consent"
+              subtitle="You have active payment consent on file"
+              restriction="You can remove this at any time"
+              contentClassName="space-y-3"
+            >
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Removing consent disables future automated charges for stakes. You can re-consent later when needed.
+              </p>
+              <Button
+                onClick={() => setConfirmOpen(true)}
+                disabled={removingConsent}
+                variant="destructive"
+                className="inline-flex items-center gap-2 px-3 py-2"
+              >
+                <ShieldX className="w-4 h-4" /> Remove payment consent
+              </Button>
+
+              <ConfirmDialog
+                open={confirmOpen}
+                onOpenChange={setConfirmOpen}
+                onCancel={() => setConfirmOpen(false)}
+                onConfirm={handleRemoveConsent}
+                loading={removingConsent}
+                confirmLabel="Remove consent"
+                cancelLabel="Keep consent"
+                title="Remove payment consent?"
+                description={
+                  <span>
+                    If you remove consent, any donations or stake payments will fail until you re-consent. You won't be
+                    able to donate to charity through LazyTax.
+                  </span>
+                }
+              />
+            </FieldCard>
+          )}
+
+          {!hasPaymentConsent && (
+            <FieldCard
+              label="Payment Consent"
+              subtitle="Set up payment consent to enable stakes and donations"
+              restriction="You can withdraw consent anytime"
+              contentClassName="space-y-3"
+            >
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Without payment consent, stake payments and donations will fail. Set it up to allow automatic $1–$2
+                stakes and charitable donations when you miss.
+              </p>
+              <Button
+                onClick={() => {
+                  // Start consent flow and return to settings afterward
+                  const returnUrl =
+                    typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/settings';
+                  checkAndInitiatePayment(() => router.replace(returnUrl), returnUrl).catch(() => {
+                    // error surfaced by hook; do nothing here
+                  });
+                }}
+                disabled={checking}
+                className="inline-flex items-center gap-2 px-3 py-2"
+              >
+                {checking ? (
+                  <>
+                    <span>Setting up…</span>
+                    <Spinner size="sm" variant="rays" className="[animation-duration:600ms] text-white/90" />
+                  </>
+                ) : (
+                  <span>Set up payment consent</span>
+                )}
+              </Button>
+            </FieldCard>
+          )}
         </div>
 
         <div className="mt-6 flex gap-3">

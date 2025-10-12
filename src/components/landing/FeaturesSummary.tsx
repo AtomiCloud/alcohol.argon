@@ -129,7 +129,7 @@ export default function FeaturesSummary() {
         className="absolute inset-0 -z-10 bg-gradient-to-br from-violet-500/5 via-orange-500/5 to-emerald-500/5 pointer-events-none"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-6xl">
         <div className="text-center md:text-left">
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white">
             Everything you need to build lasting habits

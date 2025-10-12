@@ -102,7 +102,6 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
           },
           logoUrl: 'https://lazytax.club/logo-source.svg',
           successUrl: callbackUrl,
-          failUrl: `${window.location.origin}/app/payment/callback?payment_status=failed&return_url=${encodedReturnUrl}`,
         });
       } catch (error) {
         console.error('Payment consent initiation error:', error);

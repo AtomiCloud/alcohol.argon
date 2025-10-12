@@ -45,7 +45,7 @@ export default function HowItWorksV2() {
         className="absolute inset-x-0 -bottom-3 h-6 md:h-8 bg-gradient-to-l from-slate-200/70 to-transparent dark:from-slate-800/60 skew-y-2 pointer-events-none"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Two sides of the same commitment
         </h2>

@@ -193,7 +193,7 @@ function TokensSection() {
 
 function Unauthenticated() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 sm:px-8 py-8">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader className="text-center">

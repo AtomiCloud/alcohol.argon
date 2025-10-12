@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function WhyStakesSupport() {
   return (
     <section className="relative overflow-hidden py-16 sm:py-20" data-reveal>
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           The science of balanced reinforcement
         </h2>
