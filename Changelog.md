@@ -1,3 +1,22 @@
+## [1.29.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.28.0...v1.29.0) (2025-10-12)
+
+
+### ✨ Features ✨
+
+* **pricing:** add dedicated pricing page ([6ca9481](https://github.com/AtomiCloud/alcohol.argon/commit/6ca9481ff9e8b5624d4846b44f54792a33f265f0))
+* **seo:** add dynamic sitemap ([9162b4e](https://github.com/AtomiCloud/alcohol.argon/commit/9162b4e5cf5af85a7bf3e788fbe8b50e10bed0d9))
+* **blog:** add habit accountability article ([af7a093](https://github.com/AtomiCloud/alcohol.argon/commit/af7a0938f45b829f42a291b659a951021e8d6b52))
+* **landing page:** add new landing page features and updates ([178d0b2](https://github.com/AtomiCloud/alcohol.argon/commit/178d0b2d829c0dd5408b996e71c5fe6567b4ad8a))
+* **landing:** add testimonials and update faq experience ([6335348](https://github.com/AtomiCloud/alcohol.argon/commit/63353486b14682ff3bcd99c9e49424c5f9267eb0))
+* **landing:** animate testimonials carousel ([c0b362e](https://github.com/AtomiCloud/alcohol.argon/commit/c0b362efd7f8ddb46380d4cae7c27cfb159b152b))
+* **nav:** simplify mobile navigation ([fff8fe6](https://github.com/AtomiCloud/alcohol.argon/commit/fff8fe6cd5c0045fe0904d52d095f4cb31a5abc2))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **about:** update contact email to hello@lazytax.club ([bf4ffda](https://github.com/AtomiCloud/alcohol.argon/commit/bf4ffdad6b9d9f0e8320be11fa772d6c0103e688))
+* **pricing:** update contact email to hello@lazytax.club ([5eac216](https://github.com/AtomiCloud/alcohol.argon/commit/5eac2167a4434d0a8cce56776185795aa45ef729))
+
 ## [1.28.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.27.0...v1.28.0) (2025-10-12)
 
 
