@@ -10,6 +10,8 @@ import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { useUserId } from '@/lib/auth/use-user';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 type PaymentCallbackStatus = 'success' | 'failed' | 'cancelled';
 
@@ -22,16 +24,31 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
   const router = useRouter();
   const { pollPaymentConsent } = usePaymentConsent();
   const userId = useUserId();
+  const track = usePlausible();
   const [polling, setPolling] = useState(false);
   const [pollingComplete, setPollingComplete] = useState(false);
   const [pollingError, setPollingError] = useState(false);
 
+  // Track page view and payment status
+  useEffect(() => {
+    track(TrackingEvents.Payment.Callback.PageViewed);
+    if (status === 'success') {
+      track(TrackingEvents.Payment.Callback.Success);
+    } else if (status === 'failed') {
+      track(TrackingEvents.Payment.Callback.Failed);
+    } else if (status === 'cancelled') {
+      track(TrackingEvents.Payment.Callback.Cancelled);
+    }
+  }, [status, track]);
+
   useEffect(() => {
     // Only poll if payment was successful and we have a userId ready
     if (status === 'success' && userId && !polling && !pollingComplete && !pollingError) {
+      track(TrackingEvents.Payment.Callback.PollingStarted);
       setPolling(true);
       pollPaymentConsent(
         async () => {
+          track(TrackingEvents.Payment.Callback.PollingSuccess);
           setPolling(false);
           setPollingComplete(true);
           // Force-refresh tokens to ensure claims updated, then redirect
@@ -46,12 +63,13 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
           }
         },
         () => {
+          track(TrackingEvents.Payment.Callback.PollingError);
           setPolling(false);
           setPollingError(true);
         },
       );
     }
-  }, [status, userId, polling, pollingComplete, pollingError, pollPaymentConsent, returnUrl, router]);
+  }, [status, userId, polling, pollingComplete, pollingError, pollPaymentConsent, returnUrl, router, track]);
 
   // Handle failed/cancelled payments
   if (status === 'failed' || status === 'cancelled') {
@@ -121,10 +139,12 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
                 </Button>
                 <Button
                   onClick={() => {
+                    track(TrackingEvents.Payment.Callback.RetryClicked);
                     setPollingError(false);
                     setPolling(true);
                     pollPaymentConsent(
                       async () => {
+                        track(TrackingEvents.Payment.Callback.PollingSuccess);
                         setPolling(false);
                         setPollingComplete(true);
                         try {
@@ -133,6 +153,7 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
                         router.replace(returnUrl || '/app');
                       },
                       () => {
+                        track(TrackingEvents.Payment.Callback.PollingError);
                         setPolling(false);
                         setPollingError(true);
                       },

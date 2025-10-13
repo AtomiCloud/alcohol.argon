@@ -1,12 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { useClaims } from '@/lib/auth/providers';
 import { ArrowRight, Rocket } from 'lucide-react';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 export default function FinalCTA() {
   const [t, v] = useClaims();
+  const track = usePlausible();
   const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
 
   function onPrimary() {
+    track(TrackingEvents.Landing.FinalCTA.Clicked);
     if (isAuthed) window.location.assign('/app');
     else window.location.assign('/api/logto/sign-in');
   }

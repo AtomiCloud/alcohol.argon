@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -26,6 +26,8 @@ import { normalizeDecimalString } from '@/lib/utility/money-utils';
 import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
 import { useStakeFlow } from '@/lib/payment/use-stake-flow';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 type NewHabitPageData = {
   charities: CharityPrincipalRes[];
@@ -40,6 +42,12 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const errorHandler = useErrorHandler();
   const router = useRouter();
   const [claimsResult, claimsContent] = useClaims();
+  const track = usePlausible();
+
+  // Track page view
+  useEffect(() => {
+    track(TrackingEvents.NewHabit.PageViewed);
+  }, [track]);
 
   // Extract server data synchronously from serialized initial prop
   const initialData: NewHabitPageData =
@@ -158,7 +166,11 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const handleCreate = async () => {
     setSubmitted(true);
     const errs = validateDraft(draft);
-    if (Object.keys(errs).length > 0) return;
+    if (Object.keys(errs).length > 0) {
+      track(TrackingEvents.NewHabit.Submit.ValidationError);
+      return;
+    }
+    track(TrackingEvents.NewHabit.Submit.Clicked);
     setBusyCreate(true);
 
     // Get userId from claims (no API call needed)
@@ -192,9 +204,11 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     const res = await api.alcohol.zinc.api.vHabitCreate({ version: '1.0', userId }, payload);
     await res.match({
       ok: async () => {
+        track(TrackingEvents.NewHabit.Submit.Success);
         await router.replace('/app?created=1');
       },
       err: problem => {
+        track(TrackingEvents.NewHabit.Submit.Error);
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
           source: 'app/habits/create',
           problem,
@@ -203,6 +217,15 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
       },
     });
     setBusyCreate(false);
+  };
+
+  const handleOpenStake = () => {
+    track(TrackingEvents.NewHabit.StakeOpened);
+  };
+
+  const handleClearStake = () => {
+    track(TrackingEvents.NewHabit.StakeCleared);
+    setDraft(d => ({ ...d, amount: '' }));
   };
 
   const errs = validateDraft(draft);
@@ -247,8 +270,11 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
               charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.id! }))}
               errors={errs}
               submitted={submitted}
-              onOpenStake={openStakeModal}
-              onClearStake={() => setDraft(d => ({ ...d, amount: '' }))}
+              onOpenStake={() => {
+                handleOpenStake();
+                openStakeModal();
+              }}
+              onClearStake={handleClearStake}
             />
 
             <div className="pt-1">
