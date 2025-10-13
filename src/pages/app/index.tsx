@@ -23,6 +23,8 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks'
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
 import { EmptyStateLottie } from '@/components/lottie/presets';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 type HabitPageData = {
   habits: HabitOverviewHabitRes[];
@@ -39,10 +41,16 @@ export default function AppPage({ initial }: AppPageProps) {
   const problemReporter = useProblemReporter();
   const errorHandler = useErrorHandler();
   const router = useRouter();
+  const track = usePlausible();
 
   const [loading, loader] = useFreeLoader();
   const [desc, empty] = useFreeEmpty();
   const [optimisticCompletions, setOptimisticCompletions] = useState<Set<string>>(new Set());
+
+  // Track page view
+  useEffect(() => {
+    track(TrackingEvents.App.PageViewed);
+  }, [track]);
 
   // Errors are reported via ProblemReporter; no local error state rendered
   const [contentResult, setContentResult] = useState<Result<HabitPageData, Problem>>(() =>
@@ -190,6 +198,8 @@ export default function AppPage({ initial }: AppPageProps) {
   const handleComplete = async (habit: HabitOverviewHabitRes) => {
     if (!habit.id || !habit.version?.id || !userId) return;
 
+    track(TrackingEvents.App.Habit.Complete.Clicked);
+
     // Optimistically mark as complete immediately
     setOptimisticCompletions(prev => new Set(prev).add(habit.id as string));
 
@@ -200,11 +210,13 @@ export default function AppPage({ initial }: AppPageProps) {
     );
     await res.match({
       ok: async () => {
+        track(TrackingEvents.App.Habit.Complete.Success);
         // Refresh from server; optimistic flag will be cleared by an effect
         // once the server reports the completion (prevents UI flicker).
         await refreshHabits();
       },
       err: problem => {
+        track(TrackingEvents.App.Habit.Complete.Error);
         // Roll back optimistic completion on error
         setOptimisticCompletions(prev => {
           const next = new Set(prev);
@@ -234,13 +246,16 @@ export default function AppPage({ initial }: AppPageProps) {
 
   const handleDelete = async (habit: HabitOverviewHabitRes) => {
     if (!habit.id || !userId) return;
+    track(TrackingEvents.App.Habit.Delete.Clicked);
     setBusyDelete(s => ({ ...s, [habit.id as string]: true }));
     const res = await api.alcohol.zinc.api.vHabitDelete({ version: '1.0', userId, id: habit.id });
     await res.match({
       ok: async () => {
+        track(TrackingEvents.App.Habit.Delete.Success);
         await refreshHabits();
       },
       err: problem => {
+        track(TrackingEvents.App.Habit.Delete.Error);
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
           source: 'app/habits/delete',
           problem,
@@ -249,6 +264,10 @@ export default function AppPage({ initial }: AppPageProps) {
       },
     });
     setBusyDelete(s => ({ ...s, [habit.id as string]: false }));
+  };
+
+  const handleNewHabitClick = () => {
+    track(TrackingEvents.App.NewHabitClicked);
   };
 
   // create form removed
@@ -287,7 +306,7 @@ export default function AppPage({ initial }: AppPageProps) {
             <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
           </div>
           <div className="flex flex-row flex-wrap items-stretch gap-2 w-full md:w-auto">
-            <Button asChild size="sm" className="w-full md:w-auto md:h-9 md:px-4">
+            <Button asChild size="sm" className="w-full md:w-auto md:h-9 md:px-4" onClick={handleNewHabitClick}>
               <Link href="/app/new">
                 <Plus className="h-4 w-4 mr-1" /> New Habit
               </Link>

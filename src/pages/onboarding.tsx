@@ -18,6 +18,8 @@ import { Settings, Heart, ArrowRight } from 'lucide-react';
 import CharityComboBox from '@/components/app/CharityComboBox';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 type OnboardingPageData = {
   charities: CharityPrincipalRes[];
@@ -28,6 +30,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
   const api = useSwaggerClients();
   const problemReporter = useProblemReporter();
   const router = useRouter();
+  const track = usePlausible();
 
   const [data] = useState(() => Res.fromSerial<OnboardingPageData, Problem>(initial));
   const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
@@ -36,6 +39,11 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
   const [timezone, setTimezone] = useState<string>('');
   const [selectedCharityId, setSelectedCharityId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Track page view
+  useEffect(() => {
+    track(TrackingEvents.Onboarding.PageViewed);
+  }, [track]);
 
   // Detect client timezone on mount and prefill
   useEffect(() => {
@@ -73,6 +81,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
   const handleSubmit = async () => {
     if (!timezone || !selectedCharityId) return;
 
+    track(TrackingEvents.Onboarding.Submit.Clicked);
     setSubmitting(true);
     const payload: CreateConfigurationReq = {
       timezone,
@@ -83,6 +92,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
 
     result.match({
       ok: async () => {
+        track(TrackingEvents.Onboarding.Submit.Success);
         // After creating config, refresh tokens so access token claims include configuration_id
         try {
           await fetch('/api/auth/force_tokens');
@@ -95,6 +105,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
         router.replace('/app');
       },
       err: problem => {
+        track(TrackingEvents.Onboarding.Submit.Error);
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
           source: 'onboarding/config-create',
           problem,
@@ -102,6 +113,16 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
         setSubmitting(false);
       },
     });
+  };
+
+  const handleTimezoneChange = (tz: string) => {
+    track(TrackingEvents.Onboarding.TimezoneSelected);
+    setTimezone(tz);
+  };
+
+  const handleCharityChange = (charityId: string) => {
+    track(TrackingEvents.Onboarding.CharitySelected);
+    setSelectedCharityId(charityId);
   };
 
   const canSubmit = timezone.length > 0 && selectedCharityId.length > 0;
@@ -138,7 +159,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                   <label htmlFor="timezone-combobox" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Timezone
                   </label>
-                  <TimezoneComboBox options={timezoneOptions} value={timezone} onChange={setTimezone} />
+                  <TimezoneComboBox options={timezoneOptions} value={timezone} onChange={handleTimezoneChange} />
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     This helps us send you reminders at the right time.
                   </p>
@@ -157,7 +178,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                     <CharityComboBox
                       options={charityOptions}
                       value={selectedCharityId}
-                      onChange={setSelectedCharityId}
+                      onChange={handleCharityChange}
                     />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">

@@ -5,18 +5,22 @@ const bullets = [
   {
     text: 'The average habit takes 66 days to become automatic',
     ref: 1,
+    href: '/references#habit-formation',
   },
   {
     text: 'Adding accountability doubles goal achievement rates',
     ref: 2,
+    href: '/references#goal-setting',
   },
   {
     text: 'Starting with ONE habit = 80% higher success than multiple changes',
     ref: 3,
+    href: '/references#strategic-habits',
   },
   {
     text: '4:1 positive-to-negative ratio optimizes discipline and achievement',
-    ref: 6,
+    ref: 4,
+    href: '/references',
   },
 ];
 
@@ -46,7 +50,7 @@ export default function RealResults() {
                 <span className="text-slate-700 dark:text-slate-300 text-base sm:text-lg">
                   {b.text}
                   <sup>
-                    <a href={`#ref-${b.ref}`} className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
+                    <a href={b.href} className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
                       [{b.ref}]
                     </a>
                   </sup>

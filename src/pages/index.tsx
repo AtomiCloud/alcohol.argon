@@ -11,8 +11,16 @@ import SocialProof from '@/components/landing/SocialProof';
 import FinalCTA from '@/components/landing/FinalCTA';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import FAQ from '@/components/landing/FAQ';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 export default function HomePage() {
+  const track = usePlausible();
+
+  const handleReferencesClick = () => {
+    track(TrackingEvents.Landing.ReferencesLink.Clicked);
+  };
+
   return (
     <>
       <Head>
@@ -33,7 +41,11 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8 max-w-5xl text-center md:text-left">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Curious about the science behind LazyTax?{' '}
-            <Link href="/references" className="text-violet-600 dark:text-violet-400 font-semibold hover:underline">
+            <Link
+              href="/references"
+              onClick={handleReferencesClick}
+              className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
+            >
               View the full research references →
             </Link>
           </p>
