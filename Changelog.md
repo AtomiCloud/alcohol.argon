@@ -1,3 +1,16 @@
+## [1.31.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.3...v1.31.0) (2025-10-13)
+
+
+### ✨ Features ✨
+
+* **tracker:** track all events in app ([ded63f1](https://github.com/AtomiCloud/alcohol.argon/commit/ded63f18fe4d6c22e72655c40ec326be980fddb3))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **default:** fix p tag in HowItWorksV2 component ([23bc687](https://github.com/AtomiCloud/alcohol.argon/commit/23bc6879002905c34dc73dff6315fe8aefbed684))
+* **references:** update references links ([7a607ee](https://github.com/AtomiCloud/alcohol.argon/commit/7a607eed8fccee141c3bd056ed62cd8b02dd0f53))
+
 ## [1.30.3](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.2...v1.30.3) (2025-10-12)
 
 
