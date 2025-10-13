@@ -112,9 +112,8 @@ export default function Hero() {
               >
                 See how it works →
               </a>
-              {/* biome-ignore lint/a11y/useValidAnchor: Valid hash navigation with tracking */}
               <a
-                href="#references"
+                href="/references"
                 onClick={handleResearchClick}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/40 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
               >

@@ -25,8 +25,11 @@ export default function WhyStakesSupport() {
               <strong>
                 30–40% higher success
                 <sup>
-                  <a href="#ref-5" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
-                    [5]
+                  <a
+                    href="/references#financial-incentives"
+                    className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
+                  >
+                    [1]
                   </a>
                 </sup>
               </strong>{' '}
@@ -53,8 +56,8 @@ export default function WhyStakesSupport() {
               <strong>
                 4:1 positive-to-negative
                 <sup>
-                  <a href="#ref-6" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
-                    [6]
+                  <a href="/references" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
+                    [2]
                   </a>
                 </sup>
               </strong>{' '}

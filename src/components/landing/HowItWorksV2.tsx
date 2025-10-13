@@ -85,8 +85,11 @@ export default function HowItWorksV2() {
                           <span className="underline decoration-orange-400/50 underline-offset-4">
                             Research shows: tiny habits stick
                             <sup>
-                              <a href="#ref-4" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
-                                [4]
+                              <a
+                                href="/references#strategic-habits"
+                                className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
+                              >
+                                [1]
                               </a>
                             </sup>
                           </span>{' '}
