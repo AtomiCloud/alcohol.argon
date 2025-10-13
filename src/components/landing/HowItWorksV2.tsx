@@ -62,7 +62,7 @@ export default function HowItWorksV2() {
                     </span>
                     <h3 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">{s.title}</h3>
                   </div>
-                  <p className="mt-3 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
+                  <div className="mt-3 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
                     {idx === 0 && (
                       <>
                         <div className="my-2.5 flex items-center gap-2">
@@ -169,7 +169,7 @@ export default function HowItWorksV2() {
                         </p>
                       </>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
               <div className={idx % 2 === 1 ? 'md:order-1' : ''}>
