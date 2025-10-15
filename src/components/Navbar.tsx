@@ -77,6 +77,12 @@ export function Navbar() {
             >
               Blog
             </Link>
+            <Link
+              href="/?stay=true#faq"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              FAQ
+            </Link>
             <ThemeToggle />
             <AuthSection />
           </div>
@@ -117,7 +123,7 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/#faq?stay=true">FAQs</Link>
+                  <Link href="/?stay=true#faq">FAQ</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
