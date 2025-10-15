@@ -5,11 +5,49 @@ import { useEffect } from 'react';
 export default function ScrollReveal() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (typeof IntersectionObserver === 'undefined') return;
+
+    // Handle hash fragment scrolling on load and hash changes
+    const scrollToHash = (smooth = false) => {
+      const hash = window.location.hash;
+      if (!hash) return;
+
+      // Wait for DOM to be ready and layout to settle
+      const attemptScroll = () => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({
+            behavior: smooth ? 'smooth' : 'auto',
+            block: 'start',
+          });
+          // Immediately reveal the target element to avoid animation conflicts
+          if (element instanceof HTMLElement) {
+            element.classList.add('reveal-visible');
+          }
+        }
+      };
+
+      // Use multiple animation frames to ensure layout is complete
+      requestAnimationFrame(() => {
+        requestAnimationFrame(attemptScroll);
+      });
+    };
+
+    // Scroll to hash on initial page load (no smooth scroll)
+    scrollToHash(false);
+
+    // Scroll to hash when clicking hash links (with smooth scroll)
+    const handleHashChange = () => scrollToHash(true);
+    window.addEventListener('hashchange', handleHashChange);
+
+    if (typeof IntersectionObserver === 'undefined') {
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
 
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-    if (reduceMotion || elements.length === 0) return;
+    if (reduceMotion || elements.length === 0) {
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
 
     const revealImmediately = () => {
       for (const el of elements) {
@@ -49,10 +87,14 @@ export default function ScrollReveal() {
         }
       });
 
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('hashchange', handleHashChange);
+      };
     } catch (error) {
       console.error('Scroll reveal failed', error);
       revealImmediately();
+      return () => window.removeEventListener('hashchange', handleHashChange);
     }
   }, []);
 
