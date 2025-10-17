@@ -45,9 +45,9 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'The week three wall: Why everyone quits at the same time',
         paragraphs: [
-          "A 2019 study published in the Journal of Clinical Psychology found that 92% of New Year's resolutions fail, and most people abandon new habits by day 19. The timing is not random—it is when novelty wears off but automaticity has not kicked in yet.",
+          "A 2019 study published in the Journal of Clinical Psychology found that 92% of New Year's resolutions fail, and most people abandon new habits by day 19. The timing is not random: it happens when novelty wears off but automaticity has not kicked in yet.",
           'Week one feels exciting. You are motivated, the behavior is new, and you can see yourself becoming the person who meditates daily or exercises consistently. Week two, the streak looks like proof you are changing. Week three? The alarm goes off, and suddenly the gym sounds terrible.',
-          'This is the valley between motivation and automaticity. Research from University College London shows habits take an average of 66 days to become automatic, but most people quit around day 20 because they are relying on motivation—which always runs out.',
+          'This is the valley between motivation and automaticity. Research from University College London shows habits take an average of 66 days to become automatic, but most people quit around day 20 because they are relying on motivation, which always runs out.',
           'You have probably experienced this cycle multiple times. Download habit tracker, start strong, miss once, feel guilty, delete app. The problem is not you. The problem is that motivation-based systems fail when motivation fades. You need accountability that works when you do not feel like showing up.',
         ],
       },
@@ -57,7 +57,7 @@ export const blogPosts: BlogPost[] = [
           'Neuroscience research from MIT shows that your brain only automates behaviors it perceives as important. If skipping a habit has no immediate consequence, your brain learns the behavior is optional.',
           'Think about brushing your teeth. You do not need motivation because decades of consistency created strong neural pathways, and skipping has immediate social consequences (bad breath, dentist lectures). Your brain treats it as non-negotiable.',
           'Now think about meditating, journaling, or exercising. Skipping has no immediate consequence. You feel slightly guilty, but nothing actually happens. Your brain correctly identifies this as optional and deprioritizes it when other demands appear.',
-          'The solution is not more willpower—it is creating real consequences. Research from Yale economist Dean Karlan shows that people who put small financial stakes on the line are 2-3 times more likely to follow through because the brain suddenly treats the behavior as non-negotiable.',
+          'The solution is not more willpower but creating real consequences. Research from Yale economist Dean Karlan shows that people who put small financial stakes on the line are 2-3 times more likely to follow through because the brain suddenly treats the behavior as non-negotiable.',
         ],
       },
       {
@@ -72,9 +72,9 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'Financial stakes: Why $2 works better than $200',
         paragraphs: [
-          'Research from UC San Diego found that small stakes ($2-5 per day) are nearly as effective as large stakes ($50+) while avoiding the avoidance behavior that large penalties trigger. The goal is not punishment—it is creating enough friction that skipping requires conscious effort.',
+          'Research from UC San Diego found that small stakes ($2-5 per day) are nearly as effective as large stakes ($50+) while avoiding the avoidance behavior that large penalties trigger. The goal is not punishment but creating enough friction that skipping requires conscious effort.',
           'When you know that skipping costs $2 to charity, suddenly "I do not feel like it" is not enough justification. You either do the habit or consciously decide that paying $2 is worth avoiding it. This decision-forcing mechanism breaks autopilot avoidance.',
-          'The destination matters too. Research from the World Bank shows that directing stakes to causes you care about (not anti-charities) creates motivation without emotional backlash. You are not "wasting" money—you are funding good work, just not on your preferred schedule.',
+          'The destination matters too. Research from the World Bank shows that directing stakes to causes you care about (not anti-charities) creates motivation without emotional backlash. You are not "wasting" money but funding good work, just not on your preferred schedule.',
           "LazyTax lets you set stakes as low as $1 or skip stakes entirely for the first week. As your confidence grows and streak builds, you can increase stakes to match the behavior's importance. The system scales with you.",
         ],
       },
@@ -82,7 +82,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'Grace periods: Why perfect streaks fail in real life',
         paragraphs: [
           'Rigid "never break the chain" systems collapse when life happens. You get sick, travel for work, or face a legitimate emergency. If the system treats all misses equally, you abandon it entirely rather than restarting from zero.',
-          'Research shows that missing a single day does not derail habit formation—the automaticity curve continues after one miss. The problem is psychological: breaking a streak feels like failure, which triggers avoidance and abandonment.',
+          'Research shows that missing a single day does not derail habit formation. The automaticity curve continues after one miss. The problem is psychological: breaking a streak feels like failure, which triggers avoidance and abandonment.',
           'The solution is grace periods or "freeze days" that distinguish between legitimate disruptions and avoidance. LazyTax automatically awards one freeze for every 7-day streak. Use a freeze, and your stake is protected while your streak continues.',
           'This design survives real life. Traveling for a wedding? Use a freeze. Flu symptoms? Use a freeze. The system recognizes that consistency matters more than perfection, and occasional misses do not equal failure.',
         ],
@@ -92,7 +92,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'A study from the Dominican University of California found that people who made public commitments and sent weekly progress reports to a friend achieved 76% of their goals, compared to 43% for those who kept goals private.',
           'The mechanism is simple: humans care deeply about how others perceive them. Telling a friend "I will exercise daily" creates social pressure to follow through. Breaking that commitment means explaining why you quit, which is uncomfortable enough that most people choose to continue.',
-          'LazyTax lets you add accountability partners who receive your streak updates and notifications when you miss. This is not about shame—it is about creating gentle social pressure that keeps you honest during the inevitable low-motivation days.',
+          'LazyTax lets you add accountability partners who receive your streak updates and notifications when you miss. This is not about shame but about creating gentle social pressure that keeps you honest during the inevitable low-motivation days.',
           'The key is choosing partners carefully. Pick someone who understands your goal and will check in without judgment. The best accountability partners celebrate your wins and ask "what happened?" rather than "why did you fail?" when you miss.',
         ],
       },
@@ -112,7 +112,7 @@ export const blogPosts: BlogPost[] = [
           'LazyTax combines the three elements research shows create lasting habits: immediate accountability (check-ins take 5 seconds), real consequences (optional stakes go to charity), and flexibility for life (automatic freezes for legitimate disruptions).',
           'The system is designed to survive week three. While other apps rely on motivation and streaks, LazyTax creates structural accountability that works when motivation is low. Skipping requires either doing the habit or consciously choosing to pay the stake.',
           'You control the difficulty. Start with no stakes and just track. Add a $1 stake when ready. Increase to $5 as confidence grows. Invite a partner when you need extra accountability. The system adapts to your needs instead of forcing a one-size-fits-all approach.',
-          'Most importantly, LazyTax treats you like an adult. Misses do not trigger shame or motivational quotes—they trigger a simple question: "What happened?" This distinction-between-avoidance-and-legitimate-disruption keeps people engaged long-term.',
+          'Most importantly, LazyTax treats you like an adult. Misses do not trigger shame or motivational quotes but a simple question: "What happened?" This distinction between avoidance and legitimate disruption keeps people engaged long-term.',
         ],
       },
     ],
@@ -123,7 +123,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'productivity-person-just-anxious',
     title: 'I\'ve been a "productivity person" for years. Turns out I was just anxious',
     description:
-      "I chased new systems for years and blamed discipline. The fix wasn't willpower—it was simple habits, flexible streaks, and tiny stakes that made commitment feel real.",
+      "I chased new systems for years and blamed discipline. The fix wasn't willpower but simple habits, flexible streaks, and tiny stakes that made commitment feel real.",
     excerpt:
       "If you've cycled through habit apps and still quit around week three, you're not broken. You're running a pass/fail playbook on a process that needs flexibility and accountability.",
     publishedAt: '2025-10-12',
@@ -141,8 +141,8 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'The loop I kept repeating',
         paragraphs: [
-          "New habit tracker? This is the one. New system? This changes everything. New framework? Finally, I'll be consistent. I've tried more apps than I can count—Habitica, Streaks, Loop, Way of Life, Productive, Done, Strides, Momentum, and a parade of Notion templates.",
-          "Week one, I'm obsessed. Week two, the streak looks like proof I'm a new person. Week three, I miss once—travel, illness, or I simply forget. The streak breaks, I feel lousy, stop opening the app, and a few weeks later I delete it. Then three months pass and I repeat the cycle with a different app.",
+          "New habit tracker? This is the one. New system? This changes everything. New framework? Finally, I'll be consistent. I've tried more apps than I can count: Habitica, Streaks, Loop, Way of Life, Productive, Done, Strides, Momentum, and a parade of Notion templates.",
+          "Week one, I'm obsessed. Week two, the streak looks like proof I'm a new person. Week three, I miss once due to travel, illness, or I simply forget. The streak breaks, I feel lousy, stop opening the app, and a few weeks later I delete it. Then three months pass and I repeat the cycle with a different app.",
         ],
       },
       {
@@ -155,14 +155,14 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'What the research actually says',
         paragraphs: [
-          'The boring academic literature—not influencer posts—puts average habit automaticity around 66 days, not 21. The range is wide: 18 to 254 days depending on the person and behavior.',
+          'The boring academic literature (not influencer posts) puts average habit automaticity around 66 days, not 21. The range is wide: 18 to 254 days depending on the person and behavior.',
           "That means the notorious week three slump is normal. It's the valley between novelty and automaticity. I kept quitting right before the curve bent upward.",
         ],
       },
       {
         heading: 'Why small stakes help',
         paragraphs: [
-          'Even tiny financial stakes—one or two dollars—can meaningfully increase follow-through. Not because the money hurts, but because the commitment feels real. Your brain treats it differently.',
+          'Even tiny financial stakes (one or two dollars) can meaningfully increase follow-through. Not because the money hurts, but because the commitment feels real. Your brain treats it differently.',
           'The trick is calibration. Stakes should nudge, not punish. When the system feels punitive, people disengage to avoid the discomfort.',
         ],
       },
@@ -177,13 +177,13 @@ export const blogPosts: BlogPost[] = [
         heading: 'So I built the tool I needed',
         paragraphs: [
           "I wasn't trying to launch a product. I was trying to stop repeating the same loop. I needed optional small stakes, five-second check-ins, grace for sick days and travel, and a way to see patterns instead of just feeling shame.",
-          "I also needed any forfeited money to go somewhere aligned with my values. If I miss, it goes to charity—not into a company's pocket.",
+          "I also needed any forfeited money to go somewhere aligned with my values. If I miss, it goes to charity, not into a company's pocket.",
         ],
       },
       {
         heading: 'How LazyTax works (in short)',
         paragraphs: [
-          'Pick one tiny habit—think “put on gym shoes” rather than “go to the gym.” Check-ins take seconds. Add a small stake if you want extra friction; I often use $2.',
+          'Pick one tiny habit. Think "put on gym shoes" rather than "go to the gym." Check-ins take seconds. Add a small stake if you want extra friction; I often use $2.',
           "Miss a check-in and don't have protection? The stake goes to a charity you chose. As your streak grows, you earn automatic “freezes” that cover an occasional miss so life doesn't equal failure.",
           'When you do miss, we ask what happened. Not to shame you, but to help you spot patterns like “I miss on Fridays” or “Travel derails me.”',
         ],
@@ -197,7 +197,7 @@ export const blogPosts: BlogPost[] = [
       },
     ],
     conclusion:
-      "If you've got a folder of abandoned productivity apps, you're not alone. Trade the pass/fail mindset for simple habits, gentle accountability, and calibrated stakes—and finally get past week three. When you're ready, use the CTA below to start from our landing page.",
+      "If you've got a folder of abandoned productivity apps, you're not alone. Trade the pass/fail mindset for simple habits, gentle accountability, and calibrated stakes to finally get past week three. When you're ready, use the CTA below to start from our landing page.",
   },
   {
     slug: 'best-habit-tracking-apps-2025',
@@ -306,7 +306,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'simple-habit-planning-system',
     title: 'A Simple System to Plan, Track, and Stay Accountable',
     description:
-      'Build a lightweight habit tracker that bakes in accountability—mini plans, daily receipts, and gentle stakes—so you stick with routines long past week two.',
+      'Build a lightweight habit tracker that bakes in accountability with mini plans, daily receipts, and gentle stakes so you stick with routines long past week two.',
     excerpt:
       'If your habits disappear once life gets hectic, the fix isn’t more motivation. It’s a simple tracker plus an accountability loop that tells on you (kindly) when you drift.',
     publishedAt: '2024-10-15',
@@ -323,7 +323,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'Why checklists alone never keep you honest',
         paragraphs: [
-          'Eight daily habits on a page look impressive, but without a when/where plan and someone—or something—to notice when you ghost, the list folds by week two.',
+          'Eight daily habits on a page look impressive, but without a when/where plan and someone (or something) to notice when you ghost, the list folds by week two.',
           'Accountability is the missing piece. When you owe a receipt to your future self, a friend, or LazyTax, the habit keeps its place even on chaotic days.',
         ],
       },
@@ -405,7 +405,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Financial stakes turn vague disappointment into something you can feel. When missing a habit routes part of your stake to a cause you choose, every skipped day has a receipt.',
           'The amount does not need to be painful. Even five dollars is enough to trigger loss aversion, the psychological bias that makes losses feel twice as powerful as wins.',
-          'Layer in positive reinforcement—like keeping your streak and unlocking rewards—and you now have both push and pull working in your favor.',
+          'Layer in positive reinforcement (like keeping your streak and unlocking rewards) and you now have both push and pull working in your favor.',
         ],
       },
       {
@@ -413,7 +413,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Start small. Choose one habit that delivers asymmetric value, like a daily walk, finishing a deep work sprint, or preparing a balanced meal.',
           'Set a check-in window that mirrors real life. If you journal at night, make the deadline midnight local time. Frictionless logging keeps the focus on doing the habit, not wrestling the system.',
-          'Decide on your accountability partner. Some people prefer a friend; others want LazyTax to automate the review. The key is to invite someone—or something—that will actually notice.',
+          'Decide on your accountability partner. Some people prefer a friend; others want LazyTax to automate the review. The key is to invite someone (or something) that will actually notice.',
         ],
       },
       {
@@ -447,7 +447,7 @@ export const blogPosts: BlogPost[] = [
     ],
     sections: [
       {
-        heading: 'Streaks are powerful—until they become brittle',
+        heading: 'Streaks are powerful until they become brittle',
         paragraphs: [
           'A long streak is a motivational asset. It signals identity change: “I am the kind of person who shows up.” But when a streak is defined by perfection, the first missed day can feel like the end of the story.',
           'High performers often over-index on intensity instead of consistency. They build fragile streaks that break when travel, family, or illness interrupts the routine.',
@@ -458,14 +458,14 @@ export const blogPosts: BlogPost[] = [
         heading: 'Build buffers into your routine',
         paragraphs: [
           'Buffers absorb volatility. You can design them as lighter check-ins, travel-friendly versions of the habit, or scheduled deload weeks.',
-          'LazyTax allows you to document acceptable alternates—like “ten push-ups instead of a full workout” or “outline notes if I cannot record content.” This preserves momentum while acknowledging reality.',
+          'LazyTax allows you to document acceptable alternates like "ten push-ups instead of a full workout" or "outline notes if I cannot record content." This preserves momentum while acknowledging reality.',
           'Document the buffer before you need it. Changing rules mid-stream introduces loopholes, which erode trust in the system.',
         ],
       },
       {
         heading: 'Use recovery windows instead of resetting',
         paragraphs: [
-          'Instead of treating an interruption as a reset, mark it as a recovery window. You have a defined period—say, 48 hours—to get back on track without losing your streak.',
+          'Instead of treating an interruption as a reset, mark it as a recovery window. You have a defined period (say, 48 hours) to get back on track without losing your streak.',
           'Recovery windows reinforce resilience. They tell your brain that setbacks are a cue to re-engage, not an excuse to surrender.',
           'Pair the window with a gentle stake. A partial forfeiture keeps the cost of delaying visible without punishing legitimate breaks.',
         ],
@@ -558,7 +558,7 @@ export const blogPosts: BlogPost[] = [
     description:
       'The famous "21 days to form a habit" claim is wrong. Learn what the actual research from University College London reveals about how long habits really take.',
     excerpt:
-      "Phillippa Lally's 2009 study tracked 96 people for 12 weeks and found the average time to habit automaticity was 66 days—but the range was 18 to 254 days. Here is what that means for your habits.",
+      "Phillippa Lally's 2009 study tracked 96 people for 12 weeks and found the average time to habit automaticity was 66 days, but the range was 18 to 254 days. Here is what that means for your habits.",
     publishedAt: '2024-12-10',
     readTime: '9 min read',
     categories: ['Habit Science', 'Research'],
@@ -581,7 +581,7 @@ export const blogPosts: BlogPost[] = [
           'In 2009, health psychology researcher Phillippa Lally and her team at University College London published a landmark study in the European Journal of Social Psychology. They recruited 96 volunteers and tracked one self-selected habit for 12 weeks.',
           'Participants chose simple behaviors like "drinking a bottle of water with lunch" or "running for 15 minutes before dinner." Every day, they reported whether they performed the behavior and rated how automatic it felt.',
           'The study found that on average, it took 66 days for a new behavior to become automatic. But the range was massive: some habits plateaued at 18 days, while others were still climbing toward automaticity at 254 days when the study ended.',
-          'This research directly contradicts the popular "21 days to form a habit" claim, which traces back to Maxwell Maltz\'s 1960 book "Psycho-Cybernetics." Maltz was a plastic surgeon who noticed patients took about 21 days to adjust to their new appearance—a completely different phenomenon than habit formation.',
+          'This research directly contradicts the popular "21 days to form a habit" claim, which traces back to Maxwell Maltz\'s 1960 book "Psycho-Cybernetics." Maltz was a plastic surgeon who noticed patients took about 21 days to adjust to their new appearance, a completely different phenomenon than habit formation.',
         ],
       },
       {
@@ -605,7 +605,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           "Lally's study found that consistency matters more than perfection. Participants who performed their habit in the same context (same time, same location) every day automated faster than those with variable contexts.",
           'This explains why "I will exercise more" fails while "I will run for 10 minutes at 6am in my neighborhood" succeeds. The specific context creates a cue-response pattern that your brain can automate.',
-          'Implementation intentions—specific if-then plans—leverage this finding. Peter Gollwitzer\'s research at NYU shows that stating "If situation X occurs, then I will do behavior Y" creates strong cue-behavior associations that speed up automaticity.',
+          'Implementation intentions (specific if-then plans) leverage this finding. Peter Gollwitzer\'s research at NYU shows that stating "If situation X occurs, then I will do behavior Y" creates strong cue-behavior associations that speed up automaticity.',
         ],
       },
       {
@@ -639,7 +639,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Lally\'s study focused on relatively simple health behaviors. We do not have equivalent research on complex habits like "write 1000 words daily" or "practice piano for 30 minutes." These likely take longer to automate.',
           'The study used self-report measures, which have known limitations. People are not always accurate judges of their own automaticity. Behavioral measures (like reaction time) might tell a different story.',
-          'More recent research from Katy Milkman at Wharton explores "temptation bundling"—pairing desired behaviors with immediate rewards—as a way to speed up habit formation. This suggests the 66-day timeline might be shortened with the right incentive design.',
+          'More recent research from Katy Milkman at Wharton explores "temptation bundling," which pairs desired behaviors with immediate rewards as a way to speed up habit formation. This suggests the 66-day timeline might be shortened with the right incentive design.',
         ],
       },
     ],
@@ -681,7 +681,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'How loss aversion drives commitment contracts',
         paragraphs: [
           'Nobel Prize winner Daniel Kahneman and Amos Tversky discovered loss aversion in the 1970s: losses feel roughly twice as painful as equivalent gains feel good. This asymmetry makes financial stakes powerful.',
-          'Traditional incentive systems offer rewards for success: "I will buy myself new shoes if I exercise 20 times this month." But rewards suffer from temporal discounting—future benefits feel abstract compared to present comfort.',
+          'Traditional incentive systems offer rewards for success: "I will buy myself new shoes if I exercise 20 times this month." But rewards suffer from temporal discounting where future benefits feel abstract compared to present comfort.',
           'Commitment contracts flip this by creating immediate losses: "I will lose $5 today if I do not exercise." The pain of losing money right now is psychologically more powerful than the hope of future gains.',
           'Research from the University of Pennsylvania by Kevin Volpp showed that participants who risked losing money they had already deposited lost significantly more weight (14 pounds on average) compared to reward-only groups (3.5 pounds).',
         ],
@@ -700,7 +700,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Research from the Dominican University of California by Gail Matthews found that people who made public commitments and sent weekly progress reports to a friend achieved 76% of their stated goals, compared to 43% for those who kept goals private.',
           'The mechanism is reputation management. Social psychologist Robert Cialdini explains that humans have a deep need for consistency between public statements and behavior. Breaking a public commitment creates cognitive dissonance that most people work to avoid.',
-          'StickK\'s data shows that adding a "referee"—someone who verifies whether you completed the behavior—increases success rates from 70% to 85%. The social accountability layer compounds the financial stakes.',
+          'StickK\'s data shows that adding a "referee" (someone who verifies whether you completed the behavior) increases success rates from 70% to 85%. The social accountability layer compounds the financial stakes.',
         ],
       },
       {
@@ -715,7 +715,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'Combining commitment contracts with other strategies',
         paragraphs: [
           "Commitment contracts work best when paired with implementation intentions. Peter Gollwitzer's research shows that specific if-then plans increase follow-through by 2-3x. Combine that with financial stakes, and you get multiplicative effects.",
-          'Temptation bundling—Katy Milkman\'s strategy of pairing desired behaviors with immediate rewards—can offset the aversive nature of stakes. "I only listen to my favorite podcast while exercising, and I forfeit $2 if I skip" creates both push and pull motivation.',
+          'Temptation bundling (Katy Milkman\'s strategy of pairing desired behaviors with immediate rewards) can offset the aversive nature of stakes. "I only listen to my favorite podcast while exercising, and I forfeit $2 if I skip" creates both push and pull motivation.',
           'Social support amplifies commitment contracts. A study in JAMA Internal Medicine found that team-based commitment contracts (where groups succeed or fail together) produced better weight loss results than individual contracts.',
         ],
       },
@@ -738,7 +738,7 @@ export const blogPosts: BlogPost[] = [
       },
     ],
     conclusion:
-      'Commitment contracts work because they exploit fundamental features of human psychology: loss aversion, social consistency, and the power of pre-commitment. The research is clear—small stakes dramatically increase follow-through, especially when combined with social accountability and flexible grace periods. LazyTax packages these evidence-based principles into a system that finally makes commitment contracts accessible and sustainable.',
+      'Commitment contracts work because they exploit fundamental features of human psychology: loss aversion, social consistency, and the power of pre-commitment. The research is clear that small stakes dramatically increase follow-through, especially when combined with social accountability and flexible grace periods. LazyTax packages these evidence-based principles into a system that finally makes commitment contracts accessible and sustainable.',
   },
   {
     slug: 'motivation-vs-systems-research',
@@ -768,7 +768,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Stanford behavior scientist BJ Fogg spent two decades researching what drives behavior change. His Fogg Behavior Model (B=MAP) states that behavior happens when three elements converge: Motivation, Ability, and Prompt.',
           "Fogg's key finding: motivation is the least reliable of the three factors. Motivation naturally fluctuates throughout the day, week, and year. Designing behavior change strategies that depend on high motivation sets people up for failure.",
-          'His research shows that making behaviors easier (increasing Ability) and strengthening prompts (reliable triggers) creates more sustainable change than trying to boost motivation. This is why "just be more disciplined" advice fails—it targets the wrong variable.',
+          'His research shows that making behaviors easier (increasing Ability) and strengthening prompts (reliable triggers) creates more sustainable change than trying to boost motivation. This is why "just be more disciplined" advice fails. It targets the wrong variable.',
           'Fogg\'s Tiny Habits method implements this insight: start with behaviors so small they require almost no motivation ("floss one tooth"), attach them to reliable prompts ("after I brush"), and celebrate immediately to reinforce the loop.',
         ],
       },
@@ -777,7 +777,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'USC psychologist Wendy Wood has spent 30 years studying habits and automaticity. Her research using experience sampling methods found that approximately 43% of daily behaviors are performed almost automatically in the same context every day.',
           "Wood's work shows that habits form through context-response associations, not through motivation or conscious intention. When you repeatedly perform a behavior in a specific context (time, location, preceding action), your brain learns the association and the behavior becomes automatic.",
-          'Her studies demonstrate that people with strong exercise habits are not more motivated than others—they have stronger context-behavior associations. They do not decide to exercise; they automatically put on gym shoes when the context cue appears.',
+          'Her studies demonstrate that people with strong exercise habits are not more motivated than others but have stronger context-behavior associations. They do not decide to exercise; they automatically put on gym shoes when the context cue appears.',
           "This research explains why New Year's resolutions fail. Temporary motivation gets you started, but without building strong context cues, the behavior never becomes automatic. When motivation fades (which it always does), the behavior stops.",
         ],
       },
@@ -804,14 +804,14 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Research from Duke University by David Neal shows that people with strong self-control actually structure their environments to avoid temptation rather than relying on willpower to resist.',
           'A study published in Psychological Science found that 70% of the variance in dietary health comes from what is available in the home environment, not from individual willpower or nutrition knowledge. Change the environment, change the behavior.',
-          "Brian Wansink's research at Cornell (before controversies) demonstrated that small environmental changes—plate size, food placement, lighting—alter consumption patterns without conscious awareness. Environment design works even when willpower fails.",
+          "Brian Wansink's research at Cornell (before controversies) demonstrated that small environmental changes like plate size, food placement, and lighting alter consumption patterns without conscious awareness. Environment design works even when willpower fails.",
           "This research supports LazyTax's approach: environmental design (automatic reminders), increased friction (losing money if you skip), and social pressure (partner sees your streak) create systems that work when motivation is low.",
         ],
       },
       {
         heading: 'Implementation intentions: Pre-deciding when motivation is high',
         paragraphs: [
-          "Peter Gollwitzer's research at NYU demonstrates that implementation intentions—specific if-then plans—increase goal achievement by 2-3x. The power comes from pre-deciding when motivation and prefrontal cortex function are strong.",
+          "Peter Gollwitzer's research at NYU demonstrates that implementation intentions (specific if-then plans) increase goal achievement by 2-3x. The power comes from pre-deciding when motivation and prefrontal cortex function are strong.",
           'A meta-analysis of 94 studies published in Advances in Experimental Social Psychology found consistent evidence that implementation intentions work across domains: exercise, diet, study habits, medication adherence, and more.',
           'The mechanism is bypassing the decision point. Instead of "I will exercise tomorrow" (requires decision and motivation tomorrow), you commit to "If it is 7 AM on a weekday, then I will put on running shoes and go outside" (decision already made).',
         ],
@@ -830,7 +830,7 @@ export const blogPosts: BlogPost[] = [
           'Start with environmental design. What cues can you add to your environment? What friction can you remove from desired behaviors? What friction can you add to undesired behaviors?',
           'Build implementation intentions: "If X, then Y" statements that remove in-the-moment decisions. Write them down and rehearse them mentally to strengthen the cue-response association.',
           'Add accountability to create a system rather than relying on motivation. LazyTax implements this by combining financial stakes (increasing friction for skipping), social accountability (partner sees streak), and environmental cues (daily reminders).',
-          'Focus on the smallest viable behavior. Fogg and Clear both emphasize starting tiny—so small that motivation is not required. Once the behavior is automatic, you can scale up.',
+          'Focus on the smallest viable behavior. Fogg and Clear both emphasize starting tiny, so small that motivation is not required. Once the behavior is automatic, you can scale up.',
         ],
       },
     ],
