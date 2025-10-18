@@ -45,7 +45,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'The week three wall: Why everyone quits at the same time',
         paragraphs: [
-          "A 2019 study published in the Journal of Clinical Psychology found that 92% of New Year's resolutions fail, and most people abandon new habits by day 19. The timing is not random: it happens when novelty wears off but automaticity has not kicked in yet.",
+          "Research by Norcross, Mrykalo, and Blagys published in the Journal of Clinical Psychology (2002) found that 92% of New Year's resolutions fail, with most people abandoning new habits by day 19. The timing is not random: it happens when novelty wears off but automaticity has not kicked in yet.",
           'Week one feels exciting. You are motivated, the behavior is new, and you can see yourself becoming the person who meditates daily or exercises consistently. Week two, the streak looks like proof you are changing. Week three? The alarm goes off, and suddenly the gym sounds terrible.',
           'This is the valley between motivation and automaticity. Research from University College London shows habits take an average of 66 days to become automatic, but most people quit around day 20 because they are relying on motivation, which always runs out.',
           'You have probably experienced this cycle multiple times. Download habit tracker, start strong, miss once, feel guilty, delete app. The problem is not you. The problem is that motivation-based systems fail when motivation fades. You need accountability that works when you do not feel like showing up.',
@@ -673,7 +673,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'The origin of commitment contract research',
         paragraphs: [
           'Yale economist Dean Karlan pioneered commitment contract research in the mid-2000s. His initial studies focused on savings behavior in the Philippines, where he found that people who signed commitment contracts saved 80% more than control groups.',
-          'Karlan then applied the same principles to personal goals. In a 2010 study published in the American Economic Review, he found that people who signed commitment contracts with financial stakes were 2-3 times more likely to achieve weight loss goals compared to those relying on willpower alone.',
+          'Karlan then applied the same principles to personal goals. In a 2010 study published in the American Economic Journal: Applied Economics, he found that commitment contracts with financial stakes increased goal achievement rates by approximately 3 percentage points compared to those relying on willpower alone.',
           'These findings led to the creation of stickK.com in 2008, which has since facilitated over $50 million in commitment contracts. The platform reports that users who put money on the line have a 70% success rate compared to 30% for those without stakes.',
         ],
       },
