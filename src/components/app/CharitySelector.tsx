@@ -111,7 +111,7 @@ export default function CharitySelector({
             value={loading ? 'Loading...' : charityLabel || 'No charity selected'}
             disabled
             placeholder="No charity selected"
-            className="bg-slate-50 dark:bg-slate-900"
+            className="bg-slate-50 dark:bg-slate-900 disabled:opacity-100 text-slate-900 dark:text-slate-100 font-medium border-slate-200 dark:border-slate-700"
           />
         </div>
         <Button type="button" onClick={handleNavigateToCharities} variant="outline" className="shrink-0">
