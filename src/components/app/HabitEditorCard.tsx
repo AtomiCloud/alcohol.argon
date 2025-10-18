@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Heart, X, ChevronDown, ChevronRight } from 'lucide-react';
-import CharityComboBox from '@/components/app/CharityComboBox';
+import CharitySelector from '@/components/app/CharitySelector';
 import { WEEKDAYS } from '@/models/habit';
 
 type HabitDraftLike = {
@@ -43,6 +43,13 @@ export default function HabitEditorCard({
     const next = cur.includes(key) ? cur.filter(k => k !== key) : [...cur, key];
     onChange({ ...draft, daysOfWeek: next });
   };
+
+  const handleCharityChange = useCallback(
+    (id: string) => {
+      onChange({ ...draft, charityId: id });
+    },
+    [onChange, draft],
+  );
 
   // Charity combobox is now a reusable component
 
@@ -177,10 +184,10 @@ export default function HabitEditorCard({
           </div>
 
           {draft.amount && Number(draft.amount) > 0 && (
-            <CharityComboBox
+            <CharitySelector
               value={draft.charityId}
               options={charities}
-              onChange={id => onChange({ ...draft, charityId: id })}
+              onChange={handleCharityChange}
               error={errors.charityId}
             />
           )}

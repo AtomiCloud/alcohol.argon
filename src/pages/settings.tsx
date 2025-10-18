@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -15,7 +15,7 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { Res, Ok, Err, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import { Settings, ShieldX } from 'lucide-react';
-import CharityComboBox from '@/components/app/CharityComboBox';
+import CharitySelector from '@/components/app/CharitySelector';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
 import { FieldCard } from '@/components/ui/field-card';
@@ -204,7 +204,7 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
             restriction="You can change this anytime"
             contentClassName="space-y-2"
           >
-            <CharityComboBox options={charityOptions} value={selectedCharityId} onChange={setSelectedCharityId} />
+            <CharitySelector options={charityOptions} value={selectedCharityId} onChange={setSelectedCharityId} />
           </FieldCard>
 
           {hasPaymentConsent && (

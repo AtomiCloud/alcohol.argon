@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -15,7 +15,7 @@ import type { ResultSerial } from '@/lib/monads/result';
 import { Res, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import { Settings, Heart, ArrowRight } from 'lucide-react';
-import CharityComboBox from '@/components/app/CharityComboBox';
+import CharitySelector from '@/components/app/CharitySelector';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
 import { usePlausible } from '@/lib/tracker/usePlausible';
@@ -120,10 +120,13 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
     setTimezone(tz);
   };
 
-  const handleCharityChange = (charityId: string) => {
-    track(TrackingEvents.Onboarding.CharitySelected);
-    setSelectedCharityId(charityId);
-  };
+  const handleCharityChange = useCallback(
+    (charityId: string) => {
+      track(TrackingEvents.Onboarding.CharitySelected);
+      setSelectedCharityId(charityId);
+    },
+    [track],
+  );
 
   const canSubmit = timezone.length > 0 && selectedCharityId.length > 0;
 
@@ -174,13 +177,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                     <Heart className="w-4 h-4" />
                     Default Charity
                   </label>
-                  <div className="border border-input rounded-lg p-3 bg-background">
-                    <CharityComboBox
-                      options={charityOptions}
-                      value={selectedCharityId}
-                      onChange={handleCharityChange}
-                    />
-                  </div>
+                  <CharitySelector options={charityOptions} value={selectedCharityId} onChange={handleCharityChange} />
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Choose where your stakes will go when you miss a habit.
                   </p>
