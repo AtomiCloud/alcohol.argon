@@ -53,7 +53,7 @@ export default function DonationBar({ totalDonated, goal = 100000 }: DonationBar
           {/* Amount Display */}
           <div className="text-center mb-6">
             <div className="inline-flex items-baseline gap-2">
-              <span className="font-heading text-5xl sm:text-6xl md:text-7xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-orange-600 bg-clip-text text-transparent">
+              <span className="text-5xl sm:text-6xl md:text-7xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-orange-600 bg-clip-text text-transparent">
                 {formattedAmount}
               </span>
               <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-500 mb-2" />
