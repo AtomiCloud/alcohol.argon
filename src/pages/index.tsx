@@ -4,6 +4,7 @@ import type { GetServerSidePropsResult } from 'next';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { buildTime } from '@/adapters/external/core';
 import Hero from '@/components/landing/Hero';
+import DonationBar from '@/components/landing/DonationBar';
 import Differentiation from '@/components/landing/Differentiation';
 import HowItWorksV2 from '@/components/landing/HowItWorksV2';
 import RealResults from '@/components/landing/RealResults';
@@ -32,6 +33,7 @@ export default function HomePage() {
       </Head>
       <ScrollReveal />
       <Hero />
+      <DonationBar totalDonated={12450} />
       <Differentiation />
       <HowItWorksV2 />
       <RealResults />

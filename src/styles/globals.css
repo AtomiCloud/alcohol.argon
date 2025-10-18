@@ -169,6 +169,9 @@ body {
     transform: translateX(100%);
   }
 }
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
 
 /* Soft floating animation for hero/illustrations */
 @keyframes float-slow {
