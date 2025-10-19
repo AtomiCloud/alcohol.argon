@@ -90,74 +90,75 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Legal Links */}
-          <nav aria-label="Legal" className="text-center">
-            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/blog"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/pricing"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/?stay=true#faq"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/?stay=true"
-                >
-                  Landing Page
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal"
-                >
-                  Legal Documents
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/privacy"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/terms"
-                >
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/refund"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
+          {/* Footer Links */}
+          <nav aria-label="Footer navigation" className="text-center space-y-4">
+            {/* Main Navigation */}
+            <div>
+              <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/?stay=true"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/pricing"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/blog"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/?stay=true#faq"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/privacy"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/terms"
+                  >
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/refund"
+                  >
+                    Refunds
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </nav>
 
           {/* Copyright */}
