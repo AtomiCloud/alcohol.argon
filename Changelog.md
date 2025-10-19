@@ -1,3 +1,17 @@
+## [1.32.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.31.0...v1.32.0) (2025-10-19)
+
+
+### ✨ Features ✨
+
+* **blog:** add comprehensive habit tracking apps comparison post ([8ba339e](https://github.com/AtomiCloud/alcohol.argon/commit/8ba339e028a06a5513773b0c136d4bbbcdf14417))
+* **blog:** add high-converting landing page SEO post ([17b5412](https://github.com/AtomiCloud/alcohol.argon/commit/17b541210f3190bc3af237a96b925aa28ff04306))
+* **blog:** add three research-backed habit science posts ([2adf3e8](https://github.com/AtomiCloud/alcohol.argon/commit/2adf3e8ed44aca71b1b28ad11afd42577c45337a))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **blog:** correct research citations for accuracy ([fc0e2b8](https://github.com/AtomiCloud/alcohol.argon/commit/fc0e2b8e1fe64c308cbba767c32a30f5804970e3))
+
 ## [1.31.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.3...v1.31.0) (2025-10-13)
 
 
