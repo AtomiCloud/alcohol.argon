@@ -103,7 +103,7 @@ export default function Hero() {
                 </a>
               </Button>
             </div>
-            <div className="mt-3 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
+            <div className="mt-5 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
               {/* biome-ignore lint/a11y/useValidAnchor: Valid hash navigation with tracking */}
               <a
                 href="#how-it-works"
