@@ -54,12 +54,6 @@ export function Navbar() {
               Why LazyTax
             </Link>
             <Link
-              href="/research"
-              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
-            >
-              Research
-            </Link>
-            <Link
               href="/about"
               className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
             >
@@ -76,12 +70,6 @@ export function Navbar() {
               className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
             >
               Blog
-            </Link>
-            <Link
-              href="/?stay=true#faq"
-              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
-            >
-              FAQ
             </Link>
             <ThemeToggle />
             <AuthSection />
@@ -110,9 +98,6 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/research">Research</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
                   <Link href="/about">About</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -120,10 +105,6 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/blog">Blog</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/?stay=true#faq">FAQ</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
