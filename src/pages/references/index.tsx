@@ -93,6 +93,33 @@ const referenceSections: ReferenceSection[] = [
     ],
   },
   {
+    id: 'positive-reinforcement',
+    title: 'Positive Reinforcement & Feedback Ratios',
+    description: 'Evidence on how positive-to-negative feedback ratios shape behavior and performance.',
+    references: [
+      {
+        title: "Effects of Middle School Teachers' Praise-to-Reprimand Ratios on Students' Classroom Behavior",
+        authors: 'Caldarella, P., Larsen, R. A. A., Williams, L., & Wills, H. P.',
+        citation: 'Journal of Positive Behavior Interventions, 25(1), 44–57',
+        year: '2023',
+        summary:
+          'Research on 60+ middle school classrooms found that higher ratios of praise to reprimands significantly improved student on-task behavior. Classrooms with the highest praise-to-reprimand ratios saw on-task behavior increase by 60–70%, while disruptions were cut in half—demonstrating that balanced positive reinforcement drives sustained behavior change.',
+        doi: '10.1177/10983007211035185',
+        href: 'https://journals.sagepub.com/doi/10.1177/10983007211035185',
+      },
+      {
+        title: "Evidence Review for Teacher Praise to Improve Students' Classroom Behavior",
+        authors: 'Moore, T. C., Maggin, D. M., Thompson, K. M., Gordon, J. R., Daniels, S., & Lang, L. E.',
+        citation: 'Journal of Positive Behavior Interventions, 21(1), 3–18',
+        year: '2019',
+        summary:
+          'Systematic review of 16 studies examining behavior-specific praise in K-12 settings confirmed that positive reinforcement strategies consistently improve student engagement and reduce disruptive behaviors, supporting the principle that recognition and celebration are essential to lasting behavior change.',
+        doi: '10.1177/1098300718766657',
+        href: 'https://journals.sagepub.com/doi/10.1177/1098300718766657',
+      },
+    ],
+  },
+  {
     id: 'strategic-habits',
     title: 'Strategic Habit Building',
     description: 'Real-world coaching data on focused habit practice.',

@@ -18,9 +18,9 @@ const bullets = [
     href: '/references#strategic-habits',
   },
   {
-    text: '4:1 positive-to-negative ratio optimizes discipline and achievement',
+    text: 'Higher positive-to-negative feedback ratios optimize discipline and achievement',
     ref: 4,
-    href: '/references',
+    href: '/references#positive-reinforcement',
   },
 ];
 
