@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import Pricing from '@/components/landing/Pricing';
 import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 
 export default function PricingPage() {
   return (
@@ -32,9 +33,7 @@ export default function PricingPage() {
             deeper guardrails. We keep everything flexible, transparent, and aligned with lasting behavior change.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/api/logto/sign-in">Get started</Link>
-            </Button>
+            <SignInCTA size="lg">Get started</SignInCTA>
             <Button asChild size="lg" variant="secondary">
               <Link href="/why-lazytax">See why LazyTax works</Link>
             </Button>

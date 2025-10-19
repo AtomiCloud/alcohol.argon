@@ -26,7 +26,7 @@ export default function WhyStakesSupport() {
                 30–40% higher success
                 <sup>
                   <a
-                    href="/references#financial-incentives"
+                    href="/research#financial-incentives"
                     className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
                   >
                     [1]
@@ -57,7 +57,7 @@ export default function WhyStakesSupport() {
                 higher positive-to-negative
                 <sup>
                   <a
-                    href="/references#positive-reinforcement"
+                    href="/research#positive-reinforcement"
                     className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
                   >
                     [2]

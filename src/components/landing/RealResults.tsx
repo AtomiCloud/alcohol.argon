@@ -5,22 +5,22 @@ const bullets = [
   {
     text: 'The average habit takes 66 days to become automatic',
     ref: 1,
-    href: '/references#habit-formation',
+    href: '/research#habit-formation',
   },
   {
     text: 'Adding accountability doubles goal achievement rates',
     ref: 2,
-    href: '/references#goal-setting',
+    href: '/research#goal-setting',
   },
   {
     text: 'Starting with ONE habit = 80% higher success than multiple changes',
     ref: 3,
-    href: '/references#strategic-habits',
+    href: '/research#strategic-habits',
   },
   {
     text: 'Higher positive-to-negative feedback ratios optimize discipline and achievement',
     ref: 4,
-    href: '/references#positive-reinforcement',
+    href: '/research#positive-reinforcement',
   },
 ];
 

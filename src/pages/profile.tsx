@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -211,9 +212,9 @@ function Unauthenticated() {
             <CardDescription>You need to be signed in to view your profile information.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button asChild>
-              <Link href="/api/logto/sign-in">Sign In</Link>
-            </Button>
+            <SignInCTA icon="none" showIcon={false}>
+              Sign In
+            </SignInCTA>
           </CardContent>
         </Card>
       </div>

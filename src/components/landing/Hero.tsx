@@ -1,10 +1,9 @@
 import type React from 'react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 // Removed email collection — switched to a simple CTA based on auth state
 import { useClaims } from '@/lib/auth/providers';
-import { ArrowRight, Rocket } from 'lucide-react';
 import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
 
@@ -13,10 +12,10 @@ export default function Hero() {
   const track = usePlausible();
   const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
   const ctaLabel = isAuthed ? 'Open your app' : 'Get started';
-  const ctaHref = isAuthed ? '/app' : '/api/logto/sign-in';
 
   const handleCTAClick = () => {
     track(TrackingEvents.Landing.Hero.CTA.Clicked);
+    window.location.assign(isAuthed ? '/app' : '/api/logto/sign-in');
   };
 
   const handleHowItWorksClick = () => {
@@ -92,16 +91,12 @@ export default function Hero() {
             </p>
 
             <div className="mt-6 flex justify-center md:justify-start">
-              <Button
-                asChild
+              <SignInCTA
+                onClick={handleCTAClick}
                 className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
               >
-                <a href={ctaHref} onClick={handleCTAClick} className="inline-flex items-center">
-                  <Rocket className="mr-2 h-5 w-5" />
-                  {ctaLabel}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
+                {ctaLabel}
+              </SignInCTA>
             </div>
             <div className="mt-5 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
               {/* biome-ignore lint/a11y/useValidAnchor: Valid hash navigation with tracking */}
@@ -113,7 +108,7 @@ export default function Hero() {
                 See how it works →
               </a>
               <a
-                href="/references"
+                href="/research"
                 onClick={handleResearchClick}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/40 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
               >

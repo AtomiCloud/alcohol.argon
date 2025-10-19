@@ -4,6 +4,7 @@ import FeaturesSummary from '@/components/landing/FeaturesSummary';
 import WhyStakesSupport from '@/components/landing/WhyStakesSupport';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 
 export default function WhyLazyTaxPage() {
   return (
@@ -30,11 +31,14 @@ export default function WhyLazyTaxPage() {
             have to rebuild momentum from scratch.
           </p>
           <div className="flex justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/?stay=true">Return to homepage</Link>
-            </Button>
+            <SignInCTA
+              size="lg"
+              className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
+            >
+              Start your first habit
+            </SignInCTA>
             <Button asChild size="lg" variant="secondary">
-              <Link href="/blog">Read the blog</Link>
+              <Link href="/research">View the research</Link>
             </Button>
           </div>
         </div>

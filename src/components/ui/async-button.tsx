@@ -15,8 +15,8 @@ type AsyncButtonProps = React.ComponentProps<typeof Button> & {
 export function AsyncButton({ loading = false, idleIcon, className, children, disabled, ...props }: AsyncButtonProps) {
   const Icon = idleIcon ?? <ArrowRight className="w-4 h-4" />;
   return (
-    <Button className={`relative pl-9 ${className ?? ''}`} disabled={loading || disabled} {...props}>
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-5 h-5">
+    <Button className={`relative pl-11 pr-6 ${className ?? ''}`} disabled={loading || disabled} {...props}>
+      <span className="absolute left-4 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-5 h-5">
         {loading ? <Spinner size="sm" variant="rays" className="[animation-duration:500ms]" /> : Icon}
       </span>
       <span className={loading ? 'opacity-80' : ''}>{children}</span>

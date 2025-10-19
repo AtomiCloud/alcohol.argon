@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 import { useClaims } from '@/lib/auth/providers';
 import { ProfileDropdown } from './ProfileDropdown';
 
@@ -43,24 +43,18 @@ export function AuthSection({ isMobile = false, onMenuClose }: AuthSectionProps)
   }
 
   return (
-    <Button
+    <SignInCTA
       onClick={() => {
         window.location.assign('/api/logto/sign-in');
         onMenuClose?.();
       }}
+      icon="none"
+      showIcon={false}
       className={`bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ${
         isMobile ? 'w-full justify-center' : ''
       }`}
     >
-      <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M11 16l-4-4m0 0l4-4m0 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"
-        />
-      </svg>
       Sign In
-    </Button>
+    </SignInCTA>
   );
 }

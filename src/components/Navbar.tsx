@@ -54,7 +54,7 @@ export function Navbar() {
               Why LazyTax
             </Link>
             <Link
-              href="/references"
+              href="/research"
               className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
             >
               Research
@@ -110,7 +110,7 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/references">Research</Link>
+                  <Link href="/research">Research</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/about">About</Link>
