@@ -37,7 +37,7 @@ export default function BlogIndexPage() {
               without burning out. New essays every few weeks from the LazyTax team.
             </p>
             <div className="flex justify-center">
-              <Button asChild variant="secondary" size="lg">
+              <Button asChild variant="outline" size="lg">
                 <a href="#articles" className="font-semibold">
                   Start reading
                 </a>

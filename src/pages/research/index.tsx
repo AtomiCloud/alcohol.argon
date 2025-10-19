@@ -159,14 +159,14 @@ export default function ReferencesPage() {
             We anchor LazyTax on longitudinal habit science. Dive into the landmark studies that explain how repetition,
             accountability, and positive reinforcement turn actions into lasting routines.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
             <SignInCTA
               size="lg"
-              className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
+              className="w-full sm:w-auto h-12 px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl rounded-xl transition-all"
             >
-              Start building habits that stick
+              Get started
             </SignInCTA>
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto h-12 px-7">
               <Link href="/why-lazytax">Why LazyTax</Link>
             </Button>
           </div>

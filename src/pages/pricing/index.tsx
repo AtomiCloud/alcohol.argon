@@ -34,7 +34,7 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <SignInCTA size="lg">Get started</SignInCTA>
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="outline">
               <Link href="/why-lazytax">See why LazyTax works</Link>
             </Button>
           </div>

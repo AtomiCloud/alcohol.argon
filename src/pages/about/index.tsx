@@ -34,10 +34,10 @@ export default function AboutPage() {
             thousands of people layer gentle stakes, earned flexibility, and celebration into the habits that matter.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button asChild size="lg">
+            <Button asChild size="lg" variant="default">
               <Link href="/why-lazytax">See why it works</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="outline">
               <Link href="/pricing">Explore pricing</Link>
             </Button>
           </div>
