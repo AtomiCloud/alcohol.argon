@@ -41,7 +41,7 @@ export function Footer() {
     },
     {
       name: 'Discord',
-      url: 'https://discord.gg/T7AtTQXr',
+      url: 'https://discord.gg/gaW49rPp',
       icon: FaDiscord,
     },
     {

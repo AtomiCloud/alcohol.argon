@@ -113,7 +113,7 @@ export default function AboutPage() {
                 <Link href="mailto:hello@lazytax.club">Email the Team</Link>
               </Button>
               <Button asChild size="sm" variant="outline">
-                <Link href="https://discord.gg/T7AtTQXr" target="_blank" rel="noopener noreferrer">
+                <Link href="https://discord.gg/gaW49rPp" target="_blank" rel="noopener noreferrer">
                   Join the community
                 </Link>
               </Button>
