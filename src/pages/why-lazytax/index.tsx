@@ -4,6 +4,7 @@ import FeaturesSummary from '@/components/landing/FeaturesSummary';
 import WhyStakesSupport from '@/components/landing/WhyStakesSupport';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 
 export default function WhyLazyTaxPage() {
   return (
@@ -29,12 +30,15 @@ export default function WhyLazyTaxPage() {
             Learn how LazyTax blends commitment devices, flexible guardrails, and celebration mechanics so you never
             have to rebuild momentum from scratch.
           </p>
-          <div className="flex justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/?stay=true">Return to homepage</Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link href="/blog">Read the blog</Link>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+            <SignInCTA
+              size="lg"
+              className="w-full sm:w-auto h-12 px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl rounded-xl transition-all"
+            >
+              Start your first habit
+            </SignInCTA>
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto h-12 px-7">
+              <Link href="/research">View the research</Link>
             </Button>
           </div>
         </div>

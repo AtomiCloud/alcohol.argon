@@ -42,7 +42,7 @@ export default function HomePage() {
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Curious about the science behind LazyTax?{' '}
             <Link
-              href="/references"
+              href="/research"
               onClick={handleReferencesClick}
               className="text-violet-600 dark:text-violet-400 font-semibold hover:underline"
             >

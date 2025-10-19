@@ -316,15 +316,16 @@ export function HabitCard({
                     !canComplete ? (!isEnabled ? 'Habit is disabled' : 'Not scheduled for today') : 'Mark complete'
                   }
                 >
-                  <Check className={`h-5 w-5 transition-opacity ${completing ? 'opacity-0' : 'opacity-100'}`} />
+                  <Check className={`size-5 transition-opacity ${completing ? 'opacity-0' : 'opacity-100'}`} />
                   <Spinner
-                    className={`absolute transition-opacity ${completing ? 'opacity-100' : 'opacity-0'}`}
-                    size="sm"
+                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity ${completing ? 'opacity-100' : 'opacity-0'}`}
+                    size="md"
+                    variant="rays"
                   />
                 </Button>
               ) : isCompleteToday ? (
                 <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="size-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
               ) : (
                 <div className="h-10 w-10" />

@@ -83,11 +83,11 @@ export default function SocialProof() {
             {items.map(testimonial => (
               <figure
                 key={testimonial.name}
-                className="w-full shrink-0 px-8 py-10 sm:px-12 sm:py-12 flex flex-col gap-6"
+                className="w-full shrink-0 px-14 py-10 sm:px-20 sm:py-12 flex flex-col gap-6"
               >
                 <Quote className="h-7 w-7 text-orange-500 dark:text-orange-300" aria-hidden />
                 <blockquote className="text-lg sm:text-xl text-slate-700 dark:text-slate-200 leading-relaxed">
-                  “{testimonial.quote}”
+                  "{testimonial.quote}"
                 </blockquote>
                 <figcaption className="text-sm font-semibold uppercase tracking-wide text-slate-900 dark:text-white">
                   {testimonial.name}
@@ -99,7 +99,7 @@ export default function SocialProof() {
             type="button"
             aria-label="Previous testimonial"
             onClick={() => goTo(activeIndex - 1)}
-            className="absolute left-4 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 p-2 text-slate-600 dark:text-slate-300 backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 md:inline-flex"
+            className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 p-2.5 text-slate-600 dark:text-slate-300 backdrop-blur-sm shadow-lg transition hover:bg-white hover:text-slate-900 hover:shadow-xl dark:hover:bg-slate-800 md:inline-flex"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -107,7 +107,7 @@ export default function SocialProof() {
             type="button"
             aria-label="Next testimonial"
             onClick={() => goTo(activeIndex + 1)}
-            className="absolute right-4 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 p-2 text-slate-600 dark:text-slate-300 backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 md:inline-flex"
+            className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 p-2.5 text-slate-600 dark:text-slate-300 backdrop-blur-sm shadow-lg transition hover:bg-white hover:text-slate-900 hover:shadow-xl dark:hover:bg-slate-800 md:inline-flex"
           >
             <ChevronRight className="h-5 w-5" />
           </button>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Reference {
@@ -93,6 +94,33 @@ const referenceSections: ReferenceSection[] = [
     ],
   },
   {
+    id: 'positive-reinforcement',
+    title: 'Positive Reinforcement & Feedback Ratios',
+    description: 'Evidence on how positive-to-negative feedback ratios shape behavior and performance.',
+    references: [
+      {
+        title: "Effects of Middle School Teachers' Praise-to-Reprimand Ratios on Students' Classroom Behavior",
+        authors: 'Caldarella, P., Larsen, R. A. A., Williams, L., & Wills, H. P.',
+        citation: 'Journal of Positive Behavior Interventions, 25(1), 44–57',
+        year: '2023',
+        summary:
+          'Research on 60+ middle school classrooms found that higher ratios of praise to reprimands significantly improved student on-task behavior. Classrooms with the highest praise-to-reprimand ratios saw on-task behavior increase by 60–70%, while disruptions were cut in half—demonstrating that balanced positive reinforcement drives sustained behavior change.',
+        doi: '10.1177/10983007211035185',
+        href: 'https://journals.sagepub.com/doi/10.1177/10983007211035185',
+      },
+      {
+        title: "Evidence Review for Teacher Praise to Improve Students' Classroom Behavior",
+        authors: 'Moore, T. C., Maggin, D. M., Thompson, K. M., Gordon, J. R., Daniels, S., & Lang, L. E.',
+        citation: 'Journal of Positive Behavior Interventions, 21(1), 3–18',
+        year: '2019',
+        summary:
+          'Systematic review of 16 studies examining behavior-specific praise in K-12 settings confirmed that positive reinforcement strategies consistently improve student engagement and reduce disruptive behaviors, supporting the principle that recognition and celebration are essential to lasting behavior change.',
+        doi: '10.1177/1098300718766657',
+        href: 'https://journals.sagepub.com/doi/10.1177/1098300718766657',
+      },
+    ],
+  },
+  {
     id: 'strategic-habits',
     title: 'Strategic Habit Building',
     description: 'Real-world coaching data on focused habit practice.',
@@ -114,10 +142,10 @@ export default function ReferencesPage() {
   return (
     <>
       <Head>
-        <title>LazyTax Research References — Evidence Behind the Product</title>
+        <title>LazyTax Research — Evidence Behind the Product</title>
         <meta
           name="description"
-          content="Explore the longitudinal habit formation research that informs LazyTax’s approach to building lasting routines."
+          content="Explore the longitudinal habit formation research that informs LazyTax's approach to building lasting routines."
         />
       </Head>
       <ScrollReveal />
@@ -128,14 +156,17 @@ export default function ReferencesPage() {
             Evidence that powers LazyTax
           </h1>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-            We anchor LazyTax on longitudinal habit science. Dive into the landmark study that explains how repetition
-            turns actions into lasting routines.
+            We anchor LazyTax on longitudinal habit science. Dive into the landmark studies that explain how repetition,
+            accountability, and positive reinforcement turn actions into lasting routines.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/?stay=true">Return to homepage</Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+            <SignInCTA
+              size="lg"
+              className="w-full sm:w-auto h-12 px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl rounded-xl transition-all"
+            >
+              Get started
+            </SignInCTA>
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto h-12 px-7">
               <Link href="/why-lazytax">Why LazyTax</Link>
             </Button>
           </div>

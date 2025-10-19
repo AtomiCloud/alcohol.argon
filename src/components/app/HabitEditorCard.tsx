@@ -73,9 +73,9 @@ export default function HabitEditorCard({
             <Button
               size="lg"
               onClick={onOpenStake}
-              className="w-full h-14 text-base bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+              className="w-full h-14 text-base bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 px-8"
             >
-              <Heart className="h-5 w-5 mr-2" /> Set amount
+              <Heart className="size-5" /> Set amount
             </Button>
           ) : (
             <div className="flex flex-row items-center justify-start gap-2 w-full">
@@ -88,7 +88,7 @@ export default function HabitEditorCard({
                 Edit
               </Button>
               <Button variant="ghost" size="icon" onClick={onClearStake} aria-label="Clear stake" className="h-10 w-10">
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
           )}

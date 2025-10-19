@@ -86,7 +86,7 @@ export default function HowItWorksV2() {
                             Research shows: tiny habits stick
                             <sup>
                               <a
-                                href="/references#strategic-habits"
+                                href="/research#strategic-habits"
                                 className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
                               >
                                 [1]

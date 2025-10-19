@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 import { useClaims } from '@/lib/auth/providers';
-import { ArrowRight, Rocket } from 'lucide-react';
 import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
 
@@ -26,14 +25,12 @@ export default function FinalCTA() {
             {isAuthed ? 'Jump back in and continue your streak.' : 'Start now — it takes under a minute.'}
           </p>
           <div className="mt-6">
-            <Button
+            <SignInCTA
               onClick={onPrimary}
               className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
             >
-              <Rocket className="mr-2 h-5 w-5" />
               {isAuthed ? 'Open your app' : 'Start your first habit'}
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            </SignInCTA>
           </div>
         </div>
       </div>
