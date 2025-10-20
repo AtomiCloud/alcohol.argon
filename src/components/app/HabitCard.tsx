@@ -36,8 +36,10 @@ interface HabitCardProps {
   onEdit?: () => void;
   onComplete?: () => void;
   onDelete?: () => void;
+  onSkip?: () => void;
   completing?: boolean;
   deleting?: boolean;
+  skipping?: boolean;
   showStreaks?: boolean;
 }
 
@@ -95,8 +97,10 @@ export function HabitCard({
   onEdit,
   onComplete,
   onDelete,
+  onSkip,
   completing,
   deleting,
+  skipping,
   showStreaks = false,
 }: HabitCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -135,9 +139,15 @@ export function HabitCard({
   const maxStreak = habit.status?.maxStreak || 0;
   const isCompleteToday = habit.status?.isCompleteToday || false;
 
+  // Check if today is skipped
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const todayName = dayNames[currentDayIndex];
+  const todayStatus = weekStatus?.[todayName];
+  const isSkipToday = todayStatus === 'skip';
+
   // Check if habit can be completed today
   const isEnabled = habit.enabled ?? true;
-  const canComplete = !isCompleteToday && isEnabled && isDayScheduled;
+  const canComplete = !isCompleteToday && !isSkipToday && isEnabled && isDayScheduled;
 
   const guessEmoji = (text: string | null | undefined): string => {
     const t = (text || '').toLowerCase();
@@ -160,14 +170,14 @@ export function HabitCard({
 
   // Determine card styling based on state
   const baseClassName = `${
-    isCompleteToday ? 'opacity-60' : isRestDay ? 'opacity-40 grayscale' : 'hover:shadow-md'
+    isCompleteToday || isSkipToday ? 'opacity-60' : isRestDay ? 'opacity-40 grayscale' : 'hover:shadow-md'
   } relative overflow-hidden transition-shadow py-3 gap-3`;
 
   return (
     <div>
       <Card className={baseClassName}>
         <div
-          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient} ${isCompleteToday ? 'opacity-0' : 'opacity-80'}`}
+          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient} ${isCompleteToday || isSkipToday ? 'opacity-0' : 'opacity-80'}`}
           aria-hidden
         />
 
@@ -187,6 +197,7 @@ export function HabitCard({
               {isCompleteToday && (
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">✓ Completed today</p>
               )}
+              {isSkipToday && <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">− Skipped today</p>}
               {isRestDay && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Rest day • Next:{' '}
@@ -215,12 +226,11 @@ export function HabitCard({
                     Edit
                   </DropdownMenuItem>
                 )}
-                {!isCompleteToday && !isRestDay && (
+                {!isCompleteToday && !isSkipToday && !isRestDay && onSkip && (
                   <DropdownMenuItem
-                    disabled={loading}
+                    disabled={loading || skipping}
                     onClick={() => {
-                      // TODO: Wire up skip API when available
-                      alert('Skip feature coming soon!');
+                      onSkip();
                     }}
                   >
                     <MinusCircle className="h-4 w-4 mr-2" />
@@ -316,15 +326,16 @@ export function HabitCard({
                     !canComplete ? (!isEnabled ? 'Habit is disabled' : 'Not scheduled for today') : 'Mark complete'
                   }
                 >
-                  <Check className={`h-5 w-5 transition-opacity ${completing ? 'opacity-0' : 'opacity-100'}`} />
+                  <Check className={`size-5 transition-opacity ${completing ? 'opacity-0' : 'opacity-100'}`} />
                   <Spinner
-                    className={`absolute transition-opacity ${completing ? 'opacity-100' : 'opacity-0'}`}
-                    size="sm"
+                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity ${completing ? 'opacity-100' : 'opacity-0'}`}
+                    size="md"
+                    variant="rays"
                   />
                 </Button>
               ) : isCompleteToday ? (
                 <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="size-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
               ) : (
                 <div className="h-10 w-10" />

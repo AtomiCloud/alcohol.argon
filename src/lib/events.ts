@@ -75,6 +75,7 @@ const RawEvents = {
     Habit: {
       Complete: ActionEvent,
       Delete: ActionEvent,
+      Skip: ActionEvent,
       View: { Clicked: 'View Clicked' },
     },
   },

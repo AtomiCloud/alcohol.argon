@@ -1,15 +1,73 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function ScrollReveal() {
+  const router = useRouter();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (typeof IntersectionObserver === 'undefined') return;
+
+    // Handle hash fragment scrolling on load and hash changes
+    const scrollToHash = (smooth = false) => {
+      const hash = window.location.hash;
+      if (!hash) return;
+
+      // Wait for DOM to be ready and layout to settle
+      const attemptScroll = () => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({
+            behavior: smooth ? 'smooth' : 'auto',
+            block: 'start',
+          });
+          // Immediately reveal the target element to avoid animation conflicts
+          if (element instanceof HTMLElement) {
+            element.classList.add('reveal-visible');
+          }
+        }
+      };
+
+      // Use multiple animation frames to ensure layout is complete
+      requestAnimationFrame(() => {
+        requestAnimationFrame(attemptScroll);
+      });
+    };
+
+    // Scroll to hash on initial page load (no smooth scroll)
+    scrollToHash(false);
+
+    // Handle Next.js router navigation with hash
+    const handleRouteChange = (url: string) => {
+      // Extract hash from the URL
+      if (url.includes('#')) {
+        // Give the page time to render before scrolling
+        setTimeout(() => scrollToHash(true), 100);
+      }
+    };
+
+    // Scroll to hash when clicking hash links (with smooth scroll)
+    const handleHashChange = () => scrollToHash(true);
+
+    window.addEventListener('hashchange', handleHashChange);
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    if (typeof IntersectionObserver === 'undefined') {
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+        router.events.off('routeChangeComplete', handleRouteChange);
+      };
+    }
 
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-    if (reduceMotion || elements.length === 0) return;
+    if (reduceMotion || elements.length === 0) {
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+        router.events.off('routeChangeComplete', handleRouteChange);
+      };
+    }
 
     const revealImmediately = () => {
       for (const el of elements) {
@@ -49,12 +107,20 @@ export default function ScrollReveal() {
         }
       });
 
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('hashchange', handleHashChange);
+        router.events.off('routeChangeComplete', handleRouteChange);
+      };
     } catch (error) {
       console.error('Scroll reveal failed', error);
       revealImmediately();
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+        router.events.off('routeChangeComplete', handleRouteChange);
+      };
     }
-  }, []);
+  }, [router.events]);
 
   return null;
 }

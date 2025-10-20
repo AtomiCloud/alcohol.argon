@@ -1,3 +1,43 @@
+## [1.33.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.32.1...v1.33.0) (2025-10-20)
+
+
+### ✨ Features ✨
+
+* allow skip to be not counted towards the progress bar ([6c04f59](https://github.com/AtomiCloud/alcohol.argon/commit/6c04f59d780f19d0f60f7e7ac0002cef05c61b68))
+* darken skipped habits ([b77c361](https://github.com/AtomiCloud/alcohol.argon/commit/b77c361e5fd3dee9c534f1fa703fdeaf40134097))
+* skip feature ([437760f](https://github.com/AtomiCloud/alcohol.argon/commit/437760fab2f0abaa49bb5ddab95294cb4dc19995))
+
+## [1.32.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.32.0...v1.32.1) (2025-10-19)
+
+
+### 🐛 Bug Fixes 🐛
+
+* **ScrollReveal:** allow fragments to be scrolled ([c4e3aeb](https://github.com/AtomiCloud/alcohol.argon/commit/c4e3aeb710e6f2923d4d8a4fd4bca33b21f08fbb))
+* **footer:** better footers ([6d633dd](https://github.com/AtomiCloud/alcohol.argon/commit/6d633ddc5e3fa9a0c729e592418a4a5256f0b5cd))
+* **ui:** button icon and spinner alignment issues ([69a6d19](https://github.com/AtomiCloud/alcohol.argon/commit/69a6d19125d53f3638e21c85775f6650468a2928))
+* button sizing ([e2fbe28](https://github.com/AtomiCloud/alcohol.argon/commit/e2fbe28440749346606b78582f474c55525bd28b))
+* clean up footer and nav bar ([9c31a51](https://github.com/AtomiCloud/alcohol.argon/commit/9c31a51fae0a1d67f0479dfc872ab19d56c1f684))
+* **default:** faq links ([6cb59f1](https://github.com/AtomiCloud/alcohol.argon/commit/6cb59f1bc131c0d38e857dc2e9101575013cd273))
+* **default:** incorrect discord link ([ccc6e92](https://github.com/AtomiCloud/alcohol.argon/commit/ccc6e92d40c8512549d3a900523737865e94dc57))
+* **default:** missing pricing ([f4ac85f](https://github.com/AtomiCloud/alcohol.argon/commit/f4ac85f785ecca85fa4a96ae1091a43ffdfc2908))
+* **default:** small margin between get started and the rest ([2569f67](https://github.com/AtomiCloud/alcohol.argon/commit/2569f675beb909dc80614294e874562a04a8280d))
+* testinomial margins and alignments ([e518df2](https://github.com/AtomiCloud/alcohol.argon/commit/e518df220e686a4def632d71018389f0d8494c97))
+* **default:** update research links and references ([457491c](https://github.com/AtomiCloud/alcohol.argon/commit/457491c0faaa0d04af059c9c2f12cde308d0f730))
+
+## [1.32.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.31.0...v1.32.0) (2025-10-19)
+
+
+### ✨ Features ✨
+
+* **blog:** add comprehensive habit tracking apps comparison post ([8ba339e](https://github.com/AtomiCloud/alcohol.argon/commit/8ba339e028a06a5513773b0c136d4bbbcdf14417))
+* **blog:** add high-converting landing page SEO post ([17b5412](https://github.com/AtomiCloud/alcohol.argon/commit/17b541210f3190bc3af237a96b925aa28ff04306))
+* **blog:** add three research-backed habit science posts ([2adf3e8](https://github.com/AtomiCloud/alcohol.argon/commit/2adf3e8ed44aca71b1b28ad11afd42577c45337a))
+
+
+### 🐛 Bug Fixes 🐛
+
+* **blog:** correct research citations for accuracy ([fc0e2b8](https://github.com/AtomiCloud/alcohol.argon/commit/fc0e2b8e1fe64c308cbba767c32a30f5804970e3))
+
 ## [1.31.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.30.3...v1.31.0) (2025-10-13)
 
 
