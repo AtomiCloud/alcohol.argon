@@ -34,7 +34,7 @@ export function useEnhancedFormUrlState<T extends Record<string, string>>(defaul
   const router = useRouter();
 
   // Main state manager with debouncing
-  const { state, updateFields } = useFormUrlState(defaults, {
+  const { state, updateFields, cancelPending, setState } = useFormUrlState(defaults, {
     debounceMs: 150,
     shallow: true,
     replace: true,
@@ -43,17 +43,25 @@ export function useEnhancedFormUrlState<T extends Record<string, string>>(defaul
   // Immediate update (bypasses debounce) for selectors
   const updateFieldImmediate = useCallback(
     async (updates: Partial<T>) => {
-      const newQuery = { ...router.query };
+      // 1. Cancel any pending debounced update to prevent it from clobbering our immediate change
+      cancelPending();
 
-      // Apply updates to query
-      for (const key in updates) {
-        newQuery[key] = updates[key];
+      // 2. Update local state immediately (keeps state and URL in sync)
+      setState(prev => ({ ...prev, ...updates }));
+
+      // 3. Build new query from current state + updates (not just router.query which may be stale)
+      const newQuery = { ...router.query };
+      const mergedState = { ...state, ...updates };
+
+      // Apply all state fields to query
+      for (const key in mergedState) {
+        newQuery[key] = mergedState[key];
       }
 
-      // Immediate router update
+      // 4. Immediate router update
       await router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true });
     },
-    [router],
+    [router, state, cancelPending, setState],
   );
 
   return {

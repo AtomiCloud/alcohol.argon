@@ -108,6 +108,20 @@ export default function CharitiesPage({ initialResults, filterOptions, initialQu
     },
   );
 
+  // Sanitize returnTo URL to prevent open redirects
+  const getSafeReturnPath = useCallback((returnUrl: string | undefined): string => {
+    if (!returnUrl) return '/app';
+    try {
+      const url = new URL(returnUrl, window.location.origin);
+      // Only allow same-origin URLs
+      if (url.origin !== window.location.origin) return '/app';
+      return url.pathname + url.search;
+    } catch {
+      // Invalid URL, use safe default
+      return '/app';
+    }
+  }, []);
+
   const handleSelectCharity = useCallback(
     (charityId: string) => {
       if (!isSelectionMode || !returnTo || !charityId) return;
@@ -115,6 +129,12 @@ export default function CharitiesPage({ initialResults, filterOptions, initialQu
       // Parse returnTo URL and update/add the charity param
       const paramName = returnCharityParam || 'charityId';
       const url = new URL(returnTo, window.location.origin);
+
+      // Validate same-origin before proceeding
+      if (url.origin !== window.location.origin) {
+        router.push('/app');
+        return;
+      }
 
       // Remove existing param if it exists (to avoid creating an array)
       url.searchParams.delete(paramName);
@@ -384,17 +404,28 @@ export default function CharitiesPage({ initialResults, filterOptions, initialQu
                         <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">
                           {charity.name || 'Unknown'}
                         </h3>
-                        {charity.websiteUrl && (
-                          <a
-                            href={charity.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:underline shrink-0"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <Globe className="h-3.5 w-3.5" /> <ExternalLink className="h-3.5 w-3.5" />
-                          </a>
-                        )}
+                        {(() => {
+                          // Validate URL to prevent javascript: or other unsafe schemes
+                          if (!charity.websiteUrl) return null;
+                          try {
+                            const url = new URL(charity.websiteUrl);
+                            if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+                            return (
+                              <a
+                                href={charity.websiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:underline shrink-0"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <Globe className="h-3.5 w-3.5" /> <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            );
+                          } catch {
+                            // Invalid URL, don't render anchor
+                            return null;
+                          }
+                        })()}
                       </div>
 
                       {charity.mission && (
@@ -429,7 +460,7 @@ export default function CharitiesPage({ initialResults, filterOptions, initialQu
 
         {isSelectionMode && (
           <div className="mt-6">
-            <Button type="button" variant="outline" onClick={() => router.push(returnTo)}>
+            <Button type="button" variant="outline" onClick={() => router.push(getSafeReturnPath(returnTo))}>
               Cancel
             </Button>
           </div>

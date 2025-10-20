@@ -110,9 +110,9 @@ export default function OnboardingPage({ charity, queryDefaults }) {
         onChange={(tz) => updateFieldImmediate({ tz })} // Immediate
       />
       <CharitySelector
-        value={state.charityId}
-        initialPrincipal={charityData}
-        onChange={(id) => updateFieldImmediate({ charityId: id })} // Immediate
+        charity={charityData}
+        returnCharityParam="charityId"
+        // Navigates to /charities for selection; charity param synced via URL
       />
       <AsyncButton onClick={handleSubmit}>Complete Setup</AsyncButton>
     </>
@@ -212,9 +212,9 @@ export default function SettingsPage({ initial }) {
         onChange={(tz) => updateFieldImmediate({ tz })} // Immediate
       />
       <CharitySelector
-        value={state.charity}
-        initialPrincipal={data.defaultCharity}
-        onChange={(id) => updateFieldImmediate({ charity: id })} // Immediate
+        charity={data.defaultCharity}
+        returnCharityParam="charity"
+        // Navigates to /charities for selection; charity param synced via URL
       />
 
       <AsyncButton onClick={handleSave} disabled={!hasChanges}>
@@ -310,7 +310,7 @@ export default function NewHabitPage({ initial }) {
         amount: state.amount,
         charityId: state.charity,
       }}
-      charityPrincipal={data.defaultCharity}
+      charity={data.defaultCharity}
       onChange={(draft) => {
         // Text fields - debounced
         updateField({
@@ -321,9 +321,9 @@ export default function NewHabitPage({ initial }) {
       }}
     />
     <CharitySelector
-      value={state.charity}
-      initialPrincipal={data.defaultCharity}
-      onChange={(id) => updateFieldImmediate({ charity: id })} // Immediate
+      charity={data.defaultCharity}
+      returnCharityParam="charity"
+      // Navigates to /charities for selection; charity param synced via URL
     />
     <Input
       type="number"
