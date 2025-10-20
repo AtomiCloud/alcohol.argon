@@ -10,3 +10,5 @@ app:
   url: http://localhost:3000
   servicetree:
     landscape: 'lapras'
+onboarding:
+  defaultCharityId: '10000000-0000-0000-0000-000000000003'

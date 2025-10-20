@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import type { CausePrincipalRes, CharityPrincipalRes } from '@/clients/alcohol/zinc/api';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, type Result } from '@/lib/monads/result';
+import { Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import { ChevronDown, ExternalLink, Filter, Globe, Search } from 'lucide-react';
 import { useSearchState } from '@/lib/urlstate/useSearchState';
@@ -24,17 +24,18 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 type SearchQuery = { q: string; country: string; cause: string };
 
-type CharitiesPageData = {
-  charities: CharityPrincipalRes[];
+type FilterOptionsData = {
   countries: string[];
   causes: CausePrincipalRes[];
 };
+
 type CharitiesPageProps = {
-  initial: ResultSerial<CharitiesPageData, Problem>;
+  initialResults: ResultSerial<CharityPrincipalRes[], Problem>;
+  filterOptions: ResultSerial<FilterOptionsData, Problem>;
   initialQuery: SearchQuery;
 };
 
-export default function CharitiesPage({ initial, initialQuery }: CharitiesPageProps) {
+export default function CharitiesPage({ initialResults, filterOptions, initialQuery }: CharitiesPageProps) {
   const api = useSwaggerClients();
   const router = useRouter();
 
@@ -43,23 +44,19 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
   const returnCharityParam = router.query.returnCharityParam as string | undefined;
   const isSelectionMode = !!returnTo;
 
-  // Initial data for filter options
-  const [data] = useState(() => Res.fromSerial<CharitiesPageData, Problem>(initial));
+  // Filter options (countries and causes) - loaded once from SSR
+  const [filterData] = useState(() => Res.fromSerial<FilterOptionsData, Problem>(filterOptions));
   const [countries, setCountries] = useState<string[]>([]);
   const [causes, setCauses] = useState<CausePrincipalRes[]>([]);
 
   const [countryOpen, setCountryOpen] = useState(false);
   const [causeOpen, setCauseOpen] = useState(false);
 
-  // Search results as Result type (like template example)
-  const [results, setResults] = useState<Result<CharityPrincipalRes[], Problem>>(
-    data.map(d => d.charities.filter(c => !!c.id)),
-  );
+  // Search results - following template pattern
+  const [results, setResults] = useState(Res.fromSerial<CharityPrincipalRes[], Problem>(initialResults));
 
   const [loading, loader] = useFreeLoader();
   const [desc, empty] = useFreeEmpty();
-
-  const searchSeqRef = useRef(0);
 
   // Use content hook to handle Result matching automatically
   const content = useContent(results, {
@@ -71,31 +68,25 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
 
   // Extract filter options from initial data
   useEffect(() => {
-    data.map(d => {
+    filterData.map(d => {
       setCountries(d.countries);
       setCauses([...d.causes].sort((a, b) => (a.name || a.key || '').localeCompare(b.name || b.key || '')));
     });
-  }, [data]);
+  }, [filterData]);
 
-  // Search handler that executes search (simplified like template)
+  // Search handler that executes search - following template pattern
   const handleSearch = useCallback(
-    async (params: SearchQuery) => {
-      const seq = ++searchSeqRef.current;
-
-      const result = await api.alcohol.zinc.api.vCharityList({
-        version: '1.0',
-        Name: params.q || undefined,
-        Country: params.country || undefined,
-        CauseKey: params.cause || undefined,
-        Limit: 20,
-        Skip: 0,
-      });
-
-      // Only apply if this is the latest search
-      if (seq === searchSeqRef.current) {
-        setResults(result.map(list => list.filter(c => !!c.id)));
-      }
-    },
+    async (params: SearchQuery) =>
+      setResults(
+        await api.alcohol.zinc.api.vCharityList({
+          version: '1.0',
+          Name: params.q || undefined,
+          Country: params.country || undefined,
+          CauseKey: params.cause || undefined,
+          Limit: 50,
+          Skip: 0,
+        }),
+      ),
     [api],
   );
 
@@ -117,17 +108,26 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
     },
   );
 
-  const handleSelectCharity = (charityId: string) => {
-    if (!isSelectionMode || !returnTo) return;
+  const handleSelectCharity = useCallback(
+    (charityId: string) => {
+      if (!isSelectionMode || !returnTo || !charityId) return;
 
-    // Build return URL with charity ID as param
-    const returnUrl = new URL(returnTo, window.location.origin);
-    const paramName = returnCharityParam || 'charityId';
-    returnUrl.searchParams.set(paramName, charityId);
+      // Parse returnTo URL and update/add the charity param
+      const paramName = returnCharityParam || 'charityId';
+      const url = new URL(returnTo, window.location.origin);
 
-    // Navigate back
-    router.push(returnUrl.pathname + returnUrl.search);
-  };
+      // Remove existing param if it exists (to avoid creating an array)
+      url.searchParams.delete(paramName);
+
+      // Add the new charity ID
+      url.searchParams.set(paramName, charityId);
+
+      const targetPath = url.pathname + url.search;
+
+      router.push(targetPath);
+    },
+    [isSelectionMode, returnTo, returnCharityParam, router],
+  );
 
   // Filter dropdown component using Popover
   function FilterSelect<T extends string | { key?: string | null; name?: string | null }>(props: {
@@ -412,6 +412,7 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
 
                       {isSelectionMode && charity.id && (
                         <Button
+                          type="button"
                           onClick={() => handleSelectCharity(charity.id!)}
                           className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
                         >
@@ -428,7 +429,7 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
 
         {isSelectionMode && (
           <div className="mt-6">
-            <Button variant="outline" onClick={() => router.push(returnTo)}>
+            <Button type="button" variant="outline" onClick={() => router.push(returnTo)}>
               Cancel
             </Button>
           </div>
@@ -441,14 +442,16 @@ export default function CharitiesPage({ initial, initialQuery }: CharitiesPagePr
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'public' },
   async (context, { apiTree }): Promise<GetServerSidePropsResult<CharitiesPageProps>> => {
+    const api = apiTree.alcohol.zinc.api;
+
     // Read query params from URL
     const searchQuery = (context.query.q as string) || '';
     const countryQuery = (context.query.country as string) || '';
     const causeQuery = (context.query.cause as string) || '';
 
-    // Load initial charities with filters, plus filter options
+    // Load pre-filtered charities and filter options in parallel
     const [charitiesResult, countriesResult, causesResult] = await Promise.all([
-      apiTree.alcohol.zinc.api.vCharityList({
+      api.vCharityList({
         version: '1.0',
         Name: searchQuery || undefined,
         Country: countryQuery || undefined,
@@ -456,29 +459,28 @@ export const getServerSideProps = withServerSideAtomi(
         Limit: 50,
         Skip: 0,
       }),
-      apiTree.alcohol.zinc.api.vCharitySupportedCountriesList({ version: '1.0' }),
-      apiTree.alcohol.zinc.api.vCausesList({ version: '1.0' }),
+      api.vCharitySupportedCountriesList({ version: '1.0' }),
+      api.vCausesList({ version: '1.0' }),
     ]);
 
-    const result: Result<GetServerSidePropsResult<CharitiesPageProps>, Problem> = charitiesResult.andThen(charities =>
-      countriesResult.andThen(countries =>
-        causesResult.map(causes => ({
-          props: {
-            initial: ['ok', { charities, countries, causes }] as ResultSerial<CharitiesPageData, Problem>,
-            initialQuery: { q: searchQuery, country: countryQuery, cause: causeQuery },
-          },
-        })),
-      ),
-    );
+    // Serialize results separately - following template pattern
+    const initialResults: ResultSerial<CharityPrincipalRes[], Problem> = await charitiesResult.serial();
 
-    return result.match({
-      ok: result => result,
-      err: problem => ({
-        props: {
-          initial: ['err', problem] as ResultSerial<CharitiesPageData, Problem>,
-          initialQuery: { q: searchQuery, country: countryQuery, cause: causeQuery },
-        },
-      }),
-    });
+    const filterOptions: ResultSerial<FilterOptionsData, Problem> = await countriesResult
+      .andThen(countries =>
+        causesResult.map(causes => ({
+          countries,
+          causes,
+        })),
+      )
+      .serial();
+
+    return {
+      props: {
+        initialResults,
+        filterOptions,
+        initialQuery: { q: searchQuery, country: countryQuery, cause: causeQuery },
+      },
+    };
   },
 );

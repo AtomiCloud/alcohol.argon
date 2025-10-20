@@ -10,3 +10,5 @@ app:
   url: 'https://lazytax.club'
   servicetree:
     landscape: 'raichu'
+onboarding:
+  defaultCharityId: 'b2d6cfa3-a114-403e-ae59-64fa54475c44'

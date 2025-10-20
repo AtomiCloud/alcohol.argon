@@ -239,6 +239,13 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
                             if (guard === 'public') return result;
                             // If setup_config, redirect directly to onboarding page
                             if (errorMessage === 'setup_config') {
+                              // If we're already on the onboarding page, don't redirect to avoid flickering
+                              const pathname = (context.resolvedUrl || context.req.url || '/').split('?')[0];
+                              if (pathname === '/onboarding') {
+                                return result;
+                              }
+
+                              // Redirect to onboarding (let onboarding page handle params)
                               return {
                                 redirect: {
                                   permanent: false,

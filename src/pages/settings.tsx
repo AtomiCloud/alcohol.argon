@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -8,13 +8,12 @@ import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { AsyncButton } from '@/components/ui/async-button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { CharityPrincipalRes, UpdateConfigurationReq, ConfigurationRes } from '@/clients/alcohol/zinc/api';
+import type { CharityPrincipalRes, ConfigurationRes, UpdateConfigurationReq } from '@/clients/alcohol/zinc/api';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, Ok, Err, type Result } from '@/lib/monads/result';
+import { Err, Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
-import { Settings, ShieldX } from 'lucide-react';
+import { AlertCircle, Settings, ShieldX } from 'lucide-react';
 import CharitySelector from '@/components/app/CharitySelector';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
@@ -22,10 +21,15 @@ import { FieldCard } from '@/components/ui/field-card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
 import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
+import { useContent } from '@/lib/content/providers';
+import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
+import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
+import { hasTimezoneMismatch } from '@/lib/utility/timezone-detection';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type SettingsPageData = {
-  charities: CharityPrincipalRes[];
   configuration: ConfigurationRes;
+  charity: CharityPrincipalRes;
 };
 type SettingsPageProps = { initial: ResultSerial<SettingsPageData, Problem> };
 
@@ -37,32 +41,37 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   const hasPaymentConsent = useHasPaymentConsent();
   const { checkAndInitiatePayment, checking } = usePaymentConsent();
 
-  const [data] = useState(() => Res.fromSerial<SettingsPageData, Problem>(initial));
-  const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
-  const [configuration, setConfiguration] = useState<ConfigurationRes | null>(null);
+  // Deserialize SSR data using useContent pattern
+  const [dataResult] = useState(() => Res.fromSerial<SettingsPageData, Problem>(initial));
+  const [, loader] = useFreeLoader();
+  const data = useContent(dataResult, { loader, notFound: 'Settings data not found' });
 
-  const [timezone, setTimezone] = useState<string>('');
-  const [selectedCharityId, setSelectedCharityId] = useState<string>('');
+  // Enhanced form state with dual sync strategies
+  // router.query is the source of truth (SSR guarantees all params are present)
+  const { state, updateFieldImmediate } = useEnhancedFormUrlState({
+    tz: '',
+    charity: '',
+  });
+
   const [submitting, setSubmitting] = useState(false);
-  const [awaitingSync, setAwaitingSync] = useState<null | { tz: string; charityId: string }>(null);
   const [removingConsent, setRemovingConsent] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  useEffect(() => {
-    data.map(d => {
-      setCharities(d.charities);
-      setConfiguration(d.configuration);
-      setTimezone(d.configuration.principal.timezone || 'UTC');
-      setSelectedCharityId(d.configuration.principal.defaultCharityId || '');
-    });
-  }, [data]);
-
-  const charityOptions = useMemo(
-    () => charities.filter(c => !!c.id).map(c => ({ id: c.id!, label: c.name || 'Unknown' })),
-    [charities],
-  );
-
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
+
+  // Diff current state vs saved config to enable/disable save button
+  const hasChanges = useMemo(() => {
+    if (!data) return false;
+    return (
+      state.tz !== data.configuration.principal.timezone ||
+      state.charity !== data.configuration.principal.defaultCharityId
+    );
+  }, [state, data]);
+
+  // Show timezone mismatch warning
+  const tzMismatch = data ? hasTimezoneMismatch(data.configuration.principal.timezone) : null;
+
+  if (!data) return null; // useContent handles loading/error states
 
   const handleRemoveConsent = async () => {
     if (!userId || !hasPaymentConsent) return;
@@ -87,23 +96,33 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   };
 
   const handleSave = async () => {
-    if (!configuration?.principal.id) return;
+    if (!data?.configuration.principal.id) return;
 
     setSubmitting(true);
     const payload: UpdateConfigurationReq = {
-      timezone,
-      defaultCharityId: selectedCharityId || null,
+      timezone: state.tz,
+      defaultCharityId: state.charity || null,
     };
 
     const result = await api.alcohol.zinc.api.vConfigurationUpdate2(
-      { version: '1.0', id: configuration.principal.id! },
+      { version: '1.0', id: data.configuration.principal.id },
       payload,
     );
 
     result.match({
-      ok: () => {
-        // Begin polling until server reflects the new settings
-        setAwaitingSync({ tz: timezone, charityId: selectedCharityId || '' });
+      ok: async () => {
+        // Refresh tokens to get updated configuration claims
+        try {
+          await fetch('/api/auth/force_tokens');
+          await new Promise(res => setTimeout(res, 150));
+        } catch {
+          // best-effort; proceed regardless
+        }
+
+        // Update URL params and reload to reflect changes
+        const newQuery = { tz: state.tz, charity: state.charity };
+        await router.replace({ pathname: router.pathname, query: newQuery });
+        setSubmitting(false);
       },
       err: problem => {
         problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
@@ -114,59 +133,6 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
       },
     });
   };
-
-  const hasChanges = useMemo(() => {
-    return (
-      timezone !== (configuration?.principal.timezone || 'UTC') ||
-      selectedCharityId !== (configuration?.principal.defaultCharityId || '')
-    );
-  }, [timezone, selectedCharityId, configuration?.principal.timezone, configuration?.principal.defaultCharityId]);
-
-  // Poll for server-side configuration sync after saving
-  useEffect(() => {
-    if (!awaitingSync || !configuration?.principal.id) return;
-    let attempts = 0;
-    let cancelled = false;
-    const id = configuration.principal.id;
-
-    const checkOnce = async () => {
-      const res = await api.alcohol.zinc.api.vConfigurationDetail2({ version: '1.0', id });
-      res.match({
-        ok: cfg => {
-          if (cancelled) return;
-          setConfiguration(cfg);
-          const match =
-            (cfg.principal.timezone || 'UTC') === awaitingSync.tz &&
-            (cfg.principal.defaultCharityId || '') === awaitingSync.charityId;
-          if (match) {
-            setAwaitingSync(null);
-            setSubmitting(false);
-          }
-        },
-        err: () => {
-          // ignore and keep polling up to a limit
-        },
-      });
-    };
-
-    const interval = setInterval(async () => {
-      attempts += 1;
-      await checkOnce();
-      if (attempts >= 10) {
-        clearInterval(interval);
-        setSubmitting(false);
-        setAwaitingSync(null);
-      }
-    }, 1000);
-
-    // kick off an immediate check
-    checkOnce();
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [awaitingSync, configuration?.principal.id, api]);
 
   return (
     <>
@@ -189,13 +155,34 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
+          {tzMismatch?.hasMismatch && (
+            <Alert className="border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-950/30">
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-sm text-amber-800 dark:text-amber-300">
+                Your saved timezone is <strong>{tzMismatch.savedTimezone}</strong> but we detected{' '}
+                <strong>{tzMismatch.detectedTimezone}</strong>.{' '}
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-amber-800 dark:text-amber-300 underline font-medium"
+                  onClick={() => updateFieldImmediate({ tz: tzMismatch.detectedTimezone })}
+                >
+                  Update to detected timezone
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <FieldCard
             label="Timezone"
             subtitle="We use this to send reminders at the right time"
             restriction="Pick the region closest to you"
             contentClassName="space-y-2"
           >
-            <TimezoneComboBox options={timezoneOptions} value={timezone} onChange={setTimezone} />
+            <TimezoneComboBox
+              options={timezoneOptions}
+              value={state.tz}
+              onChange={tz => updateFieldImmediate({ tz })}
+            />
           </FieldCard>
 
           <FieldCard
@@ -204,7 +191,7 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
             restriction="You can change this anytime"
             contentClassName="space-y-2"
           >
-            <CharitySelector options={charityOptions} value={selectedCharityId} onChange={setSelectedCharityId} />
+            <CharitySelector charity={data.charity} returnCharityParam="charity" />
           </FieldCard>
 
           {hasPaymentConsent && (
@@ -302,55 +289,46 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
 
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'private' },
-  async (context, { apiTree, auth, problemRegistry }): Promise<GetServerSidePropsResult<SettingsPageProps>> => {
-    // Get configuration ID from access token
-    const tokenSetResult = await auth.retriever.getTokenSet();
+  async (context, { apiTree }): Promise<GetServerSidePropsResult<SettingsPageProps>> => {
+    const api = apiTree.alcohol.zinc.api;
 
-    const result: Result<GetServerSidePropsResult<SettingsPageProps>, Problem> = await tokenSetResult.andThen(
-      async tokenState => {
-        if (!tokenState.value.isAuthed) {
-          return Err<GetServerSidePropsResult<SettingsPageProps>, Problem>(
-            problemRegistry.createProblem('unauthorized', {}),
-          );
-        }
+    const result = await api.vConfigurationMeList({ version: '1.0' }).then(configResult =>
+      configResult.andThen(async configuration => {
+        // Check for missing query params and populate with defaults
+        const query = context.query;
+        const tz = (query.tz as string) || configuration.principal.timezone || '';
+        const charity = (query.charity as string) || configuration.principal.defaultCharityId || '';
 
-        const accessToken = tokenState.value.data.accessTokens['alcohol-zinc'];
-        const claims = auth.checker.toToken(accessToken) as Record<string, unknown>;
-        const configId = claims.configuration_id as string | undefined;
-
-        if (!configId) {
-          // No config ID, redirect to onboarding
-          return Ok<GetServerSidePropsResult<SettingsPageProps>, Problem>({
-            redirect: {
-              permanent: false,
-              destination: '/onboarding',
-            },
+        // If any required params are missing, redirect with all params populated
+        if (!query.tz || !query.charity) {
+          return Err<SettingsPageData, Problem>({
+            type: 'redirect',
+            title: 'Redirect needed',
+            status: 302,
+            detail: `/settings?tz=${encodeURIComponent(tz)}&charity=${encodeURIComponent(charity)}`,
           });
         }
 
-        const [charitiesResult, configResult] = await Promise.all([
-          apiTree.alcohol.zinc.api.vCharityList({ version: '1.0' }),
-          apiTree.alcohol.zinc.api.vConfigurationDetail2({ version: '1.0', id: configId }),
-        ]);
-
-        // Combine results
-        return charitiesResult.andThen(charities =>
-          configResult.map(configuration => ({
-            props: {
-              initial: ['ok', { charities, configuration }] as ResultSerial<SettingsPageData, Problem>,
-            },
-          })),
-        );
-      },
+        // All params are present, fetch charity and return data
+        return (await api.vCharityDetail({ version: '1.0', id: charity })).map(({ principal }) => ({
+          configuration,
+          charity: principal,
+        }));
+      }),
     );
 
-    return result.match({
-      ok: result => result,
-      err: problem => ({
-        props: {
-          initial: ['err', problem] as ResultSerial<SettingsPageData, Problem>,
+    const initial: ResultSerial<SettingsPageData, Problem> = await result.serial();
+
+    // Check if we need to redirect
+    if (initial[0] === 'err' && initial[1].type === 'redirect') {
+      return {
+        redirect: {
+          destination: initial[1].detail || '/settings',
+          permanent: false,
         },
-      }),
-    });
+      };
+    }
+
+    return { props: { initial } };
   },
 );
