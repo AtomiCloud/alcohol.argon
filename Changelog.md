@@ -1,3 +1,12 @@
+## [1.33.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.32.1...v1.33.0) (2025-10-20)
+
+
+### ✨ Features ✨
+
+* allow skip to be not counted towards the progress bar ([6c04f59](https://github.com/AtomiCloud/alcohol.argon/commit/6c04f59d780f19d0f60f7e7ac0002cef05c61b68))
+* darken skipped habits ([b77c361](https://github.com/AtomiCloud/alcohol.argon/commit/b77c361e5fd3dee9c534f1fa703fdeaf40134097))
+* skip feature ([437760f](https://github.com/AtomiCloud/alcohol.argon/commit/437760fab2f0abaa49bb5ddab95294cb4dc19995))
+
 ## [1.32.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.32.0...v1.32.1) (2025-10-19)
 
 
