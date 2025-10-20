@@ -207,7 +207,17 @@ export default function AppPage({ initial }: AppPageProps) {
     return !isDayScheduled;
   });
 
-  const totalScheduledToday = todayHabits.length;
+  // Check if today is skipped for a habit
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const todayName = dayNames[currentDayIndex];
+  const isHabitSkippedToday = (h: HabitOverviewHabitRes) => {
+    const todayStatus = h.status?.week?.[todayName];
+    return todayStatus === 'skip';
+  };
+
+  // Progress calculation: exclude skipped habits from total
+  const skippedToday = todayHabits.filter(isHabitSkippedToday).length;
+  const totalScheduledToday = Math.max(0, todayHabits.length - skippedToday);
   const completedToday = todayHabits.filter(h => h.status?.isCompleteToday ?? false).length;
   const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak ?? 0), 0);
 
