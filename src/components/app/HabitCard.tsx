@@ -36,8 +36,10 @@ interface HabitCardProps {
   onEdit?: () => void;
   onComplete?: () => void;
   onDelete?: () => void;
+  onSkip?: () => void;
   completing?: boolean;
   deleting?: boolean;
+  skipping?: boolean;
   showStreaks?: boolean;
 }
 
@@ -95,8 +97,10 @@ export function HabitCard({
   onEdit,
   onComplete,
   onDelete,
+  onSkip,
   completing,
   deleting,
+  skipping,
   showStreaks = false,
 }: HabitCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -135,9 +139,15 @@ export function HabitCard({
   const maxStreak = habit.status?.maxStreak || 0;
   const isCompleteToday = habit.status?.isCompleteToday || false;
 
+  // Check if today is skipped
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const todayName = dayNames[currentDayIndex];
+  const todayStatus = weekStatus?.[todayName];
+  const isSkipToday = todayStatus === 'skip';
+
   // Check if habit can be completed today
   const isEnabled = habit.enabled ?? true;
-  const canComplete = !isCompleteToday && isEnabled && isDayScheduled;
+  const canComplete = !isCompleteToday && !isSkipToday && isEnabled && isDayScheduled;
 
   const guessEmoji = (text: string | null | undefined): string => {
     const t = (text || '').toLowerCase();
@@ -215,12 +225,11 @@ export function HabitCard({
                     Edit
                   </DropdownMenuItem>
                 )}
-                {!isCompleteToday && !isRestDay && (
+                {!isCompleteToday && !isRestDay && onSkip && (
                   <DropdownMenuItem
-                    disabled={loading}
+                    disabled={loading || skipping}
                     onClick={() => {
-                      // TODO: Wire up skip API when available
-                      alert('Skip feature coming soon!');
+                      onSkip();
                     }}
                   >
                     <MinusCircle className="h-4 w-4 mr-2" />
