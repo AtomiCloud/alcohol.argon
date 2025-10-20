@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
@@ -8,8 +9,8 @@ import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useClientConfig, useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { ConfigurationRes, HabitOverviewHabitRes } from '@/clients/alcohol/zinc/api';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import type { ConfigurationRes, HabitOverviewHabitRes, HabitOverviewResponse } from '@/clients/alcohol/zinc/api';
 import ConfettiExplosion from 'react-confetti-explosion';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
@@ -18,7 +19,7 @@ import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useContent } from '@/lib/content/providers/useContent';
 import { Res, type Result, type ResultSerial } from '@/lib/monads/result';
-import { Plus, Flame, CalendarX, Sparkles, Palmtree, Snowflake, MinusCircle, ChevronDown } from 'lucide-react';
+import { CalendarX, ChevronDown, Flame, MinusCircle, Palmtree, Plus, Snowflake, Sparkles } from 'lucide-react';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
@@ -27,13 +28,110 @@ import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
 
 type HabitPageData = {
-  habits: HabitOverviewHabitRes[];
+  habits: HabitOverviewResponse;
   config: ConfigurationRes;
-  totalDebt: string | null;
+  userId: string;
 };
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 
-// HabitDraft + defaults consolidated under models
+// API interface for shared data fetching
+interface HabitPageApi {
+  vHabitOverviewList: (params: { userId: string; version: string }) => Promise<Result<HabitOverviewResponse, Problem>>;
+  vConfigurationMeList: (params: { version: string }) => Promise<Result<ConfigurationRes, Problem>>;
+}
+
+// Component to handle optimistic completion cleanup
+function OptimisticCompletionCleaner({
+  serverHabits,
+  optimisticCompletions,
+  setOptimisticCompletions,
+}: {
+  serverHabits: HabitOverviewHabitRes[];
+  optimisticCompletions: Set<string>;
+  setOptimisticCompletions: React.Dispatch<React.SetStateAction<Set<string>>>;
+}) {
+  useEffect(() => {
+    if (optimisticCompletions.size === 0) return;
+    const toRemove: string[] = [];
+    for (const h of serverHabits) {
+      if (h.id && optimisticCompletions.has(h.id) && h.status?.isCompleteToday) {
+        toRemove.push(h.id);
+      }
+    }
+    if (toRemove.length > 0) {
+      setOptimisticCompletions(prev => {
+        const next = new Set(prev);
+        for (const id of toRemove) next.delete(id);
+        return next;
+      });
+    }
+  }, [serverHabits, optimisticCompletions, setOptimisticCompletions]);
+
+  return null;
+}
+
+// Component to handle celebration redirect
+function CelebrationRedirect({
+  router,
+  setConfettiKey,
+  setToast,
+}: {
+  router: ReturnType<typeof useRouter>;
+  setConfettiKey: React.Dispatch<React.SetStateAction<number>>;
+  setToast: React.Dispatch<React.SetStateAction<string | null>>;
+}) {
+  useEffect(() => {
+    const created = router.query?.created;
+    if (created === '1') {
+      setConfettiKey(k => k + 1);
+      setToast('Created!');
+      router.replace('/app', undefined, { shallow: true });
+    }
+  }, [router, setConfettiKey, setToast]);
+
+  return null;
+}
+
+// Component to handle progress celebration
+function ProgressCelebration({
+  completedToday,
+  totalScheduledToday,
+  lastProgressRef,
+  setConfettiKey,
+  setToast,
+}: {
+  completedToday: number;
+  totalScheduledToday: number;
+  lastProgressRef: React.MutableRefObject<number>;
+  setConfettiKey: React.Dispatch<React.SetStateAction<number>>;
+  setToast: React.Dispatch<React.SetStateAction<string | null>>;
+}) {
+  useEffect(() => {
+    const percent = totalScheduledToday > 0 ? Math.round((completedToday / totalScheduledToday) * 100) : 0;
+    const prev = lastProgressRef.current;
+    if (prev < 100 && percent >= 100) {
+      setConfettiKey(k => k + 1);
+      setToast("You're all done today! 🎉");
+    }
+    lastProgressRef.current = percent;
+  }, [completedToday, totalScheduledToday, lastProgressRef, setConfettiKey, setToast]);
+
+  return null;
+}
+
+// Shared data fetching function used by both server and client
+async function fetchHabitPageData(api: HabitPageApi, userId: string): Promise<Result<HabitPageData, Problem>> {
+  const habitsResult = await api.vHabitOverviewList({ userId, version: '1.0' });
+  const configResult = await api.vConfigurationMeList({ version: '1.0' });
+
+  return habitsResult.andThen((habits: HabitOverviewResponse) =>
+    configResult.map((config: ConfigurationRes) => ({
+      habits,
+      config,
+      userId,
+    })),
+  );
+}
 
 export default function AppPage({ initial }: AppPageProps) {
   const api = useSwaggerClients();
@@ -43,16 +141,18 @@ export default function AppPage({ initial }: AppPageProps) {
   const router = useRouter();
   const track = usePlausible();
 
+  // State management
   const [loading, loader] = useFreeLoader();
   const [desc, empty] = useFreeEmpty();
   const [optimisticCompletions, setOptimisticCompletions] = useState<Set<string>>(new Set());
+  const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
+  const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
+  const [busySkip, setBusySkip] = useState<Record<string, boolean>>({});
+  const [confettiKey, setConfettiKey] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const lastProgressRef = useRef(0);
 
-  // Track page view
-  useEffect(() => {
-    track(TrackingEvents.App.PageViewed);
-  }, [track]);
-
-  // Errors are reported via ProblemReporter; no local error state rendered
+  // Content management with Result monad
   const [contentResult, setContentResult] = useState<Result<HabitPageData, Problem>>(() =>
     Res.fromSerial<HabitPageData, Problem>(initial),
   );
@@ -61,12 +161,24 @@ export default function AppPage({ initial }: AppPageProps) {
     loader,
     empty,
     notFound: 'No habits yet',
-    // Longer delay to avoid brief loader flashes during quick refreshes
-    loaderDelay: 900,
+    loaderDelay: 1500,
   });
 
+  // Early return if no data - now possible since all useEffects are in sub-components
+  if (data == null) return null;
+
+  // === Data Extraction ===
+  const userId = data.userId;
+  const config = data.config;
+  const habitOverview = data.habits;
+  const serverHabits = habitOverview.habits ?? [];
+  const totalDebt = habitOverview.totalDebt ? Number.parseFloat(habitOverview.totalDebt) : 0;
+  const usedSkip = habitOverview.usedSkip;
+  const totalSkip = habitOverview.totalSkip;
+  const userTimezone = config.principal?.timezone || 'UTC';
+
+  // === Optimistic Updates ===
   // Merge server data with optimistic completions
-  const serverHabits = data?.habits ?? [];
   const habits = serverHabits.map(habit => {
     if (habit.id && optimisticCompletions.has(habit.id)) {
       return {
@@ -80,28 +192,7 @@ export default function AppPage({ initial }: AppPageProps) {
     return habit;
   });
 
-  // Clear optimistic completions once server confirms the update.
-  useEffect(() => {
-    if (!serverHabits || optimisticCompletions.size === 0) return;
-    const toRemove: string[] = [];
-    for (const h of serverHabits) {
-      if (h.id && optimisticCompletions.has(h.id) && (h.status?.isCompleteToday ?? false)) {
-        toRemove.push(h.id);
-      }
-    }
-    if (toRemove.length > 0) {
-      setOptimisticCompletions(prev => {
-        const next = new Set(prev);
-        for (const id of toRemove) next.delete(id);
-        return next;
-      });
-    }
-  }, [serverHabits, optimisticCompletions]);
-
-  const config = data?.config;
-  const totalDebt = data?.totalDebt ? Number.parseFloat(data.totalDebt) : 0;
-
-  // Group habits by state
+  // === Computed Values ===
   const now = new Date();
   const currentDayIndex = now.getDay();
 
@@ -116,12 +207,20 @@ export default function AppPage({ initial }: AppPageProps) {
     return !isDayScheduled;
   });
 
-  // Calculate progress
-  const totalScheduledToday = todayHabits.length;
-  const completedToday = todayHabits.filter(h => h.status?.isCompleteToday).length;
-  const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak || 0), 0);
+  // Check if today is skipped for a habit
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const todayName = dayNames[currentDayIndex];
+  const isHabitSkippedToday = (h: HabitOverviewHabitRes) => {
+    const todayStatus = h.status?.week?.[todayName];
+    return todayStatus === 'skip';
+  };
 
-  // Calculate week stats (freeze, skip, debt/fails) - using actual API status values
+  // Progress calculation: exclude skipped habits from total
+  const skippedToday = todayHabits.filter(isHabitSkippedToday).length;
+  const totalScheduledToday = Math.max(0, todayHabits.length - skippedToday);
+  const completedToday = todayHabits.filter(h => h.status?.isCompleteToday ?? false).length;
+  const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak ?? 0), 0);
+
   const weekStats = habits.reduce(
     (acc, habit) => {
       const week = habit.status?.week;
@@ -138,58 +237,15 @@ export default function AppPage({ initial }: AppPageProps) {
     { freezes: 0, skips: 0, fails: 0 },
   );
 
-  // creation is handled on /app/new
-
-  const [userId, setUserId] = useState<string | null>(null);
-  const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
-  const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
-  const [confettiKey, setConfettiKey] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
-  const lastProgressRef = useRef(0);
-
-  const userTimezone = config?.principal?.timezone || 'UTC';
-  const defaultCharity = config?.charity;
-
-  // Fetch userId on mount
-  useEffect(() => {
-    api.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' }).then(result => {
-      result.map(id => setUserId(id));
-    });
-  }, [api]);
-
-  // Celebrate after redirect from /app/new?created=1
-  useEffect(() => {
-    const created = router.query?.created;
-    if (created === '1') {
-      setConfettiKey(k => k + 1);
-      setToast('Created!');
-      router.replace('/app', undefined, { shallow: true });
-    }
-  }, [router, router.query]);
-
-  // no createDraft here
-
+  // === Data Refresh ===
   const refreshHabits = async (): Promise<Result<HabitPageData, Problem> | undefined> => {
     if (!userId) return undefined;
-    const promise: Promise<Result<HabitPageData, Problem>> = api.alcohol.zinc.api
-      .vHabitOverviewList({ version: '1.0', userId })
-      .then(r =>
-        r.andThen(overviewResponse =>
-          api.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' }).then(r2 =>
-            r2.map(config => ({
-              habits: overviewResponse.habits || [],
-              config,
-              totalDebt: overviewResponse.totalDebt || null,
-            })),
-          ),
-        ),
-      );
+    const promise = fetchHabitPageData(api.alcohol.zinc.api, userId);
     setContentResult(Res.fromAsync(promise));
     return promise;
   };
 
-  // create page handles weekday toggle
-
+  // === Event Handlers ===
   const startEdit = (h: HabitOverviewHabitRes) => {
     if (!h.id) return;
     router.push(`/app/edit/${h.id}`);
@@ -233,16 +289,33 @@ export default function AppPage({ initial }: AppPageProps) {
     setBusyComplete(s => ({ ...s, [habit.id as string]: false }));
   };
 
-  // Celebrate when progress reaches 100% (transition into complete state)
-  useEffect(() => {
-    const percent = totalScheduledToday > 0 ? Math.round((completedToday / totalScheduledToday) * 100) : 0;
-    const prev = lastProgressRef.current;
-    if (prev < 100 && percent >= 100) {
-      setConfettiKey(k => k + 1);
-      setToast("You're all done today! 🎉");
-    }
-    lastProgressRef.current = percent;
-  }, [completedToday, totalScheduledToday]);
+  const handleSkip = async (habit: HabitOverviewHabitRes) => {
+    if (!habit.id || !habit.version?.id || !userId) return;
+
+    track(TrackingEvents.App.Habit.Skip.Clicked);
+
+    setBusySkip(s => ({ ...s, [habit.id as string]: true }));
+    const res = await api.alcohol.zinc.api.vHabitExecutionsSkipCreate(
+      { version: '1.0', userId, habitVersionId: habit.version.id },
+      { notes: '' },
+    );
+    await res.match({
+      ok: async () => {
+        track(TrackingEvents.App.Habit.Skip.Success);
+        // Refresh from server to get updated skip count and status
+        await refreshHabits();
+      },
+      err: problem => {
+        track(TrackingEvents.App.Habit.Skip.Error);
+        problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
+          source: 'app/habits/skip',
+          problem,
+        });
+        errorHandler.throwProblem(problem);
+      },
+    });
+    setBusySkip(s => ({ ...s, [habit.id as string]: false }));
+  };
 
   const handleDelete = async (habit: HabitOverviewHabitRes) => {
     if (!habit.id || !userId) return;
@@ -270,8 +343,7 @@ export default function AppPage({ initial }: AppPageProps) {
     track(TrackingEvents.App.NewHabitClicked);
   };
 
-  // create form removed
-
+  // === Render Helpers ===
   function renderHabitRow(h: HabitOverviewHabitRes) {
     if (!h.id) return null;
     return (
@@ -283,17 +355,33 @@ export default function AppPage({ initial }: AppPageProps) {
         onEdit={() => startEdit(h)}
         onComplete={() => handleComplete(h)}
         onDelete={() => handleDelete(h)}
-        completing={!!busyComplete[h.id]}
-        deleting={!!busyDelete[h.id]}
+        onSkip={() => handleSkip(h)}
+        completing={busyComplete[h.id]}
+        deleting={busyDelete[h.id]}
+        skipping={busySkip[h.id]}
         showStreaks={clientConfig?.features?.showStreaks ?? false}
       />
     );
   }
 
-  // (renderScheduleBadges) now handled inside HabitCard component
-
+  // === Render ===
   return (
     <>
+      {/* Side-effect components (no visual render) */}
+      <OptimisticCompletionCleaner
+        serverHabits={serverHabits}
+        optimisticCompletions={optimisticCompletions}
+        setOptimisticCompletions={setOptimisticCompletions}
+      />
+      <CelebrationRedirect router={router} setConfettiKey={setConfettiKey} setToast={setToast} />
+      <ProgressCelebration
+        completedToday={completedToday}
+        totalScheduledToday={totalScheduledToday}
+        lastProgressRef={lastProgressRef}
+        setConfettiKey={setConfettiKey}
+        setToast={setToast}
+      />
+
       <Head>
         <title>LazyTax — App</title>
         <meta name="robots" content="noindex" />
@@ -386,7 +474,7 @@ export default function AppPage({ initial }: AppPageProps) {
                           <div className="flex items-center gap-2">
                             <MinusCircle className="h-4 w-4 text-slate-500" />
                             <span className="text-lg font-bold text-slate-700 dark:text-slate-300">
-                              {5 - weekStats.skips}/{5}
+                              {totalSkip - usedSkip}/{totalSkip}
                             </span>
                             <span className="text-xs text-slate-500">this month</span>
                           </div>
@@ -493,26 +581,15 @@ export default function AppPage({ initial }: AppPageProps) {
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'private' },
   async (_, { apiTree }): Promise<GetServerSidePropsResult<AppPageProps>> => {
-    // First get userId from the /me endpoint
-    const userIdResult = await apiTree.alcohol.zinc.api.vUserMeList({ version: '1.0' }, { format: 'text' });
+    const api = apiTree.alcohol.zinc.api;
 
-    const merged: Result<HabitPageData, Problem> = userIdResult.andThen(userId =>
-      apiTree.alcohol.zinc.api.vHabitOverviewList({ version: '1.0', userId }).then(r =>
-        r.andThen(overviewResponse =>
-          apiTree.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' }).then(r2 =>
-            r2.map(config => ({
-              habits: overviewResponse.habits || [],
-              config,
-              totalDebt: overviewResponse.totalDebt || null,
-            })),
-          ),
-        ),
-      ),
-    );
+    // Get userId and fetch page data using shared function
+    const userIdResult = await api.vUserMeList({ version: '1.0' }, { format: 'text' });
+    const pageDataResult = await userIdResult.andThen(userId => fetchHabitPageData(api, userId));
 
     return {
       props: {
-        initial: await merged.serial(),
+        initial: await pageDataResult.serial(),
       },
     };
   },

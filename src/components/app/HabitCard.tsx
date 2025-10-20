@@ -36,8 +36,10 @@ interface HabitCardProps {
   onEdit?: () => void;
   onComplete?: () => void;
   onDelete?: () => void;
+  onSkip?: () => void;
   completing?: boolean;
   deleting?: boolean;
+  skipping?: boolean;
   showStreaks?: boolean;
 }
 
@@ -95,8 +97,10 @@ export function HabitCard({
   onEdit,
   onComplete,
   onDelete,
+  onSkip,
   completing,
   deleting,
+  skipping,
   showStreaks = false,
 }: HabitCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -135,9 +139,15 @@ export function HabitCard({
   const maxStreak = habit.status?.maxStreak || 0;
   const isCompleteToday = habit.status?.isCompleteToday || false;
 
+  // Check if today is skipped
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const todayName = dayNames[currentDayIndex];
+  const todayStatus = weekStatus?.[todayName];
+  const isSkipToday = todayStatus === 'skip';
+
   // Check if habit can be completed today
   const isEnabled = habit.enabled ?? true;
-  const canComplete = !isCompleteToday && isEnabled && isDayScheduled;
+  const canComplete = !isCompleteToday && !isSkipToday && isEnabled && isDayScheduled;
 
   const guessEmoji = (text: string | null | undefined): string => {
     const t = (text || '').toLowerCase();
@@ -160,14 +170,14 @@ export function HabitCard({
 
   // Determine card styling based on state
   const baseClassName = `${
-    isCompleteToday ? 'opacity-60' : isRestDay ? 'opacity-40 grayscale' : 'hover:shadow-md'
+    isCompleteToday || isSkipToday ? 'opacity-60' : isRestDay ? 'opacity-40 grayscale' : 'hover:shadow-md'
   } relative overflow-hidden transition-shadow py-3 gap-3`;
 
   return (
     <div>
       <Card className={baseClassName}>
         <div
-          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient} ${isCompleteToday ? 'opacity-0' : 'opacity-80'}`}
+          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient} ${isCompleteToday || isSkipToday ? 'opacity-0' : 'opacity-80'}`}
           aria-hidden
         />
 
@@ -187,6 +197,7 @@ export function HabitCard({
               {isCompleteToday && (
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">✓ Completed today</p>
               )}
+              {isSkipToday && <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">− Skipped today</p>}
               {isRestDay && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Rest day • Next:{' '}
@@ -215,12 +226,11 @@ export function HabitCard({
                     Edit
                   </DropdownMenuItem>
                 )}
-                {!isCompleteToday && !isRestDay && (
+                {!isCompleteToday && !isSkipToday && !isRestDay && onSkip && (
                   <DropdownMenuItem
-                    disabled={loading}
+                    disabled={loading || skipping}
                     onClick={() => {
-                      // TODO: Wire up skip API when available
-                      alert('Skip feature coming soon!');
+                      onSkip();
                     }}
                   >
                     <MinusCircle className="h-4 w-4 mr-2" />
