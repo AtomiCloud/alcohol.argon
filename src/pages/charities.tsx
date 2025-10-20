@@ -126,25 +126,30 @@ export default function CharitiesPage({ initialResults, filterOptions, initialQu
     (charityId: string) => {
       if (!isSelectionMode || !returnTo || !charityId) return;
 
-      // Parse returnTo URL and update/add the charity param
-      const paramName = returnCharityParam || 'charityId';
-      const url = new URL(returnTo, window.location.origin);
+      try {
+        // Parse returnTo URL and update/add the charity param
+        const paramName = returnCharityParam || 'charityId';
+        const url = new URL(returnTo, window.location.origin);
 
-      // Validate same-origin before proceeding
-      if (url.origin !== window.location.origin) {
+        // Validate same-origin before proceeding
+        if (url.origin !== window.location.origin) {
+          router.push('/app');
+          return;
+        }
+
+        // Remove existing param if it exists (to avoid creating an array)
+        url.searchParams.delete(paramName);
+
+        // Add the new charity ID
+        url.searchParams.set(paramName, charityId);
+
+        const targetPath = url.pathname + url.search;
+
+        router.push(targetPath);
+      } catch {
+        // Invalid/malformed returnTo URL, abort selection
         router.push('/app');
-        return;
       }
-
-      // Remove existing param if it exists (to avoid creating an array)
-      url.searchParams.delete(paramName);
-
-      // Add the new charity ID
-      url.searchParams.set(paramName, charityId);
-
-      const targetPath = url.pathname + url.search;
-
-      router.push(targetPath);
     },
     [isSelectionMode, returnTo, returnCharityParam, router],
   );
