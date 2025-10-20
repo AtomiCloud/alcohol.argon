@@ -13,7 +13,7 @@ import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks'
 import type { ResultSerial } from '@/lib/monads/result';
 import { Err, Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
-import { AlertCircle, Settings, ShieldX } from 'lucide-react';
+import { Settings, ShieldX } from 'lucide-react';
 import CharitySelector from '@/components/app/CharitySelector';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
@@ -24,8 +24,6 @@ import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { useContent } from '@/lib/content/providers';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
-import { hasTimezoneMismatch } from '@/lib/utility/timezone-detection';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type SettingsPageData = {
   configuration: ConfigurationRes;
@@ -67,9 +65,6 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
       state.charity !== data.configuration.principal.defaultCharityId
     );
   }, [state, data]);
-
-  // Show timezone mismatch warning
-  const tzMismatch = data ? hasTimezoneMismatch(data.configuration.principal.timezone) : null;
 
   if (!data) return null; // useContent handles loading/error states
 
@@ -155,26 +150,9 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          {tzMismatch?.hasMismatch && (
-            <Alert className="border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-950/30">
-              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertDescription className="text-sm text-amber-800 dark:text-amber-300">
-                Your saved timezone is <strong>{tzMismatch.savedTimezone}</strong> but we detected{' '}
-                <strong>{tzMismatch.detectedTimezone}</strong>.{' '}
-                <Button
-                  variant="link"
-                  className="p-0 h-auto text-amber-800 dark:text-amber-300 underline font-medium"
-                  onClick={() => updateFieldImmediate({ tz: tzMismatch.detectedTimezone })}
-                >
-                  Update to detected timezone
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
           <FieldCard
             label="Timezone"
-            subtitle="We use this to send reminders at the right time"
+            subtitle="Timezone is used when creating habits. It impacts the notification time and end of day definition of the habit"
             restriction="Pick the region closest to you"
             contentClassName="space-y-2"
           >
@@ -187,7 +165,7 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
 
           <FieldCard
             label="Default Charity"
-            subtitle="Where your stakes will go when you miss a habit"
+            subtitle="It affects the default charity that is chosen when creating habit"
             restriction="You can change this anytime"
             contentClassName="space-y-2"
           >
