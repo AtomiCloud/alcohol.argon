@@ -76,6 +76,14 @@ export function useFormUrlState<T extends Record<string, string>>(defaults: T, o
     [router, debounceMs, shallow, replace],
   );
 
+  // Cancel any pending debounced update
+  const cancelPending = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+  }, []);
+
   // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
@@ -135,5 +143,7 @@ export function useFormUrlState<T extends Record<string, string>>(defaults: T, o
   return {
     state,
     updateFields,
+    cancelPending,
+    setState,
   };
 }

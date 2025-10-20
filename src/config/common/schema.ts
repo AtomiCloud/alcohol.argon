@@ -57,6 +57,9 @@ export const commonSchema = z.object({
       }),
     }),
   }),
+  onboarding: z.object({
+    defaultCharityId: z.string().default(''),
+  }),
 });
 
 export type CommonConfig = z.infer<typeof commonSchema>;

@@ -1,30 +1,35 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { useSwaggerClients } from '@/adapters/external/Provider';
-import { Button } from '@/components/ui/button';
 import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CharityPrincipalRes, CreateConfigurationReq } from '@/clients/alcohol/zinc/api';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
-import { Spinner } from '@/components/ui/spinner';
 import type { ResultSerial } from '@/lib/monads/result';
-import { Res, type Result } from '@/lib/monads/result';
+import { Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
-import { Settings, Heart, ArrowRight } from 'lucide-react';
-import CharityComboBox from '@/components/app/CharityComboBox';
+import { Heart, Settings } from 'lucide-react';
+import CharitySelector from '@/components/app/CharitySelector';
 import TimezoneComboBox from '@/components/app/TimezoneComboBox';
 import { getTimezoneOptions } from '@/lib/utility/timezones';
 import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
+import { useContent } from '@/lib/content/providers';
+import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
+import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
+import { getClientTimezone } from '@/lib/utility/timezone-detection';
 
 type OnboardingPageData = {
-  charities: CharityPrincipalRes[];
+  charity: CharityPrincipalRes;
 };
-type OnboardingPageProps = { initial: ResultSerial<OnboardingPageData, Problem> };
+
+type OnboardingPageProps = {
+  initial: ResultSerial<OnboardingPageData, Problem>;
+};
 
 export default function OnboardingPage({ initial }: OnboardingPageProps) {
   const api = useSwaggerClients();
@@ -32,60 +37,33 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
   const router = useRouter();
   const track = usePlausible();
 
-  const [data] = useState(() => Res.fromSerial<OnboardingPageData, Problem>(initial));
-  const [charities, setCharities] = useState<CharityPrincipalRes[]>([]);
-  const [clientTimezone, setClientTimezone] = useState<string>('UTC');
+  // Deserialize SSR data using useContent pattern
+  const [dataResult] = useState(() => Res.fromSerial<OnboardingPageData, Problem>(initial));
+  const [, loader] = useFreeLoader();
+  const data = useContent(dataResult, { loader, notFound: 'Charity not found' });
 
-  const [timezone, setTimezone] = useState<string>('');
-  const [selectedCharityId, setSelectedCharityId] = useState<string>('');
+  // Enhanced form state with dual sync strategies
+  // router.query is the source of truth, but use client-detected timezone as default
+  const { state, updateFieldImmediate } = useEnhancedFormUrlState({
+    tz: getClientTimezone(),
+    charityId: '',
+  });
+
   const [submitting, setSubmitting] = useState(false);
 
   // Track page view
-  useEffect(() => {
-    track(TrackingEvents.Onboarding.PageViewed);
-  }, [track]);
-
-  // Detect client timezone on mount and prefill
-  useEffect(() => {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (tz) {
-        setClientTimezone(tz);
-        setTimezone(tz);
-      }
-    } catch {
-      setClientTimezone('UTC');
-      setTimezone('UTC');
-    }
-  }, []);
-
-  useEffect(() => {
-    data.map(d => {
-      setCharities(d.charities);
-    });
-  }, [data]);
-
-  const charityOptions = useMemo(
-    () => charities.filter(c => !!c.id).map(c => ({ id: c.id!, label: c.name || 'Unknown' })),
-    [charities],
-  );
+  useEffect(() => track(TrackingEvents.Onboarding.PageViewed), [track]);
 
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
 
-  useEffect(() => {
-    if (!selectedCharityId && charityOptions.length > 0) {
-      setSelectedCharityId(charityOptions[0].id);
-    }
-  }, [charityOptions, selectedCharityId]);
-
   const handleSubmit = async () => {
-    if (!timezone || !selectedCharityId) return;
+    if (!state.tz || !state.charityId) return;
 
     track(TrackingEvents.Onboarding.Submit.Clicked);
     setSubmitting(true);
     const payload: CreateConfigurationReq = {
-      timezone,
-      defaultCharityId: selectedCharityId,
+      timezone: state.tz,
+      defaultCharityId: state.charityId,
     };
 
     const result = await api.alcohol.zinc.api.vConfigurationCreate2({ version: '1.0' }, payload);
@@ -115,17 +93,18 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
     });
   };
 
-  const handleTimezoneChange = (tz: string) => {
-    track(TrackingEvents.Onboarding.TimezoneSelected);
-    setTimezone(tz);
-  };
+  const handleTimezoneChange = useCallback(
+    (tz: string) => {
+      track(TrackingEvents.Onboarding.TimezoneSelected);
+      updateFieldImmediate({ tz });
+    },
+    [track, updateFieldImmediate],
+  );
 
-  const handleCharityChange = (charityId: string) => {
-    track(TrackingEvents.Onboarding.CharitySelected);
-    setSelectedCharityId(charityId);
-  };
+  const canSubmit = state.tz.length > 0 && state.charityId.length > 0;
 
-  const canSubmit = timezone.length > 0 && selectedCharityId.length > 0;
+  // Guard check after hooks
+  if (!data) return null;
 
   return (
     <>
@@ -159,7 +138,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                   <label htmlFor="timezone-combobox" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Timezone
                   </label>
-                  <TimezoneComboBox options={timezoneOptions} value={timezone} onChange={handleTimezoneChange} />
+                  <TimezoneComboBox options={timezoneOptions} value={state.tz} onChange={handleTimezoneChange} />
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     This helps us send you reminders at the right time.
                   </p>
@@ -174,13 +153,7 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
                     <Heart className="w-4 h-4" />
                     Default Charity
                   </label>
-                  <div className="border border-input rounded-lg p-3 bg-background">
-                    <CharityComboBox
-                      options={charityOptions}
-                      value={selectedCharityId}
-                      onChange={handleCharityChange}
-                    />
-                  </div>
+                  <CharitySelector charity={data.charity} returnCharityParam="charityId" />
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Choose where your stakes will go when you miss a habit.
                   </p>
@@ -216,20 +189,35 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
 
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'public' },
-  async (context, { apiTree }): Promise<GetServerSidePropsResult<OnboardingPageProps>> => {
-    const charitiesResult = await apiTree.alcohol.zinc.api.vCharityList({ version: '1.0' });
+  async (context, { apiTree, config }): Promise<GetServerSidePropsResult<OnboardingPageProps>> => {
+    const api = apiTree.alcohol.zinc.api;
+    const defaultCharityId = config.common.onboarding.defaultCharityId;
 
-    return charitiesResult.match({
-      ok: charities => ({
-        props: {
-          initial: ['ok', { charities }] as ResultSerial<OnboardingPageData, Problem>,
+    // Check for missing query params and populate with defaults
+    const query = context.query;
+    // For timezone, we let the client handle detection, so we don't require it in SSR
+    const charityId = (query.charityId as string) || defaultCharityId;
+
+    // If charityId is missing, redirect with it populated
+    // Note: We don't require tz param - client will detect it
+    if (!query.charityId) {
+      return {
+        redirect: {
+          destination: `/onboarding?charityId=${encodeURIComponent(charityId)}`,
+          permanent: false,
         },
-      }),
-      err: problem => ({
-        props: {
-          initial: ['err', problem] as ResultSerial<OnboardingPageData, Problem>,
-        },
-      }),
-    });
+      };
+    }
+
+    // All params are present, fetch charity and return data
+    const result = await api.vCharityDetail({ version: '1.0', id: charityId });
+
+    const initial: ResultSerial<OnboardingPageData, Problem> = await result
+      .map(({ principal }) => ({
+        charity: principal,
+      }))
+      .serial();
+
+    return { props: { initial } };
   },
 );

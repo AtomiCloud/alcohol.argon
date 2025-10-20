@@ -71,6 +71,12 @@ export function Navbar() {
             >
               Blog
             </Link>
+            <Link
+              href="/charities"
+              className="text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+            >
+              Charities
+            </Link>
             <ThemeToggle />
             <AuthSection />
           </div>
@@ -105,6 +111,13 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/blog">Blog</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/charities">Charities</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/#faq?stay=true">FAQs</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
