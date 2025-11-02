@@ -1,3 +1,19 @@
+## [1.34.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.33.0...v1.34.0) (2025-10-20)
+
+
+### ✨ Features ✨
+
+* charity selector ([bde5239](https://github.com/AtomiCloud/alcohol.argon/commit/bde5239d91a07959df2569c3524465e9c1d35f08))
+* **charity:** improve charity selector ([93fb19d](https://github.com/AtomiCloud/alcohol.argon/commit/93fb19d79c7cecda19a53f5715694134f59163b0))
+* **app/CharitySelector:** improve UI of charity selector ([f1ffd8d](https://github.com/AtomiCloud/alcohol.argon/commit/f1ffd8d46104f281f0af5a41a5f5942f949f10ff))
+
+
+### 🐛 Bug Fixes 🐛
+
+* merge conflicts ([0749c44](https://github.com/AtomiCloud/alcohol.argon/commit/0749c4499875115a22a2fcbbf490b20d56947f12))
+* PR comments ([ee9ec13](https://github.com/AtomiCloud/alcohol.argon/commit/ee9ec1305e7bb667401278836e61c909e307d6a4))
+* PR comments ([e01d8db](https://github.com/AtomiCloud/alcohol.argon/commit/e01d8db54ae2d32995afdc8b92ee9a47776add22))
+
 ## [1.33.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.32.1...v1.33.0) (2025-10-20)
 
 

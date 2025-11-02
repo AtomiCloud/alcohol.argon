@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Heart, X, ChevronDown, ChevronRight } from 'lucide-react';
-import CharityComboBox from '@/components/app/CharityComboBox';
+import CharitySelector from '@/components/app/CharitySelector';
 import { WEEKDAYS } from '@/models/habit';
+import type { CharityPrincipalRes } from '@/clients/alcohol/zinc/api';
 
 type HabitDraftLike = {
   task: string;
@@ -13,12 +14,10 @@ type HabitDraftLike = {
   charityId: string;
 };
 
-type CharityOpt = { id: string; label: string };
-
 interface HabitEditorCardProps {
   draft: HabitDraftLike;
   onChange: (next: HabitDraftLike) => void;
-  charities: CharityOpt[];
+  charity?: CharityPrincipalRes;
   errors?: Partial<Record<'task' | 'daysOfWeek' | 'amount' | 'charityId' | 'notificationTime', string>>;
   submitted?: boolean;
   onOpenStake: () => void;
@@ -30,7 +29,7 @@ interface HabitEditorCardProps {
 export default function HabitEditorCard({
   draft,
   onChange,
-  charities,
+  charity,
   errors = {},
   submitted = false,
   onOpenStake,
@@ -43,8 +42,6 @@ export default function HabitEditorCard({
     const next = cur.includes(key) ? cur.filter(k => k !== key) : [...cur, key];
     onChange({ ...draft, daysOfWeek: next });
   };
-
-  // Charity combobox is now a reusable component
 
   return (
     <div className="space-y-4">
@@ -177,12 +174,7 @@ export default function HabitEditorCard({
           </div>
 
           {draft.amount && Number(draft.amount) > 0 && (
-            <CharityComboBox
-              value={draft.charityId}
-              options={charities}
-              onChange={id => onChange({ ...draft, charityId: id })}
-              error={errors.charityId}
-            />
+            <CharitySelector charity={charity} error={errors.charityId} returnCharityParam="charity" />
           )}
         </div>
       )}
