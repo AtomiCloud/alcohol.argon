@@ -78,6 +78,11 @@ const RawEvents = {
       Skip: ActionEvent,
       View: { Clicked: 'View Clicked' },
     },
+
+    Vacation: {
+      Start: ActionEvent,
+      End: ActionEvent,
+    },
   },
 
   // New Habit flow
