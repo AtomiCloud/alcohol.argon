@@ -14,6 +14,7 @@ import type { ProblemReporterFactory } from '@/lib/problem/core/transformer';
 import type { AdaptedInput } from '@/adapters/external/core';
 import { withApiAuth, withServerSideAuth } from '@/lib/auth/next';
 import type LogtoClient from '@logto/next';
+import { LogtoRequestError } from '@logto/next';
 import type { GetServerSidePropsResult } from 'next';
 import { AuthChecker } from '@/lib/auth/core/checker';
 import type { IAuthStateRetriever } from '@/lib/auth/core/types';
@@ -63,52 +64,98 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
             scopes: config.server.auth.logto.scopes,
           },
           (req, res, { client }) => {
-            return client.withLogtoApiRoute(
-              async (req, res) => {
-                const checker = new AuthChecker();
-                const retriever = new ServerAuthStateRetriever(
-                  client,
-                  checker,
-                  config.server.auth.logto.resources,
-                  req,
-                  res,
-                );
-                return withApiProblemReporter({ faro: false }, (req, res, problemReporter) => {
-                  return withApiProblem(
-                    {
-                      errorReporter: problemReporter.reporter,
-                      config: config.common.errorPortal,
-                      problemDefinitions,
-                    },
-                    (req, res, problem) => {
-                      return withApiSwagger(
-                        {
-                          defaultInstance,
+            // Extract handler logic to avoid duplication in retry
+            const executeHandler = async (req: Parameters<typeof handler>[0], res: Parameters<typeof handler>[1]) => {
+              const checker = new AuthChecker();
+              const retriever = new ServerAuthStateRetriever(
+                client,
+                checker,
+                config.server.auth.logto.resources,
+                req,
+                res,
+              );
+              return withApiProblemReporter({ faro: false }, (req, res, problemReporter) => {
+                return withApiProblem(
+                  {
+                    errorReporter: problemReporter.reporter,
+                    config: config.common.errorPortal,
+                    problemDefinitions,
+                  },
+                  (req, res, problem) => {
+                    return withApiSwagger(
+                      {
+                        defaultInstance,
+                        problemTransformer: problem.transformer,
+                        clientTree: clientTree(config.common, retriever),
+                      },
+                      (req, res, apiTree) => {
+                        return handler(req, res, {
+                          landscape,
+                          config,
+                          problemRegistry: problem.registry,
                           problemTransformer: problem.transformer,
-                          clientTree: clientTree(config.common, retriever),
-                        },
-                        (req, res, apiTree) => {
-                          return handler(req, res, {
-                            landscape,
-                            config,
-                            problemRegistry: problem.registry,
-                            problemTransformer: problem.transformer,
-                            apiTree,
-                            problemReporter: problemReporter.reporter,
-                            problemReporterFactory: problemReporter.factory,
-                            auth: {
-                              client,
-                              checker,
-                              retriever,
-                            },
-                          });
-                        },
-                      )(req, res);
-                    },
-                  )(req, res);
-                })(req, res);
-              },
+                          apiTree,
+                          problemReporter: problemReporter.reporter,
+                          problemReporterFactory: problemReporter.factory,
+                          auth: {
+                            client,
+                            checker,
+                            retriever,
+                          },
+                        });
+                      },
+                    )(req, res);
+                  },
+                )(req, res);
+              })(req, res);
+            };
+
+            return client.withLogtoApiRoute(
+              executeHandler,
               { fetchUserInfo: true },
+              async (errorReq, errorRes, error) => {
+                // Handle invalid_grant errors - likely a race condition where another request
+                // already consumed the refresh token. Return 401 to trigger client-side sign-out.
+                if (error instanceof LogtoRequestError) {
+                  // Check if error message or error object contains invalid_grant
+                  const errorStr = String(error);
+                  const errorObj = error as unknown as {
+                    code?: string;
+                    error?: string;
+                    data?: { code?: string; error?: string };
+                  };
+                  const isInvalidGrant =
+                    errorStr.includes('invalid_grant') ||
+                    errorObj?.code === 'oidc.invalid_grant' ||
+                    errorObj?.error === 'invalid_grant' ||
+                    errorObj?.data?.code === 'oidc.invalid_grant' ||
+                    errorObj?.data?.error === 'invalid_grant';
+
+                  if (isInvalidGrant) {
+                    console.warn('Module Auth: invalid_grant error, clearing session and returning 401');
+                    // Clear Logto cookies to prevent infinite loop
+                    for (const cookieName of Object.keys(errorReq.cookies || {})) {
+                      if (cookieName.startsWith('logto_')) {
+                        errorRes.setHeader(
+                          'Set-Cookie',
+                          `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax`,
+                        );
+                      }
+                    }
+
+                    // Return 401 Unauthorized to tell client to sign out and re-authenticate
+                    errorRes.status(401).json({
+                      error: 'unauthorized',
+                      message: 'Session expired, please sign in again',
+                      signOutUrl: '/api/logto/sign-out',
+                    });
+                    return;
+                  }
+                }
+                // Log other errors and return 500
+                console.error('Module Auth error in API route:', error);
+                errorRes.status(500).json({ error: 'Authentication error' });
+              },
               // biome-ignore lint/suspicious/noConfusingVoidType: force library compatibility
             )(req, res) as void;
           },

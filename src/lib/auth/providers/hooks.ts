@@ -11,6 +11,15 @@ type Content<T, Y> = ResultSerial<OptionSerial<T>, Y>;
 
 const fetcher = async <T extends AuthData>(url: string): Promise<ResultSerial<AuthState<T>, Problem>> => {
   const response = await fetch(url);
+  if (response.status === 401) {
+    // Session expired due to refresh token race condition, redirect to sign out
+    const data = await response.json();
+    if (data.signOutUrl) {
+      window.location.assign(data.signOutUrl);
+      // Return a never-resolving promise to prevent rendering during redirect
+      return new Promise(() => {});
+    }
+  }
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   return await response.json();
 };
