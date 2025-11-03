@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.0...v1.34.1) (2025-11-02)
+
+
+### 🐛 Bug Fixes 🐛
+
+* manifest blocking ([ca76e81](https://github.com/AtomiCloud/alcohol.argon/commit/ca76e812ffc65d774b027fcd83da6f4face16f69))
+
 ## [1.34.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.33.0...v1.34.0) (2025-10-20)
 
 
