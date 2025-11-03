@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.1...v1.34.2) (2025-11-03)
+
+
+### 🐛 Bug Fixes 🐛
+
+* refresh token ([3db3c79](https://github.com/AtomiCloud/alcohol.argon/commit/3db3c79066fa0cbecf717a91274a7f58c3fea666))
+
 ## [1.34.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.0...v1.34.1) (2025-11-02)
 
 
