@@ -10,3 +10,5 @@ app:
   url: 'https://argon-alcohol-pikachu.kirinnee.workers.dev'
   servicetree:
     landscape: 'pikachu'
+onboarding:
+  defaultCharityId: '3ba83a10-131f-4182-b9d9-8f12478172da'

@@ -1,14 +1,13 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CharityOption } from '@/models/habit';
-import { Button } from '@/components/ui/button';
-import { X, ChevronDown, Filter, ExternalLink, Globe } from 'lucide-react';
+import { ChevronDown, Filter, ExternalLink, Globe } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useSwaggerClients } from '@/adapters/external/Provider';
 import type { CausePrincipalRes, CharityPrincipalRes } from '@/clients/alcohol/zinc/api';
 import { Badge } from '@/components/ui/badge';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type Props = {
   value: string;
@@ -23,9 +22,6 @@ type CharitySearchItem = CharityPrincipalRes;
 export default function CharityComboBox({ value, options = [], onChange, error }: Props) {
   const api = useSwaggerClients();
   const reporter = useProblemReporter();
-
-  // Open state for chooser (modal)
-  const [open, setOpen] = useState(false);
 
   // Filters
   const [countries, setCountries] = useState<string[]>([]);
@@ -152,19 +148,16 @@ export default function CharityComboBox({ value, options = [], onChange, error }
   );
 
   useEffect(() => {
-    if (!open) return;
-    // Always perform a server search, even with empty query/filters,
-    // so users see the detailed list immediately on open. Use a small debounce
-    // only when the user is actively typing or changing filters.
+    // Always perform a server search with debounce when filters change
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const hasUserInput = query.trim().length > 0 || !!selectedCountry || !!selectedCauseKey;
     const delay = hasUserInput ? 200 : 0;
     debounceRef.current = setTimeout(() => {
       runSearch(query.trim(), selectedCountry, selectedCauseKey);
     }, delay);
-  }, [query, selectedCountry, selectedCauseKey, open, runSearch]);
+  }, [query, selectedCountry, selectedCauseKey, runSearch]);
 
-  // Simple inline dropdowns rendered inside the modal (no popovers)
+  // Filter dropdown component using Popover
   function FilterSelect<T extends string | { key?: string | null; name?: string | null }>(props: {
     label: string;
     value: string;
@@ -197,67 +190,69 @@ export default function CharityComboBox({ value, options = [], onChange, error }
     const display = selected ? getLabel(selected) : placeholder || label;
 
     return (
-      <div className="w-full">
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={`${label.toLowerCase()}-dropdown`}
-          className="h-9 px-2 rounded-md border border-input bg-background text-xs inline-flex items-center gap-1 cursor-pointer"
-          onMouseDown={e => {
-            // Prevent default to avoid button taking focus and racing the input focus
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={`${label.toLowerCase()}-dropdown`}
+            className="w-full h-10 sm:h-9 px-3 sm:px-2 rounded-md bg-transparent text-sm inline-flex items-center justify-between gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+          >
+            <span className="truncate text-left">
+              <Filter className="mr-2 inline-block h-3.5 w-3.5 opacity-70 align-middle" /> {display}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          id={`${label.toLowerCase()}-dropdown`}
+          className="p-0 w-[min(92vw,20rem)] data-[state=open]:animate-none data-[state=closed]:animate-none"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+          avoidCollisions
+          collisionPadding={{ top: 8, right: 8, bottom: 60, left: 8 }}
+          onOpenAutoFocus={e => {
             e.preventDefault();
-            const next = !open;
-            setOpen(next);
-            if (next) focusSoon();
-          }}
-          onClick={() => {
-            const next = !open;
-            setOpen(next);
-            if (next) focusSoon();
+            focusSoon();
           }}
         >
-          <Filter className="h-3.5 w-3.5 opacity-70" /> {display}
-          <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-        </button>
-        {open && (
-          <div id={`${label.toLowerCase()}-dropdown`} className="mt-2 w-full rounded-md border bg-background shadow-sm">
-            <Command shouldFilter>
-              <CommandInput ref={inputRef} placeholder={`Search ${label.toLowerCase()}...`} autoFocus />
-              <CommandList className="max-h-[300px] overflow-y-auto overscroll-contain">
-                <CommandEmpty>No results</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    key="__any__"
-                    value="Any"
-                    onSelect={() => {
-                      onChange('');
-                      setOpen(false);
-                    }}
-                  >
-                    Any
-                  </CommandItem>
-                  {options.map(it => {
-                    const key = getKey(it);
-                    const lbl = getLabel(it);
-                    return (
-                      <CommandItem
-                        key={key}
-                        value={lbl}
-                        onSelect={() => {
-                          onChange(key);
-                          setOpen(false);
-                        }}
-                      >
-                        {lbl}
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </div>
-        )}
-      </div>
+          <Command shouldFilter>
+            <CommandInput ref={inputRef} placeholder={`Search ${label.toLowerCase()}...`} autoFocus />
+            <CommandList className="max-h-[200px] overflow-y-auto overscroll-contain">
+              <CommandEmpty>No results</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  key="__any__"
+                  value="Any"
+                  onSelect={() => {
+                    onChange('');
+                    setOpen(false);
+                  }}
+                >
+                  Any
+                </CommandItem>
+                {options.map(it => {
+                  const key = getKey(it);
+                  const lbl = getLabel(it);
+                  return (
+                    <CommandItem
+                      key={key}
+                      value={lbl}
+                      onSelect={() => {
+                        onChange(key);
+                        setOpen(false);
+                      }}
+                    >
+                      {lbl}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     );
   }
 
@@ -296,81 +291,85 @@ export default function CharityComboBox({ value, options = [], onChange, error }
         .filter(Boolean);
 
     return (
-      <div className="w-full">
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={`${label.toLowerCase()}-dropdown`}
-          className="h-9 px-2 rounded-md border border-input bg-background text-xs inline-flex items-center gap-1 cursor-pointer"
-          onMouseDown={e => {
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={`${label.toLowerCase()}-dropdown`}
+            className="w-full h-10 sm:h-9 px-3 sm:px-2 rounded-md bg-transparent text-sm inline-flex items-center justify-between gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+          >
+            <span className="truncate text-left">
+              <Filter className="mr-2 inline-block h-3.5 w-3.5 opacity-70 align-middle" /> {display || 'Any'}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          id={`${label.toLowerCase()}-dropdown`}
+          className="p-0 w-[min(92vw,20rem)] data-[state=open]:animate-none data-[state=closed]:animate-none"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+          avoidCollisions
+          collisionPadding={{ top: 8, right: 8, bottom: 60, left: 8 }}
+          onOpenAutoFocus={e => {
             e.preventDefault();
-            const next = !open;
-            setOpen(next);
-            if (next) focusSoon();
-          }}
-          onClick={() => {
-            const next = !open;
-            setOpen(next);
-            if (next) focusSoon();
+            focusSoon();
           }}
         >
-          <Filter className="h-3.5 w-3.5 opacity-70" /> {display || 'Any'}
-          <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-        </button>
-        {open && (
-          <div id={`${label.toLowerCase()}-dropdown`} className="mt-2 w-full rounded-md border bg-background shadow-sm">
-            <Command shouldFilter>
-              <CommandInput ref={inputRef} placeholder={`Search ${label.toLowerCase()}...`} autoFocus />
-              <CommandList className="max-h-[300px] overflow-y-auto overscroll-contain">
-                <CommandEmpty>No results</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    key="__any__"
-                    value="Any"
-                    onSelect={() => {
-                      onChange('');
-                      setOpen(false);
-                    }}
-                  >
-                    Any
-                  </CommandItem>
-                  {options.map(it => {
-                    const name = it.name || it.key || '';
-                    const segs = toSegments(name);
-                    const depth = Math.max(0, segs.length - 1);
-                    const leaf = segs[segs.length - 1] || name;
-                    return (
-                      <CommandItem
-                        key={it.key || name}
-                        value={name}
-                        onSelect={() => {
-                          onChange(it.key || '');
-                          setOpen(false);
-                        }}
-                      >
-                        <div className="flex items-center">
-                          <span style={{ marginLeft: depth * 12 }} className="text-xs">
-                            {leaf}
-                          </span>
-                        </div>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </div>
-        )}
-      </div>
+          <Command shouldFilter>
+            <CommandInput ref={inputRef} placeholder={`Search ${label.toLowerCase()}...`} autoFocus />
+            <CommandList className="max-h-[200px] overflow-y-auto overscroll-contain">
+              <CommandEmpty>No results</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  key="__any__"
+                  value="Any"
+                  onSelect={() => {
+                    onChange('');
+                    setOpen(false);
+                  }}
+                >
+                  Any
+                </CommandItem>
+                {options.map(it => {
+                  const name = it.name || it.key || '';
+                  const segs = toSegments(name);
+                  const depth = Math.max(0, segs.length - 1);
+                  const leaf = segs[segs.length - 1] || name;
+                  return (
+                    <CommandItem
+                      key={it.key || name}
+                      value={name}
+                      onSelect={() => {
+                        onChange(it.key || '');
+                        setOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <span style={{ marginLeft: depth * 12 }} className="text-xs">
+                          {leaf}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     );
   }
 
-  // Modal panel with three dropdowns: Country, Cause, Charity (server search)
+  // Inline panel with three dropdowns: Country, Cause, Charity (server search)
   function SearchPanel() {
     const charityInputRef = useRef<HTMLInputElement | null>(null);
+    // Focus is handled via onOpenAutoFocus on the PopoverContent
     return (
-      <div className="flex flex-col p-3 gap-3">
-        <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-2 flex-col">
           <FilterSelect
             label="Country"
             value={selectedCountry}
@@ -392,159 +391,111 @@ export default function CharityComboBox({ value, options = [], onChange, error }
             placeholder="Cause: Any"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="charity-dropdown" className="text-xs text-muted-foreground">
-            Charity
-          </label>
-          <div className="w-full">
-            <button
-              type="button"
-              aria-expanded={charityOpen}
-              aria-controls="charity-dropdown"
-              className="h-9 px-2 rounded-md border border-input bg-background text-xs inline-flex items-center gap-1 cursor-pointer w-full justify-between"
-              onMouseDown={e => {
+        <div>
+          <Popover open={charityOpen} onOpenChange={setCharityOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-expanded={charityOpen}
+                aria-controls="charity-dropdown"
+                className="w-full h-10 sm:h-9 px-3 sm:px-2 rounded-md bg-transparent text-sm inline-flex items-center justify-between gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+              >
+                <span className="truncate text-left">
+                  {currentLabel || 'Search charities (filter by country/cause)'}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              id="charity-dropdown"
+              className="p-0 w-[var(--radix-popover-trigger-width)] data-[state=open]:animate-none data-[state=closed]:animate-none"
+              align="center"
+              side="bottom"
+              sideOffset={4}
+              avoidCollisions
+              collisionPadding={{ top: 8, right: 8, bottom: 60, left: 8 }}
+              onOpenAutoFocus={e => {
                 e.preventDefault();
-                const next = !charityOpen;
-                setCharityOpen(next);
-                if (next) {
-                  const el = charityInputRef.current;
-                  if (el) {
-                    try {
-                      el.focus();
-                    } catch {}
-                    setTimeout(() => el?.focus(), 0);
-                    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => el?.focus());
-                  }
-                }
-              }}
-              onClick={() => {
-                const next = !charityOpen;
-                setCharityOpen(next);
-                if (next) {
-                  const el = charityInputRef.current;
-                  if (el) {
-                    try {
-                      el.focus();
-                    } catch {}
-                    setTimeout(() => el?.focus(), 0);
-                    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => el?.focus());
-                  }
+                const el = charityInputRef.current;
+                if (el) {
+                  try {
+                    el.focus();
+                  } catch {}
+                  setTimeout(() => el?.focus(), 0);
+                  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => el?.focus());
                 }
               }}
             >
-              <span className="truncate text-left">{currentLabel || 'Search charities (filter by country/cause)'}</span>
-              <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-            </button>
-            {charityOpen && (
-              <div id="charity-dropdown" className="mt-2 w-full rounded-md border bg-background shadow-sm">
-                <Command shouldFilter={false} className="w-full">
-                  <CommandInput
-                    ref={charityInputRef}
-                    placeholder="Type to search charities..."
-                    value={query}
-                    onValueChange={setQuery}
-                    autoFocus
-                  />
-                  <CommandList className="max-h-[300px] overflow-y-auto overscroll-contain">
-                    {loading ? (
-                      <div className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">Searching…</div>
-                    ) : (
-                      <>
-                        <CommandEmpty>
-                          {query || selectedCountry || selectedCauseKey ? 'No results' : 'Start typing to search'}
-                        </CommandEmpty>
-                        <CommandGroup>
-                          {(items as CharitySearchItem[]).map(it => (
-                            <CommandItem
-                              key={it.id!}
-                              value={it.name || it.slug || it.id!}
-                              onSelect={() => {
-                                if (it.id) onChange(it.id);
-                                setOpen(false);
-                              }}
-                            >
-                              <div className="flex flex-col gap-1 w-full">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="text-sm font-medium">{it.name || 'Unknown'}</div>
-                                  {it.websiteUrl && (
-                                    <a
-                                      href={it.websiteUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-xs inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:underline"
-                                      onClick={e => e.stopPropagation()}
-                                    >
-                                      <Globe className="h-3.5 w-3.5" /> Visit <ExternalLink className="h-3.5 w-3.5" />
-                                    </a>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {Array.isArray(it.countries) && it.countries.length > 0 && (
-                                    <Badge variant="secondary" className="text-[10px]">
-                                      {it.countries.slice(0, 2).join(', ')}
-                                      {it.countries.length > 2 ? ` +${it.countries.length - 2}` : ''}
-                                    </Badge>
-                                  )}
-                                </div>
-                                {it.mission && (
-                                  <div className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">
-                                    {it.mission}
-                                  </div>
-                                )}
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </>
-                    )}
-                  </CommandList>
-                </Command>
-              </div>
-            )}
-          </div>
+              <Command shouldFilter={false} className="w-full">
+                <CommandInput
+                  ref={charityInputRef}
+                  placeholder="Type to search charities..."
+                  value={query}
+                  onValueChange={setQuery}
+                  autoFocus
+                />
+                <CommandList className="max-h-[180px] overflow-y-auto overscroll-contain relative">
+                  {loading && (
+                    <div className="sticky top-0 z-10 bg-background/90 backdrop-blur px-3 py-1 text-[11px] text-slate-500 dark:text-slate-400">
+                      Searching…
+                    </div>
+                  )}
+                  <CommandEmpty>
+                    {query || selectedCountry || selectedCauseKey ? 'No results' : 'Start typing to search'}
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {(items as CharitySearchItem[]).map(it => (
+                      <CommandItem
+                        key={it.id!}
+                        value={it.name || it.slug || it.id!}
+                        onSelect={() => {
+                          if (it.id) onChange(it.id);
+                          setCharityOpen(false);
+                        }}
+                      >
+                        <div className="flex flex-col gap-1 w-full">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-sm font-medium">{it.name || 'Unknown'}</div>
+                            {it.websiteUrl && (
+                              <a
+                                href={it.websiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:underline"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <Globe className="h-3.5 w-3.5" /> Visit <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {Array.isArray(it.countries) && it.countries.length > 0 && (
+                              <Badge variant="secondary" className="text-[10px]">
+                                {it.countries.slice(0, 2).join(', ')}
+                                {it.countries.length > 2 ? ` +${it.countries.length - 2}` : ''}
+                              </Badge>
+                            )}
+                          </div>
+                          {it.mission && (
+                            <div className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{it.mission}</div>
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-1">
-      <label className="block text-sm" htmlFor="charity-combobox">
-        Charity
-      </label>
-      <div className="flex gap-2 items-center">
-        <button
-          id="charity-combobox"
-          type="button"
-          aria-expanded={open}
-          aria-controls="charity-combobox-modal"
-          aria-haspopup="dialog"
-          onClick={() => setOpen(true)}
-          className="w-full h-10 rounded-md border border-input bg-background px-3 text-left text-sm cursor-pointer md:w-96"
-        >
-          {currentLabel || 'Search charities (filter by country/cause)'}
-        </button>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent
-            id="charity-combobox-modal"
-            className="p-0 w-[calc(100vw-2rem)] max-w-[28rem] max-h-[80vh] overflow-hidden"
-          >
-            <SearchPanel />
-          </DialogContent>
-        </Dialog>
-        {value && (
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Clear charity"
-            onClick={() => onChange('')}
-            className="h-10 w-10"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
+    <div className="space-y-3">
+      <SearchPanel />
+      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }

@@ -1,15 +1,30 @@
 import type React from 'react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 // Removed email collection — switched to a simple CTA based on auth state
 import { useClaims } from '@/lib/auth/providers';
-import { ArrowRight, Rocket } from 'lucide-react';
+import { usePlausible } from '@/lib/tracker/usePlausible';
+import { TrackingEvents } from '@/lib/events';
 
 export default function Hero() {
   const [t, v] = useClaims();
+  const track = usePlausible();
   const isAuthed = t === 'ok' && v[0] && v[1]?.value.isAuthed;
   const ctaLabel = isAuthed ? 'Open your app' : 'Get started';
-  const ctaHref = isAuthed ? '/app' : '/api/logto/sign-in';
+
+  const handleCTAClick = () => {
+    track(TrackingEvents.Landing.Hero.CTA.Clicked);
+    window.location.assign(isAuthed ? '/app' : '/api/logto/sign-in');
+  };
+
+  const handleHowItWorksClick = () => {
+    track(TrackingEvents.Landing.Hero.HowItWorksLink.Clicked);
+  };
+
+  const handleResearchClick = () => {
+    track(TrackingEvents.Landing.Hero.ResearchLink.Clicked);
+  };
 
   return (
     <section className="relative overflow-hidden" data-reveal>
@@ -17,18 +32,26 @@ export default function Hero() {
         className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-orange-500/10 via-transparent to-violet-500/10"
         aria-hidden="true"
       />
-      <div className="container relative z-10 mx-auto px-4 max-w-5xl pt-14 pb-10 sm:pt-20 sm:pb-16">
+      <div className="container relative z-10 mx-auto px-6 sm:px-8 max-w-5xl pt-14 pb-10 sm:pt-20 sm:pb-16">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
             <Image
-              src="/mascot.svg"
-              alt="LazyTax sloth mascot"
-              width={360}
-              height={320}
+              src="/images/finally-a-habit-tracker-fs8.png"
+              alt="LazyTax habit tracker preview"
+              width={640}
+              height={520}
               priority
-              className="h-52 sm:h-64 w-auto mx-auto mb-4 md:hidden"
+              className="w-full max-w-[420px] h-auto mx-auto mb-4 rounded-xl shadow-lg md:hidden"
             />
             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white text-center md:text-left">
+              <span className="inline-flex items-center gap-2 align-middle mr-2">
+                <Badge
+                  variant="secondary"
+                  className="uppercase tracking-wide text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800"
+                >
+                  Beta
+                </Badge>
+              </span>
               Finally, a habit tracker{' '}
               <span className="relative inline-block whitespace-nowrap">
                 that works
@@ -68,26 +91,25 @@ export default function Hero() {
             </p>
 
             <div className="mt-6 flex justify-center md:justify-start">
-              <Button
-                asChild
+              <SignInCTA
+                onClick={handleCTAClick}
                 className="h-12 min-w-[220px] px-7 text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-fuchsia-500 to-violet-600 hover:from-orange-600 hover:via-fuchsia-600 hover:to-violet-700 shadow-lg hover:shadow-xl ring-1 ring-white/20 dark:ring-white/10 rounded-xl transition-all"
               >
-                <a href={ctaHref} className="inline-flex items-center">
-                  <Rocket className="mr-2 h-5 w-5" />
-                  {ctaLabel}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
+                {ctaLabel}
+              </SignInCTA>
             </div>
-            <div className="mt-3 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
+            <div className="mt-5 flex flex-col sm:flex-row gap-3 items-center justify-center md:justify-start">
+              {/* biome-ignore lint/a11y/useValidAnchor: Valid hash navigation with tracking */}
               <a
                 href="#how-it-works"
+                onClick={handleHowItWorksClick}
                 className="inline-flex items-center text-sm text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
               >
                 See how it works →
               </a>
               <a
-                href="#references"
+                href="/research"
+                onClick={handleResearchClick}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/40 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,12 +137,12 @@ export default function Hero() {
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <Image
-                src="/mascot.svg"
-                alt="LazyTax sloth mascot"
-                width={520}
-                height={400}
+                src="/images/finally-a-habit-tracker-fs8.png"
+                alt="LazyTax habit tracker preview"
+                width={960}
+                height={640}
                 priority
-                className="h-auto w-[85%] max-w-[560px] object-contain drop-shadow-md animate-float-slow"
+                className="h-auto w-full max-w-[520px] object-contain drop-shadow-xl rounded-2xl animate-float-slow"
               />
             </div>
           </div>

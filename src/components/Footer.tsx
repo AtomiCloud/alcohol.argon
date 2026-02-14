@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useConfig } from '@/adapters/external/Provider';
-import { Send, Instagram, MessageSquare, Twitter, Mail, Phone } from 'lucide-react';
+import { Send, Instagram, MessageSquare, Twitter, Mail } from 'lucide-react';
 import { FaDiscord, FaWhatsapp, FaTiktok } from 'react-icons/fa';
 
 export function Footer() {
@@ -41,7 +41,7 @@ export function Footer() {
     },
     {
       name: 'Discord',
-      url: 'https://discord.gg/T7AtTQXr',
+      url: 'https://discord.gg/gaW49rPp',
       icon: FaDiscord,
     },
     {
@@ -53,7 +53,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90">
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-6 sm:px-8 py-10">
         <div className="space-y-8">
           {/* Company Info */}
           <div className="text-center space-y-2">
@@ -90,50 +90,91 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Legal Links */}
-          <nav aria-label="Legal" className="text-center">
-            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/?stay=true"
-                >
-                  Landing Page
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal"
-                >
-                  Legal Documents
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/privacy"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/terms"
-                >
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  href="/legal/refund"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
+          {/* Footer Links */}
+          <nav aria-label="Footer navigation" className="text-center space-y-4">
+            {/* Main Navigation */}
+            <div>
+              <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/?stay=true"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/pricing"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/charities"
+                  >
+                    Charities
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/blog"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/research"
+                  >
+                    Research
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/?stay=true#faq"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs">
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/privacy"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/terms"
+                  >
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                    href="/legal/refund"
+                  >
+                    Refunds
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </nav>
 
           {/* Copyright */}

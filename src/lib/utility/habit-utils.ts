@@ -21,18 +21,31 @@ export const toHM = (t: string | undefined | null): string => {
   return '';
 };
 
-export const parseStake = (s: string | undefined | null): { amount: string; currency: string } => {
-  if (!s) return { amount: '', currency: 'USD' };
-  const normalized = normalizeDecimalString(String(s));
-  const n = Number(normalized);
-  // Treat 0 or invalid as no stake
-  const amount = !normalized || !Number.isFinite(n) || n <= 0 ? '' : normalized;
-  return { amount, currency: 'USD' };
-};
-
 // Backwards-compatible names used by pages/components
 export const amountToCents = (amount: string, locale = 'en-US'): string => parseAmountInputToCents(amount, locale);
 
 export const formatCentsToAmount = (cents: string, locale = 'en-US'): string => formatCentsAsDecimal(cents, locale);
 
 export { formatCurrencyFromDecimalString };
+
+// Validation
+export interface HabitDraftLike {
+  task: string;
+  daysOfWeek: string[];
+  amount?: string;
+  charityId?: string;
+}
+
+export const validateHabitDraft = (draft: HabitDraftLike): Record<string, string> => {
+  const errs: Record<string, string> = {};
+  if (!draft.task || draft.task.trim().length < 3) errs.task = 'Please enter a habit (min 3 chars)';
+  if (!draft.daysOfWeek || draft.daysOfWeek.length === 0) errs.daysOfWeek = 'Choose at least one day of the week';
+  const amt = draft.amount?.trim();
+  if (amt && Number(amt) > 0) {
+    const norm = normalizeDecimalString(amt);
+    const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
+    if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
+    if (!draft.charityId) errs.charityId = 'Please select a charity';
+  }
+  return errs;
+};

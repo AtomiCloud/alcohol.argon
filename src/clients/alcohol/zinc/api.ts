@@ -49,6 +49,16 @@ export interface AirwallexEventDataObject {
   purpose?: string | null;
 }
 
+export interface AwardWeeklyReq {
+  userId?: string | null;
+}
+
+export interface AwardWeeklyRes {
+  userId?: string | null;
+  /** @format int32 */
+  awards: number;
+}
+
 export interface CausePrincipalRes {
   id?: string | null;
   key?: string | null;
@@ -214,6 +224,10 @@ export interface HabitOverviewHabitRes {
 export interface HabitOverviewResponse {
   habits?: HabitOverviewHabitRes[] | null;
   totalDebt?: string | null;
+  /** @format int32 */
+  usedSkip: number;
+  /** @format int32 */
+  totalSkip: number;
 }
 
 export interface HabitStatusRes {
@@ -260,6 +274,11 @@ export interface Info {
   timeStamp: string;
 }
 
+export interface MarkDailyFailuresCronRes {
+  /** @format int32 */
+  totalMarked: number;
+}
+
 export interface MarkDailyFailuresReq {
   date?: string | null;
   habitIds?: string[] | null;
@@ -282,6 +301,14 @@ export interface PledgeSyncSummaryRes {
   externalIdsLinked: number;
   /** @format int32 */
   charitiesProcessed: number;
+}
+
+export interface ProtectionBalanceRes {
+  userId?: string | null;
+  /** @format int32 */
+  balance: number;
+  /** @format int32 */
+  cap: number;
 }
 
 export interface SetCharityCausesReq {
@@ -750,6 +777,16 @@ export interface VHabitExecutionsMarkDailyFailuresCreateParams {
 /** @format int32 */
 export type VHabitExecutionsMarkDailyFailuresCreateData = number;
 
+export interface VHabitCronMarkDailyFailuresCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitCronMarkDailyFailuresCreateData = MarkDailyFailuresCronRes;
+
 export interface VPaymentCustomersUpdateParams {
   userId: string;
   /**
@@ -836,6 +873,27 @@ export interface VCharitiesSyncPledgeCreateParams {
 }
 
 export type VCharitiesSyncPledgeCreateData = PledgeSyncSummaryRes;
+
+export interface VProtectionDetailParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProtectionDetailData = ProtectionBalanceRes;
+
+export interface VProtectionAwardWeeklyCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProtectionAwardWeeklyCreateData = AwardWeeklyRes;
 
 export type GetRootData = Info;
 
@@ -1878,6 +1936,27 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags HabitCron
+     * @name VHabitCronMarkDailyFailuresCreate
+     * @request POST:/api/v{version}/habit-cron/mark-daily-failures
+     * @secure
+     * @response `200` `VHabitCronMarkDailyFailuresCreateData` Success
+     */
+    vHabitCronMarkDailyFailuresCreate: (
+      { version, ...query }: VHabitCronMarkDailyFailuresCreateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitCronMarkDailyFailuresCreateData, any>({
+        path: `/api/v${version}/habit-cron/mark-daily-failures`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Payment
      * @name VPaymentCustomersUpdate
      * @request PUT:/api/v{version}/Payment/{userId}/customers
@@ -2039,6 +2118,48 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         path: `/api/v${version}/charities/sync/pledge`,
         method: 'POST',
         secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Protection
+     * @name VProtectionDetail
+     * @request GET:/api/v{version}/Protection/{userId}
+     * @secure
+     * @response `200` `VProtectionDetailData` Success
+     */
+    vProtectionDetail: ({ userId, version, ...query }: VProtectionDetailParams, params: RequestParams = {}) =>
+      this.request<VProtectionDetailData, any>({
+        path: `/api/v${version}/Protection/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Protection
+     * @name VProtectionAwardWeeklyCreate
+     * @request POST:/api/v{version}/Protection/award-weekly
+     * @secure
+     * @response `200` `VProtectionAwardWeeklyCreateData` Success
+     */
+    vProtectionAwardWeeklyCreate: (
+      { version, ...query }: VProtectionAwardWeeklyCreateParams,
+      data: AwardWeeklyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VProtectionAwardWeeklyCreateData, any>({
+        path: `/api/v${version}/Protection/award-weekly`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),

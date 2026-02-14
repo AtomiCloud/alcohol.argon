@@ -47,14 +47,20 @@ export default function ConsentConfirmModal({
           <Button variant="outline" onClick={onCancel} type="button">
             {cancelLabel}
           </Button>
-          <Button className="relative pl-8" variant="default" onClick={onConfirm} disabled={loading} type="button">
+          <Button
+            className="relative pl-10 pr-6"
+            variant="default"
+            onClick={onConfirm}
+            disabled={loading}
+            type="button"
+          >
             {/* Left icon: shows a static logo when idle; swaps to fast spinning rays when loading */}
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 inline-flex items-center justify-center">
               {loading ? (
                 <Spinner size="xs" variant="rays" className="[animation-duration:500ms]" />
               ) : (
                 // Visible continue icon to signify the action
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="size-4" />
               )}
             </span>
             <span>{confirmLabel}</span>

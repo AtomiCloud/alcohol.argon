@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { SignInCTA } from '@/components/ui/sign-in-cta';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -193,7 +194,7 @@ function TokensSection() {
 
 function Unauthenticated() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 sm:px-8 py-8">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader className="text-center">
@@ -211,9 +212,9 @@ function Unauthenticated() {
             <CardDescription>You need to be signed in to view your profile information.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button asChild>
-              <Link href="/api/logto/sign-in">Sign In</Link>
-            </Button>
+            <SignInCTA icon="none" showIcon={false}>
+              Sign In
+            </SignInCTA>
           </CardContent>
         </Card>
       </div>

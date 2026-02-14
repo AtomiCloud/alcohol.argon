@@ -10,3 +10,6 @@ faro:
     samplingRate: 1
   build:
     enabled: true
+payment:
+  airwallex:
+    env: 'prod'

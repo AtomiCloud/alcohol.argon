@@ -47,39 +47,53 @@ export default function FAQ() {
   ];
 
   return (
-    <section className="py-16 sm:py-20" data-reveal>
-      <div className="container mx-auto px-4 max-w-5xl">
-        <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
-          FAQ
-        </h2>
-        <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/80 shadow-md dark:shadow-lg dark:shadow-black/50 backdrop-blur-sm">
-          {items.map(it => (
-            <details key={it.q} className="group p-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-900 dark:text-white">
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-orange-500" aria-hidden /> {it.q}
-                </span>
-                <svg
-                  className="h-4 w-4 text-slate-500 transition-transform duration-300 group-open:rotate-180"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </summary>
-              <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-300">
-                <div className="overflow-hidden">
-                  <p className="mt-2 text-slate-600 dark:text-slate-300 text-justify md:text-left">{it.a}</p>
+    <section id="faq" className="py-12 sm:py-16 bg-slate-50/40 dark:bg-slate-950/40" data-reveal>
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
+        <details className="group rounded-xl border border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur-sm shadow-sm">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-slate-800 dark:text-slate-100">
+            <span>Explore Our FAQs</span>
+            <svg
+              className="h-5 w-5 text-slate-500 transition-transform duration-300 group-open:rotate-180"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </summary>
+          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+            {items.map(it => (
+              <details key={it.q} className="group px-5 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-900 dark:text-white">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-orange-500" aria-hidden /> {it.q}
+                  </span>
+                  <svg
+                    className="h-4 w-4 text-slate-500 transition-transform duration-300 group-open:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </summary>
+                <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-300">
+                  <div className="overflow-hidden">
+                    <p className="mt-2 text-slate-600 dark:text-slate-300 text-justify md:text-left">{it.a}</p>
+                  </div>
                 </div>
-              </div>
-            </details>
-          ))}
-        </div>
+              </details>
+            ))}
+          </div>
+        </details>
       </div>
     </section>
   );

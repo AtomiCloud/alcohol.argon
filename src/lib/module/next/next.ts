@@ -23,6 +23,41 @@ function createNextAdapter<TInput, TOutput>(config: NextAdapterConfig<TInput, TO
       } catch (error) {
         console.error(`Module ${name} error in API route:`, error);
 
+        // Special handling for invalid_grant errors (expired/invalid refresh tokens)
+        const errorStr = String(error);
+        const errMessage = error instanceof Error ? error.message : '';
+        const errorObj = error as { code?: string; error?: string; data?: { code?: string; error?: string } };
+
+        const isInvalidGrant =
+          errorStr.includes('invalid_grant') ||
+          errorStr.includes('oidc.invalid_grant') ||
+          errMessage.includes('invalid_grant') ||
+          errorObj?.code === 'oidc.invalid_grant' ||
+          errorObj?.error === 'invalid_grant' ||
+          errorObj?.data?.code === 'oidc.invalid_grant' ||
+          errorObj?.data?.error === 'invalid_grant';
+
+        if (isInvalidGrant) {
+          console.warn(`Module ${name}: Detected invalid_grant error, clearing session and returning 401`);
+          // Clear Logto cookies to prevent infinite loop
+          // Logto cookies follow the pattern: logto_{appId}
+          for (const cookieName of Object.keys(req.cookies || {})) {
+            if (cookieName.startsWith('logto_')) {
+              res.setHeader(
+                'Set-Cookie',
+                `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax`,
+              );
+            }
+          }
+
+          res.status(401).json({
+            error: 'unauthorized',
+            message: 'Session expired, please sign in again',
+            signOutUrl: '/api/logto/sign-out',
+          });
+          return;
+        }
+
         let errorMessage = defaultErrorMessage;
         if (errorHandler) {
           errorMessage = errorHandler(error);

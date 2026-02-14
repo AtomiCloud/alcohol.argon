@@ -10,3 +10,5 @@ app:
   url: 'https://argon-alcohol-pichu.kirinnee.workers.dev'
   servicetree:
     landscape: 'pichu'
+onboarding:
+  defaultCharityId: 'c5489b5d-9fbf-493d-b9be-153ad59c96d9'

@@ -45,7 +45,7 @@ export default function HowItWorksV2() {
         className="absolute inset-x-0 -bottom-3 h-6 md:h-8 bg-gradient-to-l from-slate-200/70 to-transparent dark:from-slate-800/60 skew-y-2 pointer-events-none"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Two sides of the same commitment
         </h2>
@@ -62,7 +62,7 @@ export default function HowItWorksV2() {
                     </span>
                     <h3 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">{s.title}</h3>
                   </div>
-                  <p className="mt-3 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
+                  <div className="mt-3 text-slate-700 dark:text-slate-300 text-base sm:text-lg">
                     {idx === 0 && (
                       <>
                         <div className="my-2.5 flex items-center gap-2">
@@ -85,8 +85,11 @@ export default function HowItWorksV2() {
                           <span className="underline decoration-orange-400/50 underline-offset-4">
                             Research shows: tiny habits stick
                             <sup>
-                              <a href="#ref-4" className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
-                                [4]
+                              <a
+                                href="/research#strategic-habits"
+                                className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5"
+                              >
+                                [1]
                               </a>
                             </sup>
                           </span>{' '}
@@ -169,7 +172,7 @@ export default function HowItWorksV2() {
                         </p>
                       </>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
               <div className={idx % 2 === 1 ? 'md:order-1' : ''}>

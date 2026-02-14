@@ -12,9 +12,9 @@ export function ThemeToggle() {
   };
 
   const getIcon = () => {
-    if (theme === 'light') return <Sun className="h-4 w-4" />;
-    if (theme === 'dark') return <Moon className="h-4 w-4" />;
-    return <Monitor className="h-4 w-4" />;
+    if (theme === 'light') return <Sun className="size-4" />;
+    if (theme === 'dark') return <Moon className="size-4" />;
+    return <Monitor className="size-4" />;
   };
 
   const getLabel = () => {

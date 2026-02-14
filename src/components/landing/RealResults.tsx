@@ -5,18 +5,22 @@ const bullets = [
   {
     text: 'The average habit takes 66 days to become automatic',
     ref: 1,
+    href: '/research#habit-formation',
   },
   {
     text: 'Adding accountability doubles goal achievement rates',
     ref: 2,
+    href: '/research#goal-setting',
   },
   {
     text: 'Starting with ONE habit = 80% higher success than multiple changes',
     ref: 3,
+    href: '/research#strategic-habits',
   },
   {
-    text: '4:1 positive-to-negative ratio optimizes discipline and achievement',
-    ref: 6,
+    text: 'Higher positive-to-negative feedback ratios optimize discipline and achievement',
+    ref: 4,
+    href: '/research#positive-reinforcement',
   },
 ];
 
@@ -27,7 +31,7 @@ export default function RealResults() {
         className="absolute inset-0 -z-10 bg-gradient-to-l from-emerald-500/5 via-transparent to-violet-500/5 pointer-events-none"
         aria-hidden
       />
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
         <h2 className="font-heading text-3xl sm:text-4xl lg:text-4xl font-bold text-slate-900 dark:text-white text-center md:text-left">
           Validated by research
         </h2>
@@ -46,7 +50,7 @@ export default function RealResults() {
                 <span className="text-slate-700 dark:text-slate-300 text-base sm:text-lg">
                   {b.text}
                   <sup>
-                    <a href={`#ref-${b.ref}`} className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
+                    <a href={b.href} className="text-violet-600 dark:text-violet-400 hover:underline ml-0.5">
                       [{b.ref}]
                     </a>
                   </sup>

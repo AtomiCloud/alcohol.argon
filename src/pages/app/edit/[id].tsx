@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -9,29 +9,32 @@ import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { CharityPrincipalRes, HabitVersionRes, UpdateHabitReq } from '@/clients/alcohol/zinc/api';
+import type {
+  CharityPrincipalRes,
+  ConfigurationRes,
+  HabitVersionRes,
+  UpdateHabitReq,
+} from '@/clients/alcohol/zinc/api';
 import StakeSheet from '@/components/app/StakeSheet';
 import ConsentConfirmModal from '@/components/app/ConsentConfirmModal';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
-import { X, Save } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+import { Save, X } from 'lucide-react';
 import type { ResultSerial } from '@/lib/monads/result';
-import type { Result } from '@/lib/monads/result';
+import { Res, Err, Ok, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
 import type { HabitDraft } from '@/models/habit';
-import { toHHMMSS, toHM } from '@/lib/utility/habit-utils';
-import { normalizeDecimalString } from '@/lib/utility/money-utils';
-import { useFormUrlState } from '@/lib/urlstate/useFormUrlState';
+import { toHHMMSS, toHM, validateHabitDraft } from '@/lib/utility/habit-utils';
+import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
 import { useStakeFlow } from '@/lib/payment/use-stake-flow';
+import { useContent } from '@/lib/content/providers';
+import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 
 type EditHabitPageData = {
   habit: HabitVersionRes;
-  charities: CharityPrincipalRes[];
-  defaultCharityId: string | null;
-  timezone: string | null;
+  charity: CharityPrincipalRes;
 };
 type EditHabitPageProps = { initial: ResultSerial<EditHabitPageData, Problem> };
 
@@ -42,71 +45,55 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
   const router = useRouter();
   const [claimsResult, claimsContent] = useClaims();
 
-  // Extract server data synchronously from serialized initial prop
-  const initialData: EditHabitPageData =
-    initial[0] === 'ok'
-      ? initial[1]
-      : { habit: {} as HabitVersionRes, charities: [], defaultCharityId: null, timezone: null };
+  // Deserialize SSR data using useContent pattern
+  const [dataResult] = useState(() => Res.fromSerial<EditHabitPageData, Problem>(initial));
+  const [, loader] = useFreeLoader();
+  const data = useContent(dataResult, { loader, notFound: 'Habit not found' });
 
-  const habit = initialData.habit;
-  const charityOptions = useMemo(() => initialData.charities.filter(c => !!c.id), [initialData.charities]);
-
-  // Unified form state with URL sync (batched updates prevent navigation loops)
-  const { state: formState, updateFields } = useFormUrlState({
-    task: habit.task || '',
-    days: JSON.stringify(habit.daysOfWeek || []),
-    time: toHM(habit.notificationTime || ''),
-    amount: habit.stake ? String(habit.stake) : '',
-    charity: habit.charityId || '',
+  // Enhanced form state with dual sync strategies
+  // router.query is the source of truth (SSR guarantees all params are present)
+  const { state, updateField, updateFieldImmediate } = useEnhancedFormUrlState({
+    task: '',
+    days: '[]',
+    time: '',
+    amount: '',
+    charity: '',
   });
-
-  // Convenience accessors
-  const task = formState.task;
-  const daysOfWeekRaw = formState.days;
-  const notificationTime = formState.time;
-  const amount = formState.amount;
-  const charityId = formState.charity;
-
-  // Convenience setters (wrap updateFields)
-  const setTask = useCallback((value: string) => updateFields({ task: value }), [updateFields]);
-  const setDaysOfWeekRaw = useCallback((value: string) => updateFields({ days: value }), [updateFields]);
-  const setNotificationTime = useCallback((value: string) => updateFields({ time: value }), [updateFields]);
-  const setAmount = useCallback((value: string) => updateFields({ amount: value }), [updateFields]);
-  const setCharityId = useCallback((value: string) => updateFields({ charity: value }), [updateFields]);
 
   // Parse daysOfWeek from JSON string
   const daysOfWeek: string[] = useMemo(() => {
     try {
-      return JSON.parse(daysOfWeekRaw);
+      return JSON.parse(state.days);
     } catch {
       return [];
     }
-  }, [daysOfWeekRaw]);
-
-  const setDaysOfWeek = useCallback(
-    (days: string[]) => {
-      setDaysOfWeekRaw(JSON.stringify(days));
-    },
-    [setDaysOfWeekRaw],
-  );
+  }, [state.days]);
 
   const draft: HabitDraft = {
-    task,
+    task: state.task,
     daysOfWeek,
-    notificationTime,
-    amount,
+    notificationTime: state.time,
+    amount: state.amount,
     currency: 'USD',
-    charityId,
+    charityId: state.charity,
     enabled: true,
   };
 
   const setDraft = (updater: (prev: HabitDraft) => HabitDraft) => {
     const updated = updater(draft);
-    setTask(updated.task);
-    setDaysOfWeek(updated.daysOfWeek);
-    setNotificationTime(updated.notificationTime);
-    setAmount(updated.amount);
-    setCharityId(updated.charityId);
+    // Text fields - debounced updates
+    updateField({
+      task: updated.task,
+      days: JSON.stringify(updated.daysOfWeek),
+      time: updated.notificationTime,
+    });
+    // Amount and charity will be handled separately with immediate updates
+    if (updated.amount !== state.amount) {
+      updateFieldImmediate({ amount: updated.amount });
+    }
+    if (updated.charityId !== state.charity) {
+      updateFieldImmediate({ charity: updated.charityId });
+    }
   };
 
   const [submitted, setSubmitted] = useState(false);
@@ -130,35 +117,21 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     startConsentFlow,
     cancelConsent,
   } = useStakeFlow({
-    currentAmount: amount,
-    onAmountChange: setAmount,
+    currentAmount: state.amount,
+    onAmountChange: amount => updateFieldImmediate({ amount }),
     formState: {
-      task: task || '',
-      days: JSON.stringify(daysOfWeek),
-      time: notificationTime || '',
-      charity: charityId || '',
+      task: state.task || '',
+      days: state.days,
+      time: state.time || '',
+      charity: state.charity || '',
     },
     returnPath: `/app/edit/${habitId}`,
   });
 
-  const validateDraft = (d: HabitDraft): Record<string, string> => {
-    const errs: Record<string, string> = {};
-    if (!d.task || d.task.trim().length < 3) errs.task = 'Please enter a habit (min 3 chars)';
-    if (!d.daysOfWeek || d.daysOfWeek.length === 0) errs.daysOfWeek = 'Choose at least one day of the week';
-    const amt = d.amount?.trim();
-    if (amt && Number(amt) > 0) {
-      const norm = normalizeDecimalString(amt);
-      const isAmountFormat = /^(?:\d+|\d+\.\d{1,2})$/.test(norm);
-      if (!isAmountFormat || Number(norm) <= 0) errs.amount = 'Enter a valid amount (e.g., 5 or 5.50)';
-      if (!d.charityId) errs.charityId = 'Please select a charity';
-    }
-    return errs;
-  };
-
   const handleUpdate = async () => {
-    if (!habit?.habitId) return;
+    if (!data?.habit.habitId) return;
     setSubmitted(true);
-    const errs = validateDraft(draft);
+    const errs = validateHabitDraft(draft);
     if (Object.keys(errs).length > 0) return;
     setBusyUpdate(true);
 
@@ -189,9 +162,9 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
       stake: hasStake ? `${draft.amount}` : '0',
       charityId: draft.charityId,
       enabled: draft.enabled,
-      timezone: habit.timezone || null,
+      timezone: data.habit.timezone || null,
     };
-    const res = await api.alcohol.zinc.api.vHabitUpdate({ version: '1.0', userId, id: habit.habitId }, payload);
+    const res = await api.alcohol.zinc.api.vHabitUpdate({ version: '1.0', userId, id: data.habit.habitId }, payload);
     await res.match({
       ok: async () => {
         await router.replace('/app');
@@ -207,7 +180,9 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     setBusyUpdate(false);
   };
 
-  const errs = validateDraft(draft);
+  // Validate draft and early return if data not loaded
+  const errs = validateHabitDraft(draft);
+  if (!data) return null;
 
   return (
     <>
@@ -243,8 +218,8 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
                 amount: draft.amount,
                 charityId: draft.charityId,
               }}
+              charity={data.charity}
               onChange={d => setDraft(prev => ({ ...prev, ...d }))}
-              charities={charityOptions.map(c => ({ id: c.id!, label: c.name || c.id! }))}
               errors={errs}
               submitted={submitted}
               onOpenStake={openStakeModal}
@@ -290,37 +265,57 @@ export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'private' },
   async (context: GetServerSidePropsContext, { apiTree }): Promise<GetServerSidePropsResult<EditHabitPageProps>> => {
     const { id } = context.params as { id: string };
+    const api = apiTree.alcohol.zinc.api;
 
-    const zinc = apiTree.alcohol.zinc.api;
     // Get userId first
-    const userIdResult = await zinc.vUserMeList({ version: '1.0' }, { format: 'text' });
+    const userIdResult = await api.vUserMeList({ version: '1.0' }, { format: 'text' });
 
-    const result: Result<EditHabitPageData, Problem> = userIdResult.andThen(async userId => {
-      // Fetch habit details
-      const habitResult = await zinc.vHabitDetail2({ version: '1.0', userId, id });
-      return habitResult.andThen(async habit => {
-        // Fetch charities and config in parallel
-        return apiTree.alcohol.zinc.api.vCharityList({ version: '1.0' }).then(charitiesResult =>
-          charitiesResult.andThen(charities =>
-            apiTree.alcohol.zinc.api.vConfigurationMeList({ version: '1.0' }).then(configResult =>
-              configResult.map(config => ({
-                habit,
-                charities,
-                defaultCharityId: config.principal.defaultCharityId || null,
-                timezone: config.principal.timezone || null,
-              })),
-            ),
-          ),
-        );
+    const result = userIdResult.andThen(async (userId: string) => {
+      // Fetch habit and config first
+      const habitResult = await api.vHabitDetail2({ version: '1.0', userId, id });
+      const configResult = await api.vConfigurationMeList({ version: '1.0' });
+
+      return configResult.andThen(async config => {
+        return habitResult.andThen(async habit => {
+          // Check for missing query params and populate with defaults
+          const query = context.query;
+          const task = (query.task as string) || habit.task || '';
+          const days = (query.days as string) || JSON.stringify(habit.daysOfWeek || []);
+          const time = (query.time as string) || toHM(habit.notificationTime || '');
+          const amount = (query.amount as string) || (habit.stake ? String(habit.stake) : '');
+          const charity = (query.charity as string) || habit.charityId || config.principal.defaultCharityId || '';
+
+          // If any required params are missing, redirect with all params populated
+          if (!query.task || !query.days || !query.time || !query.amount || !query.charity) {
+            return Err<EditHabitPageData, Problem>({
+              type: 'redirect',
+              title: 'Redirect needed',
+              status: 302,
+              detail: `/app/edit/${id}?task=${encodeURIComponent(task)}&days=${encodeURIComponent(days)}&time=${encodeURIComponent(time)}&amount=${encodeURIComponent(amount)}&charity=${encodeURIComponent(charity)}`,
+            });
+          }
+
+          // All params are present, fetch charity and return data
+          return (await api.vCharityDetail({ version: '1.0', id: charity })).map(({ principal }) => ({
+            habit,
+            charity: principal,
+          }));
+        });
       });
     });
 
-    const initial = await result.serial();
+    const initial: ResultSerial<EditHabitPageData, Problem> = await result.serial();
 
-    return {
-      props: {
-        initial,
-      },
-    };
+    // Check if we need to redirect
+    if (initial[0] === 'err' && initial[1].type === 'redirect') {
+      return {
+        redirect: {
+          destination: initial[1].detail || `/app/edit/${id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    return { props: { initial } };
   },
 );
