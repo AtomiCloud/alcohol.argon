@@ -58,7 +58,7 @@ export function Footer() {
           {/* Company Info */}
           <div className="text-center space-y-2">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{appName}</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400">60 PAYA LEBAR ROAD, #07-54, PAYA LEBAR SQUARE</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">60 PAYA LEBAR ROAD, #06-28, PAYA LEBAR SQUARE</p>
             <p className="text-xs text-slate-600 dark:text-slate-400">SINGAPORE 409051</p>
           </div>
 

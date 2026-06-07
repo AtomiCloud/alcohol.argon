@@ -298,7 +298,7 @@ export default function PrivacyPolicy() {
                 <strong>Email:</strong> chingwee@lazytax.club
               </p>
               <p>
-                <strong>Address:</strong> 60 PAYA LEBAR ROAD, #07-54, PAYA LEBAR SQUARE, SINGAPORE 409051
+                <strong>Address:</strong> 60 PAYA LEBAR ROAD, #06-28, PAYA LEBAR SQUARE, SINGAPORE 409051
               </p>
               <p>
                 For general privacy questions or to exercise your data subject rights, contact our Privacy Officer. For
