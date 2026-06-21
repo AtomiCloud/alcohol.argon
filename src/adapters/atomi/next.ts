@@ -165,7 +165,7 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
   });
 };
 
-const withApiLogtoOnly: WithApiHandler<AdaptedInput, LogtoClient> = (
+const withApiLogtoOnly: WithApiHandler<AdaptedInput, { client: LogtoClient; baseUrl: string }> = (
   { importedConfigurations, landscapeSource, defaultInstance, clientTree, configSchemas, problemDefinitions },
   handler,
 ) => {
@@ -189,7 +189,9 @@ const withApiLogtoOnly: WithApiHandler<AdaptedInput, LogtoClient> = (
             scopes: config.server.auth.logto.scopes,
           },
           (req, res, { client }) => {
-            return handler(req, res, client);
+            // Expose the trusted, configured app base URL so the sign-in route can build the
+            // OAuth redirect/return URIs from it instead of from spoofable request headers.
+            return handler(req, res, { client, baseUrl: config.server.auth.logto.url });
           },
         )(req, res);
       },
