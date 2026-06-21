@@ -259,6 +259,19 @@ class ProblemTransformer<T extends ProblemDefinitions> {
         responseBody = '';
       }
 
+      // Some generated clients (e.g. 204-returning DELETE endpoints) don't pre-parse error
+      // bodies, so a structured Problem arrives only as raw text. Parse it and, if it's a
+      // Problem, surface it directly — otherwise the real status/detail get buried under a
+      // generic `http_error` (status 418) with the whole JSON dumped into `detail`.
+      if (responseBody.trim()) {
+        try {
+          const parsedBody = JSON.parse(responseBody);
+          if (isProblem(parsedBody)) return this.enrichProblemWithIds(parsedBody);
+        } catch {
+          // Not JSON — fall through to the generic http_error problem below.
+        }
+      }
+
       // Report to error reporter
       const httpError = new Error(`Swagger HTTP ${status}: ${responseBody}`);
       this.reportError(httpError, {
