@@ -1,3 +1,21 @@
+## [1.35.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.2...v1.35.0) (2026-06-22)
+
+
+### ✨ Features ✨
+
+* public account-deletion page ([86e86c9](https://github.com/AtomiCloud/alcohol.argon/commit/86e86c96d6104e5907af703113b70d1f7c75a994))
+* public account-deletion page ([#91](https://github.com/AtomiCloud/alcohol.argon/issues/91)) ([6ec9637](https://github.com/AtomiCloud/alcohol.argon/commit/6ec9637b6cbe16fafd172eabe43ffdf727ddb670)), closes [AtomiCloud/alcohol.zinc#49](https://github.com/AtomiCloud/alcohol.zinc/issues/49) [#49](https://github.com/AtomiCloud/alcohol.argon/issues/49)
+
+
+### 🐛 Bug Fixes 🐛
+
+* recognise self-delete 409 body + argon-style deletion UI ([2200562](https://github.com/AtomiCloud/alcohol.argon/commit/2200562064df495f5af5241df26ce393c3bce406))
+* recognise self-delete 409 body + argon-style deletion UI ([#92](https://github.com/AtomiCloud/alcohol.argon/issues/92)) ([5ac95e9](https://github.com/AtomiCloud/alcohol.argon/commit/5ac95e9d70e8a4214ac523db1de41044092003a5))
+* unblock semantic-release npm install via legacy-peer-deps ([f9c40b8](https://github.com/AtomiCloud/alcohol.argon/commit/f9c40b82211a6f8c6589b14f213a4a1a49a77f5d))
+* unblock semantic-release npm install via legacy-peer-deps ([#93](https://github.com/AtomiCloud/alcohol.argon/issues/93)) ([48089cb](https://github.com/AtomiCloud/alcohol.argon/commit/48089cb2e216355ea72dca277422c4f83e4c777e)), closes [#91](https://github.com/AtomiCloud/alcohol.argon/issues/91)
+* update office address unit to [#06](https://github.com/AtomiCloud/alcohol.argon/issues/06)-28 ([6ee7f22](https://github.com/AtomiCloud/alcohol.argon/commit/6ee7f22f85109fde2af095a99d92aa187aca134f)), closes [#06-28](https://github.com/AtomiCloud/alcohol.argon/issues/06-28)
+* update office address unit to [#06](https://github.com/AtomiCloud/alcohol.argon/issues/06)-28 ([#90](https://github.com/AtomiCloud/alcohol.argon/issues/90)) ([cfff3ac](https://github.com/AtomiCloud/alcohol.argon/commit/cfff3acf01ce8b5eb1be8bc522ad72727abd081a)), closes [#06-28](https://github.com/AtomiCloud/alcohol.argon/issues/06-28) [#07-54](https://github.com/AtomiCloud/alcohol.argon/issues/07-54) [#06-28](https://github.com/AtomiCloud/alcohol.argon/issues/06-28) [#06-28](https://github.com/AtomiCloud/alcohol.argon/issues/06-28)
+
 ## [1.34.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.1...v1.34.2) (2025-11-03)
 
 
