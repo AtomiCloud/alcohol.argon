@@ -228,6 +228,15 @@ export interface HabitOverviewResponse {
   usedSkip: number;
   /** @format int32 */
   totalSkip: number;
+  /** @format int32 */
+  usedVacation: number;
+  /** @format int32 */
+  totalVacation: number;
+  /** @format int32 */
+  freezeCurrent: number;
+  /** @format int32 */
+  freezeMax: number;
+  isCurrentlyOnVacation: boolean;
 }
 
 export interface HabitStatusRes {
@@ -359,6 +368,11 @@ export interface UpdateHabitReq {
 export interface UpdateUserReq {
   idToken?: string | null;
   accessToken?: string | null;
+}
+
+export interface UpdateVacationReq {
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface UserPrincipalRes {
@@ -1052,7 +1066,7 @@ export interface VVacationDeleteParams {
 
 export type VVacationDeleteData = any;
 
-export interface VVacationEndTodayPartialUpdateParams {
+export interface VVacationUpdateParams {
   userId: string;
   /** @format uuid */
   id: string;
@@ -1063,7 +1077,7 @@ export interface VVacationEndTodayPartialUpdateParams {
   version: string;
 }
 
-export type VVacationEndTodayPartialUpdateData = VacationRes;
+export type VVacationUpdateData = VacationRes;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
@@ -2411,19 +2425,22 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * No description
      *
      * @tags Vacation
-     * @name VVacationEndTodayPartialUpdate
-     * @request PATCH:/api/v{version}/Vacation/{userId}/{id}/end-today
+     * @name VVacationUpdate
+     * @request PUT:/api/v{version}/Vacation/{userId}/{id}
      * @secure
-     * @response `200` `VVacationEndTodayPartialUpdateData` Success
+     * @response `200` `VVacationUpdateData` Success
      */
-    vVacationEndTodayPartialUpdate: (
-      { userId, id, version, ...query }: VVacationEndTodayPartialUpdateParams,
+    vVacationUpdate: (
+      { userId, id, version, ...query }: VVacationUpdateParams,
+      data: UpdateVacationReq,
       params: RequestParams = {},
     ) =>
-      this.request<VVacationEndTodayPartialUpdateData, any>({
-        path: `/api/v${version}/Vacation/${userId}/${id}/end-today`,
-        method: 'PATCH',
+      this.request<VVacationUpdateData, any>({
+        path: `/api/v${version}/Vacation/${userId}/${id}`,
+        method: 'PUT',
+        body: data,
         secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),

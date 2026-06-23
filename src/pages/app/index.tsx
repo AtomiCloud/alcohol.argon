@@ -10,7 +10,12 @@ import { useClientConfig, useSwaggerClients } from '@/adapters/external/Provider
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import type { ConfigurationRes, HabitOverviewHabitRes, HabitOverviewResponse } from '@/clients/alcohol/zinc/api';
+import type {
+  ConfigurationRes,
+  HabitOverviewHabitRes,
+  HabitOverviewResponse,
+  VacationRes,
+} from '@/clients/alcohol/zinc/api';
 import ConfettiExplosion from 'react-confetti-explosion';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
@@ -31,6 +36,7 @@ type HabitPageData = {
   habits: HabitOverviewResponse;
   config: ConfigurationRes;
   userId: string;
+  currentVacation?: VacationRes | null;
 };
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 
@@ -38,6 +44,13 @@ type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 interface HabitPageApi {
   vHabitOverviewList: (params: { userId: string; version: string }) => Promise<Result<HabitOverviewResponse, Problem>>;
   vConfigurationMeList: (params: { version: string }) => Promise<Result<ConfigurationRes, Problem>>;
+  vVacationDetail: (params: {
+    userId: string;
+    version: string;
+    Year?: number;
+    Limit?: number;
+    Skip?: number;
+  }) => Promise<Result<VacationRes[], Problem>>;
 }
 
 // Component to handle optimistic completion cleanup
@@ -123,13 +136,37 @@ function ProgressCelebration({
 async function fetchHabitPageData(api: HabitPageApi, userId: string): Promise<Result<HabitPageData, Problem>> {
   const habitsResult = await api.vHabitOverviewList({ userId, version: '1.0' });
   const configResult = await api.vConfigurationMeList({ version: '1.0' });
+  const vacationsResult = await api.vVacationDetail({ userId, version: '1.0', Year: new Date().getFullYear() });
 
   return habitsResult.andThen((habits: HabitOverviewResponse) =>
-    configResult.map((config: ConfigurationRes) => ({
-      habits,
-      config,
-      userId,
-    })),
+    configResult.andThen((config: ConfigurationRes) =>
+      vacationsResult.map((vacations: VacationRes[]) => {
+        // Helper to parse date from API format (dd-MM-yyyy)
+        const parseDateFromApi = (dateStr: string | null | undefined): Date | null => {
+          if (!dateStr) return null;
+          const [day, month, year] = dateStr.split('-');
+          return new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day));
+        };
+
+        // Find current vacation (where today is between start and end date)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const currentVacation = vacations.find(v => {
+          if (!v.startDate || !v.endDate) return false;
+          const start = parseDateFromApi(v.startDate);
+          const end = parseDateFromApi(v.endDate);
+          if (!start || !end) return false;
+          return today >= start && today <= end;
+        });
+
+        return {
+          habits,
+          config,
+          userId,
+          currentVacation: currentVacation || null,
+        };
+      }),
+    ),
   );
 }
 
@@ -148,6 +185,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const [busyComplete, setBusyComplete] = useState<Record<string, boolean>>({});
   const [busyDelete, setBusyDelete] = useState<Record<string, boolean>>({});
   const [busySkip, setBusySkip] = useState<Record<string, boolean>>({});
+  const [busyVacation, setBusyVacation] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const lastProgressRef = useRef(0);
@@ -175,6 +213,12 @@ export default function AppPage({ initial }: AppPageProps) {
   const totalDebt = habitOverview.totalDebt ? Number.parseFloat(habitOverview.totalDebt) : 0;
   const usedSkip = habitOverview.usedSkip;
   const totalSkip = habitOverview.totalSkip;
+  const usedVacation = habitOverview.usedVacation;
+  const totalVacation = habitOverview.totalVacation;
+  const freezeCurrent = habitOverview.freezeCurrent;
+  const freezeMax = habitOverview.freezeMax;
+  const isCurrentlyOnVacation = habitOverview.isCurrentlyOnVacation;
+  const currentVacation = data.currentVacation;
   const userTimezone = config.principal?.timezone || 'UTC';
 
   // === Optimistic Updates ===
@@ -343,6 +387,51 @@ export default function AppPage({ initial }: AppPageProps) {
     track(TrackingEvents.App.NewHabitClicked);
   };
 
+  const handleEndVacation = async (vacationId: string) => {
+    if (!userId || !currentVacation) return;
+
+    // Format yesterday's date as dd-MM-yyyy
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formatDateForApi = (date: Date): string => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+
+    setBusyVacation(true);
+    const res = await api.alcohol.zinc.api.vVacationUpdate(
+      { version: '1.0', userId, id: vacationId },
+      {
+        startDate: currentVacation.startDate || '',
+        endDate: formatDateForApi(yesterday),
+      },
+    );
+    await res.match({
+      ok: async () => {
+        setToast('Vacation ended! Welcome back! 👋');
+        await refreshHabits();
+      },
+      err: (problem: Problem) => {
+        problemReporter.pushError(new Error(problem.title || problem.type || 'Problem'), {
+          source: 'app/vacation/end',
+          problem,
+        });
+        errorHandler.throwProblem(problem);
+      },
+    });
+    setBusyVacation(false);
+  };
+
+  // === Helper Functions ===
+  // Parse date from API format (dd-MM-yyyy) to JavaScript Date
+  const parseDateFromApi = (dateStr: string | null | undefined): Date | null => {
+    if (!dateStr) return null;
+    const [day, month, year] = dateStr.split('-');
+    return new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day));
+  };
+
   // === Render Helpers ===
   function renderHabitRow(h: HabitOverviewHabitRes) {
     if (!h.id) return null;
@@ -388,22 +477,25 @@ export default function AppPage({ initial }: AppPageProps) {
       </Head>
 
       <div className="container mx-auto max-w-5xl px-4 pt-3 pb-8 space-y-3">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">Your Habits</h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
+        {/* Only show header and habits when NOT on vacation */}
+        {!isCurrentlyOnVacation && (
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-xl font-semibold">Your Habits</h1>
+              <p className="text-slate-600 dark:text-slate-400 text-sm">Stay consistent — misses help your cause.</p>
+            </div>
+            <div className="flex flex-row flex-wrap items-stretch gap-2 w-full md:w-auto">
+              <Button asChild size="sm" className="w-full md:w-auto md:h-9 md:px-4" onClick={handleNewHabitClick}>
+                <Link href="/app/new">
+                  <Plus className="h-4 w-4 mr-1" /> New Habit
+                </Link>
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-row flex-wrap items-stretch gap-2 w-full md:w-auto">
-            <Button asChild size="sm" className="w-full md:w-auto md:h-9 md:px-4" onClick={handleNewHabitClick}>
-              <Link href="/app/new">
-                <Plus className="h-4 w-4 mr-1" /> New Habit
-              </Link>
-            </Button>
-          </div>
-        </div>
+        )}
 
-        {/* Progress Card (sticky) — only when there are habits today */}
-        {totalScheduledToday > 0 && (
+        {/* Progress Card (sticky) — only when there are habits today AND not on vacation */}
+        {!isCurrentlyOnVacation && totalScheduledToday > 0 && (
           <div className="sticky top-14 z-10">
             <Card className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-2">
               <CardContent className="pt-4">
@@ -439,7 +531,7 @@ export default function AppPage({ initial }: AppPageProps) {
                       <span className="text-xs text-slate-500 hidden group-open:inline">Hide stats</span>
                     </summary>
                     <div className="mt-0 space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div className="flex flex-col">
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best Streak</p>
                           <div className="flex items-center gap-2">
@@ -459,13 +551,13 @@ export default function AppPage({ initial }: AppPageProps) {
                         </div>
 
                         <div className="flex flex-col">
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Left</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes</p>
                           <div className="flex items-center gap-2">
                             <Snowflake className="h-4 w-4 text-blue-500" />
                             <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                              {5 - weekStats.freezes}/{5}
+                              {freezeCurrent}/{freezeMax}
                             </span>
-                            <span className="text-xs text-slate-500">this month</span>
+                            <span className="text-xs text-slate-500">available</span>
                           </div>
                         </div>
 
@@ -479,18 +571,31 @@ export default function AppPage({ initial }: AppPageProps) {
                             <span className="text-xs text-slate-500">this month</span>
                           </div>
                         </div>
+
+                        <div className="flex flex-col">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Vacation Days</p>
+                          <div className="flex items-center gap-2">
+                            <Palmtree className="h-4 w-4 text-yellow-600" />
+                            <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">
+                              {totalVacation - usedVacation}/{totalVacation}
+                            </span>
+                            <span className="text-xs text-slate-500">this year</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="pt-1">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            alert('Vacation mode coming soon! This will pause all your habits globally.');
-                          }}
-                          className="w-full md:w-auto bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-yellow-300 dark:border-yellow-700"
-                        >
-                          <Palmtree className="h-4 w-4 mr-1.5 text-yellow-600 dark:text-yellow-500" />
-                          Start Vacation
+                      <div className="pt-1 flex flex-col sm:flex-row gap-2">
+                        <Button asChild variant="outline" className="w-full sm:w-auto">
+                          <Link href="/app/vacations/new">
+                            <Plus className="h-4 w-4 mr-1.5" />
+                            Start Vacation
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" className="w-full sm:w-auto">
+                          <Link href="/app/vacations">
+                            <Palmtree className="h-4 w-4 mr-1.5" />
+                            Manage Vacations
+                          </Link>
                         </Button>
                       </div>
                     </div>
@@ -501,69 +606,208 @@ export default function AppPage({ initial }: AppPageProps) {
           </div>
         )}
 
+        {/* Vacation Mode Screen - Replaces everything when on vacation */}
+        {isCurrentlyOnVacation && currentVacation ? (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <Card className="max-w-2xl w-full bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 dark:from-yellow-950/30 dark:via-orange-950/30 dark:to-pink-950/30 border-2 border-yellow-300 dark:border-yellow-700">
+              <CardContent className="pt-12 pb-12 px-6">
+                <div className="flex flex-col items-center text-center space-y-6">
+                  {/* Icon */}
+                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-yellow-200 to-orange-200 dark:from-yellow-800 dark:to-orange-800 flex items-center justify-center shadow-lg">
+                    <Palmtree className="h-14 w-14 text-yellow-700 dark:text-yellow-300" />
+                  </div>
+
+                  {/* Main Message */}
+                  <div className="space-y-2">
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100">
+                      You're on Vacation!
+                    </h1>
+                    <p className="text-lg text-slate-700 dark:text-slate-300 max-w-md mx-auto">
+                      Take this time to relax and recharge. All your habits are paused.
+                    </p>
+                    <p className="text-base text-slate-600 dark:text-slate-400 italic">Enjoy your rest! ☀️</p>
+                  </div>
+
+                  {/* Time Remaining */}
+                  {(() => {
+                    const endDate = parseDateFromApi(currentVacation.endDate);
+                    if (!endDate) return null;
+
+                    // Set end date to end of day (23:59:59)
+                    const endOfDay = new Date(endDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+
+                    const now = new Date();
+                    const timeRemainingMs = endOfDay.getTime() - now.getTime();
+                    const daysRemaining = Math.floor(timeRemainingMs / (1000 * 60 * 60 * 24));
+                    const hoursRemaining = Math.floor((timeRemainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+                    // Format end date nicely (e.g., "13th Jan 2025")
+                    const day = endDate.getDate();
+                    const daySuffix =
+                      day === 1 || day === 21 || day === 31
+                        ? 'st'
+                        : day === 2 || day === 22
+                          ? 'nd'
+                          : day === 3 || day === 23
+                            ? 'rd'
+                            : 'th';
+                    const monthNames = [
+                      'Jan',
+                      'Feb',
+                      'Mar',
+                      'Apr',
+                      'May',
+                      'Jun',
+                      'Jul',
+                      'Aug',
+                      'Sep',
+                      'Oct',
+                      'Nov',
+                      'Dec',
+                    ];
+                    const formattedEndDate = `${day}${daySuffix} ${monthNames[endDate.getMonth()]} ${endDate.getFullYear()}`;
+
+                    return (
+                      <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-md border border-yellow-200 dark:border-yellow-800 w-full max-w-md">
+                        <div className="space-y-3">
+                          <p className="text-sm text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                            Vacation ends on
+                          </p>
+                          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formattedEndDate}</p>
+                          {currentVacation.timezone && (
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              Timezone: <span className="font-medium">{currentVacation.timezone}</span>
+                            </p>
+                          )}
+                          <div className="flex items-center justify-center gap-4 pt-2">
+                            <div className="text-center">
+                              <div className="text-3xl font-bold text-yellow-700 dark:text-yellow-400">
+                                {daysRemaining}
+                              </div>
+                              <div className="text-xs text-slate-600 dark:text-slate-400 uppercase">
+                                {daysRemaining === 1 ? 'Day' : 'Days'}
+                              </div>
+                            </div>
+                            <div className="text-2xl text-slate-400">:</div>
+                            <div className="text-center">
+                              <div className="text-3xl font-bold text-yellow-700 dark:text-yellow-400">
+                                {hoursRemaining}
+                              </div>
+                              <div className="text-xs text-slate-600 dark:text-slate-400 uppercase">
+                                {hoursRemaining === 1 ? 'Hour' : 'Hours'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Actions */}
+                  {(() => {
+                    // Check if today is the start date
+                    const startDate = parseDateFromApi(currentVacation.startDate);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const isStartDateToday =
+                      startDate &&
+                      startDate.getFullYear() === today.getFullYear() &&
+                      startDate.getMonth() === today.getMonth() &&
+                      startDate.getDate() === today.getDate();
+
+                    return (
+                      <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <Button asChild variant="outline" size="lg">
+                          <Link href={`/app/vacations/${currentVacation.id}/edit`}>
+                            <Palmtree className="h-4 w-4 mr-2" />
+                            Change End Date
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={() => currentVacation.id && handleEndVacation(currentVacation.id)}
+                          disabled={busyVacation || (isStartDateToday ?? false)}
+                          className="border-slate-600 dark:border-slate-400"
+                          title={
+                            isStartDateToday ? 'Cannot end vacation on the same day it starts' : 'End vacation today'
+                          }
+                        >
+                          {busyVacation ? 'Ending...' : 'End Early (Today)'}
+                        </Button>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
+
         {/* Errors are reported via ProblemReporter; no inline dump to keep UI simple */}
 
-        <FreeContentManager
-          LoadingComponent={() => (
-            <div className="grid gap-3">
-              {[1, 2, 3].map(i => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                    <div className="mt-2 h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-3 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-          EmptyComponent={({ desc }) => (
-            <div className="min-h-[40vh] flex flex-col items-center justify-center text-center space-y-4 py-6">
-              <EmptyStateLottie />
-              <p className="text-slate-700 dark:text-slate-300 text-lg font-medium">
-                {desc ?? 'Create your first habit to get started.'}
-              </p>
-            </div>
-          )}
-          loadingState={loading}
-          emptyState={desc || (habits.length === 0 ? 'No habits yet' : undefined)}
-        >
-          {habits.length === 0 ? null : (
-            <div className="space-y-6">
-              {/* Today's Habits Section */}
-              {todayHabits.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-amber-500" />
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Today</h2>
-                    <Badge variant="secondary" className="text-xs">
-                      {completedToday}/{todayHabits.length}
-                    </Badge>
+        {!isCurrentlyOnVacation && (
+          <FreeContentManager
+            LoadingComponent={() => (
+              <div className="grid gap-3">
+                {[1, 2, 3].map(i => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                      <div className="mt-2 h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-3 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            EmptyComponent={({ desc }) => (
+              <div className="min-h-[40vh] flex flex-col items-center justify-center text-center space-y-4 py-6">
+                <EmptyStateLottie />
+                <p className="text-slate-700 dark:text-slate-300 text-lg font-medium">
+                  {desc ?? 'Create your first habit to get started.'}
+                </p>
+              </div>
+            )}
+            loadingState={loading}
+            emptyState={desc || (habits.length === 0 ? 'No habits yet' : undefined)}
+          >
+            {habits.length === 0 ? null : (
+              <div className="space-y-6">
+                {/* Today's Habits Section */}
+                {todayHabits.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Flame className="h-5 w-5 text-amber-500" />
+                      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Today</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {completedToday}/{todayHabits.length}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-col gap-3">{todayHabits.map(h => renderHabitRow(h))}</div>
                   </div>
-                  <div className="flex flex-col gap-3">{todayHabits.map(h => renderHabitRow(h))}</div>
-                </div>
-              )}
+                )}
 
-              {/* Rest Day Habits Section */}
-              {restDayHabits.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <CalendarX className="h-5 w-5 text-slate-400" />
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Rest Day</h2>
-                    <Badge variant="outline" className="text-xs text-slate-500">
-                      {restDayHabits.length}
-                    </Badge>
+                {/* Rest Day Habits Section */}
+                {restDayHabits.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <CalendarX className="h-5 w-5 text-slate-400" />
+                      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Rest Day</h2>
+                      <Badge variant="outline" className="text-xs text-slate-500">
+                        {restDayHabits.length}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-col gap-3">{restDayHabits.map(h => renderHabitRow(h))}</div>
                   </div>
-                  <div className="flex flex-col gap-3">{restDayHabits.map(h => renderHabitRow(h))}</div>
-                </div>
-              )}
-            </div>
-          )}
-        </FreeContentManager>
-
-        {/* creation moved to /app/new */}
+                )}
+              </div>
+            )}
+          </FreeContentManager>
+        )}
       </div>
 
       {confettiKey > 0 && (
@@ -572,8 +816,6 @@ export default function AppPage({ initial }: AppPageProps) {
         </div>
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-
-      {/* BottomAppBar removed per request */}
     </>
   );
 }
