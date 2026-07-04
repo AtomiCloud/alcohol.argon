@@ -1,3 +1,16 @@
+## [1.36.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.35.0...v1.36.0) (2026-07-04)
+
+
+### ✨ Features ✨
+
+* web checkout + subscription management portal ([c5d001e](https://github.com/AtomiCloud/alcohol.argon/commit/c5d001e014dabb4def4abe6fa9a1783fa8e2722d))
+* web checkout + subscription management portal ([#94](https://github.com/AtomiCloud/alcohol.argon/issues/94)) ([92389ee](https://github.com/AtomiCloud/alcohol.argon/commit/92389ee6eb037474a4319af12c64c1b9346bace0)), closes [AtomiCloud/alcohol.zinc#65](https://github.com/AtomiCloud/alcohol.zinc/issues/65)
+
+
+### 🐛 Bug Fixes 🐛
+
+* address review findings from CodeRabbit ([6f6698e](https://github.com/AtomiCloud/alcohol.argon/commit/6f6698ee4aef715b09423ffb9febb2189d847407))
+
 ## [1.35.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.34.2...v1.35.0) (2026-06-22)
 
 
