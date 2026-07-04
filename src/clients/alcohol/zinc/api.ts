@@ -843,6 +843,7 @@ export interface VPaymentClientSecretListParams {
 export type VPaymentClientSecretListData = ClientSecretRes;
 
 export interface VPaymentConsentListParams {
+  purpose?: string;
   userId: string;
   /**
    * The requested API version
@@ -854,6 +855,7 @@ export interface VPaymentConsentListParams {
 export type VPaymentConsentListData = PaymentConsentRes;
 
 export interface VPaymentConsentDeleteParams {
+  purpose?: string;
   userId: string;
   /**
    * The requested API version
@@ -2114,6 +2116,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VPaymentConsentListData, any>({
         path: `/api/v${version}/Payment/${userId}/consent`,
         method: 'GET',
+        query: query,
         secure: true,
         format: 'json',
         ...params,
@@ -2132,6 +2135,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VPaymentConsentDeleteData, any>({
         path: `/api/v${version}/Payment/${userId}/consent`,
         method: 'DELETE',
+        query: query,
         secure: true,
         ...params,
       }),

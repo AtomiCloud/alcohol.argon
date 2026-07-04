@@ -1,11 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useClientConfig, useCommonConfig, useSwaggerClients } from '@/adapters/external/Provider';
-import type {
-  ClientSecretRes,
-  CreateCustomerRes,
-  PaymentConsentRes,
-  VPaymentConsentListParams,
-} from '@/clients/alcohol/zinc/api';
+import type { ClientSecretRes, CreateCustomerRes, PaymentConsentRes } from '@/clients/alcohol/zinc/api';
 import { init } from '@airwallex/components-sdk';
 import { useTheme } from '@/lib/theme/provider';
 import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
@@ -17,12 +12,6 @@ import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
  *  - 'subscription' → recurring merchant-initiated (plan renewals)
  */
 export type ConsentPurpose = 'penalty' | 'subscription';
-
-// zinc's `purpose` query param on the consent endpoints ships with the
-// separate-consents work; until that deploys to pichu the generated params
-// type lacks it. The generated methods spread `...query`, so passing it is
-// runtime-safe today. Drop this cast after the next SDK regen.
-type WithPurpose<T> = T & { purpose?: ConsentPurpose };
 
 interface UsePaymentConsentOptions {
   purpose?: ConsentPurpose;
@@ -83,11 +72,7 @@ export function usePaymentConsent(options?: UsePaymentConsentOptions): UsePaymen
 
         if (purpose === 'subscription') {
           // No claim tracks the subscription consent — ask zinc directly.
-          const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({
-            version: '1.0',
-            userId,
-            purpose,
-          } as WithPurpose<VPaymentConsentListParams>);
+          const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId, purpose });
           const consentData: PaymentConsentRes = await consentResult.unwrap();
           if (consentData.hasPaymentConsent) {
             setChecking(false);
@@ -180,11 +165,7 @@ export function usePaymentConsent(options?: UsePaymentConsentOptions): UsePaymen
           attempts++;
 
           try {
-            const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({
-              version: '1.0',
-              userId,
-              purpose,
-            } as WithPurpose<VPaymentConsentListParams>);
+            const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId, purpose });
             const consentData: PaymentConsentRes = await consentResult.unwrap();
 
             if (consentData.hasPaymentConsent) {
