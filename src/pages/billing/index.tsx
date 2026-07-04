@@ -75,11 +75,15 @@ export default function BillingPage({ initial }: BillingPageProps) {
         await router.replace(router.asPath);
       },
       err: async problem => {
-        problemReporter.pushError(new Error(problem.title || 'Billing action failed'), {
-          source: `billing/${source}`,
-          problem,
-        });
         const kind = classifyBillingError(problem);
+        // already_subscribed / no_active_subscription are benign state drift
+        // resolved by a refresh — not errors worth reporting.
+        if (kind !== 'already_subscribed' && kind !== 'no_active_subscription') {
+          problemReporter.pushError(new Error(problem.title || 'Billing action failed'), {
+            source: `billing/${source}`,
+            problem,
+          });
+        }
         switch (kind) {
           case 'no_payment_consent': {
             setBanner('Set up a payment method to continue.');

@@ -128,9 +128,10 @@ export function usePaymentConsent(options?: UsePaymentConsentOptions): UsePaymen
           recurringOptions: {
             next_triggered_by: 'merchant',
             currency: 'USD',
+            // Airwallex MIT reasons: scheduled | unscheduled | installments.
             // zinc's webhook classifies the consent's purpose from this reason:
-            // 'recurring' → subscription consent, 'unscheduled' → penalty consent.
-            merchant_trigger_reason: purpose === 'subscription' ? 'recurring' : 'unscheduled',
+            // 'scheduled' → subscription consent, anything else → penalty consent.
+            merchant_trigger_reason: purpose === 'subscription' ? 'scheduled' : 'unscheduled',
           },
           logoUrl: 'https://lazytax.club/logo-source.svg',
           successUrl: callbackUrl,
