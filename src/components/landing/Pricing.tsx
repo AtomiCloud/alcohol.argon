@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { HelpCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -107,11 +109,13 @@ export default function Pricing() {
                 </div>
               </CardTitle>
               <CardDescription>Pro — Everything in Free, plus:</CardDescription>
-              <div className="text-[11px] text-violet-700 dark:text-violet-300 mt-1">
-                Launch exclusive: we’ll let you lock in this price when plans open.
-              </div>
+              {period === 'annual' && (
+                <div className="text-[11px] text-violet-700 dark:text-violet-300 mt-1">
+                  Annual billing coming soon — billed monthly at launch prices for now.
+                </div>
+              )}
             </CardHeader>
-            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto opacity-60">
+            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
               <ul className="list-disc pl-5 space-y-1.5 text-sm">
                 <li>Up to 10 habits</li>
                 <li>
@@ -151,15 +155,10 @@ export default function Pricing() {
                   </span>
                 </li>
               </ul>
+              <Button asChild className="mt-4 w-full bg-violet-600 hover:bg-violet-700 text-white">
+                <Link href="/billing/checkout?tier=pro">Get Pro</Link>
+              </Button>
             </CardContent>
-            {/* Coming Soon overlay for Pro */}
-            <div
-              className="pointer-events-auto absolute inset-0 z-10 bg-black/60 backdrop-blur-[2px] rounded-xl flex items-center justify-center cursor-not-allowed"
-              aria-label="Pro plan coming soon"
-              role="presentation"
-            >
-              <span className="text-white/90 font-semibold text-sm tracking-wide uppercase">Coming soon</span>
-            </div>
           </Card>
           {/* Ultimate card in same grid */}
           <Card className="relative border-amber-300 dark:border-amber-900/40 bg-gradient-to-b from-amber-500/10 to-transparent shadow-lg h-full flex flex-col">
@@ -185,11 +184,13 @@ export default function Pricing() {
                 </div>
               </CardTitle>
               <CardDescription>Ultimate — Everything in Pro, plus:</CardDescription>
-              <div className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">
-                Launch exclusive: we’ll let you lock in this price when plans open.
-              </div>
+              {period === 'annual' && (
+                <div className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">
+                  Annual billing coming soon — billed monthly at launch prices for now.
+                </div>
+              )}
             </CardHeader>
-            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto opacity-60">
+            <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
               <ul className="list-disc pl-5 space-y-1.5 text-sm">
                 <li>Unlimited habits</li>
                 <li>
@@ -228,15 +229,10 @@ export default function Pricing() {
                 <li>We donate USD $15 at 100 days</li>
                 <li>Priority support</li>
               </ul>
+              <Button asChild className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white">
+                <Link href="/billing/checkout?tier=ultimate">Get Ultimate</Link>
+              </Button>
             </CardContent>
-            {/* Coming Soon overlay for Ultimate */}
-            <div
-              className="pointer-events-auto absolute inset-0 z-10 bg-black/60 backdrop-blur-[2px] rounded-xl flex items-center justify-center cursor-not-allowed"
-              aria-label="Ultimate plan coming soon"
-              role="presentation"
-            >
-              <span className="text-white/90 font-semibold text-sm tracking-wide uppercase">Coming soon</span>
-            </div>
           </Card>
         </div>
 

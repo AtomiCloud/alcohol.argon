@@ -26,5 +26,29 @@ export default withApiLogtoOnly(buildTime, (req, res, { client: auth, baseUrl })
       return;
     }
   }
+  // Magic-link landing (app→web handoff): consume a Logto one-time token so the
+  // user arrives authenticated without a login screen. The OTT rides the OIDC
+  // authorization request as the `one_time_token` extra param; Logto's hosted
+  // experience verifies it (single-use, short expiry). An expired/used token
+  // degrades to the normal hosted sign-in page — the OIDC flow still completes
+  // and the user still lands on `redirectBackUrl`. Same-origin guard + configured
+  // baseUrl origin keep this closed to open-redirect abuse, same as sign-in above.
+  if (req.query.action === 'ott-sign-in') {
+    const ott = typeof req.query.ott === 'string' ? req.query.ott : undefined;
+    const email = typeof req.query.email === 'string' ? req.query.email : undefined;
+    const returnPath = safeReturnPath(req.query.redirectBackUrl) ?? '/billing';
+    if (!ott) {
+      res.redirect(`/api/logto/sign-in?redirectBackUrl=${encodeURIComponent(returnPath)}`);
+      return;
+    }
+    const origin = new URL(baseUrl).origin;
+    auth.handleSignIn({
+      redirectUri: `${origin}/api/logto/sign-in-callback`,
+      postRedirectUri: `${origin}${returnPath}`,
+      extraParams: { one_time_token: ott },
+      ...(email ? { loginHint: email } : {}),
+    })(req, res);
+    return;
+  }
   auth.handleAuthRoutes({ fetchUserInfo: true })(req, res);
 });

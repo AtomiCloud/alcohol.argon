@@ -69,6 +69,10 @@ export interface CauseRes {
   principal: CausePrincipalRes;
 }
 
+export interface ChangeTierReq {
+  tier?: string | null;
+}
+
 export interface CharityPrincipalRes {
   id?: string | null;
   name?: string | null;
@@ -311,6 +315,11 @@ export interface ProtectionBalanceRes {
   cap: number;
 }
 
+export interface RunDisbursementRes {
+  /** @format int32 */
+  completed: number;
+}
+
 export interface SetCharityCausesReq {
   keys?: string[] | null;
 }
@@ -323,6 +332,20 @@ export interface StakeRes {
   /** @format double */
   amount: number;
   currency?: string | null;
+}
+
+export interface SubscribeReq {
+  tier?: string | null;
+}
+
+export interface SubscriptionRes {
+  userId?: string | null;
+  tier?: string | null;
+  status?: string | null;
+  periodStart?: string | null;
+  periodEnd?: string | null;
+  cancelAtPeriodEnd: boolean;
+  nextTier?: string | null;
 }
 
 export interface UpdateCauseReq {
@@ -626,6 +649,16 @@ export interface VConfigurationCreate2Params {
 
 export type VConfigurationCreate2Data = ConfigurationPrincipalRes;
 
+export interface VDisbursementRunCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VDisbursementRunCreateData = RunDisbursementRes;
+
 export interface VEmailCreateParams {
   to: string;
   /**
@@ -810,6 +843,7 @@ export interface VPaymentClientSecretListParams {
 export type VPaymentClientSecretListData = ClientSecretRes;
 
 export interface VPaymentConsentListParams {
+  purpose?: string;
   userId: string;
   /**
    * The requested API version
@@ -821,6 +855,7 @@ export interface VPaymentConsentListParams {
 export type VPaymentConsentListData = PaymentConsentRes;
 
 export interface VPaymentConsentDeleteParams {
+  purpose?: string;
   userId: string;
   /**
    * The requested API version
@@ -895,6 +930,50 @@ export interface VProtectionAwardWeeklyCreateParams {
 
 export type VProtectionAwardWeeklyCreateData = AwardWeeklyRes;
 
+export interface VSubscriptionDetailParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionDetailData = SubscriptionRes;
+
+export interface VSubscriptionSubscribeCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionSubscribeCreateData = SubscriptionRes;
+
+export interface VSubscriptionCancelCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionCancelCreateData = SubscriptionRes;
+
+export interface VSubscriptionChangeTierCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionChangeTierCreateData = SubscriptionRes;
+
 export type GetRootData = Info;
 
 export interface VUserListParams {
@@ -935,6 +1014,16 @@ export interface VUserMeListParams {
 }
 
 export type VUserMeListData = string;
+
+export interface VUserMeDeleteParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VUserMeDeleteData = any;
 
 export interface VUserMeAllListParams {
   /**
@@ -1284,7 +1373,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title Lapras Alcohol Zinc API
+ * @title Pichu Alcohol Zinc API
  * @version 1.0
  * @contact kirinnee <kirinnee97@gmail.com>
  *
@@ -1705,6 +1794,24 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags Disbursement
+     * @name VDisbursementRunCreate
+     * @request POST:/api/v{version}/disbursement/run
+     * @secure
+     * @response `200` `VDisbursementRunCreateData` Success
+     */
+    vDisbursementRunCreate: ({ version, ...query }: VDisbursementRunCreateParams, params: RequestParams = {}) =>
+      this.request<VDisbursementRunCreateData, any>({
+        path: `/api/v${version}/disbursement/run`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Email
      * @name VEmailCreate
      * @request POST:/api/v{version}/Email/{to}
@@ -2009,6 +2116,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VPaymentConsentListData, any>({
         path: `/api/v${version}/Payment/${userId}/consent`,
         method: 'GET',
+        query: query,
         secure: true,
         format: 'json',
         ...params,
@@ -2027,6 +2135,7 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VPaymentConsentDeleteData, any>({
         path: `/api/v${version}/Payment/${userId}/consent`,
         method: 'DELETE',
+        query: query,
         secure: true,
         ...params,
       }),
@@ -2167,6 +2276,93 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags Subscription
+     * @name VSubscriptionDetail
+     * @request GET:/api/v{version}/Subscription/{userId}
+     * @secure
+     * @response `200` `VSubscriptionDetailData` Success
+     */
+    vSubscriptionDetail: ({ userId, version, ...query }: VSubscriptionDetailParams, params: RequestParams = {}) =>
+      this.request<VSubscriptionDetailData, any>({
+        path: `/api/v${version}/Subscription/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Subscription
+     * @name VSubscriptionSubscribeCreate
+     * @request POST:/api/v{version}/Subscription/{userId}/subscribe
+     * @secure
+     * @response `200` `VSubscriptionSubscribeCreateData` Success
+     */
+    vSubscriptionSubscribeCreate: (
+      { userId, version, ...query }: VSubscriptionSubscribeCreateParams,
+      data: SubscribeReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VSubscriptionSubscribeCreateData, any>({
+        path: `/api/v${version}/Subscription/${userId}/subscribe`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Subscription
+     * @name VSubscriptionCancelCreate
+     * @request POST:/api/v{version}/Subscription/{userId}/cancel
+     * @secure
+     * @response `200` `VSubscriptionCancelCreateData` Success
+     */
+    vSubscriptionCancelCreate: (
+      { userId, version, ...query }: VSubscriptionCancelCreateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VSubscriptionCancelCreateData, any>({
+        path: `/api/v${version}/Subscription/${userId}/cancel`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Subscription
+     * @name VSubscriptionChangeTierCreate
+     * @request POST:/api/v{version}/Subscription/{userId}/change-tier
+     * @secure
+     * @response `200` `VSubscriptionChangeTierCreateData` Success
+     */
+    vSubscriptionChangeTierCreate: (
+      { userId, version, ...query }: VSubscriptionChangeTierCreateParams,
+      data: ChangeTierReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VSubscriptionChangeTierCreateData, any>({
+        path: `/api/v${version}/Subscription/${userId}/change-tier`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags User
      * @name VUserList
      * @request GET:/api/v{version}/User
@@ -2216,6 +2412,23 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
       this.request<VUserMeListData, any>({
         path: `/api/v${version}/User/Me`,
         method: 'GET',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags User
+     * @name VUserMeDelete
+     * @request DELETE:/api/v{version}/User/Me
+     * @secure
+     * @response `200` `VUserMeDeleteData` Success
+     */
+    vUserMeDelete: ({ version, ...query }: VUserMeDeleteParams, params: RequestParams = {}) =>
+      this.request<VUserMeDeleteData, any>({
+        path: `/api/v${version}/User/Me`,
+        method: 'DELETE',
         secure: true,
         ...params,
       }),
