@@ -71,10 +71,15 @@ export function usePaymentConsent(options?: UsePaymentConsentOptions): UsePaymen
         }
 
         if (purpose === 'subscription') {
-          // No claim tracks the subscription consent — ask zinc directly.
+          // No claim tracks the subscription consent — ask zinc directly. A
+          // fresh user has no payment customer yet, so an error here (404
+          // included) just means "no consent" and we proceed to setup.
           const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId, purpose });
-          const consentData: PaymentConsentRes = await consentResult.unwrap();
-          if (consentData.hasPaymentConsent) {
+          const hasSubscriptionConsent = await consentResult.match({
+            ok: (data: PaymentConsentRes) => data.hasPaymentConsent === true,
+            err: () => false,
+          });
+          if (hasSubscriptionConsent) {
             setChecking(false);
             onSuccess();
             return;
