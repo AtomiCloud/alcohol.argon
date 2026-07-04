@@ -6,7 +6,7 @@ import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
+import { usePaymentConsent, type ConsentPurpose } from '@/lib/payment/use-payment-consent';
 import { useUserId } from '@/lib/auth/use-user';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,11 +18,12 @@ type PaymentCallbackStatus = 'success' | 'failed' | 'cancelled';
 interface PaymentCallbackPageProps {
   status: PaymentCallbackStatus;
   returnUrl: string | null;
+  purpose: ConsentPurpose;
 }
 
-export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallbackPageProps) {
+export default function PaymentCallbackPage({ status, returnUrl, purpose }: PaymentCallbackPageProps) {
   const router = useRouter();
-  const { pollPaymentConsent } = usePaymentConsent();
+  const { pollPaymentConsent } = usePaymentConsent({ purpose });
   const userId = useUserId();
   const track = usePlausible();
   const [polling, setPolling] = useState(false);
@@ -52,9 +53,12 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
           setPolling(false);
           setPollingComplete(true);
           // Force-refresh tokens to ensure claims updated, then redirect
-          try {
-            await fetch('/api/auth/force_tokens');
-          } catch {}
+          // (penalty consent only — no Logto claim tracks the subscription consent)
+          if (purpose !== 'subscription') {
+            try {
+              await fetch('/api/auth/force_tokens');
+            } catch {}
+          }
           // Redirect back to the return URL with all preserved query params
           if (returnUrl) {
             router.replace(returnUrl);
@@ -69,7 +73,7 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
         },
       );
     }
-  }, [status, userId, polling, pollingComplete, pollingError, pollPaymentConsent, returnUrl, router, track]);
+  }, [status, userId, polling, pollingComplete, pollingError, pollPaymentConsent, returnUrl, router, track, purpose]);
 
   // Handle failed/cancelled payments
   if (status === 'failed' || status === 'cancelled') {
@@ -147,9 +151,11 @@ export default function PaymentCallbackPage({ status, returnUrl }: PaymentCallba
                         track(TrackingEvents.Payment.Callback.PollingSuccess);
                         setPolling(false);
                         setPollingComplete(true);
-                        try {
-                          await fetch('/api/auth/force_tokens');
-                        } catch {}
+                        if (purpose !== 'subscription') {
+                          try {
+                            await fetch('/api/auth/force_tokens');
+                          } catch {}
+                        }
                         router.replace(returnUrl || '/app');
                       },
                       () => {
@@ -249,6 +255,7 @@ export const getServerSideProps = withServerSideAtomi(
       payment_status,
       status: statusParam,
       return_url,
+      purpose: purposeParam,
     } = context.query as Record<string, string | string[] | undefined>;
 
     // Normalize possibly-array query params to a lowercase string
@@ -282,10 +289,15 @@ export const getServerSideProps = withServerSideAtomi(
     // Decode return URL if present
     const returnUrl = typeof return_url === 'string' ? decodeURIComponent(return_url) : null;
 
+    // Which consent this callback confirms; anything but 'subscription' is the
+    // original penalty flow.
+    const purpose: ConsentPurpose = normalize(purposeParam) === 'subscription' ? 'subscription' : 'penalty';
+
     return {
       props: {
         status,
         returnUrl,
+        purpose,
       },
     };
   },

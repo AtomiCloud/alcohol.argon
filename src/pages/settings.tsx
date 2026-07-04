@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { buildTime } from '@/adapters/external/core';
 import { withServerSideAtomi } from '@/adapters/atomi/next';
@@ -209,6 +210,17 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
               />
             </FieldCard>
           )}
+
+          <FieldCard
+            label="Subscription"
+            subtitle="View your plan, renewal date and billing options"
+            restriction="Cancel or change tier anytime"
+            contentClassName="space-y-2"
+          >
+            <Button asChild variant="outline" className="inline-flex items-center gap-2 px-3 py-2">
+              <Link href="/billing">Manage subscription</Link>
+            </Button>
+          </FieldCard>
 
           {!hasPaymentConsent && (
             <FieldCard

@@ -1,9 +1,32 @@
 import { useCallback, useState } from 'react';
 import { useClientConfig, useCommonConfig, useSwaggerClients } from '@/adapters/external/Provider';
-import type { ClientSecretRes, CreateCustomerRes, PaymentConsentRes } from '@/clients/alcohol/zinc/api';
+import type {
+  ClientSecretRes,
+  CreateCustomerRes,
+  PaymentConsentRes,
+  VPaymentConsentListParams,
+} from '@/clients/alcohol/zinc/api';
 import { init } from '@airwallex/components-sdk';
 import { useTheme } from '@/lib/theme/provider';
 import { useHasPaymentConsent, useUserId } from '@/lib/auth/use-user';
+
+/**
+ * Which charging relationship the consent authorizes, mirroring zinc's
+ * purpose-scoped consents (card-network MIT classification):
+ *  - 'penalty'      → unscheduled merchant-initiated (stakes/donations)
+ *  - 'subscription' → recurring merchant-initiated (plan renewals)
+ */
+export type ConsentPurpose = 'penalty' | 'subscription';
+
+// zinc's `purpose` query param on the consent endpoints ships with the
+// separate-consents work; until that deploys to pichu the generated params
+// type lacks it. The generated methods spread `...query`, so passing it is
+// runtime-safe today. Drop this cast after the next SDK regen.
+type WithPurpose<T> = T & { purpose?: ConsentPurpose };
+
+interface UsePaymentConsentOptions {
+  purpose?: ConsentPurpose;
+}
 
 interface UsePaymentConsentReturn {
   /**
@@ -26,8 +49,15 @@ interface UsePaymentConsentReturn {
 
 /**
  * Hook to handle payment consent flow with Airwallex
+ *
+ * Defaults to the penalty (unscheduled) consent, preserving the original
+ * behavior for stakes/donations. Pass `{ purpose: 'subscription' }` for the
+ * recurring consent used by plan billing — that variant never consults the
+ * Logto `has_payment_consent` claim (the claim tracks the penalty consent
+ * only) and always checks zinc directly.
  */
-export function usePaymentConsent(): UsePaymentConsentReturn {
+export function usePaymentConsent(options?: UsePaymentConsentOptions): UsePaymentConsentReturn {
+  const purpose: ConsentPurpose = options?.purpose ?? 'penalty';
   const api = useSwaggerClients();
   const [checking, setChecking] = useState(false);
   const clientConfig = useClientConfig();
@@ -38,8 +68,8 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
 
   const checkAndInitiatePayment = useCallback(
     async (onSuccess: () => void, returnUrl: string) => {
-      // Check if user already has consent
-      if (hasConsent) {
+      // The Logto claim shortcut only reflects the penalty consent.
+      if (purpose === 'penalty' && hasConsent) {
         onSuccess();
         return;
       }
@@ -49,6 +79,21 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         // Get userId from claims (no API call needed)
         if (!userId) {
           throw new Error('User ID not available');
+        }
+
+        if (purpose === 'subscription') {
+          // No claim tracks the subscription consent — ask zinc directly.
+          const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({
+            version: '1.0',
+            userId,
+            purpose,
+          } as WithPurpose<VPaymentConsentListParams>);
+          const consentData: PaymentConsentRes = await consentResult.unwrap();
+          if (consentData.hasPaymentConsent) {
+            setChecking(false);
+            onSuccess();
+            return;
+          }
         }
 
         // Create customer (idempotent)
@@ -81,7 +126,7 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         // Redirect to Airwallex HPP
         // After payment, user will be redirected to callback page which handles polling and token refresh
         const encodedReturnUrl = encodeURIComponent(returnUrl);
-        const callbackUrl = `${window.location.origin}/app/payment/callback?payment_status=success&return_url=${encodedReturnUrl}`;
+        const callbackUrl = `${window.location.origin}/app/payment/callback?payment_status=success&purpose=${purpose}&return_url=${encodedReturnUrl}`;
 
         payments?.redirectToCheckout({
           env: clientConfig.payment.airwallex.env,
@@ -98,7 +143,9 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
           recurringOptions: {
             next_triggered_by: 'merchant',
             currency: 'USD',
-            merchant_trigger_reason: 'unscheduled',
+            // zinc's webhook classifies the consent's purpose from this reason:
+            // 'recurring' → subscription consent, 'unscheduled' → penalty consent.
+            merchant_trigger_reason: purpose === 'subscription' ? 'recurring' : 'unscheduled',
           },
           logoUrl: 'https://lazytax.club/logo-source.svg',
           successUrl: callbackUrl,
@@ -109,7 +156,7 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         throw error;
       }
     },
-    [api, hasConsent, userId, clientConfig.payment.airwallex.env, theme.theme, commonConfig.pwa.themeColor],
+    [api, purpose, hasConsent, userId, clientConfig.payment.airwallex.env, theme.theme, commonConfig.pwa.themeColor],
   );
 
   const pollPaymentConsent = useCallback(
@@ -133,12 +180,19 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
           attempts++;
 
           try {
-            const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({ version: '1.0', userId });
+            const consentResult = await api.alcohol.zinc.api.vPaymentConsentList({
+              version: '1.0',
+              userId,
+              purpose,
+            } as WithPurpose<VPaymentConsentListParams>);
             const consentData: PaymentConsentRes = await consentResult.unwrap();
 
             if (consentData.hasPaymentConsent) {
-              // Success! Refresh tokens to get updated claims
-              await fetch('/api/auth/force_tokens');
+              if (purpose === 'penalty') {
+                // Success! Refresh tokens to get updated claims (penalty consent only —
+                // no Logto claim tracks the subscription consent).
+                await fetch('/api/auth/force_tokens');
+              }
               onSuccess();
               return;
             }
@@ -170,7 +224,7 @@ export function usePaymentConsent(): UsePaymentConsentReturn {
         onError();
       }
     },
-    [api, userId],
+    [api, userId, purpose],
   );
 
   return {
