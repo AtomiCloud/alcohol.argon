@@ -1,3 +1,11 @@
+## [1.37.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.36.0...v1.37.0) (2026-07-04)
+
+
+### ✨ Features ✨
+
+* /auth/handoff landing matching zinc web-handoff link contract ([dea69ae](https://github.com/AtomiCloud/alcohol.argon/commit/dea69ae9cf036faf7326824bb365a556942ac324))
+* /auth/handoff landing matching zinc web-handoff link contract ([#95](https://github.com/AtomiCloud/alcohol.argon/issues/95)) ([0f15285](https://github.com/AtomiCloud/alcohol.argon/commit/0f15285f4cb5c8856df5d127d8c3c7e1e8b879fe)), closes [#94](https://github.com/AtomiCloud/alcohol.argon/issues/94)
+
 ## [1.36.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.35.0...v1.36.0) (2026-07-04)
 
 
