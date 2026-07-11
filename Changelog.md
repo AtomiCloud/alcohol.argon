@@ -1,3 +1,17 @@
+## [1.38.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.37.1...v1.38.0) (2026-07-11)
+
+
+### ✨ Features ✨
+
+* NFC tag landing + AASA/assetlinks for /t/* ([#97](https://github.com/AtomiCloud/alcohol.argon/issues/97)) ([c1bda8c](https://github.com/AtomiCloud/alcohol.argon/commit/c1bda8cb33769e2866f8a070eebba252c7e691e7)), closes [AtomiCloud/alcohol.zinc#71](https://github.com/AtomiCloud/alcohol.zinc/issues/71)
+* NFC tag landing page + universal/app links verification ([893256d](https://github.com/AtomiCloud/alcohol.argon/commit/893256d5f0c23bca60fb17b52258aa6c75897b64))
+
+
+### 🐛 Bug Fixes 🐛
+
+* landing page review nits - no nested main, useConfig convention ([9e9a97c](https://github.com/AtomiCloud/alcohol.argon/commit/9e9a97c64ec25f61972d50dec75449fec4a5a8fb))
+* use post-LPSM-migration app identifiers in AASA/assetlinks ([68ef0b5](https://github.com/AtomiCloud/alcohol.argon/commit/68ef0b5e439cb324faa364c5f429090a9d90610d))
+
 ## [1.37.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.37.0...v1.37.1) (2026-07-04)
 
 
