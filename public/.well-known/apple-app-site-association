@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "MNPSXJP9PN.cloud.atomi.alcohol.neon.pichu",
+          "MNPSXJP9PN.cloud.atomi.alcohol.neon.pikachu",
+          "MNPSXJP9PN.cloud.atomi.alcohol.neon.raichu"
+        ],
+        "components": [
+          {
+            "/": "/t/*",
+            "comment": "NFC habit tags: open the neon app to resolve and complete the linked habit"
+          }
+        ]
+      }
+    ]
+  }
+}
