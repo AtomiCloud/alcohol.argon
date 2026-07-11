@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Nfc } from 'lucide-react';
-import { useCommonConfig } from '@/adapters/external/Provider';
+import { useConfig } from '@/adapters/external/Provider';
 
 // Fallback landing for NFC habit tags (lazytax.club/t/{tagId}). Owners with the
 // app never see this page — the OS intercepts /t/* via Universal/App Links and
@@ -13,7 +13,7 @@ import { useCommonConfig } from '@/adapters/external/Provider';
 // resolves nothing and shows no habit data (tag ids mean nothing without the
 // owner's auth).
 export default function NfcTagLandingPage() {
-  const common = useCommonConfig();
+  const { common } = useConfig();
   const appName = common.app.name;
 
   return (
@@ -26,7 +26,8 @@ export default function NfcTagLandingPage() {
         />
         <meta name="robots" content="noindex" />
       </Head>
-      <main className="flex min-h-screen items-center justify-center px-4 py-12">
+      {/* Layout already renders the page-level <main>; keep this a plain section. */}
+      <section className="flex min-h-[60vh] items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="items-center">
             <Image src="/mascot.svg" alt={`${appName} mascot`} width={96} height={96} className="mx-auto mb-4" />
@@ -47,7 +48,7 @@ export default function NfcTagLandingPage() {
             </Button>
           </CardContent>
         </Card>
-      </main>
+      </section>
     </>
   );
 }
