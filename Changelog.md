@@ -1,3 +1,11 @@
+## [1.37.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.37.0...v1.37.1) (2026-07-04)
+
+
+### 🐛 Bug Fixes 🐛
+
+* treat subscription consent pre-check errors as no-consent ([31bfd8d](https://github.com/AtomiCloud/alcohol.argon/commit/31bfd8d88fdde9e34156dfd8135e89c0a57a1249))
+* treat subscription consent pre-check errors as no-consent ([#96](https://github.com/AtomiCloud/alcohol.argon/issues/96)) ([9d9e062](https://github.com/AtomiCloud/alcohol.argon/commit/9d9e062f29ec0376c4678ba487fd961c8ee5674a))
+
 ## [1.37.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.36.0...v1.37.0) (2026-07-04)
 
 
