@@ -1,3 +1,16 @@
+## [1.39.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.38.0...v1.39.0) (2026-07-12)
+
+
+### ✨ Features ✨
+
+* add email logo assets (2x PNG for transactional emails) ([f452406](https://github.com/AtomiCloud/alcohol.argon/commit/f452406d90b3816850f684c4e826207569d4ef8f))
+* email logo assets (2x PNG) for zinc transactional emails ([#98](https://github.com/AtomiCloud/alcohol.argon/issues/98)) ([1074aaa](https://github.com/AtomiCloud/alcohol.argon/commit/1074aaa02ef57f382af920fb94ca1892ac4a6051))
+
+
+### 🐛 Bug Fixes 🐛
+
+* update mailing address to Sacramento, CA ([af45f72](https://github.com/AtomiCloud/alcohol.argon/commit/af45f72fa422b368d868e0bd076c0d382f27685f))
+
 ## [1.38.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.37.1...v1.38.0) (2026-07-11)
 
 
