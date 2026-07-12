@@ -58,8 +58,8 @@ export function Footer() {
           {/* Company Info */}
           <div className="text-center space-y-2">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{appName}</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400">60 PAYA LEBAR ROAD, #06-28, PAYA LEBAR SQUARE</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400">SINGAPORE 409051</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">2108 N ST #15772</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">SACRAMENTO, CA 95816, USA</p>
           </div>
 
           {/* Social Media & Contact */}
