@@ -58,8 +58,9 @@ export function Footer() {
           {/* Company Info */}
           <div className="text-center space-y-2">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{appName}</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400">2108 N ST #15772</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400">SACRAMENTO, CA 95816, USA</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">DurianCloud LLC</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">2108 N Street, #15772</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">Sacramento, CA 95816, United States</p>
           </div>
 
           {/* Social Media & Contact */}
@@ -182,7 +183,7 @@ export function Footer() {
             <p className="text-xs text-slate-600 dark:text-slate-400">
               © {year} {appName}. All rights reserved.
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Registered business in Singapore</p>
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Registered business in the United States</p>
           </div>
         </div>
       </div>

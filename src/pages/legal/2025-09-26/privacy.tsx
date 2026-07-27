@@ -195,7 +195,7 @@ export default function PrivacyPolicy() {
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Data Subject Rights (PDPA/GDPR)</CardTitle>
+              <CardTitle>Data Subject Rights (CCPA/GDPR)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>Subject to applicable laws, you have the following rights regarding your personal data:</p>
@@ -235,7 +235,8 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>
-                We generally process data within Singapore. If we transfer personal data outside Singapore, we will:
+                We generally process data within the United States. If we transfer personal data outside the United
+                States, we will:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Obtain your consent where required</li>
@@ -272,12 +273,12 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>
-                This policy complies with applicable data protection laws including the Personal Data Protection Act
-                (PDPA) of Singapore and the General Data Protection Regulation (GDPR) where applicable.
+                This policy complies with applicable data protection laws including the California Consumer Privacy Act
+                (CCPA/CPRA) and the General Data Protection Regulation (GDPR) where applicable.
               </p>
               <p>
-                For Singapore residents: This policy is aligned with PDPA requirements for consent, notification,
-                access, and correction obligations.
+                For California residents: This policy is aligned with CCPA/CPRA requirements for notice, access,
+                deletion, and correction obligations.
               </p>
               <p>
                 For EU residents: Where GDPR applies, we process personal data lawfully, fairly, and transparently in
@@ -298,7 +299,7 @@ export default function PrivacyPolicy() {
                 <strong>Email:</strong> chingwee@lazytax.club
               </p>
               <p>
-                <strong>Address:</strong> 2108 N ST #15772, SACRAMENTO, CA 95816, USA
+                <strong>Address:</strong> DurianCloud LLC, 2108 N Street, #15772, Sacramento, CA 95816, United States
               </p>
               <p>
                 For general privacy questions or to exercise your data subject rights, contact our Privacy Officer. For
