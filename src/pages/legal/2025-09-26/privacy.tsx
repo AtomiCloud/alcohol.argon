@@ -165,6 +165,10 @@ export default function PrivacyPolicy() {
                 <li>Access, correct, or delete certain personal information, subject to legal exceptions.</li>
                 <li>Opt out of marketing at any time without affecting transactional messages.</li>
                 <li>Control cookie and tracking preferences via your browser or device settings.</li>
+                <li>
+                  California residents have additional rights described in the &quot;Data Subject Rights
+                  (CCPA/GDPR)&quot; section below.
+                </li>
               </ul>
             </CardContent>
           </Card>
@@ -221,10 +225,26 @@ export default function PrivacyPolicy() {
                 <li>
                   <strong>Restrict:</strong> Request limitation of processing in certain circumstances
                 </li>
+                <li>
+                  <strong>Opt Out of Sale/Sharing (California):</strong> We do not sell personal information or share it
+                  for cross-context behavioral advertising. If that ever changes, we will provide a &quot;Do Not Sell or
+                  Share My Personal Information&quot; opt-out as required by the CCPA/CPRA
+                </li>
+                <li>
+                  <strong>Limit Sensitive Personal Information (California):</strong> We use sensitive personal
+                  information only for purposes permitted by the CCPA/CPRA, such as providing the Service and preventing
+                  fraud
+                </li>
+                <li>
+                  <strong>Non-Discrimination:</strong> We will not discriminate against you (e.g., deny service, charge
+                  different prices, or degrade quality) for exercising any of these rights
+                </li>
               </ul>
               <p>
-                To exercise these rights, submit a request in writing to our Privacy Officer. We will respond within 30
-                days (or as required by applicable law) and may require identity verification.
+                To exercise these rights, submit a request in writing to our Privacy Officer (contact details in the
+                &quot;Privacy Officer &amp; Contact&quot; section below). California residents may also have an
+                authorized agent submit a request on their behalf. We will respond within 30 days (or as required by
+                applicable law, e.g., 45 days under the CCPA/CPRA) and may require identity verification.
               </p>
             </CardContent>
           </Card>
@@ -278,7 +298,10 @@ export default function PrivacyPolicy() {
               </p>
               <p>
                 For California residents: This policy is aligned with CCPA/CPRA requirements for notice, access,
-                deletion, and correction obligations.
+                deletion, correction, opt-out of sale/sharing, limits on sensitive personal information, and
+                non-discrimination. We do not sell personal information or share it for cross-context behavioral
+                advertising. To exercise any of these rights, contact our Privacy Officer as described in the &quot;Data
+                Subject Rights&quot; section above.
               </p>
               <p>
                 For EU residents: Where GDPR applies, we process personal data lawfully, fairly, and transparently in
