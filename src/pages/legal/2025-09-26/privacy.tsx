@@ -165,6 +165,10 @@ export default function PrivacyPolicy() {
                 <li>Access, correct, or delete certain personal information, subject to legal exceptions.</li>
                 <li>Opt out of marketing at any time without affecting transactional messages.</li>
                 <li>Control cookie and tracking preferences via your browser or device settings.</li>
+                <li>
+                  California residents have additional rights described in the &quot;Data Subject Rights
+                  (CCPA/GDPR)&quot; section below.
+                </li>
               </ul>
             </CardContent>
           </Card>
@@ -195,7 +199,7 @@ export default function PrivacyPolicy() {
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Data Subject Rights (PDPA/GDPR)</CardTitle>
+              <CardTitle>Data Subject Rights (CCPA/GDPR)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>Subject to applicable laws, you have the following rights regarding your personal data:</p>
@@ -221,10 +225,26 @@ export default function PrivacyPolicy() {
                 <li>
                   <strong>Restrict:</strong> Request limitation of processing in certain circumstances
                 </li>
+                <li>
+                  <strong>Opt Out of Sale/Sharing (California):</strong> We do not sell personal information or share it
+                  for cross-context behavioral advertising. If that ever changes, we will provide a &quot;Do Not Sell or
+                  Share My Personal Information&quot; opt-out as required by the CCPA/CPRA
+                </li>
+                <li>
+                  <strong>Limit Sensitive Personal Information (California):</strong> We use sensitive personal
+                  information only for purposes permitted by the CCPA/CPRA, such as providing the Service and preventing
+                  fraud
+                </li>
+                <li>
+                  <strong>Non-Discrimination:</strong> We will not discriminate against you (e.g., deny service, charge
+                  different prices, or degrade quality) for exercising any of these rights
+                </li>
               </ul>
               <p>
-                To exercise these rights, submit a request in writing to our Privacy Officer. We will respond within 30
-                days (or as required by applicable law) and may require identity verification.
+                To exercise these rights, submit a request in writing to our Privacy Officer (contact details in the
+                &quot;Privacy Officer &amp; Contact&quot; section below). California residents may also have an
+                authorized agent submit a request on their behalf. We will respond within 30 days (or as required by
+                applicable law, e.g., 45 days under the CCPA/CPRA) and may require identity verification.
               </p>
             </CardContent>
           </Card>
@@ -235,7 +255,8 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>
-                We generally process data within Singapore. If we transfer personal data outside Singapore, we will:
+                We generally process data within the United States. If we transfer personal data outside the United
+                States, we will:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Obtain your consent where required</li>
@@ -272,12 +293,15 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent className="space-y-3 text-slate-700 dark:text-slate-300">
               <p>
-                This policy complies with applicable data protection laws including the Personal Data Protection Act
-                (PDPA) of Singapore and the General Data Protection Regulation (GDPR) where applicable.
+                This policy complies with applicable data protection laws including the California Consumer Privacy Act
+                (CCPA/CPRA) and the General Data Protection Regulation (GDPR) where applicable.
               </p>
               <p>
-                For Singapore residents: This policy is aligned with PDPA requirements for consent, notification,
-                access, and correction obligations.
+                For California residents: This policy is aligned with CCPA/CPRA requirements for notice, access,
+                deletion, correction, opt-out of sale/sharing, limits on sensitive personal information, and
+                non-discrimination. We do not sell personal information or share it for cross-context behavioral
+                advertising. To exercise any of these rights, contact our Privacy Officer as described in the &quot;Data
+                Subject Rights&quot; section above.
               </p>
               <p>
                 For EU residents: Where GDPR applies, we process personal data lawfully, fairly, and transparently in
@@ -298,7 +322,7 @@ export default function PrivacyPolicy() {
                 <strong>Email:</strong> chingwee@lazytax.club
               </p>
               <p>
-                <strong>Address:</strong> 2108 N ST #15772, SACRAMENTO, CA 95816, USA
+                <strong>Address:</strong> DurianCloud LLC, 2108 N Street, #15772, Sacramento, CA 95816, United States
               </p>
               <p>
                 For general privacy questions or to exercise your data subject rights, contact our Privacy Officer. For

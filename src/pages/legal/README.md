@@ -18,7 +18,7 @@ legal/
 
 ### 2025-09-26
 - **Initial LazyTax-specific version**
-- Added PDPA/GDPR compliance sections
+- Added CCPA/GDPR compliance sections
 - Added Privacy Officer details (Ho Ching Wee, chingwee@lazytax.club)
 - Added custom frequency habits support (daily, weekly, custom intervals)
 - Added streak and gamification data handling
