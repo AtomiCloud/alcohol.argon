@@ -1,3 +1,12 @@
+## [1.39.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.39.0...v1.39.1) (2026-07-27)
+
+
+### 🐛 Bug Fixes 🐛
+
+* align CCPA/CPRA rights language with compliance claims ([d54328a](https://github.com/AtomiCloud/alcohol.argon/commit/d54328ad7dd2e921e270cdef60c211fcbe393fc2))
+* show DurianCloud LLC entity and US legal framing ([b0bc632](https://github.com/AtomiCloud/alcohol.argon/commit/b0bc632b99c5ac922bff762235e93e14d7d82c54))
+* show DurianCloud LLC entity and US legal framing ([#100](https://github.com/AtomiCloud/alcohol.argon/issues/100)) ([48f3148](https://github.com/AtomiCloud/alcohol.argon/commit/48f3148deb9494a32b76eea6236154a7f2bfe9cb))
+
 ## [1.39.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.38.0...v1.39.0) (2026-07-12)
 
 
