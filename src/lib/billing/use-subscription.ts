@@ -12,7 +12,7 @@ export interface UseSubscriptionActions {
   subscribe: (tier: PaidTier) => Promise<Result<SubscriptionRes, Problem>>;
   /** Stop renewal at period end; access is retained until then. */
   cancel: () => Promise<Result<SubscriptionRes, Problem>>;
-  /** Upgrade (immediate charge, period resets) or downgrade (applies at period end). */
+  /** Upgrade (immediate, charges the prorated difference, renewal date kept) or downgrade (applies at period end). */
   changeTier: (tier: Tier) => Promise<Result<SubscriptionRes, Problem>>;
   /**
    * Undo a pending cancel-at-period-end: zinc has no dedicated un-cancel

@@ -18,6 +18,7 @@ import { chargeFailureIntentStatus, classifyBillingError } from '@/lib/billing/e
 import {
   TIER_PRICING,
   TIER_RANK,
+  estimateProratedUpgradeCents,
   formatUsdCents,
   parsePaidTier,
   tierLabel,
@@ -32,7 +33,12 @@ import type { Problem } from '@/lib/problem/core';
 import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { AlertCircle, ArrowDownCircle, ArrowUpCircle, CreditCard, RotateCcw, XCircle } from 'lucide-react';
 
-type BillingPageProps = { initial: ResultSerial<SubscriptionRes, Problem> };
+type BillingPageProps = {
+  initial: ResultSerial<SubscriptionRes, Problem>;
+  // Server-clock render time: keeps the prorated-upgrade estimate an upper
+  // bound on what zinc will charge, regardless of the visitor's clock.
+  serverNow: number;
+};
 
 type PendingAction = 'cancel' | 'resume' | 'upgrade' | 'downgrade' | null;
 
@@ -43,7 +49,7 @@ function formatDate(iso: string | null | undefined): string {
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export default function BillingPage({ initial }: BillingPageProps) {
+export default function BillingPage({ initial, serverNow }: BillingPageProps) {
   const router = useRouter();
   const problemReporter = useProblemReporter();
   const { cancel, changeTier, unCancel } = useSubscription();
@@ -64,6 +70,16 @@ export default function BillingPage({ initial }: BillingPageProps) {
   const isPaid = paidTier != null && (sub.status === 'active' || sub.status === 'grace');
   const otherTier: PaidTier | null = paidTier === 'pro' ? 'ultimate' : paidTier === 'ultimate' ? 'pro' : null;
   const otherIsUpgrade = paidTier != null && otherTier != null && TIER_RANK[otherTier] > TIER_RANK[paidTier];
+  const upgradeEstimateCents =
+    otherIsUpgrade && paidTier != null && otherTier != null
+      ? estimateProratedUpgradeCents(
+          TIER_PRICING[paidTier].launchCents,
+          TIER_PRICING[otherTier].launchCents,
+          sub.periodStart,
+          sub.periodEnd,
+          serverNow,
+        )
+      : null;
 
   const runAction = async (action: () => Promise<Result<SubscriptionRes, Problem>>, source: string) => {
     setActing(true);
@@ -333,8 +349,18 @@ export default function BillingPage({ initial }: BillingPageProps) {
                 description={
                   otherIsUpgrade ? (
                     <span>
-                      You'll be charged {formatUsdCents(TIER_PRICING[otherTier].launchCents)} now and your billing
-                      period restarts today.
+                      {upgradeEstimateCents != null && upgradeEstimateCents <= 0 ? (
+                        <>Nothing to pay now — the difference for the time left rounds to $0.</>
+                      ) : upgradeEstimateCents != null ? (
+                        <>
+                          You'll pay about {formatUsdCents(upgradeEstimateCents)} now — just the price difference for
+                          the rest of this period.
+                        </>
+                      ) : (
+                        <>You'll pay only the price difference for the rest of this period now.</>
+                      )}{' '}
+                      Your renewal date stays {formatDate(sub.periodEnd)}, then it's{' '}
+                      {formatUsdCents(TIER_PRICING[otherTier].launchCents)}/month.
                     </span>
                   ) : (
                     <span>
@@ -372,6 +398,6 @@ export const getServerSideProps = withServerSideAtomi(
 
     const result = await apiTree.alcohol.zinc.api.vSubscriptionDetail({ version: '1.0', userId });
     const initial: ResultSerial<SubscriptionRes, Problem> = await result.serial();
-    return { props: { initial } };
+    return { props: { initial, serverNow: Date.now() } };
   },
 );
