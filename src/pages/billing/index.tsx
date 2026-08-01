@@ -18,6 +18,7 @@ import { chargeFailureIntentStatus, classifyBillingError } from '@/lib/billing/e
 import {
   TIER_PRICING,
   TIER_RANK,
+  estimateProratedUpgradeCents,
   formatUsdCents,
   parsePaidTier,
   tierLabel,
@@ -64,6 +65,15 @@ export default function BillingPage({ initial }: BillingPageProps) {
   const isPaid = paidTier != null && (sub.status === 'active' || sub.status === 'grace');
   const otherTier: PaidTier | null = paidTier === 'pro' ? 'ultimate' : paidTier === 'ultimate' ? 'pro' : null;
   const otherIsUpgrade = paidTier != null && otherTier != null && TIER_RANK[otherTier] > TIER_RANK[paidTier];
+  const upgradeEstimateCents =
+    otherIsUpgrade && paidTier != null && otherTier != null
+      ? estimateProratedUpgradeCents(
+          TIER_PRICING[paidTier].launchCents,
+          TIER_PRICING[otherTier].launchCents,
+          sub.periodStart,
+          sub.periodEnd,
+        )
+      : null;
 
   const runAction = async (action: () => Promise<Result<SubscriptionRes, Problem>>, source: string) => {
     setActing(true);
@@ -333,8 +343,18 @@ export default function BillingPage({ initial }: BillingPageProps) {
                 description={
                   otherIsUpgrade ? (
                     <span>
-                      You'll be charged {formatUsdCents(TIER_PRICING[otherTier].launchCents)} now and your billing
-                      period restarts today.
+                      {upgradeEstimateCents != null && upgradeEstimateCents <= 0 ? (
+                        <>Nothing to pay now — you're right at your renewal date.</>
+                      ) : upgradeEstimateCents != null ? (
+                        <>
+                          You'll pay about {formatUsdCents(upgradeEstimateCents)} now — just the price difference for
+                          the rest of this period.
+                        </>
+                      ) : (
+                        <>You'll pay only the price difference for the rest of this period now.</>
+                      )}{' '}
+                      Your renewal date stays {formatDate(sub.periodEnd)}, then it's{' '}
+                      {formatUsdCents(TIER_PRICING[otherTier].launchCents)}/month.
                     </span>
                   ) : (
                     <span>
