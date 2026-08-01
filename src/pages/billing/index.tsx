@@ -33,7 +33,12 @@ import type { Problem } from '@/lib/problem/core';
 import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { AlertCircle, ArrowDownCircle, ArrowUpCircle, CreditCard, RotateCcw, XCircle } from 'lucide-react';
 
-type BillingPageProps = { initial: ResultSerial<SubscriptionRes, Problem> };
+type BillingPageProps = {
+  initial: ResultSerial<SubscriptionRes, Problem>;
+  // Server-clock render time: keeps the prorated-upgrade estimate an upper
+  // bound on what zinc will charge, regardless of the visitor's clock.
+  serverNow: number;
+};
 
 type PendingAction = 'cancel' | 'resume' | 'upgrade' | 'downgrade' | null;
 
@@ -44,7 +49,7 @@ function formatDate(iso: string | null | undefined): string {
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export default function BillingPage({ initial }: BillingPageProps) {
+export default function BillingPage({ initial, serverNow }: BillingPageProps) {
   const router = useRouter();
   const problemReporter = useProblemReporter();
   const { cancel, changeTier, unCancel } = useSubscription();
@@ -72,6 +77,7 @@ export default function BillingPage({ initial }: BillingPageProps) {
           TIER_PRICING[otherTier].launchCents,
           sub.periodStart,
           sub.periodEnd,
+          serverNow,
         )
       : null;
 
@@ -344,7 +350,7 @@ export default function BillingPage({ initial }: BillingPageProps) {
                   otherIsUpgrade ? (
                     <span>
                       {upgradeEstimateCents != null && upgradeEstimateCents <= 0 ? (
-                        <>Nothing to pay now — you're right at your renewal date.</>
+                        <>Nothing to pay now — the difference for the time left rounds to $0.</>
                       ) : upgradeEstimateCents != null ? (
                         <>
                           You'll pay about {formatUsdCents(upgradeEstimateCents)} now — just the price difference for
@@ -392,6 +398,6 @@ export const getServerSideProps = withServerSideAtomi(
 
     const result = await apiTree.alcohol.zinc.api.vSubscriptionDetail({ version: '1.0', userId });
     const initial: ResultSerial<SubscriptionRes, Problem> = await result.serial();
-    return { props: { initial } };
+    return { props: { initial, serverNow: Date.now() } };
   },
 );
