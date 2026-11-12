@@ -9,7 +9,8 @@ import { usePageSEO } from '@/lib/seo';
 
 // Friend invite links are shared as t.lazytax.club/f/{code}. With the neon app
 // installed, the OS opens the app (Universal/App Links, served by
-// alcohol.helium), which accepts the invite. Everyone else is redirected here.
+// alcohol.helium), which sends the inviter a friend request to accept. Everyone
+// else is redirected here.
 // This page has two jobs: the Open Graph card that WhatsApp, Messages and
 // others render when the link is shared, and showing the code for someone who
 // installs the app later. It calls no API: the code is meaningless without the
@@ -23,7 +24,7 @@ export default function FriendInvitePage({ code }: Props) {
   const appName = common.app.name;
   const seo = usePageSEO({
     title: `Be my friend on ${appName}`,
-    description: 'Keep each other honest on your habits. Open the invite to add me as a friend.',
+    description: 'Keep each other honest on your habits. Open the invite to send me a friend request.',
     canonical: `/f/${code}/`,
     image: '/og-invite.png',
     noIndex: true,
@@ -44,11 +45,12 @@ export default function FriendInvitePage({ code }: Props) {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Got the app? Open this link on your phone and it accepts the invite. Otherwise, in the app go to Profile →
-              Friends → Enter a code:
+              Got the app? Open this link on your phone, or in the app go to Profile → Friends → Enter a code:
             </p>
             <p className="font-mono text-2xl font-semibold tracking-wider">{code}</p>
-            <p className="text-xs text-muted-foreground">The invite works for 7 days.</p>
+            <p className="text-xs text-muted-foreground">
+              This sends them a friend request. You become friends once they accept it.
+            </p>
             <Button asChild className="w-full">
               <Link href="/">Discover {appName}</Link>
             </Button>

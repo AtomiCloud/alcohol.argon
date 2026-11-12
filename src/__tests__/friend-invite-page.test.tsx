@@ -67,12 +67,18 @@ describe('/f/[code] page', () => {
     expect(render('k7m2qd').body).toContain('>k7m2qd<');
   });
 
+  it('says the invite sends a friend request the inviter accepts, and never expires', () => {
+    const { body } = render('k7m2qd');
+    expect(body).toContain('This sends them a friend request. You become friends once they accept it.');
+    expect(body).not.toMatch(/\bdays?\b|expire/i);
+  });
+
   it('serves the invite link-preview tags with an absolute image URL', () => {
     const { head } = render('k7m2qd');
     expect(head).toContain(`<meta property="og:image" content="${APP_URL}/og-invite.png"/>`);
     expect(head).toContain('<meta property="og:title" content="Be my friend on LazyTax"/>');
     expect(head).toContain(
-      '<meta property="og:description" content="Keep each other honest on your habits. Open the invite to add me as a friend."/>',
+      '<meta property="og:description" content="Keep each other honest on your habits. Open the invite to send me a friend request."/>',
     );
     expect(head).toContain(`<meta property="og:url" content="${APP_URL}/f/k7m2qd/"/>`);
   });
