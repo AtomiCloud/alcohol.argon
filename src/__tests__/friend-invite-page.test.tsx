@@ -1,44 +1,16 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import type { GetServerSidePropsContext } from 'next';
-import type { ReactNode } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { HeadManagerContext } from 'next/dist/shared/lib/head-manager-context.shared-runtime';
+import { serverRender } from './server-render';
 
 const APP_URL = 'https://lazytax.club';
 
-mock.module('@/adapters/external/Provider', () => ({
-  useConfig: () => ({
-    common: {
-      app: { name: 'LazyTax', url: APP_URL, description: 'Default description' },
-      seo: { twitter: { site: '@lazytax' } },
-    },
-  }),
-}));
-// Built from a config webpack inlines at build time; this page doesn't use it.
-mock.module('@/lib/seo/generated-config', () => ({ generatedSeoConfig: {} }));
-
-// Imported after the mock so the page and usePageSEO read the stub config.
 const { default: FriendInvitePage, getServerSideProps } = await import('@/pages/f/[code]');
 
 const ssr = (code: string | undefined) =>
   getServerSideProps({ params: code === undefined ? {} : { code } } as GetServerSidePropsContext);
 
-// Renders the page the way Next's server does: next/head hands its tags to the head manager.
-function render(code: string): { head: string; body: string } {
-  let headTags: ReactNode[] = [];
-  const headManager = {
-    mountedInstances: new Set(),
-    updateHead: (tags: ReactNode[]) => {
-      headTags = tags;
-    },
-  };
-  const body = renderToStaticMarkup(
-    <HeadManagerContext.Provider value={headManager}>
-      <FriendInvitePage code={code} />
-    </HeadManagerContext.Provider>,
-  );
-  return { head: headTags.map(tag => renderToStaticMarkup(tag)).join(''), body };
-}
+// What a link previewer gets for /f/{code}: the page rendered through _app on the server.
+const render = (code: string) => serverRender('/f/[code]', FriendInvitePage, { code });
 
 describe('/f/[code] getServerSideProps', () => {
   it('lower-cases a valid code and passes it to the page', async () => {
@@ -63,8 +35,10 @@ describe('/f/[code] getServerSideProps', () => {
 });
 
 describe('/f/[code] page', () => {
-  it('shows the code', () => {
-    expect(render('k7m2qd').body).toContain('>k7m2qd<');
+  it('shows the code in the server HTML', () => {
+    const { body } = render('k7m2qd');
+    expect(body).toContain('>k7m2qd<');
+    expect(body).not.toContain('>Loading...<');
   });
 
   it('says the invite sends a friend request the inviter accepts, and never expires', () => {
@@ -81,5 +55,6 @@ describe('/f/[code] page', () => {
       '<meta property="og:description" content="Keep each other honest on your habits. Open the invite to send me a friend request."/>',
     );
     expect(head).toContain(`<meta property="og:url" content="${APP_URL}/f/k7m2qd/"/>`);
+    expect(head).toContain('<meta name="twitter:card" content="summary_large_image"/>');
   });
 });

@@ -1,4 +1,4 @@
-import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import type { Module } from '../core';
 
 interface ProviderConfig<TInput, TOutput> extends Module<TInput, TOutput> {
@@ -23,37 +23,48 @@ function createModuleProvider<TInput, TOutput>(config: ProviderConfig<TInput, TO
 
   const Context = createContext<ModuleContext<TOutput> | null>(null);
 
+  function toErrorMessage(err: unknown): string {
+    console.error(`${name} initialization error:`, err);
+    if (errorHandler) return errorHandler(err);
+    if (err instanceof Error) return err.message;
+    return `Failed to initialize ${name}`;
+  }
+
+  type Built = { resource: TOutput } | { error: string } | { pending: Promise<TOutput> };
+
   function ModuleProvider({ config: moduleConfig, children }: ModuleProviderProps<TInput>) {
-    const [resource, setResource] = useState<TOutput | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const configKey = JSON.stringify(moduleConfig);
 
+    // Build during render, so a synchronous builder's resource is ready on the
+    // server and the tree below (pages and their <head> tags) server-renders.
     // biome-ignore lint/correctness/useExhaustiveDependencies: require JSON for stable comparison
-    useEffect(() => {
-      async function initializeResource() {
-        try {
-          setIsLoading(true);
-          setError(null);
-          const builtResource = await builder(moduleConfig);
-          setResource(builtResource);
-        } catch (err) {
-          let errorMessage = `Failed to initialize ${name}`;
-
-          if (errorHandler) {
-            errorMessage = errorHandler(err);
-          } else if (err instanceof Error) {
-            errorMessage = err.message;
-          }
-
-          setError(errorMessage);
-          console.error(`${name} initialization error:`, err);
-        } finally {
-          setIsLoading(false);
-        }
+    const built = useMemo<Built>(() => {
+      try {
+        const result = builder(moduleConfig);
+        return result instanceof Promise ? { pending: result } : { resource: result };
+      } catch (err) {
+        return { error: toErrorMessage(err) };
       }
+    }, [configKey]);
 
-      initializeResource().then(() => console.debug(`${name} initialized successfully`));
-    }, [JSON.stringify(moduleConfig)]);
+    // An async builder can only finish on the client.
+    const [settled, setSettled] = useState<{ from: Built; value: { resource: TOutput } | { error: string } }>();
+    useEffect(() => {
+      if (!('pending' in built)) return;
+      let current = true;
+      built.pending.then(
+        resource => current && setSettled({ from: built, value: { resource } }),
+        err => current && setSettled({ from: built, value: { error: toErrorMessage(err) } }),
+      );
+      return () => {
+        current = false;
+      };
+    }, [built]);
+
+    const state = 'pending' in built ? (settled?.from === built ? settled.value : null) : built;
+    const isLoading = state === null;
+    const error = state && 'error' in state ? state.error : null;
+    const resource = state && 'resource' in state ? state.resource : null;
 
     const contextValue: ModuleContext<TOutput> = {
       resource: resource!,
