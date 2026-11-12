@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { mock } from 'bun:test';
 import type { AppProps } from 'next/app';
 import type { NextRouter } from 'next/router';
 import type { ReactNode } from 'react';
@@ -12,11 +12,13 @@ process.env.LANDSCAPE = 'raichu';
 mock.module('@/lib/seo/generated-config', () => ({ generatedSeoConfig: {} }));
 
 const { default: App } = await import('@/pages/_app');
-const { default: FriendInvitePage } = await import('@/pages/f/[code]');
 
-// Server-renders a page through the real _app and providers, the way Next's
-// pages renderer does: next/head hands its tags to the head manager.
-function serverRender(path: string, Component: AppProps['Component'], pageProps: object) {
+/**
+ * Server-renders a page through the real _app and providers, the way Next's
+ * pages renderer does: next/head hands its tags to the head manager. Returns
+ * the <head> tags and the body markup a link previewer would see.
+ */
+export function serverRender(path: string, Component: AppProps['Component'], pageProps: object) {
   let headTags: ReactNode[] = [];
   const headManager = {
     mountedInstances: new Set(),
@@ -52,14 +54,3 @@ function serverRender(path: string, Component: AppProps['Component'], pageProps:
   );
   return { head: headTags.map(tag => renderToString(tag)).join(''), body };
 }
-
-describe('server render through _app', () => {
-  it("puts the invite page's link-preview tags and content in the server HTML", () => {
-    const { head, body } = serverRender('/f/[code]', FriendInvitePage, { code: 'smoketest' });
-    expect(head).toContain('<meta property="og:image" content="https://lazytax.club/og-invite.png"/>');
-    expect(head).toContain('<meta property="og:title" content="Be my friend on LazyTax"/>');
-    expect(head).toContain('<meta name="twitter:card" content="summary_large_image"/>');
-    expect(body).toContain('>smoketest<');
-    expect(body).not.toContain('>Loading...<');
-  });
-});
