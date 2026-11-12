@@ -1,3 +1,16 @@
+## [1.41.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.40.0...v1.41.0) (2026-11-12)
+
+
+### 🐛 Bug Fixes 🐛
+
+* server-render pages and their link-preview tags ([42aa7c7](https://github.com/AtomiCloud/alcohol.argon/commit/42aa7c770334246a293ca360e92459f6454ca8c5))
+* server-render pages and their link-preview tags ([#105](https://github.com/AtomiCloud/alcohol.argon/issues/105)) ([28dbfda](https://github.com/AtomiCloud/alcohol.argon/commit/28dbfdae4344e08391511df24c3675a11a746cb5))
+
+
+### 🧪 Tests 🧪
+
+* render the invite page tests through _app ([d1d34b6](https://github.com/AtomiCloud/alcohol.argon/commit/d1d34b68534e2e889d944559331185f61dc2d96b))
+
 ## [1.40.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.39.1...v1.40.0) (2026-11-12)
 
 
