@@ -39,6 +39,10 @@ const nextConfig: NextConfig = {
   // files directly from `public/`.
   images: { unoptimized: true },
   serverExternalPackages: ['jose'],
+  // Bundle next-seo so its `next/head` import binds to the head context Next's
+  // renderer uses. Left external, it requires its own copy of that context in
+  // the OpenNext Cloudflare worker, and every SEO tag drops from the server HTML.
+  transpilePackages: ['next-seo'],
   webpack: config => {
     // Allow importing JSON files as modules
     config.module.rules.push({
