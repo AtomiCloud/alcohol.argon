@@ -1,3 +1,18 @@
+## [1.40.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.39.1...v1.40.0) (2026-11-12)
+
+
+### ✨ Features ✨
+
+* dark glass link-preview image for friend invites ([0934e02](https://github.com/AtomiCloud/alcohol.argon/commit/0934e020143576786a6a4bfc3af12edfffd29afe))
+* friend invite page with a link-preview card ([dde4607](https://github.com/AtomiCloud/alcohol.argon/commit/dde46075813888fa5d2693337a180b50acfa6f17))
+* friend invite page with a link-preview card ([#103](https://github.com/AtomiCloud/alcohol.argon/issues/103)) ([4e4066f](https://github.com/AtomiCloud/alcohol.argon/commit/4e4066f6b8003f758f26078621934409664a2495))
+* invite page says the link sends a friend request ([4147a82](https://github.com/AtomiCloud/alcohol.argon/commit/4147a82427e724f36d2b148c0e5a61374c3e1eb2))
+
+
+### 🧪 Tests 🧪
+
+* unit tests for the friend invite page ([ceed0d4](https://github.com/AtomiCloud/alcohol.argon/commit/ceed0d4441bbb04581597b2cef5dda706403a5fb))
+
 ## [1.39.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.39.0...v1.39.1) (2026-07-27)
 
 
