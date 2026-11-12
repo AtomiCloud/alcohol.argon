@@ -65,7 +65,7 @@
 
 ## Testing Guidelines
 
-- No formal test runner is configured yet. If you add tests, define a `pls` task to run them; do not invoke Node directly.
+- Unit tests run on Bun's built-in runner (`bun:test`) with `pls test`. Do not invoke Node directly.
 - Use `*.test.ts(x)` and place next to source or under `src/**/__tests__/`. Avoid network-dependent tests; mock fetch/clients.
 
 ## Commit & Pull Request Guidelines
