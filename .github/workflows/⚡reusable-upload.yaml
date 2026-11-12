@@ -20,16 +20,20 @@ jobs:
     strategy:
       matrix:
         landscape: [pichu, pikachu, raichu]
-    runs-on:
-      - nscloud-ubuntu-22.04-amd64-4x8-with-cache
-      - nscloud-cache-size-50gb
-      - nscloud-cache-tag-${{ inputs.atomi_platform }}-${{ inputs.atomi_service }}-nix-store-cache
+    runs-on: ubuntu-22.04
+    # Namespace runners (disabled):
+    # runs-on:
+    #   - nscloud-ubuntu-22.04-amd64-4x8-with-cache
+    #   - nscloud-cache-size-50gb
+    #   - nscloud-cache-tag-${{ inputs.atomi_platform }}-${{ inputs.atomi_service }}-nix-store-cache
     steps:
       # Setup
       - uses: AtomiCloud/actions.setup-nix@v2
         with:
-          namespacelabs: true
+          namespacelabs: 'false'
       - uses: AtomiCloud/actions.cache-bun@v1
+        with:
+          namespacelabs: 'false'
 
       # Upload to landscape
       - name: 📤 Upload to ${{ matrix.landscape }}
