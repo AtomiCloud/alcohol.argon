@@ -11,5 +11,12 @@ jobs:
     with:
       atomi_platform: alcohol
       atomi_service: argon
+  test:
+    name: Test
+    uses: ./.github/workflows/⚡reusable-test.yaml
+    secrets: inherit
+    with:
+      atomi_platform: alcohol
+      atomi_service: argon
   #
   #
