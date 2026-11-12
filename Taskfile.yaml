@@ -26,6 +26,11 @@ tasks:
     cmds:
       - pre-commit run --all-files
 
+  test:
+    desc: 'Run the unit tests'
+    cmds:
+      - bun test
+
   dev:
     desc: 'Start development server with live-reload'
     summary: |
