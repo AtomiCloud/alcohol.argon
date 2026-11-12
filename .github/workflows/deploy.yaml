@@ -1,0 +1,54 @@
+name: Deploy
+
+# Puts a release live. CD only uploads a version to each landscape
+# (wrangler versions upload); this runs the same build and `wrangler deploy`
+# for a chosen release tag, then checks the live site.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy, such as v1.40.0'
+        required: true
+        type: string
+      landscape:
+        description: 'Landscape to deploy to'
+        required: true
+        type: choice
+        options: [all, pichu, pikachu, raichu]
+
+jobs:
+  deploy:
+    name: Deploy ${{ matrix.landscape }}
+    strategy:
+      fail-fast: false
+      matrix:
+        landscape: ${{ fromJSON(inputs.landscape == 'all' && '["pichu","pikachu","raichu"]' || format('["{0}"]', inputs.landscape)) }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: AtomiCloud/actions.setup-nix@v2
+        with:
+          namespacelabs: 'false'
+      - uses: AtomiCloud/actions.cache-bun@v1
+        with:
+          namespacelabs: 'false'
+      - name: 🚀 Deploy to ${{ matrix.landscape }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ATOMI_CLIENT__FARO__BUILD__KEY: ${{ secrets.ATOMI_CLIENT__FARO__BUILD__KEY }}
+        run: nix develop .#ci -c ./scripts/ci/upload.sh "${{ matrix.landscape }}" deploy "${{ inputs.tag }}"
+      - name: 🔎 Check the live site
+        env:
+          LANDSCAPE: ${{ matrix.landscape }}
+        run: |
+          set -euo pipefail
+          url=$(sed -n 's/^  url: *//p' "src/config/common/$LANDSCAPE.settings.yaml" | head -1 | tr -d "'\"")
+          echo "Checking $url"
+          sleep 15
+          curl -fsS -o /dev/null "$url/"
+          # The invite page must render with its own preview image.
+          curl -fsSL "$url/f/smoketest/" | grep -q 'og-invite.png'
+          curl -fsS -o /dev/null "$url/og-invite.png"
