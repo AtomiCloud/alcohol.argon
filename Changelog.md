@@ -1,3 +1,11 @@
+## [1.41.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.41.0...v1.41.1) (2026-11-13)
+
+
+### 🐛 Bug Fixes 🐛
+
+* habit page loads every habit, not only the first 20 ([1dee32b](https://github.com/AtomiCloud/alcohol.argon/commit/1dee32b7b59faa026c635f85d23b3c8fba285e49))
+* habit page loads every habit, not only the first 20 ([#106](https://github.com/AtomiCloud/alcohol.argon/issues/106)) ([6320593](https://github.com/AtomiCloud/alcohol.argon/commit/63205939667a1d149aca1406adf1325784026d6d))
+
 ## [1.41.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.40.0...v1.41.0) (2026-11-12)
 
 
