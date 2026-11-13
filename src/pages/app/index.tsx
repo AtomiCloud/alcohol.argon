@@ -10,7 +10,7 @@ import { useClientConfig, useSwaggerClients } from '@/adapters/external/Provider
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import type { ConfigurationRes, HabitOverviewHabitRes, HabitOverviewResponse } from '@/clients/alcohol/zinc/api';
+import type { HabitOverviewHabitRes } from '@/clients/alcohol/zinc/api';
 import ConfettiExplosion from 'react-confetti-explosion';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
@@ -26,19 +26,9 @@ import type { Problem } from '@/lib/problem/core';
 import { EmptyStateLottie } from '@/components/lottie/presets';
 import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
+import { fetchHabitPageData, type HabitPageData } from '@/lib/habit-page-data';
 
-type HabitPageData = {
-  habits: HabitOverviewResponse;
-  config: ConfigurationRes;
-  userId: string;
-};
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
-
-// API interface for shared data fetching
-interface HabitPageApi {
-  vHabitOverviewList: (params: { userId: string; version: string }) => Promise<Result<HabitOverviewResponse, Problem>>;
-  vConfigurationMeList: (params: { version: string }) => Promise<Result<ConfigurationRes, Problem>>;
-}
 
 // Component to handle optimistic completion cleanup
 function OptimisticCompletionCleaner({
@@ -117,20 +107,6 @@ function ProgressCelebration({
   }, [completedToday, totalScheduledToday, lastProgressRef, setConfettiKey, setToast]);
 
   return null;
-}
-
-// Shared data fetching function used by both server and client
-async function fetchHabitPageData(api: HabitPageApi, userId: string): Promise<Result<HabitPageData, Problem>> {
-  const habitsResult = await api.vHabitOverviewList({ userId, version: '1.0' });
-  const configResult = await api.vConfigurationMeList({ version: '1.0' });
-
-  return habitsResult.andThen((habits: HabitOverviewResponse) =>
-    configResult.map((config: ConfigurationRes) => ({
-      habits,
-      config,
-      userId,
-    })),
-  );
 }
 
 export default function AppPage({ initial }: AppPageProps) {
