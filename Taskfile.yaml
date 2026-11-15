@@ -31,6 +31,26 @@ tasks:
     cmds:
       - bun test
 
+  security:dev:
+    desc: 'Synthetic-only local Next.js security preview (no Infisical)'
+    cmds:
+      - ./scripts/security/synthetic-environment.sh {{.CLI_ARGS}} bunx next dev --hostname 0.0.0.0 --port 3300
+
+  security:build:
+    desc: 'Build actual OpenNext output with synthetic-only credentials and uploads disabled'
+    cmds:
+      - ./scripts/security/synthetic-environment.sh bunx opennextjs-cloudflare build
+
+  security:preview:
+    desc: 'Serve the synthetic OpenNext build locally; never upload or deploy'
+    cmds:
+      - ./scripts/security/synthetic-environment.sh bun scripts/security/preview.ts {{.CLI_ARGS}}
+
+  security:check:
+    desc: 'Check the running local synthetic preview and emitted public assets'
+    cmds:
+      - ./scripts/security/synthetic-environment.sh bun test {{.CLI_ARGS | default "scripts/security/browser-assets.test.ts scripts/security/server-auth.test.ts"}}
+
   dev:
     desc: 'Start development server with live-reload'
     summary: |

@@ -6,5 +6,3 @@ faro:
   sessionTracking:
     enabled: true
     samplingRate: 1
-  build:
-    enabled: true

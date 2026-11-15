@@ -5,11 +5,24 @@ import type { ReactNode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { HeadManagerContext } from 'next/dist/shared/lib/head-manager-context.shared-runtime';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
+import { configSchemas } from '@/config';
+import { loadImportedConfigurations } from '@/config/configs.node';
+import { projectPublicConfig } from '@/config/public';
+import { createConfigManager } from '@/lib/config/core';
 
 // Render as production (raichu); every deployed build sets a landscape.
 process.env.LANDSCAPE = 'raichu';
 // Built from a config webpack inlines at build time.
 mock.module('@/lib/seo/generated-config', () => ({ generatedSeoConfig: {} }));
+
+// Match the public snapshot injected by webpack/SSR, without giving browser
+// providers a server registry or inheriting any developer credentials.
+const registry = createConfigManager<typeof configSchemas>('raichu').createRegistry(
+  configSchemas,
+  loadImportedConfigurations(),
+  {},
+);
+const publicConfig = projectPublicConfig(registry.common, registry.client);
 
 const { default: App } = await import('@/pages/_app');
 
@@ -48,7 +61,11 @@ export function serverRender(path: string, Component: AppProps['Component'], pag
   const body = renderToString(
     <RouterContext.Provider value={router}>
       <HeadManagerContext.Provider value={headManager}>
-        <App Component={Component} pageProps={pageProps} router={router as AppProps['router']} />
+        <App
+          Component={Component}
+          pageProps={{ ...pageProps, _publicConfig: publicConfig }}
+          router={router as AppProps['router']}
+        />
       </HeadManagerContext.Provider>
     </RouterContext.Provider>,
   );

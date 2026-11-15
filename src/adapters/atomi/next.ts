@@ -21,6 +21,8 @@ import type { IAuthStateRetriever } from '@/lib/auth/core/types';
 import { ServerAuthStateRetriever } from '@/lib/auth/core/server/retriever';
 import { OnboardChecker } from '@/lib/onboard/checker';
 import { Res } from '@/lib/monads/result';
+import { projectPublicConfig } from '@/config/public';
+import { getServerEnvironment } from '@/config/server/runtime';
 
 // biome-ignore lint/suspicious/noExplicitAny: Generic ApiOut must allow any type for extension
 type ApiOutput<T extends WithApiHandler<any, any>> = Parameters<Parameters<T>[1]>[2];
@@ -50,6 +52,7 @@ const withApiAtomi: WithApiHandler<AdaptedInput, AtomiOutput> = (
         landscape,
         importedConfigurations,
         schemas: configSchemas,
+        runtimeEnvironment: getServerEnvironment(),
       },
       (req, res, config) => {
         return withApiAuth(
@@ -175,6 +178,7 @@ const withApiLogtoOnly: WithApiHandler<AdaptedInput, { client: LogtoClient; base
         landscape,
         importedConfigurations,
         schemas: configSchemas,
+        runtimeEnvironment: getServerEnvironment(),
       },
       (req, res, config) => {
         return withApiAuth(
@@ -212,139 +216,154 @@ const withServerSideAtomi: WithServerSideHandler<AdaptedInput & { guard?: 'publi
   handler,
 ) => {
   return withServerSideLandscape({ source: landscapeSource }, (context, landscape) => {
-    return withServerSideConfig({ importedConfigurations, landscape, schemas: configSchemas }, (context, config) => {
-      return withServerSideAuth(
-        {
-          endpoint: config.server.auth.logto.app.endpoint,
-          landscape,
-          appId: config.server.auth.logto.app.id,
-          appSecret: config.server.auth.logto.app.secret,
-          baseUrl: config.server.auth.logto.url,
-          cookieSecret: config.server.auth.logto.cookie.secret,
-          resourceTree: config.server.auth.logto.resources,
-          scopes: config.server.auth.logto.scopes,
-        },
-        (context, { client }) => {
-          return withServerSideProblemReporter({ faro: false }, (context, problemReporter) => {
-            return withServerSideProblem(
-              {
-                config: config.common.errorPortal,
-                errorReporter: problemReporter.reporter,
-                problemDefinitions,
-              },
-              async (context, problem) => {
-                const checker = new AuthChecker();
-                const retriever = new ServerAuthStateRetriever(
-                  client,
-                  checker,
-                  config.server.auth.logto.resources,
-                  context.req,
-                  context.res,
-                );
+    return withServerSideConfig(
+      { importedConfigurations, landscape, schemas: configSchemas, runtimeEnvironment: getServerEnvironment() },
+      (context, config) => {
+        return withServerSideAuth(
+          {
+            endpoint: config.server.auth.logto.app.endpoint,
+            landscape,
+            appId: config.server.auth.logto.app.id,
+            appSecret: config.server.auth.logto.app.secret,
+            baseUrl: config.server.auth.logto.url,
+            cookieSecret: config.server.auth.logto.cookie.secret,
+            resourceTree: config.server.auth.logto.resources,
+            scopes: config.server.auth.logto.scopes,
+          },
+          (context, { client }) => {
+            return withServerSideProblemReporter({ faro: false }, (context, problemReporter) => {
+              return withServerSideProblem(
+                {
+                  config: config.common.errorPortal,
+                  errorReporter: problemReporter.reporter,
+                  problemDefinitions,
+                },
+                async (context, problem) => {
+                  const checker = new AuthChecker();
+                  const retriever = new ServerAuthStateRetriever(
+                    client,
+                    checker,
+                    config.server.auth.logto.resources,
+                    context.req,
+                    context.res,
+                  );
 
-                return withServerSideSwagger(
-                  {
-                    defaultInstance,
-                    problemTransformer: problem.transformer,
-                    clientTree: clientTree(config.common, retriever),
-                  },
-                  async (context, apiTree) => {
-                    const result = await handler(context, {
-                      landscape,
-                      config,
-                      problemRegistry: problem.registry,
+                  return withServerSideSwagger(
+                    {
+                      defaultInstance,
                       problemTransformer: problem.transformer,
-                      apiTree,
-                      problemReporter: problemReporter.reporter,
-                      problemReporterFactory: problemReporter.factory,
-                      auth: {
-                        client,
-                        checker,
-                        retriever,
-                      },
-                    });
-
-                    const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
-                      'alcohol-zinc': {
-                        creator: (idToken, accessToken) => {
-                          return Res.fromAsync(
-                            apiTree.alcohol.zinc.api.vUserCreate(
-                              { version: '1.0' },
-                              {
-                                accessToken,
-                                idToken,
-                              },
-                            ),
-                          );
+                      clientTree: clientTree(config.common, retriever),
+                    },
+                    async (context, apiTree) => {
+                      const handled = await handler(context, {
+                        landscape,
+                        config,
+                        problemRegistry: problem.registry,
+                        problemTransformer: problem.transformer,
+                        apiTree,
+                        problemReporter: problemReporter.reporter,
+                        problemReporterFactory: problemReporter.factory,
+                        auth: {
+                          client,
+                          checker,
+                          retriever,
                         },
-                      },
-                    });
+                      });
 
-                    return onboarder.onboard(guard).match({
-                      ok: onboardSuccess => {
-                        return onboardSuccess.match({
-                          ok: () => result,
-                          err: errorMessage => {
-                            if (guard === 'public') return result;
-                            // If setup_config, redirect directly to onboarding page
-                            if (errorMessage === 'setup_config') {
-                              // If we're already on the onboarding page, don't redirect to avoid flickering
-                              const rawPathname = (context.resolvedUrl || context.req.url || '/').split('?')[0];
-                              // Normalize pathname: remove trailing slash except for root
-                              const pathname = rawPathname === '/' ? rawPathname : rawPathname.replace(/\/$/, '');
-                              if (pathname === '/onboarding') {
-                                return result;
+                      const result =
+                        'props' in handled
+                          ? {
+                              ...handled,
+                              props: {
+                                ...((await handled.props) as Record<string, unknown>),
+                                _publicConfig: projectPublicConfig(config.common, config.client),
+                              },
+                            }
+                          : handled;
+
+                      const onboarder = new OnboardChecker(retriever, problem.registry, checker, {
+                        'alcohol-zinc': {
+                          creator: (idToken, accessToken) => {
+                            return Res.fromAsync(
+                              apiTree.alcohol.zinc.api.vUserCreate(
+                                { version: '1.0' },
+                                {
+                                  accessToken,
+                                  idToken,
+                                },
+                              ),
+                            );
+                          },
+                        },
+                      });
+
+                      return onboarder.onboard(guard).match({
+                        ok: onboardSuccess => {
+                          return onboardSuccess.match({
+                            ok: () => result,
+                            err: errorMessage => {
+                              if (guard === 'public') return result;
+                              // If setup_config, redirect directly to onboarding page
+                              if (errorMessage === 'setup_config') {
+                                // If we're already on the onboarding page, don't redirect to avoid flickering
+                                const rawPathname = (context.resolvedUrl || context.req.url || '/').split('?')[0];
+                                // Normalize pathname: remove trailing slash except for root
+                                const pathname = rawPathname === '/' ? rawPathname : rawPathname.replace(/\/$/, '');
+                                if (pathname === '/onboarding') {
+                                  return result;
+                                }
+
+                                // Redirect to onboarding (let onboarding page handle params)
+                                return {
+                                  redirect: {
+                                    permanent: false,
+                                    destination: '/onboarding',
+                                  },
+                                  // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
+                                } as any;
                               }
-
-                              // Redirect to onboarding (let onboarding page handle params)
+                              const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
                               return {
                                 redirect: {
                                   permanent: false,
-                                  destination: '/onboarding',
+                                  destination: `/finish?message=${errorMessage}&returnTo=${originalPath}`,
                                 },
                                 // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
                               } as any;
-                            }
-                            const originalPath = encodeURIComponent(context.resolvedUrl || context.req.url || '/');
-                            return {
-                              redirect: {
-                                permanent: false,
-                                destination: `/finish?message=${errorMessage}&returnTo=${originalPath}`,
-                              },
-                              // biome-ignore lint/suspicious/noExplicitAny: this is a complex type
-                            } as any;
-                          },
-                        });
-                      },
-                      err: onboardError => {
-                        const hasProps = 'props' in result && typeof result.props === 'object' && result.props !== null;
+                            },
+                          });
+                        },
+                        err: onboardError => {
+                          const hasProps =
+                            'props' in result && typeof result.props === 'object' && result.props !== null;
 
-                        if (hasProps) {
+                          if (hasProps) {
+                            return {
+                              ...result,
+                              props: {
+                                ...(result.props as Record<string, unknown>),
+                                error: onboardError,
+                              },
+                            };
+                          }
+
                           return {
                             ...result,
                             props: {
-                              ...(result.props as Record<string, unknown>),
                               error: onboardError,
                             },
                           };
-                        }
-
-                        return {
-                          ...result,
-                          props: {
-                            error: onboardError,
-                          },
-                        };
-                      },
-                    });
-                  },
-                )(context);
-              },
-            )(context);
-          })(context);
-        },
-      )(context);
-    })(context);
+                        },
+                      });
+                    },
+                  )(context);
+                },
+              )(context);
+            })(context);
+          },
+        )(context);
+      },
+    )(context);
   });
 };
 

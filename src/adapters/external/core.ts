@@ -1,36 +1,9 @@
-import { AlcoholZincApi, type RequestParams } from '@/clients/alcohol/zinc/api';
+// Server entry point: Pages Router consumers use this only in API handlers/getServerSideProps.
 import { PROBLEM_DEFINITIONS } from '@/problems';
-import { type CommonConfig, configSchemas } from '@/config';
+import { configSchemas } from '@/config';
 import { importedConfigurations } from '@/config/configs';
 import { envLandscapeSource } from '@/lib/landscape/core';
-import type { IAuthStateRetriever } from '@/lib/auth/core/types';
-
-const clientTree = (i: CommonConfig, retriever: IAuthStateRetriever) => ({
-  alcohol: {
-    zinc: new AlcoholZincApi({
-      baseUrl: i.clients.alcohol.zinc.url,
-      securityWorker: async () => {
-        if (retriever) {
-          const r: RequestParams = await retriever
-            .getTokenSet()
-            .map(x => {
-              if (x.value.isAuthed) {
-                return {
-                  headers: {
-                    Authorization: `Bearer ${x.value.data.accessTokens['alcohol-zinc']}`,
-                  },
-                };
-              }
-              return {};
-            })
-            .unwrap();
-          return r;
-        }
-        return {};
-      },
-    }),
-  },
-});
+import { clientTree } from './shared';
 
 const buildTime = {
   problemDefinitions: PROBLEM_DEFINITIONS,

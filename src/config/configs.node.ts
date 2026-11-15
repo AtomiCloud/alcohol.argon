@@ -2,6 +2,8 @@ import type { ImportedConfigurations } from '@/lib/config/core/loader';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
+import { ConfigurationMerger } from '../lib/config/core/merge';
+import { faroBuildSchema } from './build/schema';
 
 /**
  * Node.js compatible configuration loader for build-time usage
@@ -10,11 +12,22 @@ import yaml from 'js-yaml';
 
 const configRoot = join(process.cwd(), 'src/config');
 
+export function loadFaroBuildConfiguration(landscape: string, env: Record<string, string | undefined> = process.env) {
+  const merger = new ConfigurationMerger('ATOMI_');
+  const base = loadYaml('build/settings.yaml');
+  const overrides = ['lapras', 'pichu', 'pikachu', 'raichu'].includes(landscape)
+    ? loadYaml(`build/${landscape}.settings.yaml`)
+    : {};
+  // Retain the existing CI input names without making them client settings.
+  const legacy = merger.processEnvVariables(env) as { client?: { faro?: { build?: object } } };
+  return faroBuildSchema.parse(merger.mergeLegacy(base, overrides, legacy.client?.faro?.build || {}));
+}
+
 // Helper function to load YAML file
-function loadYaml(relativePath: string): unknown {
+function loadYaml(relativePath: string): Record<string, unknown> {
   const fullPath = join(configRoot, relativePath);
   const content = readFileSync(fullPath, 'utf8');
-  return yaml.load(content);
+  return yaml.load(content) as Record<string, unknown>;
 }
 
 export function loadImportedConfigurations(): ImportedConfigurations {
