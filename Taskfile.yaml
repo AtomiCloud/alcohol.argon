@@ -49,7 +49,7 @@ tasks:
   security:check:
     desc: 'Check the running local synthetic preview and emitted public assets'
     cmds:
-      - bash scripts/security/synthetic-environment.sh bun test {{.CLI_ARGS | default "scripts/security/browser-assets.test.ts scripts/security/server-auth.test.ts"}}
+      - bash scripts/security/synthetic-environment.sh bun test {{.CLI_ARGS | default "scripts/security/browser-assets.test.ts scripts/security/server-auth.test.ts scripts/security/missing-session-callback.test.ts"}}
 
   dev:
     desc: 'Start development server with live-reload'

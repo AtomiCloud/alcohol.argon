@@ -89,14 +89,16 @@ test.skipIf(!origin)(
       },
     });
     const jar = new Map<string, string>();
-    const get = async (path: string) => {
+    const get = async (path: string, headers: Record<string, string> = {}) => {
       const url = new URL(path, base);
       expect([base.origin, 'http://127.0.0.1:3301']).toContain(url.origin);
       if (url.origin === base.origin && url.pathname.startsWith('/api/') && !url.pathname.endsWith('/'))
         url.pathname += '/';
       const response = await fetch(url, {
         redirect: 'manual',
-        headers: url.origin === base.origin ? { cookie: [...jar].map(([k, v]) => `${k}=${v}`).join('; ') } : {},
+        signal: AbortSignal.timeout(5_000),
+        headers:
+          url.origin === base.origin ? { ...headers, cookie: [...jar].map(([k, v]) => `${k}=${v}`).join('; ') } : {},
       });
       for (const value of response.headers.getSetCookie()) {
         const [pair] = value.split(';');
@@ -142,6 +144,33 @@ test.skipIf(!origin)(
         'ok',
         { __kind: 'unauthed', value: { isAuthed: false } },
       ]);
+      for (const returnTarget of ['https://attacker.invalid', '//attacker.invalid', '/\\attacker.invalid']) {
+        const signIn = await get(`/api/logto/sign-in?redirectBackUrl=${encodeURIComponent(returnTarget)}`, {
+          host: 'attacker.invalid',
+          'x-forwarded-host': 'attacker.invalid',
+        });
+        expect(signIn.status).toBe(307);
+        const authorization = new URL(signIn.headers.get('location')!);
+        expect(authorization.searchParams.get('redirect_uri')).toBe(`${base.origin}/api/logto/sign-in-callback`);
+        const authorize = await get(authorization.toString());
+        const callback = await get(authorize.headers.get('location')!);
+        expect(callback.status).toBe(307);
+        expect(callback.headers.get('location')).toBe(base.origin);
+        await get('/api/logto/sign-out');
+      }
+      const ottSignIn = await get(
+        '/api/logto/ott-sign-in?ott=synthetic-ott&email=synthetic%40example.invalid&redirectBackUrl=%2Fbilling',
+      );
+      const ottAuthorization = new URL(ottSignIn.headers.get('location')!);
+      expect(ottAuthorization.searchParams.get('one_time_token')).toBe('synthetic-ott');
+      expect(ottAuthorization.searchParams.get('login_hint')).toBe('synthetic@example.invalid');
+      const ottAuthorize = await get(ottAuthorization.toString());
+      const ottCallback = await get(ottAuthorize.headers.get('location')!);
+      expect(ottCallback.status).toBe(307);
+      expect(ottCallback.headers.get('location')).toBe(`${base.origin}/billing`);
+      await get('/api/logto/sign-out');
+      const missingOtt = await get('/api/logto/ott-sign-in?redirectBackUrl=%2Fbilling');
+      expect(missingOtt.headers.get('location')).toBe('/api/logto/sign-in?redirectBackUrl=%2Fbilling');
     } finally {
       await fixture.stop(true);
     }
