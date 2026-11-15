@@ -1,5 +1,7 @@
 import { buildTime } from '@/adapters/external/core';
 import { withApiLogtoOnly } from '@/adapters/atomi/next';
+import { LogtoClientError, LogtoError } from '@logto/next';
+import type { Problem } from '@/lib/problem/core/types';
 
 // Only a same-origin relative path (e.g. "/account-deletion") may be used as a post-sign-in
 // return target — never an absolute or protocol-relative URL — to avoid open-redirect abuse.
@@ -8,7 +10,7 @@ function safeReturnPath(value: unknown): string | undefined {
   return /^\/(?![/\\])/.test(value) ? value : undefined;
 }
 
-export default withApiLogtoOnly(buildTime, (req, res, { client: auth, baseUrl }) => {
+export default withApiLogtoOnly(buildTime, async (req, res, { client: auth, baseUrl }) => {
   // When signing in with a same-origin `redirectBackUrl`, carry it through the Logto round-trip
   // via `postRedirectUri` (the SDK persists it in the sign-in cookie and the callback redirects
   // there) so flows like /account-deletion return the user to where they started. The origin is
@@ -19,7 +21,7 @@ export default withApiLogtoOnly(buildTime, (req, res, { client: auth, baseUrl })
     const returnPath = safeReturnPath(req.query.redirectBackUrl);
     if (returnPath) {
       const origin = new URL(baseUrl).origin;
-      auth.handleSignIn({
+      await auth.handleSignIn({
         redirectUri: `${origin}/api/logto/sign-in-callback`,
         postRedirectUri: `${origin}${returnPath}`,
       })(req, res);
@@ -42,7 +44,7 @@ export default withApiLogtoOnly(buildTime, (req, res, { client: auth, baseUrl })
       return;
     }
     const origin = new URL(baseUrl).origin;
-    auth.handleSignIn({
+    await auth.handleSignIn({
       redirectUri: `${origin}/api/logto/sign-in-callback`,
       postRedirectUri: `${origin}${returnPath}`,
       extraParams: { one_time_token: ott },
@@ -50,5 +52,24 @@ export default withApiLogtoOnly(buildTime, (req, res, { client: auth, baseUrl })
     })(req, res);
     return;
   }
-  auth.handleAuthRoutes({ fetchUserInfo: true })(req, res);
+  await auth.handleAuthRoutes({ fetchUserInfo: true }, (request, response, error) => {
+    if (
+      request.query.action === 'sign-in-callback' &&
+      ((error instanceof LogtoClientError &&
+        (error.code === 'sign_in_session.not_found' || error.code === 'sign_in_session.invalid')) ||
+        (error instanceof LogtoError && error.code === 'callback_uri_verification.state_mismatched'))
+    ) {
+      response.setHeader('Content-Type', 'application/problem+json');
+      response.status(400).send(
+        JSON.stringify({
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          detail: 'Sign-in could not be completed. Please start sign-in again.',
+        } satisfies Problem),
+      );
+      return;
+    }
+    throw error;
+  })(req, res);
 });
