@@ -9,12 +9,13 @@ interface ConfigModuleInput<T> {
   landscape: string;
   importedConfigurations: ImportedConfigurations;
   schemas: T;
+  runtimeEnvironment?: Record<string, string | undefined>;
 }
 
 function configBuilder<T extends ConfigSchemas>(input: ConfigModuleInput<T>): ConfigRegistry<T> {
   const { landscape, importedConfigurations, schemas } = input;
   const configManager = createConfigManager<T>(landscape);
-  return configManager.createRegistry(schemas, importedConfigurations);
+  return configManager.createRegistry(schemas, importedConfigurations, input.runtimeEnvironment);
 }
 
 export { configBuilder };

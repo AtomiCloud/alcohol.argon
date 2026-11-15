@@ -1,36 +1,19 @@
 import { createBridge } from './core';
 import type { ProblemProviderProps } from '@/lib/problem/providers';
-import type { ConfigProviderProps } from '@/lib/config/providers';
 import {
   ApiProvider,
-  ConfigProvider,
   ProblemProvider,
   useClientConfig,
   useCommonConfig,
   useProblemTransformer,
 } from '@/adapters/external/Provider';
-import { useLandscape } from '@/lib/landscape/providers';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { ProblemReporterProvider, type ProblemReporterProviderProps } from '@/adapters/problem-reporter/providers';
 import type { ApiProviderProps } from '@/lib/api/providers';
-import {
-  type AdaptedClientTree,
-  type AdaptedConfigSchema,
-  type AdaptedProblemDefinition,
-  buildTime,
-} from '@/adapters/external/core';
+import type { AdaptedClientTree, AdaptedProblemDefinition } from '@/adapters/external/core';
+import { clientTree } from '@/adapters/external/shared';
+import { PROBLEM_DEFINITIONS } from '@/problems';
 import { useAuth } from '@/lib/auth/providers/hooks';
-
-const BridgedConfigProvider = createBridge<ConfigProviderProps<AdaptedConfigSchema>>(ConfigProvider, () => {
-  const landscape = useLandscape();
-  return {
-    config: {
-      landscape,
-      importedConfigurations: buildTime.importedConfigurations,
-      schemas: buildTime.configSchemas,
-    },
-  };
-});
 
 const BridgedProblemReporterProvider = createBridge<ProblemReporterProviderProps>(ProblemReporterProvider, () => {
   const config = useClientConfig();
@@ -48,7 +31,7 @@ const BridgedProblemProvider = createBridge<ProblemProviderProps<AdaptedProblemD
     config: {
       config: config.errorPortal,
       errorReporter: errorReporter,
-      problemDefinitions: buildTime.problemDefinitions,
+      problemDefinitions: PROBLEM_DEFINITIONS,
     },
   };
 });
@@ -61,12 +44,12 @@ const BridgedApiClientProvider = createBridge<ApiProviderProps<AdaptedClientTree
     const { retriever } = useAuth();
     return {
       config: {
-        defaultInstance: buildTime.defaultInstance,
+        defaultInstance: 'global',
         problemTransformer,
-        clientTree: buildTime.clientTree(common, retriever),
+        clientTree: clientTree(common, retriever),
       },
     };
   },
 );
 
-export { BridgedProblemProvider, BridgedConfigProvider, BridgedProblemReporterProvider, BridgedApiClientProvider };
+export { BridgedProblemProvider, BridgedProblemReporterProvider, BridgedApiClientProvider };

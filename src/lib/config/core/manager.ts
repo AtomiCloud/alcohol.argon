@@ -17,7 +17,11 @@ class ConfigurationManager<T extends ConfigSchemas> {
   /**
    * Create registry with 4-tier configuration hierarchy support
    */
-  createRegistry(schemas: T, importedConfigs: ImportedConfigurations): ConfigRegistry<T> {
+  createRegistry(
+    schemas: T,
+    importedConfigs: ImportedConfigurations,
+    env: Record<string, string | undefined> = process.env,
+  ): ConfigRegistry<T> {
     // Load raw configurations
     const rawConfigs = this.loader.load(importedConfigs);
 
@@ -25,7 +29,7 @@ class ConfigurationManager<T extends ConfigSchemas> {
     const buildTimeOverrides = this.merger.processBuildTimeEnvironmentVariables();
 
     // Process runtime environment variable overrides
-    const runtimeOverrides = this.merger.processEnvironmentVariables();
+    const runtimeOverrides = this.merger.processEnvironmentVariables(env);
 
     // Merge configurations using 4-tier hierarchy: base => landscape => build-time => runtime
     const mergedConfigs = {

@@ -4,12 +4,12 @@ db:
 auth:
   logto:
     app:
-      secret: supersecret
+      secret: ''
       id: id
       endpoint: https://unknown
     url: https://unknown
     cookie:
-      secret: supersecret
+      secret: ''
     scopes:
       - openid
       - profile

@@ -7,7 +7,7 @@ A hierarchical configuration system with type safety, environment overrides, and
 ### Using Configuration in Components
 
 ```typescript
-import { useConfig } from '@/lib/config';
+import { useConfig } from '@/adapters/external/Provider';
 
 function MyComponent() {
   const { common, client } = useConfig();
@@ -58,6 +58,26 @@ export const getServerSideProps = withServerSideAtomi(buildTime, async (context,
 - **Common**: Shared between client and server (app info, service tree, build data)
 - **Client**: Browser-safe configuration only (faro settings, landscape info)
 - **Server**: Server-only configuration (database URLs, secrets, auth settings)
+- **Build**: Faro source-map uploader settings, used only by `next.config.ts`.
+
+The browser contract is the explicit leaf allowlist in `src/config/public.ts`, not
+the whole common/client schema. New fields (including nested fields and environment
+keys) stay private until deliberately added to that projection. Browser providers
+consume only that snapshot; they do not import server YAML, schemas, environment
+bags or the server config registry. Pages Router API handlers/getServerSideProps
+use the server entry point `adapters/external/core.ts`.
+
+Only `BUILD_TIME_PUBLIC_CONFIG` is injected into bundles. On SSR requests,
+`withServerSideAtomi` adds a projected `_publicConfig` prop for hydration. Never
+return the full registry/server config from a page handler. Auth app/cookie secrets
+are required at request time (`ATOMI_SERVER__AUTH__LOGTO__APP__SECRET` and
+`ATOMI_SERVER__AUTH__LOGTO__COOKIE__SECRET`); missing bindings fail with a generic
+configuration error, not a usable default. Cloudflare string bindings override
+the local Node environment. Public manifests remain unauthenticated.
+
+Faro collector/session settings remain public. Upload credentials are separate in
+`config/build`, never `ClientConfig`; the existing `ATOMI_CLIENT__FARO__BUILD__*`
+names remain accepted solely as build-tool inputs for CI compatibility.
 
 All types support multiple landscapes (lapras, pichu, pikachu, raichu) with automatic merging and type-safe access through the provider system.
 
@@ -67,8 +87,8 @@ Configurations merge in priority order (lowest to highest):
 
 1. **Base Configuration** - Default `settings.yaml` files
 2. **Landscape Configuration** - Environment-specific files (e.g., `pichu.settings.yaml`)
-3. **Runtime Environment Variables** - `ATOMI_` prefixed variables
-4. **Build-Time Variables** - Automatically injected build and service data
+3. **Build-Time Public Projection** - Only deliberately public fields are embedded
+4. **Runtime Environment Variables** - Server-side request bindings take priority
 
 ### Example Override Flow
 
