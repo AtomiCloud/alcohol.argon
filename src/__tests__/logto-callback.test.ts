@@ -27,9 +27,11 @@ test.each([
   ],
 ] as const)('%s', async (_name, error, expectedStatus) => {
   const saved = {
+    landscape: process.env.LANDSCAPE,
     app: process.env.ATOMI_SERVER__AUTH__LOGTO__APP__SECRET,
     cookie: process.env.ATOMI_SERVER__AUTH__LOGTO__COOKIE__SECRET,
   };
+  process.env.LANDSCAPE = 'lapras';
   process.env.ATOMI_SERVER__AUTH__LOGTO__APP__SECRET = 'synthetic-handler-app';
   process.env.ATOMI_SERVER__AUTH__LOGTO__COOKIE__SECRET = 'synthetic-handler-cookie';
   const sdk = spyOn(LogtoClient.prototype, 'createNodeClientFromNextApi');
@@ -80,6 +82,8 @@ test.each([
     }
   } finally {
     sdk.mockRestore();
+    if (saved.landscape === undefined) Reflect.deleteProperty(process.env, 'LANDSCAPE');
+    else process.env.LANDSCAPE = saved.landscape;
     if (saved.app === undefined) Reflect.deleteProperty(process.env, 'ATOMI_SERVER__AUTH__LOGTO__APP__SECRET');
     else process.env.ATOMI_SERVER__AUTH__LOGTO__APP__SECRET = saved.app;
     if (saved.cookie === undefined) Reflect.deleteProperty(process.env, 'ATOMI_SERVER__AUTH__LOGTO__COOKIE__SECRET');
