@@ -38,14 +38,6 @@ export const clientSchema = z.object({
       enabled: z.boolean().default(true),
       samplingRate: z.number().min(0).max(1).default(1),
     }),
-    build: z.object({
-      enabled: z.boolean(),
-      endpoint: z.string(),
-      app: z.string(),
-      stack: z.string(),
-      key: z.string(),
-      gzipContents: z.boolean().default(true),
-    }),
   }),
 });
 

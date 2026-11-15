@@ -1,3 +1,4 @@
+// Server configuration entry point. Never import from a browser provider/component.
 import type { ImportedConfigurations } from '@/lib/config/core/loader';
 
 // Common configurations

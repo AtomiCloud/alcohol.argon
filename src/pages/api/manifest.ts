@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { buildTime } from '@/adapters/external/core';
 import { withApiLandscape } from '@/lib/landscape/next';
 import { withApiConfig } from '@/adapters/external/next';
+import { getServerEnvironment } from '@/config/server/runtime';
 
 /**
  * IMPORTANT: This endpoint MUST NOT use withApiAtomi or any authentication wrapper.
@@ -21,6 +22,7 @@ export default withApiLandscape(
         landscape,
         importedConfigurations: buildTime.importedConfigurations,
         schemas: buildTime.configSchemas,
+        runtimeEnvironment: getServerEnvironment(),
       },
       async (req: NextApiRequest, res: NextApiResponse, config) => {
         try {

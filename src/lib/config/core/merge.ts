@@ -71,12 +71,11 @@ class ConfigurationMerger {
    * Process build-time environment variables from injected build environment
    */
   processBuildTimeEnvironmentVariables(): Record<string, unknown> {
-    const variables = process.env.BUILD_TIME_VARIABLES || {};
-    return this.processEnvVariables(variables);
+    return (process.env.BUILD_TIME_PUBLIC_CONFIG as unknown as Record<string, unknown>) || {};
   }
 
-  processEnvironmentVariables(): Record<string, unknown> {
-    return this.processEnvVariables(process.env);
+  processEnvironmentVariables(env: Record<string, string | undefined> = process.env): Record<string, unknown> {
+    return this.processEnvVariables(env);
   }
 
   private parseEnvironmentValue(value: string): unknown {

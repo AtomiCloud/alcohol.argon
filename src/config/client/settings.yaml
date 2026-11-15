@@ -20,10 +20,3 @@ faro:
   sessionTracking:
     enabled: false
     samplingRate: 0
-  build:
-    enabled: false
-    endpoint: https://faro-api-prod-ap-southeast-1.grafana.net/faro/api/v1
-    app: '751'
-    stack: '818828'
-    key: 'unknown'
-    gzipContents: true

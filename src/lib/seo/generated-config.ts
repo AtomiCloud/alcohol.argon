@@ -3,7 +3,7 @@ import type { CommonConfig } from '@/config';
 
 /**
  * SEO configuration built from common config injected at build time
- * This transforms BUILD_TIME_COMMON_CONFIG into SEO format
+ * This transforms the explicit public common projection into SEO format
  */
 function buildSeoConfig(common: CommonConfig): DefaultSeoProps {
   const baseUrl = common.app.url;
@@ -90,6 +90,6 @@ function buildSeoConfig(common: CommonConfig): DefaultSeoProps {
 }
 
 // Read and transform the build-time config
-const commonConfig: CommonConfig = process.env.BUILD_TIME_COMMON_CONFIG as unknown as CommonConfig;
+const commonConfig = (process.env.BUILD_TIME_PUBLIC_CONFIG as unknown as { common: CommonConfig }).common;
 
 export const generatedSeoConfig: DefaultSeoProps = buildSeoConfig(commonConfig);
