@@ -52,7 +52,7 @@ export const defaultHabitDraft = (charityId?: string): HabitDraft => ({
   task: '',
   daysOfWeek: WEEKDAYS.map(w => w.key),
   habitTime: '',
-  notificationTime: '22:00',
+  notificationTime: '',
   amount: '',
   currency: 'USD',
   charityId: charityId ?? '',

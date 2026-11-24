@@ -292,8 +292,8 @@ export const getServerSideProps = withServerSideAtomi(
       // Check for missing query params and populate with defaults
       const query = context.query;
       const days = (query.days as string) || JSON.stringify(WEEKDAY_ORDER);
-      // An empty time param means the user cleared it; only a missing one gets the default.
-      const time = query.time === undefined ? '22:00' : (query.time as string);
+      // New habits start without a reminder.
+      const time = (query.time as string) || '';
       const habitTime = (query.habitTime as string) || '';
       const charity = (query.charity as string) || config.principal.defaultCharityId || '';
       const tz = (query.tz as string) || config.principal.timezone || '';
