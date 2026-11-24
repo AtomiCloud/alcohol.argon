@@ -152,6 +152,7 @@ export interface CreateHabitReq {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
+  habitTime?: string | null;
   stake?: string | null;
   /** @format uuid */
   charityId: string;
@@ -213,6 +214,7 @@ export interface HabitOverviewHabitRes {
   id?: string | null;
   name?: string | null;
   notificationTime?: string | null;
+  habitTime?: string | null;
   timezone?: string | null;
   days?: boolean[] | null;
   stake: StakeRes;
@@ -223,6 +225,10 @@ export interface HabitOverviewHabitRes {
   timeLeftToEodMinutes: number;
   version: HabitVersionMetaRes;
   totalDebt?: string | null;
+  /** @deprecated */
+  deadlineTime?: string | null;
+  /** @format int32 */
+  sortOrder: number;
 }
 
 export interface HabitOverviewResponse {
@@ -260,11 +266,14 @@ export interface HabitVersionRes {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
+  habitTime?: string | null;
   stake?: string | null;
   ratio?: string | null;
   /** @format uuid */
   charityId: string;
   timezone?: string | null;
+  /** @deprecated */
+  deadlineTime?: string | null;
 }
 
 export interface Info {
@@ -372,6 +381,7 @@ export interface UpdateHabitReq {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
+  habitTime?: string | null;
   stake?: string | null;
   /** @format uuid */
   charityId: string;

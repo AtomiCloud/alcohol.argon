@@ -9,7 +9,8 @@ import type { CharityPrincipalRes } from '@/clients/alcohol/zinc/api';
 type HabitDraftLike = {
   task: string;
   daysOfWeek: string[];
-  notificationTime: string; // HH:mm
+  habitTime: string; // HH:mm, '' when not set
+  notificationTime: string; // HH:mm, '' when no reminder
   amount: string;
   charityId: string;
 };
@@ -18,7 +19,7 @@ interface HabitEditorCardProps {
   draft: HabitDraftLike;
   onChange: (next: HabitDraftLike) => void;
   charity?: CharityPrincipalRes;
-  errors?: Partial<Record<'task' | 'daysOfWeek' | 'amount' | 'charityId' | 'notificationTime', string>>;
+  errors?: Partial<Record<'task' | 'daysOfWeek' | 'amount' | 'charityId' | 'habitTime' | 'notificationTime', string>>;
   submitted?: boolean;
   onOpenStake: () => void;
   onClearStake: () => void;
@@ -91,6 +92,26 @@ export default function HabitEditorCard({
           )}
           {errors.amount && <p className="text-xs text-red-600 dark:text-red-400 mt-2">{errors.amount}</p>}
         </div>
+      </div>
+
+      {/* Times */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+        <TimeField
+          id="habit-time"
+          label="Habit time (optional)"
+          hint="When you plan to do it"
+          value={draft.habitTime}
+          onChange={habitTime => onChange({ ...draft, habitTime })}
+          error={errors.habitTime}
+        />
+        <TimeField
+          id="habit-reminder-time"
+          label="Reminder time (optional)"
+          hint="When we remind you"
+          value={draft.notificationTime}
+          onChange={notificationTime => onChange({ ...draft, notificationTime })}
+          error={errors.notificationTime}
+        />
       </div>
 
       {/* Advanced toggle */}
@@ -178,6 +199,47 @@ export default function HabitEditorCard({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function TimeField({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+  error,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  value: string;
+  onChange: (next: string) => void;
+  error?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-sm mb-1" htmlFor={id}>
+        {label}
+      </label>
+      <div className="flex items-center gap-2">
+        <Input id={id} type="time" value={value} onChange={e => onChange(e.target.value)} className="h-11 text-base" />
+        {value && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onChange('')}
+            aria-label={`Clear ${label.toLowerCase()}`}
+            className="h-10 w-10 shrink-0"
+          >
+            <X className="size-4" />
+          </Button>
+        )}
+      </div>
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{value ? hint : 'Not set'}</p>
+      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }

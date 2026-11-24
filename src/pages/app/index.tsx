@@ -27,6 +27,7 @@ import { EmptyStateLottie } from '@/components/lottie/presets';
 import { usePlausible } from '@/lib/tracker/usePlausible';
 import { TrackingEvents } from '@/lib/events';
 import { fetchHabitPageData, type HabitPageData } from '@/lib/habit-page-data';
+import { compareHabitsBySortTime } from '@/lib/utility/habit-utils';
 
 type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
 
@@ -172,11 +173,14 @@ export default function AppPage({ initial }: AppPageProps) {
   const now = new Date();
   const currentDayIndex = now.getDay();
 
-  const todayHabits = habits.filter(h => {
-    const isDayScheduled = h.days?.[currentDayIndex] ?? false;
-    const isEnabled = h.enabled ?? true;
-    return isDayScheduled && isEnabled;
-  });
+  // Today is a day view, so it goes by sort time (habit time, else reminder time).
+  const todayHabits = habits
+    .filter(h => {
+      const isDayScheduled = h.days?.[currentDayIndex] ?? false;
+      const isEnabled = h.enabled ?? true;
+      return isDayScheduled && isEnabled;
+    })
+    .sort(compareHabitsBySortTime);
 
   const restDayHabits = habits.filter(h => {
     const isDayScheduled = h.days?.[currentDayIndex] ?? false;
