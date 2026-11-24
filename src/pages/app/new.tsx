@@ -22,7 +22,7 @@ import { useContent } from '@/lib/content/providers';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
 import { type HabitDraft, WEEKDAY_ORDER } from '@/models/habit';
-import { toHHMMSS, validateHabitDraft } from '@/lib/utility/habit-utils';
+import { toHMOrNull, validateHabitDraft } from '@/lib/utility/habit-utils';
 import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
 import { useStakeFlow } from '@/lib/payment/use-stake-flow';
@@ -54,7 +54,8 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const { state, updateField, updateFieldImmediate } = useEnhancedFormUrlState({
     task: '',
     days: JSON.stringify(WEEKDAY_ORDER),
-    time: '22:00',
+    habitTime: '',
+    time: '',
     amount: '',
     charity: '',
     tz: '',
@@ -72,6 +73,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
   const draft: HabitDraft = {
     task: state.task,
     daysOfWeek,
+    habitTime: state.habitTime,
     notificationTime: state.time,
     amount: state.amount,
     currency: 'USD',
@@ -85,6 +87,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     updateField({
       task: updated.task,
       days: JSON.stringify(updated.daysOfWeek),
+      habitTime: updated.habitTime,
       time: updated.notificationTime,
     });
     // Amount and charity will be handled separately with immediate updates
@@ -119,6 +122,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     formState: {
       task: state.task || '',
       days: state.days,
+      habitTime: state.habitTime || '',
       time: state.time || '',
       charity: state.charity || '',
     },
@@ -158,7 +162,8 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
     const payload: CreateHabitReq = {
       task: draft.task || null,
       daysOfWeek: draft.daysOfWeek.length ? draft.daysOfWeek : [],
-      notificationTime: toHHMMSS(draft.notificationTime),
+      habitTime: toHMOrNull(draft.habitTime),
+      notificationTime: toHMOrNull(draft.notificationTime),
       stake: hasStake ? `${draft.amount}` : '0',
       charityId: draft.charityId,
       timezone: state.tz,
@@ -224,6 +229,7 @@ export default function NewHabitPage({ initial }: NewHabitPageProps) {
               draft={{
                 task: draft.task,
                 daysOfWeek: draft.daysOfWeek,
+                habitTime: draft.habitTime,
                 notificationTime: draft.notificationTime,
                 amount: draft.amount,
                 charityId: draft.charityId,
@@ -286,21 +292,23 @@ export const getServerSideProps = withServerSideAtomi(
       // Check for missing query params and populate with defaults
       const query = context.query;
       const days = (query.days as string) || JSON.stringify(WEEKDAY_ORDER);
-      const time = (query.time as string) || '22:00';
+      // New habits start without a reminder.
+      const time = (query.time as string) || '';
+      const habitTime = (query.habitTime as string) || '';
       const charity = (query.charity as string) || config.principal.defaultCharityId || '';
       const tz = (query.tz as string) || config.principal.timezone || '';
       const task = (query.task as string) || '';
       const amount = (query.amount as string) || '';
 
       // If any required params are missing, redirect with all params populated
-      if (!query.days || !query.time || !query.charity || !query.tz) {
+      if (!query.days || query.time === undefined || !query.charity || !query.tz) {
         // We can't redirect from inside the Result chain, so we'll handle this differently
         // Store the redirect info to check later
         return Err<NewHabitPageData, Problem>({
           type: 'redirect',
           title: 'Redirect needed',
           status: 302,
-          detail: `/app/new?task=${encodeURIComponent(task)}&days=${encodeURIComponent(days)}&time=${encodeURIComponent(time)}&amount=${encodeURIComponent(amount)}&charity=${encodeURIComponent(charity)}&tz=${encodeURIComponent(tz)}`,
+          detail: `/app/new?task=${encodeURIComponent(task)}&days=${encodeURIComponent(days)}&habitTime=${encodeURIComponent(habitTime)}&time=${encodeURIComponent(time)}&amount=${encodeURIComponent(amount)}&charity=${encodeURIComponent(charity)}&tz=${encodeURIComponent(tz)}`,
         });
       }
 

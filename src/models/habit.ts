@@ -40,7 +40,8 @@ export type CharityOption = { id: string; label: string };
 export type HabitDraft = {
   task: string;
   daysOfWeek: string[];
-  notificationTime: string; // UI HH:mm
+  habitTime: string; // UI HH:mm, '' when not set
+  notificationTime: string; // UI HH:mm, '' when no reminder
   amount: string; // number as string for UI
   currency: string; // e.g., 'USD'
   charityId: string;
@@ -50,7 +51,8 @@ export type HabitDraft = {
 export const defaultHabitDraft = (charityId?: string): HabitDraft => ({
   task: '',
   daysOfWeek: WEEKDAYS.map(w => w.key),
-  notificationTime: '22:00',
+  habitTime: '',
+  notificationTime: '',
   amount: '',
   currency: 'USD',
   charityId: charityId ?? '',

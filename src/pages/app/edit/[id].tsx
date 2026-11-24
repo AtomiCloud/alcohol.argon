@@ -25,7 +25,7 @@ import { Res, Err, Ok, type Result } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import HabitEditorCard from '@/components/app/HabitEditorCard';
 import type { HabitDraft } from '@/models/habit';
-import { toHHMMSS, toHM, validateHabitDraft } from '@/lib/utility/habit-utils';
+import { toHM, toHMOrNull, validateHabitDraft } from '@/lib/utility/habit-utils';
 import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
 import { useClaims } from '@/lib/auth/providers';
 import { useStakeFlow } from '@/lib/payment/use-stake-flow';
@@ -55,6 +55,7 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
   const { state, updateField, updateFieldImmediate } = useEnhancedFormUrlState({
     task: '',
     days: '[]',
+    habitTime: '',
     time: '',
     amount: '',
     charity: '',
@@ -72,6 +73,7 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
   const draft: HabitDraft = {
     task: state.task,
     daysOfWeek,
+    habitTime: state.habitTime,
     notificationTime: state.time,
     amount: state.amount,
     currency: 'USD',
@@ -85,6 +87,7 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     updateField({
       task: updated.task,
       days: JSON.stringify(updated.daysOfWeek),
+      habitTime: updated.habitTime,
       time: updated.notificationTime,
     });
     // Amount and charity will be handled separately with immediate updates
@@ -122,6 +125,7 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     formState: {
       task: state.task || '',
       days: state.days,
+      habitTime: state.habitTime || '',
       time: state.time || '',
       charity: state.charity || '',
     },
@@ -158,7 +162,8 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
     const payload: UpdateHabitReq = {
       task: draft.task || null,
       daysOfWeek: draft.daysOfWeek.length ? draft.daysOfWeek : [],
-      notificationTime: draft.notificationTime ? toHHMMSS(draft.notificationTime) : null,
+      habitTime: toHMOrNull(draft.habitTime),
+      notificationTime: toHMOrNull(draft.notificationTime),
       stake: hasStake ? `${draft.amount}` : '0',
       charityId: draft.charityId,
       enabled: draft.enabled,
@@ -214,6 +219,7 @@ export default function EditHabitPage({ initial }: EditHabitPageProps) {
               draft={{
                 task: draft.task,
                 daysOfWeek: draft.daysOfWeek,
+                habitTime: draft.habitTime,
                 notificationTime: draft.notificationTime,
                 amount: draft.amount,
                 charityId: draft.charityId,
@@ -281,17 +287,26 @@ export const getServerSideProps = withServerSideAtomi(
           const query = context.query;
           const task = (query.task as string) || habit.task || '';
           const days = (query.days as string) || JSON.stringify(habit.daysOfWeek || []);
-          const time = (query.time as string) || toHM(habit.notificationTime || '');
+          // An empty time param means no time (cleared, or none saved); only a missing one is filled.
+          const time = query.time === undefined ? toHM(habit.notificationTime) : (query.time as string);
+          const habitTime = query.habitTime === undefined ? toHM(habit.habitTime) : (query.habitTime as string);
           const amount = (query.amount as string) || (habit.stake ? String(habit.stake) : '');
           const charity = (query.charity as string) || habit.charityId || config.principal.defaultCharityId || '';
 
           // If any required params are missing, redirect with all params populated
-          if (!query.task || !query.days || !query.time || !query.amount || !query.charity) {
+          if (
+            !query.task ||
+            !query.days ||
+            query.habitTime === undefined ||
+            query.time === undefined ||
+            !query.amount ||
+            !query.charity
+          ) {
             return Err<EditHabitPageData, Problem>({
               type: 'redirect',
               title: 'Redirect needed',
               status: 302,
-              detail: `/app/edit/${id}?task=${encodeURIComponent(task)}&days=${encodeURIComponent(days)}&time=${encodeURIComponent(time)}&amount=${encodeURIComponent(amount)}&charity=${encodeURIComponent(charity)}`,
+              detail: `/app/edit/${id}?task=${encodeURIComponent(task)}&days=${encodeURIComponent(days)}&habitTime=${encodeURIComponent(habitTime)}&time=${encodeURIComponent(time)}&amount=${encodeURIComponent(amount)}&charity=${encodeURIComponent(charity)}`,
             });
           }
 

@@ -24,10 +24,12 @@ import {
   MoreHorizontal,
   Palmtree,
   ChevronDown,
+  Clock,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toHM } from '@/lib/utility/habit-utils';
 
 interface HabitCardProps {
   habit: HabitOverviewHabitRes;
@@ -108,6 +110,7 @@ export function HabitCard({
   const stakeCurrency = habit.stake?.currency || 'USD';
   const stakeLabel = stake > 0 ? `${stakeCurrency} ${stake.toFixed(2)}` : 'None';
   const charityName = habit.charity?.name || null;
+  const habitTime = toHM(habit.habitTime);
 
   const palette = [
     'from-emerald-400 via-teal-400 to-cyan-400',
@@ -194,6 +197,12 @@ export function HabitCard({
               <h2 className="text-lg sm:text-xl font-semibold truncate leading-tight">
                 {habit.name || 'Untitled habit'}
               </h2>
+              {habitTime && (
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 inline-flex items-center gap-1">
+                  <Clock className="h-3 w-3" aria-hidden />
+                  <span className="tabular-nums">{habitTime}</span>
+                </p>
+              )}
               {isCompleteToday && (
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">✓ Completed today</p>
               )}
