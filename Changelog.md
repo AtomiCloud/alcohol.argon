@@ -1,3 +1,12 @@
+## [1.42.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.41.1...v1.42.0) (2026-11-24)
+
+
+### ✨ Features ✨
+
+* add habit time and optional reminder time ([6673f40](https://github.com/AtomiCloud/alcohol.argon/commit/6673f405626a7e7dd2658f6c1438fc10f9cec5ee))
+* add habit time and optional reminder time ([#111](https://github.com/AtomiCloud/alcohol.argon/issues/111)) ([94f12cb](https://github.com/AtomiCloud/alcohol.argon/commit/94f12cb24f78caeeaea41ea3524b25e382348762))
+* start new habits without a reminder ([6d7ad1b](https://github.com/AtomiCloud/alcohol.argon/commit/6d7ad1b236cc58368e4f75b04fc10ef6ec5f8233))
+
 ## [1.41.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.41.0...v1.41.1) (2026-11-13)
 
 
