@@ -57,6 +57,9 @@ class ServerAuthStateRetriever implements IAuthStateRetriever {
     return Res.async(async (): Promise<Result<AuthState<TokenSet>, Problem>> => {
       this.token = None();
       const client = await this.getNodeClient();
+      // Signed out: answer unauthed like the other getters, instead of throwing (a 500).
+      if (!(await client.isAuthenticated()))
+        return Ok({ __kind: 'unauthed', value: { isAuthed: false } } satisfies AuthState<TokenSet>);
       await client.clearAccessToken();
       const r = await this.fetchTokenSet();
       return Ok({ __kind: 'authed', value: { isAuthed: true, data: r } } satisfies AuthState<TokenSet>);
