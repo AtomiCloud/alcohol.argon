@@ -1,3 +1,11 @@
+## [1.42.4](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.3...v1.42.4) (2026-11-26)
+
+
+### 🐛 Bug Fixes 🐛
+
+* share one token refresh per request and answer force_tokens when signed out ([a78c855](https://github.com/AtomiCloud/alcohol.argon/commit/a78c8558fbf1d8d62a31304f9c7556e6eaeedfca))
+* share one token refresh per request and answer force_tokens when signed out ([#113](https://github.com/AtomiCloud/alcohol.argon/issues/113)) ([99eca11](https://github.com/AtomiCloud/alcohol.argon/commit/99eca11cc0564c06159b2355a028e1fa3411db6b))
+
 ## [1.42.3](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.2...v1.42.3) (2026-11-26)
 
 
