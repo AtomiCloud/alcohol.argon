@@ -9,10 +9,9 @@ import { useSwaggerClients } from '@/adapters/external/Provider';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { AsyncButton } from '@/components/ui/async-button';
-import type { CharityPrincipalRes, ConfigurationRes, UpdateConfigurationReq } from '@/clients/alcohol/zinc/api';
+import type { UpdateConfigurationReq } from '@/clients/alcohol/zinc/api';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
-import type { ResultSerial } from '@/lib/monads/result';
-import { Err, Res } from '@/lib/monads/result';
+import { Res } from '@/lib/monads/result';
 import type { Problem } from '@/lib/problem/core';
 import { Settings, ShieldX } from 'lucide-react';
 import CharitySelector from '@/components/app/CharitySelector';
@@ -25,12 +24,7 @@ import { usePaymentConsent } from '@/lib/payment/use-payment-consent';
 import { useContent } from '@/lib/content/providers';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
-
-type SettingsPageData = {
-  configuration: ConfigurationRes;
-  charity: CharityPrincipalRes;
-};
-type SettingsPageProps = { initial: ResultSerial<SettingsPageData, Problem> };
+import { loadSettingsPage, type SettingsPageData, type SettingsPageProps } from '@/lib/settings-page-data';
 
 export default function SettingsPage({ initial }: SettingsPageProps) {
   const api = useSwaggerClients();
@@ -62,8 +56,8 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
   const hasChanges = useMemo(() => {
     if (!data) return false;
     return (
-      state.tz !== data.configuration.principal.timezone ||
-      state.charity !== data.configuration.principal.defaultCharityId
+      state.tz !== (data.configuration.principal.timezone ?? '') ||
+      state.charity !== (data.configuration.principal.defaultCharityId ?? '')
     );
   }, [state, data]);
 
@@ -170,7 +164,7 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
             restriction="You can change this anytime"
             contentClassName="space-y-2"
           >
-            <CharitySelector charity={data.charity} returnCharityParam="charity" />
+            <CharitySelector charity={data.charity ?? undefined} returnCharityParam="charity" />
           </FieldCard>
 
           {hasPaymentConsent && (
@@ -279,46 +273,6 @@ export default function SettingsPage({ initial }: SettingsPageProps) {
 
 export const getServerSideProps = withServerSideAtomi(
   { ...buildTime, guard: 'private' },
-  async (context, { apiTree }): Promise<GetServerSidePropsResult<SettingsPageProps>> => {
-    const api = apiTree.alcohol.zinc.api;
-
-    const result = await api.vConfigurationMeList({ version: '1.0' }).then(configResult =>
-      configResult.andThen(async configuration => {
-        // Check for missing query params and populate with defaults
-        const query = context.query;
-        const tz = (query.tz as string) || configuration.principal.timezone || '';
-        const charity = (query.charity as string) || configuration.principal.defaultCharityId || '';
-
-        // If any required params are missing, redirect with all params populated
-        if (!query.tz || !query.charity) {
-          return Err<SettingsPageData, Problem>({
-            type: 'redirect',
-            title: 'Redirect needed',
-            status: 302,
-            detail: `/settings?tz=${encodeURIComponent(tz)}&charity=${encodeURIComponent(charity)}`,
-          });
-        }
-
-        // All params are present, fetch charity and return data
-        return (await api.vCharityDetail({ version: '1.0', id: charity })).map(({ principal }) => ({
-          configuration,
-          charity: principal,
-        }));
-      }),
-    );
-
-    const initial: ResultSerial<SettingsPageData, Problem> = await result.serial();
-
-    // Check if we need to redirect
-    if (initial[0] === 'err' && initial[1].type === 'redirect') {
-      return {
-        redirect: {
-          destination: initial[1].detail || '/settings',
-          permanent: false,
-        },
-      };
-    }
-
-    return { props: { initial } };
-  },
+  async (context, { apiTree }): Promise<GetServerSidePropsResult<SettingsPageProps>> =>
+    loadSettingsPage(apiTree.alcohol.zinc.api, context.query),
 );
