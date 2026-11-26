@@ -1,3 +1,11 @@
+## [1.42.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.0...v1.42.1) (2026-11-26)
+
+
+### 🐛 Bug Fixes 🐛
+
+* settings page loads when the user has no default charity ([ce35d76](https://github.com/AtomiCloud/alcohol.argon/commit/ce35d768aba82dbcfd1135a1ae1ffe885b078639))
+* settings page loads when the user has no default charity ([#112](https://github.com/AtomiCloud/alcohol.argon/issues/112)) ([210aea0](https://github.com/AtomiCloud/alcohol.argon/commit/210aea00449ea4c42fbfecdf79383010fdf8815f))
+
 ## [1.42.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.41.1...v1.42.0) (2026-11-24)
 
 
