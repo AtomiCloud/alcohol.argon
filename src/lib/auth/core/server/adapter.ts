@@ -17,6 +17,9 @@ interface AuthModuleOutput {
 
 function authBuilder(input: AuthModuleInput): AuthModuleOutput {
   const { endpoint, appId, appSecret, baseUrl, cookieSecret, landscape, resourceTree, scopes } = input;
+  if (!appSecret.trim() || !cookieSecret.trim()) {
+    throw new Error('Required server configuration is unavailable');
+  }
   const resources = Object.values(resourceTree);
   const client = new LogtoClient({
     endpoint,

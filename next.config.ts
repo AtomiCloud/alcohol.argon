@@ -1,11 +1,11 @@
 import type { NextConfig } from 'next';
 import withPWA from 'next-pwa';
 // Intentionally do not import next-pwa/cache; we want zero runtime caches
-import { BuildTimeProcessor } from '@/lib/config/core/build-time';
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
 import { type ClientConfig, type CommonConfig, configSchemas } from '@/config';
+import { projectPublicConfig } from '@/config/public';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-import { loadImportedConfigurations } from '@/config/configs.node';
+import { loadFaroBuildConfiguration, loadImportedConfigurations } from '@/config/configs.node';
 import {
   ConfigurationLoader,
   ConfigurationManager,
@@ -13,9 +13,6 @@ import {
   ConfigurationValidator,
 } from '@/lib/config/core';
 import { withPlausibleProxy } from 'next-plausible';
-// Process build-time environment variables
-const buildTimeProcessor = new BuildTimeProcessor();
-const buildTimeEnv = buildTimeProcessor.scanEnvironmentVariables(process.env);
 
 const importedConfigurations = loadImportedConfigurations();
 
@@ -29,6 +26,8 @@ const registry = cfgManager.createRegistry(configSchemas, importedConfigurations
 
 const common = registry.common as CommonConfig;
 const client = registry.client as ClientConfig;
+const publicConfig = projectPublicConfig(common, client);
+const faroBuild = loadFaroBuildConfiguration(landscape);
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -56,27 +55,25 @@ const nextConfig: NextConfig = {
       use: 'yaml-loader',
     });
 
-    // Inject build-time environment variables into webpack DefinePlugin
+    // Only this explicit public projection may cross the browser boundary.
     config.plugins = config.plugins || [];
     const webpack = require('webpack');
     config.plugins.push(
       new webpack.DefinePlugin({
-        'process.env.BUILD_TIME_VARIABLES': JSON.stringify(buildTimeEnv),
         'process.env.LANDSCAPE': JSON.stringify(landscape),
-        'process.env.BUILD_TIME_COMMON_CONFIG': JSON.stringify(common),
-        'process.env.BUILD_TIME_CLIENT_CONFIG': JSON.stringify(client),
+        'process.env.BUILD_TIME_PUBLIC_CONFIG': JSON.stringify(publicConfig),
       }),
     );
 
-    if (client.faro.build.enabled && client.faro.enabled) {
+    if (faroBuild.enabled && client.faro.enabled) {
       config.plugins.push(
         new FaroSourceMapUploaderPlugin({
           appName: `${common.app.servicetree.module}.${common.app.servicetree.service}.${common.app.servicetree.landscape}`,
-          endpoint: client.faro.build.endpoint,
-          appId: client.faro.build.app,
-          stackId: client.faro.build.stack,
-          apiKey: client.faro.build.key,
-          gzipContents: client.faro.build.gzipContents,
+          endpoint: faroBuild.endpoint,
+          appId: faroBuild.app,
+          stackId: faroBuild.stack,
+          apiKey: faroBuild.key,
+          gzipContents: faroBuild.gzipContents,
         }),
       );
     }

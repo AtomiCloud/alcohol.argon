@@ -91,6 +91,8 @@ pre-commit-lib.run {
       name = "Enforce Shell Script executable";
       entry = "${packages.atomiutils}/bin/chmod +x";
       files = ".*sh$";
+      # This wrapper is deliberately 100644 and invoked through bash.
+      excludes = [ "^scripts/security/synthetic-environment\\.sh$" ];
       language = "system";
       pass_filenames = true;
     };

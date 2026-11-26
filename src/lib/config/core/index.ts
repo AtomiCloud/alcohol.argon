@@ -12,5 +12,4 @@ export { ConfigurationValidator, ConfigValidationError, isConfigValidationError 
 export type { ValidationError } from './validator';
 
 export { ConfigurationManager } from './manager';
-export { BuildTimeProcessor } from './build-time';
 export { createConfigManager } from './util';

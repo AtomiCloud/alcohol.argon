@@ -64,7 +64,7 @@ export default function App(appProps: AppProps) {
   return (
     <>
       <DefaultSeo {...generatedSeoConfig} />
-      <AtomiProvider>
+      <AtomiProvider publicConfig={appProps.pageProps._publicConfig}>
         <AppContent {...appProps} />
       </AtomiProvider>
     </>
