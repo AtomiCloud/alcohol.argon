@@ -1,3 +1,12 @@
+## [1.42.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.1...v1.42.2) (2026-11-26)
+
+
+### 🐛 Bug Fixes 🐛
+
+* invoke synthetic security wrapper explicitly with bash ([3c4dfb5](https://github.com/AtomiCloud/alcohol.argon/commit/3c4dfb58ed07d9fa892b279a57127f8a9e58e91c))
+* restrict browser configuration to explicit public fields ([0919745](https://github.com/AtomiCloud/alcohol.argon/commit/09197457e4da964289dfb55851a6d7ceeba3e0e2))
+* restrict browser configuration to explicit public fields ([#108](https://github.com/AtomiCloud/alcohol.argon/issues/108)) ([479ff2e](https://github.com/AtomiCloud/alcohol.argon/commit/479ff2ec4bdbda0390b9bfdd4216b0d5149f7680)), closes [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#99](https://github.com/AtomiCloud/alcohol.argon/issues/99) [#35](https://github.com/AtomiCloud/alcohol.argon/issues/35)
+
 ## [1.42.1](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.0...v1.42.1) (2026-11-26)
 
 
