@@ -1,3 +1,12 @@
+## [1.42.3](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.2...v1.42.3) (2026-11-26)
+
+
+### 🐛 Bug Fixes 🐛
+
+* complete rejected sign-in callbacks safely ([d5d450a](https://github.com/AtomiCloud/alcohol.argon/commit/d5d450a33296d64cdf0b24f883fa1f73467e7478))
+* complete rejected sign-in callbacks safely ([#109](https://github.com/AtomiCloud/alcohol.argon/issues/109)) ([e003670](https://github.com/AtomiCloud/alcohol.argon/commit/e003670652377c02e39cbb413840db359a114dcd)), closes [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#107](https://github.com/AtomiCloud/alcohol.argon/issues/107) [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#108](https://github.com/AtomiCloud/alcohol.argon/issues/108) [#112](https://github.com/AtomiCloud/alcohol.argon/issues/112)
+* isolate callback regression configuration ([cdecb3f](https://github.com/AtomiCloud/alcohol.argon/commit/cdecb3f40800ddf1c1479028c8a87ef2a221fa0c))
+
 ## [1.42.2](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.1...v1.42.2) (2026-11-26)
 
 
