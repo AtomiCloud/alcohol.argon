@@ -1,3 +1,11 @@
+## [1.43.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.4...v1.43.0) (2026-11-27)
+
+
+### ✨ Features ✨
+
+* show plan skip and vacation limits on pricing page ([2279947](https://github.com/AtomiCloud/alcohol.argon/commit/227994790ddf81d0fc4d42c9a6af4ec9f4b2abd0))
+* show plan skip and vacation limits on pricing page ([#114](https://github.com/AtomiCloud/alcohol.argon/issues/114)) ([283ece0](https://github.com/AtomiCloud/alcohol.argon/commit/283ece0c05f3f6a875421c86111b84e35c7e131e))
+
 ## [1.42.4](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.3...v1.42.4) (2026-11-26)
 
 
