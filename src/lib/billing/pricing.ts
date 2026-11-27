@@ -16,6 +16,22 @@ export const TIER_PRICING: Record<PaidTier, TierPricing> = {
   ultimate: { label: 'Ultimate', launchCents: 799, originalCents: 1499 },
 };
 
+export interface TierLimits {
+  skipsMonthly: number;
+  vacationWindowsYearly: number;
+  /** Longest single vacation, in days (both ends count); 0 when the tier has no vacations */
+  vacationMaxDays: number;
+}
+
+// The limits the pricing page advertises. Keep in sync with alcohol.zinc
+// App/Config/settings.yaml (Subscription.Tiers SkipsMonthly, VacationWindowsYearly,
+// VacationMaxDays), which enforces them; GET /api/v1/Subscription/plans returns them.
+export const TIER_LIMITS: Record<Tier, TierLimits> = {
+  free: { skipsMonthly: 3, vacationWindowsYearly: 0, vacationMaxDays: 0 },
+  pro: { skipsMonthly: 5, vacationWindowsYearly: 2, vacationMaxDays: 14 },
+  ultimate: { skipsMonthly: 10, vacationWindowsYearly: 5, vacationMaxDays: 30 },
+};
+
 // Rank ordering decides upgrade (immediate charge, period resets) vs
 // downgrade (applies at period end) messaging.
 export const TIER_RANK: Record<Tier, number> = { free: 0, pro: 1, ultimate: 2 };

@@ -6,6 +6,36 @@ import { HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { TIER_LIMITS, type PaidTier, type Tier } from '@/lib/billing/pricing';
+
+const SKIP_TOOLTIP = "Voluntary skipping of a habit. Won't damage your streak or charge you. Manual use only.";
+
+function LimitItem({ label, tooltip }: { label: string; tooltip: string }) {
+  return (
+    <li>
+      <span className="inline-flex items-center gap-1">
+        <span>{label}</span>
+        <HelpCircle
+          className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+          data-tooltip-id="pricing-tooltip"
+          data-tooltip-content={tooltip}
+          data-tooltip-place="top"
+        />
+      </span>
+    </li>
+  );
+}
+
+const SkipsItem = ({ tier }: { tier: Tier }) => (
+  <LimitItem label={`${TIER_LIMITS[tier].skipsMonthly} skips a month`} tooltip={SKIP_TOOLTIP} />
+);
+
+const VacationsItem = ({ tier }: { tier: PaidTier }) => (
+  <LimitItem
+    label={`${TIER_LIMITS[tier].vacationWindowsYearly} vacations a year`}
+    tooltip={`Pause your entire account when you're on holiday or business trips. No check-ins required, no streaks broken, no charges accumulated. Up to ${TIER_LIMITS[tier].vacationMaxDays} days each.`}
+  />
+);
 
 export default function Pricing() {
   const [period, setPeriod] = useState<'monthly' | 'annual'>('monthly');
@@ -72,17 +102,7 @@ export default function Pricing() {
               <ul className="list-disc pl-5 space-y-1.5 text-sm">
                 <li>2 habits with streak tracking</li>
                 <li>Optional stakes (you control amount)</li>
-                <li>
-                  <span className="inline-flex items-center gap-1">
-                    <span>Monthly skips</span>
-                    <HelpCircle
-                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
-                      data-tooltip-id="pricing-tooltip"
-                      data-tooltip-content="Voluntary skipping of a habit. Won't damage your streak or charge you. Manual use only."
-                      data-tooltip-place="top"
-                    />
-                  </span>
-                </li>
+                <SkipsItem tier="free" />
               </ul>
             </CardContent>
           </Card>
@@ -118,6 +138,8 @@ export default function Pricing() {
             <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
               <ul className="list-disc pl-5 space-y-1.5 text-sm">
                 <li>Up to 10 habits</li>
+                <SkipsItem tier="pro" />
+                <VacationsItem tier="pro" />
                 <li>
                   <span className="inline-flex items-center gap-1">
                     <span>Earn freezes</span>
@@ -143,17 +165,6 @@ export default function Pricing() {
                 <li>Tuned notifications</li>
                 <li>Milestone rewards (free months)</li>
                 <li>We donate USD $5 at 100 days</li>
-                <li>
-                  <span className="inline-flex items-center gap-1">
-                    <span>Vacation mode</span>
-                    <HelpCircle
-                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
-                      data-tooltip-id="pricing-tooltip"
-                      data-tooltip-content="Pause your entire account when you're on holiday or business trips. No check-ins required, no streaks broken, no charges accumulated."
-                      data-tooltip-place="top"
-                    />
-                  </span>
-                </li>
               </ul>
               <Button asChild className="mt-4 w-full bg-violet-600 hover:bg-violet-700 text-white">
                 <Link href="/billing/checkout?tier=pro">Get Pro</Link>
@@ -193,6 +204,8 @@ export default function Pricing() {
             <CardContent className="text-slate-700 dark:text-slate-300 mt-auto">
               <ul className="list-disc pl-5 space-y-1.5 text-sm">
                 <li>Unlimited habits</li>
+                <SkipsItem tier="ultimate" />
+                <VacationsItem tier="ultimate" />
                 <li>
                   <span className="inline-flex items-center gap-1">
                     <span>Earn more freezes</span>
