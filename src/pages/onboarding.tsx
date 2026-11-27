@@ -22,6 +22,7 @@ import { useContent } from '@/lib/content/providers';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useEnhancedFormUrlState } from '@/lib/urlstate/useEnhancedFormUrlState';
 import { getClientTimezone } from '@/lib/utility/timezone-detection';
+import { createConfiguration } from '@/lib/onboard/create-configuration';
 
 type OnboardingPageData = {
   charity: CharityPrincipalRes;
@@ -66,7 +67,8 @@ export default function OnboardingPage({ initial }: OnboardingPageProps) {
       defaultCharityId: state.charityId,
     };
 
-    const result = await api.alcohol.zinc.api.vConfigurationCreate2({ version: '1.0' }, payload);
+    // A 409 (onboarding already finished in another tab or device) counts as done.
+    const result = await createConfiguration(api.alcohol.zinc.api, payload);
 
     result.match({
       ok: async () => {
