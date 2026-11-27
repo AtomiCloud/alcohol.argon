@@ -454,7 +454,7 @@ export default function AppPage({ initial }: AppPageProps) {
                           <div className="flex items-center gap-2">
                             <MinusCircle className="h-4 w-4 text-slate-500" />
                             <span className="text-lg font-bold text-slate-700 dark:text-slate-300">
-                              {totalSkip - usedSkip}/{totalSkip}
+                              {Math.max(0, totalSkip - usedSkip)}/{totalSkip}
                             </span>
                             <span className="text-xs text-slate-500">this month</span>
                           </div>
