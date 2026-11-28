@@ -26,7 +26,7 @@ export default function FAQ() {
     },
     {
       q: 'What if I miss because of travel, sickness, or emergencies?',
-      a: "You earn freezes every 7 days that auto-protect your streak. Plus monthly skips and vacation mode. We're not trying to catch you—we're trying to help you succeed.",
+      a: "Paid plans include automatic freeze protection; see current plan details on the pricing page. Every plan has monthly skips, and paid plans add vacations. We're not trying to catch you—we're trying to help you succeed.",
     },
     {
       q: 'How is this different from StickK or Forfeit?',

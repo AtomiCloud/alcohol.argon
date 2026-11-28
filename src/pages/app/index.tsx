@@ -10,16 +10,17 @@ import { useClientConfig, useSwaggerClients } from '@/adapters/external/Provider
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import type { HabitOverviewHabitRes } from '@/clients/alcohol/zinc/api';
+import type { HabitOverviewHabitRes, ProtectionBalanceRes } from '@/clients/alcohol/zinc/api';
 import ConfettiExplosion from 'react-confetti-explosion';
 import Toast from '@/components/Toast';
 import HabitCard from '@/components/app/HabitCard';
+import { FreezeBalanceStat } from '@/components/app/FreezeBalanceStat';
 import { FreeContentManager } from '@/lib/content/components/FreeContentManager';
 import { useFreeEmpty } from '@/lib/content/providers/useFreeEmpty';
 import { useFreeLoader } from '@/lib/content/providers/useFreeLoader';
 import { useContent } from '@/lib/content/providers/useContent';
 import { Res, type Result, type ResultSerial } from '@/lib/monads/result';
-import { CalendarX, ChevronDown, Flame, MinusCircle, Palmtree, Plus, Snowflake, Sparkles } from 'lucide-react';
+import { CalendarX, ChevronDown, Flame, MinusCircle, Palmtree, Plus, Sparkles } from 'lucide-react';
 import { useProblemReporter } from '@/adapters/problem-reporter/providers/hooks';
 import { useErrorHandler } from '@/lib/content/providers/useErrorHandler';
 import type { Problem } from '@/lib/problem/core';
@@ -29,7 +30,11 @@ import { TrackingEvents } from '@/lib/events';
 import { fetchHabitPageData, type HabitPageData } from '@/lib/habit-page-data';
 import { compareHabitsBySortTime } from '@/lib/utility/habit-utils';
 
-type AppPageProps = { initial: ResultSerial<HabitPageData, Problem> };
+type AppPageProps = {
+  initial: ResultSerial<HabitPageData, Problem>;
+  // Separate from the habits, so a failed balance never hides the habit list.
+  protection: ResultSerial<ProtectionBalanceRes, Problem>;
+};
 
 // Component to handle optimistic completion cleanup
 function OptimisticCompletionCleaner({
@@ -110,7 +115,7 @@ function ProgressCelebration({
   return null;
 }
 
-export default function AppPage({ initial }: AppPageProps) {
+export default function AppPage({ initial, protection }: AppPageProps) {
   const api = useSwaggerClients();
   const clientConfig = useClientConfig();
   const problemReporter = useProblemReporter();
@@ -127,6 +132,7 @@ export default function AppPage({ initial }: AppPageProps) {
   const [busySkip, setBusySkip] = useState<Record<string, boolean>>({});
   const [confettiKey, setConfettiKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [freezeRefreshKey, setFreezeRefreshKey] = useState(0);
   const lastProgressRef = useRef(0);
 
   // Content management with Result monad
@@ -201,27 +207,12 @@ export default function AppPage({ initial }: AppPageProps) {
   const completedToday = todayHabits.filter(h => h.status?.isCompleteToday ?? false).length;
   const overallStreak = Math.max(...habits.map(h => h.status?.currentStreak ?? 0), 0);
 
-  const weekStats = habits.reduce(
-    (acc, habit) => {
-      const week = habit.status?.week;
-      if (!week) return acc;
-      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-      for (const day of days) {
-        const status = week[day];
-        if (status === 'freeze') acc.freezes++;
-        if (status === 'skip') acc.skips++;
-        if (status === 'failed') acc.fails++;
-      }
-      return acc;
-    },
-    { freezes: 0, skips: 0, fails: 0 },
-  );
-
   // === Data Refresh ===
   const refreshHabits = async (): Promise<Result<HabitPageData, Problem> | undefined> => {
     if (!userId) return undefined;
     const promise = fetchHabitPageData(api.alcohol.zinc.api, userId);
     setContentResult(Res.fromAsync(promise));
+    setFreezeRefreshKey(k => k + 1);
     return promise;
   };
 
@@ -438,16 +429,12 @@ export default function AppPage({ initial }: AppPageProps) {
                           </p>
                         </div>
 
-                        <div className="flex flex-col">
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Freezes Left</p>
-                          <div className="flex items-center gap-2">
-                            <Snowflake className="h-4 w-4 text-blue-500" />
-                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                              {5 - weekStats.freezes}/{5}
-                            </span>
-                            <span className="text-xs text-slate-500">this month</span>
-                          </div>
-                        </div>
+                        <FreezeBalanceStat
+                          key={userId}
+                          userId={userId}
+                          initial={protection}
+                          refreshKey={freezeRefreshKey}
+                        />
 
                         <div className="flex flex-col">
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skips Left</p>
@@ -565,11 +552,15 @@ export const getServerSideProps = withServerSideAtomi(
 
     // Get userId and fetch page data using shared function
     const userIdResult = await api.vUserMeList({ version: '1.0' }, { format: 'text' });
-    const pageDataResult = await userIdResult.andThen(userId => fetchHabitPageData(api, userId));
+    const [pageDataResult, protectionResult] = await Promise.all([
+      userIdResult.andThen(userId => fetchHabitPageData(api, userId)).serial(),
+      userIdResult.andThen(userId => api.vProtectionDetail({ version: '1.0', userId })).serial(),
+    ]);
 
     return {
       props: {
-        initial: await pageDataResult.serial(),
+        initial: pageDataResult,
+        protection: protectionResult,
       },
     };
   },
