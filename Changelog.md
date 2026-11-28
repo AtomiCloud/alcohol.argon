@@ -1,3 +1,11 @@
+## [1.44.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.43.0...v1.44.0) (2026-11-28)
+
+
+### ✨ Features ✨
+
+* option-B freeze copy and real freeze balance ([2b1b7db](https://github.com/AtomiCloud/alcohol.argon/commit/2b1b7db333cbb22f1e4a7cbd9cd15684505ff19a))
+* option-B freeze copy and real freeze balance ([#115](https://github.com/AtomiCloud/alcohol.argon/issues/115)) ([309ea54](https://github.com/AtomiCloud/alcohol.argon/commit/309ea54396ce04d82011c6e0d19bb17fb812c292))
+
 ## [1.43.0](https://github.com/AtomiCloud/alcohol.argon/compare/v1.42.4...v1.43.0) (2026-11-27)
 
 
