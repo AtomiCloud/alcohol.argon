@@ -57,8 +57,8 @@ const features: Feature[] = [
   },
   {
     icon: Shield,
-    title: 'Earned Freezes',
-    description: 'Every 7-day streak earns auto-protection when life happens.',
+    title: 'Automatic Freezes',
+    description: 'Paid plans include automatic freeze protection; see current plan details.',
     tier: 'both',
     tooltipText: 'Available in Pro and Ultimate plans',
   },

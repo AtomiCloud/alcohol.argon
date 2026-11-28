@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Image from 'next/image';
 import { X, Check } from 'lucide-react';
 
@@ -22,7 +23,7 @@ const steps = [
   },
   {
     title: 'Earn protection',
-    body: 'Every 7-day streak earns you a freeze that auto-protects you when life happens. Get monthly skips. Pause habits during vacation. We reward consistency with flexibility.',
+    body: 'Paid plans include automatic freeze protection for when life happens; see current plan details. Get monthly skips. Pause habits during vacation. We reward consistency with flexibility.',
     img: '/images/feature-streaks-freeze-fs8.png',
     color: 'from-sky-500/10 to-transparent',
   },
@@ -129,7 +130,12 @@ export default function HowItWorksV2() {
                     {idx === 3 && (
                       <>
                         <p className="my-2">
-                          Earns freezes that <strong>auto‑protects</strong> your streaks when life happens.
+                          Paid plans include freezes that <strong>auto‑protect</strong> your streaks when life happens.
+                          See{' '}
+                          <Link href="/pricing" className="underline underline-offset-4">
+                            current plan details
+                          </Link>
+                          .
                         </p>
                         <p className="my-2">Get monthly skips. Pause habits during vacation.</p>
                         <p className="my-2">

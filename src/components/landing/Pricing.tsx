@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
 import { TIER_LIMITS, type PaidTier, type Tier } from '@/lib/billing/pricing';
+import { type CatalogPlan, isV2FreezePolicy, planFreezeCopy } from '@/lib/billing/freeze-copy';
 
 const SKIP_TOOLTIP = "Voluntary skipping of a habit. Won't damage your streak or charge you. Manual use only.";
 
@@ -15,12 +16,16 @@ function LimitItem({ label, tooltip }: { label: string; tooltip: string }) {
     <li>
       <span className="inline-flex items-center gap-1">
         <span>{label}</span>
-        <HelpCircle
-          className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
+        <button
+          type="button"
+          aria-label={`About ${label}: ${tooltip}`}
+          className="rounded-full cursor-help focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500"
           data-tooltip-id="pricing-tooltip"
           data-tooltip-content={tooltip}
           data-tooltip-place="top"
-        />
+        >
+          <HelpCircle className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" aria-hidden />
+        </button>
       </span>
     </li>
   );
@@ -37,7 +42,36 @@ const VacationsItem = ({ tier }: { tier: PaidTier }) => (
   />
 );
 
-export default function Pricing() {
+function FreezeItem({ plans, tier }: { plans: CatalogPlan[] | null; tier: Tier }) {
+  const copy = planFreezeCopy(plans, tier);
+  return copy && <LimitItem label={copy.label} tooltip={copy.tooltip} />;
+}
+
+// The freeze rules behind the option-B card copy. Shown only when zinc says that policy is live.
+function FreezeRules({ plans }: { plans: CatalogPlan[] }) {
+  const cap = (tier: PaidTier) => plans.find(p => p.key === tier)?.freezeBase ?? 0;
+  return (
+    <details className="mt-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/60 p-4 text-sm text-slate-700 dark:text-slate-300">
+      <summary className="cursor-pointer font-semibold text-slate-900 dark:text-white">How do freezes work?</summary>
+      <ul className="mt-3 list-disc pl-5 space-y-1.5">
+        <li>A freeze is used automatically on a day you miss. One freeze protects all your habits that day.</li>
+        <li>
+          Pro starts with {cap('pro')} and Ultimate with {cap('ultimate')}. You get them once per account: renewing,
+          cancelling or subscribing again does not refill them.
+        </li>
+        <li>
+          Earn 1 freeze for each perfect week, Sunday to Saturday, starting with your first full week. Complete every
+          habit that is due. Vacation days are excused. Skips, frozen days and misses do not count, and a week needs at
+          least 1 completion.
+        </li>
+        <li>Unused freezes carry over, up to your plan&apos;s limit.</li>
+        <li>If you downgrade, freezes above the new limit are removed for good.</li>
+      </ul>
+    </details>
+  );
+}
+
+export default function Pricing({ plans = null }: { plans?: CatalogPlan[] | null }) {
   const [period, setPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   const PRICE = {
@@ -103,6 +137,7 @@ export default function Pricing() {
                 <li>2 habits with streak tracking</li>
                 <li>Optional stakes (you control amount)</li>
                 <SkipsItem tier="free" />
+                <FreezeItem plans={plans} tier="free" />
               </ul>
             </CardContent>
           </Card>
@@ -140,17 +175,7 @@ export default function Pricing() {
                 <li>Up to 10 habits</li>
                 <SkipsItem tier="pro" />
                 <VacationsItem tier="pro" />
-                <li>
-                  <span className="inline-flex items-center gap-1">
-                    <span>Earn freezes</span>
-                    <HelpCircle
-                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
-                      data-tooltip-id="pricing-tooltip"
-                      data-tooltip-content="Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn 1 per 7-day streak."
-                      data-tooltip-place="top"
-                    />
-                  </span>
-                </li>
+                <FreezeItem plans={plans} tier="pro" />
                 <li>
                   <span className="inline-flex items-center gap-1">
                     <span>Flexible habits</span>
@@ -206,17 +231,7 @@ export default function Pricing() {
                 <li>Unlimited habits</li>
                 <SkipsItem tier="ultimate" />
                 <VacationsItem tier="ultimate" />
-                <li>
-                  <span className="inline-flex items-center gap-1">
-                    <span>Earn more freezes</span>
-                    <HelpCircle
-                      className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 cursor-help"
-                      data-tooltip-id="pricing-tooltip"
-                      data-tooltip-content="Auto-triggered protection when you forget to check in. Protects ALL habits for the day. Earn more per streak in Ultimate."
-                      data-tooltip-place="top"
-                    />
-                  </span>
-                </li>
+                <FreezeItem plans={plans} tier="ultimate" />
                 <li>
                   <span className="inline-flex items-center gap-1">
                     <span>Debt cap</span>
@@ -248,6 +263,8 @@ export default function Pricing() {
             </CardContent>
           </Card>
         </div>
+
+        {isV2FreezePolicy(plans) && <FreezeRules plans={plans} />}
 
         <div className="mt-6 rounded-xl border border-orange-200 dark:border-orange-900/40 p-6 bg-gradient-to-tr from-orange-500/10 to-violet-500/10 shadow-lg grid md:grid-cols-2 gap-4 items-center">
           <div>

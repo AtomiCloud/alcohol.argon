@@ -83,7 +83,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'Rigid "never break the chain" systems collapse when life happens. You get sick, travel for work, or face a legitimate emergency. If the system treats all misses equally, you abandon it entirely rather than restarting from zero.',
           'Research shows that missing a single day does not derail habit formation. The automaticity curve continues after one miss. The problem is psychological: breaking a streak feels like failure, which triggers avoidance and abandonment.',
-          'The solution is grace periods or "freeze days" that distinguish between legitimate disruptions and avoidance. LazyTax automatically awards one freeze for every 7-day streak. Use a freeze, and your stake is protected while your streak continues.',
+          'The solution is grace periods or "freeze days" that distinguish between legitimate disruptions and avoidance. LazyTax paid plans include automatic freeze protection; see current plan details on the pricing page. Use a freeze, and your stake is protected while your streak continues.',
           'This design survives real life. Traveling for a wedding? Use a freeze. Flu symptoms? Use a freeze. The system recognizes that consistency matters more than perfection, and occasional misses do not equal failure.',
         ],
       },
@@ -184,7 +184,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'How LazyTax works (in short)',
         paragraphs: [
           'Pick one tiny habit. Think "put on gym shoes" rather than "go to the gym." Check-ins take seconds. Add a small stake if you want extra friction; I often use $2.',
-          "Miss a check-in and don't have protection? The stake goes to a charity you chose. As your streak grows, you earn automatic “freezes” that cover an occasional miss so life doesn't equal failure.",
+          "Miss a check-in and don't have protection? The stake goes to a charity you chose. Paid plans include automatic “freezes” that cover an occasional miss so life doesn't equal failure.",
           'When you do miss, we ask what happened. Not to shame you, but to help you spot patterns like “I miss on Fridays” or “Travel derails me.”',
         ],
       },
@@ -235,7 +235,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'The 10 best habit tracking apps compared',
         paragraphs: [
-          '1. LazyTax is best for accountability with financial stakes. Check-ins take 5 seconds, missed days route small stakes to charity, and you earn automatic freezes as your streak grows. Pricing starts at free with optional stakes. Available on iOS and web.',
+          '1. LazyTax is best for accountability with financial stakes. Check-ins take 5 seconds, missed days route small stakes to charity, and paid plans include automatic freezes. Pricing starts at free with optional stakes. Available on iOS and web.',
           '2. Streaks works well for iOS users who want simplicity. The clean interface and 12 habit limit keeps you focused, and it integrates with Apple Health. One-time purchase of $5. iOS only.',
           '3. Habitica appeals to gamification lovers. Turn habits into an RPG where you level up a character. Free with optional premium ($5/month). Available on iOS, Android, and web.',
           '4. Loop Habit Tracker is the best free Android app. Open source, powerful statistics, no ads or subscriptions. Uses a strength-based system instead of all-or-nothing streaks. Android only.',
@@ -732,7 +732,7 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           'LazyTax implements optimal stake design based on this research: small daily stakes ($1-5), charitable destinations to avoid anti-charity discomfort, and automatic escalation as streaks grow.',
           'The daily check-in structure provides immediate feedback and keeps the behavior-consequence link tight. Missing a check-in triggers an immediate loss, not a delayed penalty at the end of the week.',
-          'Automatic freezes and grace periods address the rigidity problem. You earn one freeze for every 7-day streak, creating a buffer system that survives real life without eliminating stakes entirely.',
+          'Automatic freezes and grace periods address the rigidity problem. Paid plans include automatic freeze protection, creating a buffer system that survives real life without eliminating stakes entirely.',
           'Optional accountability partners add the social layer that research shows increases success rates by 10-15 percentage points. Your partner sees your streak and receives notifications when you miss, leveraging both social accountability and financial stakes.',
         ],
       },

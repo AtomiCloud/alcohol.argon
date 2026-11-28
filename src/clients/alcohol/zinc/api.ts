@@ -49,6 +49,11 @@ export interface AirwallexEventDataObject {
   purpose?: string | null;
 }
 
+export interface AssignStravaActivityReq {
+  /** @format uuid */
+  habitId?: string | null;
+}
+
 export interface AwardWeeklyReq {
   userId?: string | null;
 }
@@ -57,6 +62,11 @@ export interface AwardWeeklyRes {
   userId?: string | null;
   /** @format int32 */
   awards: number;
+}
+
+export interface BindProofReq {
+  pluginKey?: string | null;
+  settings?: string | null;
 }
 
 export interface CausePrincipalRes {
@@ -107,7 +117,7 @@ export interface ConfigurationPrincipalRes {
 
 export interface ConfigurationRes {
   principal: ConfigurationPrincipalRes;
-  charity: CharityPrincipalRes;
+  charity?: CharityPrincipalRes | null;
 }
 
 export interface ConfirmPaymentIntentReq {
@@ -152,11 +162,14 @@ export interface CreateHabitReq {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
-  habitTime?: string | null;
   stake?: string | null;
   /** @format uuid */
-  charityId: string;
+  charityId?: string | null;
   timezone?: string | null;
+  deadlineTime?: string | null;
+  /** @format uuid */
+  routineId?: string | null;
+  habitTime?: string | null;
 }
 
 export interface CreatePaymentIntentReq {
@@ -172,6 +185,10 @@ export interface CreatePaymentIntentRes {
   /** @format double */
   amount: number;
   currency?: string | null;
+}
+
+export interface CreateRoutineReq {
+  name?: string | null;
 }
 
 export interface CreateUserReq {
@@ -192,10 +209,73 @@ export interface ErrorInfo {
   version?: string | null;
 }
 
+export interface FriendCandidateRes {
+  userId?: string | null;
+  username?: string | null;
+  relation?: string | null;
+}
+
+export interface FriendInviteRes {
+  code?: string | null;
+}
+
+export interface FriendRelationRes {
+  relation?: string | null;
+}
+
+export interface FriendRequestRes {
+  /** @format uuid */
+  requestId: string;
+  userId?: string | null;
+  username?: string | null;
+  /** @format date-time */
+  createdAtUtc: string;
+}
+
+export interface FriendRequestStateRes {
+  /** @format uuid */
+  requestId: string;
+  /** @minLength 1 */
+  status: string;
+  /** @format date-time */
+  createdAtUtc: string;
+  /** @format date-time */
+  resolvedAtUtc?: string | null;
+}
+
+export interface FriendRequestsRes {
+  incoming?: FriendRequestRes[] | null;
+  outgoing?: FriendRequestRes[] | null;
+}
+
+export interface FriendRes {
+  userId?: string | null;
+  username?: string | null;
+  /** @format date-time */
+  sinceUtc: string;
+}
+
+export interface FriendStakeRes {
+  /** @format uuid */
+  habitId: string;
+  friends?: FriendWatcherRes[] | null;
+}
+
+export interface FriendWatcherRes {
+  userId?: string | null;
+  username?: string | null;
+}
+
 export interface HabitCharityRefRes {
   id?: string | null;
   name?: string | null;
   url?: string | null;
+}
+
+export interface HabitCheckRes {
+  habitId?: string | null;
+  date?: string | null;
+  status?: string | null;
 }
 
 export interface HabitExecutionRes {
@@ -214,21 +294,25 @@ export interface HabitOverviewHabitRes {
   id?: string | null;
   name?: string | null;
   notificationTime?: string | null;
-  habitTime?: string | null;
   timezone?: string | null;
   days?: boolean[] | null;
   stake: StakeRes;
   enabled: boolean;
-  charity: HabitCharityRefRes;
+  charity?: HabitCharityRefRes | null;
   status: HabitStatusRes;
   /** @format int32 */
   timeLeftToEodMinutes: number;
   version: HabitVersionMetaRes;
   totalDebt?: string | null;
-  /** @deprecated */
   deadlineTime?: string | null;
+  /** @format date-time */
+  todayDeadlineUtc?: string | null;
+  proof?: string | null;
+  routineId?: string | null;
   /** @format int32 */
   sortOrder: number;
+  habitTime?: string | null;
+  canUndo: boolean;
 }
 
 export interface HabitOverviewResponse {
@@ -247,6 +331,8 @@ export interface HabitStatusRes {
   maxStreak: number;
   isCompleteToday: boolean;
   week: WeekStatusRes;
+  today?: string | null;
+  todayStatus?: string | null;
 }
 
 export interface HabitVersionMetaRes {
@@ -266,14 +352,42 @@ export interface HabitVersionRes {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
-  habitTime?: string | null;
   stake?: string | null;
   ratio?: string | null;
   /** @format uuid */
-  charityId: string;
+  charityId?: string | null;
   timezone?: string | null;
-  /** @deprecated */
   deadlineTime?: string | null;
+  habitTime?: string | null;
+}
+
+export interface InboxCountRes {
+  /** @format int32 */
+  count: number;
+}
+
+export interface InboxFriendRequestRes {
+  /** @format uuid */
+  requestId?: string | null;
+  /** @minLength 1 */
+  status: string;
+  /** @format date-time */
+  resolvedAtUtc?: string | null;
+}
+
+export interface InboxNotificationRes {
+  /** @format uuid */
+  id: string;
+  kind?: string | null;
+  title?: string | null;
+  body?: string | null;
+  actorUserId?: string | null;
+  data?: string | null;
+  /** @format date-time */
+  createdAtUtc: string;
+  /** @format date-time */
+  readAtUtc?: string | null;
+  friendRequest?: InboxFriendRequestRes | null;
 }
 
 export interface Info {
@@ -287,20 +401,73 @@ export interface Info {
   timeStamp: string;
 }
 
+export interface LinkNfcTagReq {
+  /** @format uuid */
+  habitId: string;
+}
+
 export interface MarkDailyFailuresCronRes {
   /** @format int32 */
   totalMarked: number;
 }
 
-export interface MarkDailyFailuresReq {
-  date?: string | null;
-  habitIds?: string[] | null;
+export interface NfcTagRes {
+  id?: string | null;
+  userId?: string | null;
+  /** @format uuid */
+  habitId: string;
+  claimedAt?: string | null;
+}
+
+export interface NfcTagResolutionRes {
+  tag: NfcTagRes;
+  habitVersion: HabitVersionRes;
+  today?: string | null;
+  todayExecution?: HabitExecutionRes | null;
+}
+
+export interface OwedItemRes {
+  /** @format uuid */
+  habitId: string;
+  habitName?: string | null;
+  localDate?: string | null;
+  amount?: string | null;
+  currency?: string | null;
+  /** @format uuid */
+  charityId?: string | null;
+  charityName?: string | null;
+  state?: string | null;
+  reason?: string | null;
+}
+
+export interface OwedRes {
+  total?: string | null;
+  currency?: string | null;
+  items?: OwedItemRes[] | null;
 }
 
 export interface PaymentConsentRes {
   hasPaymentConsent: boolean;
   consentId?: string | null;
   status?: string | null;
+}
+
+export interface PlanRes {
+  key?: string | null;
+  /** @format int64 */
+  priceCents: number;
+  currency?: string | null;
+  /** @format int32 */
+  habitsMax?: number | null;
+  habitsUnlimited: boolean;
+  /** @format int32 */
+  skipsMonthly: number;
+  /** @format int32 */
+  vacationWindowsYearly: number;
+  /** @format int32 */
+  freezeBase: number;
+  /** @format int32 */
+  vacationMaxDays: number;
 }
 
 export interface PledgeSyncSummaryRes {
@@ -316,6 +483,26 @@ export interface PledgeSyncSummaryRes {
   charitiesProcessed: number;
 }
 
+export interface PluginManifestRes {
+  key?: string | null;
+  name?: string | null;
+  /** @format int32 */
+  version: number;
+  platforms?: string[] | null;
+  settingsSchema?: string | null;
+  minTier?: string | null;
+  alwaysBound: boolean;
+}
+
+export interface ProofBindingRes {
+  /** @format uuid */
+  habitId: string;
+  pluginKey?: string | null;
+  /** @format int32 */
+  pluginVersion: number;
+  settings?: string | null;
+}
+
 export interface ProtectionBalanceRes {
   userId?: string | null;
   /** @format int32 */
@@ -324,13 +511,41 @@ export interface ProtectionBalanceRes {
   cap: number;
 }
 
+export interface ReorderHabitsReq {
+  habitIds?: string[] | null;
+}
+
+export interface ReorderHabitsRes {
+  habitIds?: string[] | null;
+}
+
+export interface ResolveFriendRequestReq {
+  /** @minLength 1 */
+  decision: string;
+}
+
+export interface RoutineRes {
+  /** @format uuid */
+  id: string;
+  userId?: string | null;
+  name?: string | null;
+}
+
 export interface RunDisbursementRes {
   /** @format int32 */
   completed: number;
 }
 
+export interface SendFriendRequestReq {
+  toUserId?: string | null;
+}
+
 export interface SetCharityCausesReq {
   keys?: string[] | null;
+}
+
+export interface SetFriendWatchersReq {
+  friendUserIds?: string[] | null;
 }
 
 export interface SkipHabitReq {
@@ -343,7 +558,36 @@ export interface StakeRes {
   currency?: string | null;
 }
 
+export interface StravaActivityRes {
+  id?: string | null;
+  name?: string | null;
+  sportType?: string | null;
+  /** @format date-time */
+  startUtc: string;
+  manual: boolean;
+  /** @format uuid */
+  habitId?: string | null;
+  pinned: boolean;
+  locked: boolean;
+}
+
+export interface StravaConnectUrlRes {
+  url?: string | null;
+  appUrl?: string | null;
+}
+
+export interface StravaConnectionRes {
+  connected: boolean;
+  /** @format date-time */
+  connectedAtUtc?: string | null;
+}
+
 export interface SubscribeReq {
+  tier?: string | null;
+}
+
+export interface SubscriptionCtaRes {
+  variant?: string | null;
   tier?: string | null;
 }
 
@@ -355,6 +599,12 @@ export interface SubscriptionRes {
   periodEnd?: string | null;
   cancelAtPeriodEnd: boolean;
   nextTier?: string | null;
+}
+
+export interface TimezoneSettledCheckRes {
+  habitId?: string | null;
+  date?: string | null;
+  status?: string | null;
 }
 
 export interface UpdateCauseReq {
@@ -377,16 +627,29 @@ export interface UpdateConfigurationReq {
   defaultCharityId?: string | null;
 }
 
+export interface UpdateConfigurationRes {
+  id?: string | null;
+  userId?: string | null;
+  timezone?: string | null;
+  defaultCharityId?: string | null;
+  settledChecks?: TimezoneSettledCheckRes[] | null;
+}
+
 export interface UpdateHabitReq {
   task?: string | null;
   daysOfWeek?: string[] | null;
   notificationTime?: string | null;
-  habitTime?: string | null;
   stake?: string | null;
   /** @format uuid */
-  charityId: string;
+  charityId?: string | null;
   enabled: boolean;
   timezone?: string | null;
+  deadlineTime?: string | null;
+  habitTime?: string | null;
+}
+
+export interface UpdateRoutineReq {
+  name?: string | null;
 }
 
 export interface UpdateUserReq {
@@ -416,6 +679,17 @@ export interface VacationRes {
   createdAt?: string | null;
 }
 
+export interface WebHandoffReq {
+  platform?: string | null;
+  storefront?: string | null;
+}
+
+export interface WebHandoffRes {
+  url?: string | null;
+  /** @format int32 */
+  expiresInSeconds: number;
+}
+
 export interface WeekStatusRes {
   sunday?: string | null;
   monday?: string | null;
@@ -427,6 +701,16 @@ export interface WeekStatusRes {
   start?: string | null;
   end?: string | null;
 }
+
+export interface VAuthWebHandoffCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VAuthWebHandoffCreateData = WebHandoffRes;
 
 export interface VCausesListParams {
   Key?: string;
@@ -568,6 +852,18 @@ export interface VCharityCausesUpdateParams {
 
 export type VCharityCausesUpdateData = any;
 
+export interface VCharityDecommissionCreateParams {
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VCharityDecommissionCreateData = any;
+
 export interface VCharitySupportedCountriesListParams {
   /**
    * The requested API version
@@ -602,7 +898,7 @@ export interface VConfigurationUpdateParams {
   version: string;
 }
 
-export type VConfigurationUpdateData = ConfigurationPrincipalRes;
+export type VConfigurationUpdateData = UpdateConfigurationRes;
 
 export interface VConfigurationMeListParams {
   /**
@@ -636,7 +932,7 @@ export interface VConfigurationUpdate2Params {
   version: string;
 }
 
-export type VConfigurationUpdate2Data = ConfigurationPrincipalRes;
+export type VConfigurationUpdate2Data = UpdateConfigurationRes;
 
 export interface VConfigurationCreateParams {
   userId: string;
@@ -670,6 +966,7 @@ export interface VDisbursementRunCreateParams {
 export type VDisbursementRunCreateData = RunDisbursementRes;
 
 export interface VEmailCreateParams {
+  template: string;
   to: string;
   /**
    * The requested API version
@@ -679,6 +976,167 @@ export interface VEmailCreateParams {
 }
 
 export type VEmailCreateData = any;
+
+export interface VFriendSearchListParams {
+  q?: string;
+  /**
+   * @format int32
+   * @default 20
+   */
+  limit?: number;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendSearchListData = FriendCandidateRes[];
+
+export interface VFriendDetailParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendDetailData = FriendRes[];
+
+export interface VFriendDeleteParams {
+  userId: string;
+  friendUserId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendDeleteData = any;
+
+export interface VFriendRequestsListParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsListData = FriendRequestsRes;
+
+export interface VFriendRequestsCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsCreateData = FriendRelationRes;
+
+export interface VFriendRequestsDetailParams {
+  userId: string;
+  /** @format uuid */
+  requestId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsDetailData = FriendRequestStateRes;
+
+export interface VFriendRequestsResolveCreateParams {
+  userId: string;
+  /** @format uuid */
+  requestId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsResolveCreateData = FriendRequestStateRes;
+
+export interface VFriendRequestsAcceptCreateParams {
+  userId: string;
+  fromUserId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsAcceptCreateData = FriendRes;
+
+export interface VFriendRequestsDeleteParams {
+  userId: string;
+  otherUserId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendRequestsDeleteData = any;
+
+export interface VFriendInvitesCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendInvitesCreateData = FriendInviteRes;
+
+export interface VFriendInvitesAcceptCreateParams {
+  userId: string;
+  code: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendInvitesAcceptCreateData = FriendRelationRes;
+
+export interface VFriendStakeDetailParams {
+  userId: string;
+  /** @format uuid */
+  habitId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendStakeDetailData = FriendStakeRes;
+
+export interface VFriendStakeUpdateParams {
+  userId: string;
+  /** @format uuid */
+  habitId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VFriendStakeUpdateData = FriendStakeRes;
 
 export interface VHabitDetailParams {
   /** @format uuid */
@@ -750,6 +1208,17 @@ export interface VHabitDeleteParams {
 
 export type VHabitDeleteData = any;
 
+export interface VHabitOrderUpdateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitOrderUpdateData = ReorderHabitsRes;
+
 export interface VHabitExecutionsCreateParams {
   userId: string;
   /** @format uuid */
@@ -762,6 +1231,20 @@ export interface VHabitExecutionsCreateParams {
 }
 
 export type VHabitExecutionsCreateData = HabitExecutionRes;
+
+export interface VHabitExecutionsDeleteParams {
+  date?: string;
+  userId: string;
+  /** @format uuid */
+  habitVersionId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VHabitExecutionsDeleteData = HabitCheckRes;
 
 export interface VHabitExecutionsSkipCreateParams {
   userId: string;
@@ -809,17 +1292,6 @@ export interface VHabitOverviewListParams {
 
 export type VHabitOverviewListData = HabitOverviewResponse;
 
-export interface VHabitExecutionsMarkDailyFailuresCreateParams {
-  /**
-   * The requested API version
-   * @default "1.0"
-   */
-  version: string;
-}
-
-/** @format int32 */
-export type VHabitExecutionsMarkDailyFailuresCreateData = number;
-
 export interface VHabitCronMarkDailyFailuresCreateParams {
   /**
    * The requested API version
@@ -829,6 +1301,93 @@ export interface VHabitCronMarkDailyFailuresCreateParams {
 }
 
 export type VHabitCronMarkDailyFailuresCreateData = MarkDailyFailuresCronRes;
+
+export interface VInboxDetailParams {
+  UnreadOnly?: boolean;
+  /** @format int32 */
+  Limit?: number;
+  /** @format int32 */
+  Skip?: number;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VInboxDetailData = InboxNotificationRes[];
+
+export interface VInboxUnreadCountListParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VInboxUnreadCountListData = InboxCountRes;
+
+export interface VInboxReadCreateParams {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VInboxReadCreateData = any;
+
+export interface VInboxReadAllCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VInboxReadAllCreateData = InboxCountRes;
+
+export interface VNfcTagUpdateParams {
+  userId: string;
+  tagId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VNfcTagUpdateData = NfcTagRes;
+
+export interface VNfcTagDetailParams {
+  userId: string;
+  tagId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VNfcTagDetailData = NfcTagResolutionRes;
+
+export interface VNfcTagDeleteParams {
+  userId: string;
+  tagId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VNfcTagDeleteData = any;
 
 export interface VPaymentCustomersUpdateParams {
   userId: string;
@@ -909,6 +1468,17 @@ export interface VPaymentWebhookCreateParams {
 
 export type VPaymentWebhookCreateData = any;
 
+export interface VPenaltyOwedListParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VPenaltyOwedListData = OwedRes;
+
 export interface VCharitiesSyncPledgeCreateParams {
   /**
    * The requested API version
@@ -918,6 +1488,55 @@ export interface VCharitiesSyncPledgeCreateParams {
 }
 
 export type VCharitiesSyncPledgeCreateData = PledgeSyncSummaryRes;
+
+export interface VProofPluginsListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProofPluginsListData = PluginManifestRes[];
+
+export interface VProofDetailParams {
+  userId: string;
+  /** @format uuid */
+  habitId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProofDetailData = ProofBindingRes;
+
+export interface VProofUpdateParams {
+  userId: string;
+  /** @format uuid */
+  habitId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProofUpdateData = ProofBindingRes;
+
+export interface VProofDeleteParams {
+  userId: string;
+  /** @format uuid */
+  habitId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VProofDeleteData = any;
 
 export interface VProtectionDetailParams {
   userId: string;
@@ -939,6 +1558,192 @@ export interface VProtectionAwardWeeklyCreateParams {
 }
 
 export type VProtectionAwardWeeklyCreateData = AwardWeeklyRes;
+
+export interface VRoutineDetailParams {
+  Name?: string;
+  /** @format int32 */
+  Limit?: number;
+  /** @format int32 */
+  Skip?: number;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VRoutineDetailData = RoutineRes[];
+
+export interface VRoutineCreateParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VRoutineCreateData = RoutineRes;
+
+export interface VRoutineDetail2Params {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VRoutineDetail2Data = RoutineRes;
+
+export interface VRoutineUpdateParams {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VRoutineUpdateData = RoutineRes;
+
+export interface VRoutineDeleteParams {
+  userId: string;
+  /** @format uuid */
+  id: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VRoutineDeleteData = any;
+
+export interface VStravaConnectUrlDetailParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaConnectUrlDetailData = StravaConnectUrlRes;
+
+export interface VStravaCallbackListParams {
+  code?: string;
+  scope?: string;
+  state?: string;
+  error?: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaCallbackListData = any;
+
+export interface VStravaDetailParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaDetailData = StravaConnectionRes;
+
+export interface VStravaDeleteParams {
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaDeleteData = any;
+
+export interface VStravaActivitiesListParams {
+  date?: string;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaActivitiesListData = StravaActivityRes[];
+
+export interface VStravaActivitiesHabitUpdateParams {
+  userId: string;
+  /** @format int64 */
+  activityId: number;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaActivitiesHabitUpdateData = StravaActivityRes[];
+
+export interface VStravaWebhookListParams {
+  'hub.mode'?: string;
+  'hub.verify_token'?: string;
+  'hub.challenge'?: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaWebhookListData = any;
+
+export type VStravaWebhookCreatePayload = any;
+
+export interface VStravaWebhookCreateParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VStravaWebhookCreateData = any;
+
+export interface VSubscriptionPlansListParams {
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionPlansListData = PlanRes[];
+
+export interface VSubscriptionCtaListParams {
+  platform?: string;
+  storefront?: string;
+  userId: string;
+  /**
+   * The requested API version
+   * @default "1.0"
+   */
+  version: string;
+}
+
+export type VSubscriptionCtaListData = SubscriptionCtaRes;
 
 export interface VSubscriptionDetailParams {
   userId: string;
@@ -1412,6 +2217,30 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags Auth
+     * @name VAuthWebHandoffCreate
+     * @request POST:/api/v{version}/Auth/web-handoff
+     * @secure
+     * @response `200` `VAuthWebHandoffCreateData` Success
+     */
+    vAuthWebHandoffCreate: (
+      { version, ...query }: VAuthWebHandoffCreateParams,
+      data: WebHandoffReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VAuthWebHandoffCreateData, any>({
+        path: `/api/v${version}/Auth/web-handoff`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Causes
      * @name VCausesList
      * @request GET:/api/v{version}/Causes
@@ -1628,6 +2457,26 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * No description
      *
      * @tags Charity
+     * @name VCharityDecommissionCreate
+     * @request POST:/api/v{version}/Charity/{id}/decommission
+     * @secure
+     * @response `200` `VCharityDecommissionCreateData` Success
+     */
+    vCharityDecommissionCreate: (
+      { id, version, ...query }: VCharityDecommissionCreateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VCharityDecommissionCreateData, any>({
+        path: `/api/v${version}/Charity/${id}/decommission`,
+        method: 'POST',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Charity
      * @name VCharitySupportedCountriesList
      * @request GET:/api/v{version}/Charity/supported-countries
      * @secure
@@ -1824,15 +2673,281 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      *
      * @tags Email
      * @name VEmailCreate
-     * @request POST:/api/v{version}/Email/{to}
+     * @request POST:/api/v{version}/Email/{template}/{to}
      * @secure
      * @response `200` `VEmailCreateData` Success
      */
-    vEmailCreate: ({ to, version, ...query }: VEmailCreateParams, params: RequestParams = {}) =>
+    vEmailCreate: ({ template, to, version, ...query }: VEmailCreateParams, params: RequestParams = {}) =>
       this.request<VEmailCreateData, any>({
-        path: `/api/v${version}/Email/${to}`,
+        path: `/api/v${version}/Email/${template}/${to}`,
         method: 'POST',
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendSearchList
+     * @request GET:/api/v{version}/Friend/{userId}/search
+     * @secure
+     * @response `200` `VFriendSearchListData` Success
+     */
+    vFriendSearchList: ({ userId, version, ...query }: VFriendSearchListParams, params: RequestParams = {}) =>
+      this.request<VFriendSearchListData, any>({
+        path: `/api/v${version}/Friend/${userId}/search`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendDetail
+     * @request GET:/api/v{version}/Friend/{userId}
+     * @secure
+     * @response `200` `VFriendDetailData` Success
+     */
+    vFriendDetail: ({ userId, version, ...query }: VFriendDetailParams, params: RequestParams = {}) =>
+      this.request<VFriendDetailData, any>({
+        path: `/api/v${version}/Friend/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendDelete
+     * @request DELETE:/api/v{version}/Friend/{userId}/{friendUserId}
+     * @secure
+     * @response `200` `VFriendDeleteData` Success
+     */
+    vFriendDelete: ({ userId, friendUserId, version, ...query }: VFriendDeleteParams, params: RequestParams = {}) =>
+      this.request<VFriendDeleteData, any>({
+        path: `/api/v${version}/Friend/${userId}/${friendUserId}`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsList
+     * @request GET:/api/v{version}/Friend/{userId}/requests
+     * @secure
+     * @response `200` `VFriendRequestsListData` Success
+     */
+    vFriendRequestsList: ({ userId, version, ...query }: VFriendRequestsListParams, params: RequestParams = {}) =>
+      this.request<VFriendRequestsListData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsCreate
+     * @request POST:/api/v{version}/Friend/{userId}/requests
+     * @secure
+     * @response `200` `VFriendRequestsCreateData` Success
+     */
+    vFriendRequestsCreate: (
+      { userId, version, ...query }: VFriendRequestsCreateParams,
+      data: SendFriendRequestReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendRequestsCreateData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsDetail
+     * @request GET:/api/v{version}/Friend/{userId}/requests/{requestId}
+     * @secure
+     * @response `200` `VFriendRequestsDetailData` Success
+     */
+    vFriendRequestsDetail: (
+      { userId, requestId, version, ...query }: VFriendRequestsDetailParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendRequestsDetailData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests/${requestId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsResolveCreate
+     * @request POST:/api/v{version}/Friend/{userId}/requests/{requestId}/resolve
+     * @secure
+     * @response `200` `VFriendRequestsResolveCreateData` Success
+     */
+    vFriendRequestsResolveCreate: (
+      { userId, requestId, version, ...query }: VFriendRequestsResolveCreateParams,
+      data: ResolveFriendRequestReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendRequestsResolveCreateData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests/${requestId}/resolve`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsAcceptCreate
+     * @request POST:/api/v{version}/Friend/{userId}/requests/{fromUserId}/accept
+     * @secure
+     * @response `200` `VFriendRequestsAcceptCreateData` Success
+     */
+    vFriendRequestsAcceptCreate: (
+      { userId, fromUserId, version, ...query }: VFriendRequestsAcceptCreateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendRequestsAcceptCreateData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests/${fromUserId}/accept`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendRequestsDelete
+     * @request DELETE:/api/v{version}/Friend/{userId}/requests/{otherUserId}
+     * @secure
+     * @response `200` `VFriendRequestsDeleteData` Success
+     */
+    vFriendRequestsDelete: (
+      { userId, otherUserId, version, ...query }: VFriendRequestsDeleteParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendRequestsDeleteData, any>({
+        path: `/api/v${version}/Friend/${userId}/requests/${otherUserId}`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendInvitesCreate
+     * @request POST:/api/v{version}/Friend/{userId}/invites
+     * @secure
+     * @response `200` `VFriendInvitesCreateData` Success
+     */
+    vFriendInvitesCreate: ({ userId, version, ...query }: VFriendInvitesCreateParams, params: RequestParams = {}) =>
+      this.request<VFriendInvitesCreateData, any>({
+        path: `/api/v${version}/Friend/${userId}/invites`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Friend
+     * @name VFriendInvitesAcceptCreate
+     * @request POST:/api/v{version}/Friend/{userId}/invites/{code}/accept
+     * @secure
+     * @response `200` `VFriendInvitesAcceptCreateData` Success
+     */
+    vFriendInvitesAcceptCreate: (
+      { userId, code, version, ...query }: VFriendInvitesAcceptCreateParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendInvitesAcceptCreateData, any>({
+        path: `/api/v${version}/Friend/${userId}/invites/${code}/accept`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags FriendStake
+     * @name VFriendStakeDetail
+     * @request GET:/api/v{version}/FriendStake/{userId}/{habitId}
+     * @secure
+     * @response `200` `VFriendStakeDetailData` Success
+     */
+    vFriendStakeDetail: (
+      { userId, habitId, version, ...query }: VFriendStakeDetailParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendStakeDetailData, any>({
+        path: `/api/v${version}/FriendStake/${userId}/${habitId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags FriendStake
+     * @name VFriendStakeUpdate
+     * @request PUT:/api/v{version}/FriendStake/{userId}/{habitId}
+     * @secure
+     * @response `200` `VFriendStakeUpdateData` Success
+     */
+    vFriendStakeUpdate: (
+      { userId, habitId, version, ...query }: VFriendStakeUpdateParams,
+      data: SetFriendWatchersReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VFriendStakeUpdateData, any>({
+        path: `/api/v${version}/FriendStake/${userId}/${habitId}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -1944,6 +3059,30 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
      * No description
      *
      * @tags Habit
+     * @name VHabitOrderUpdate
+     * @request PUT:/api/v{version}/Habit/{userId}/order
+     * @secure
+     * @response `200` `VHabitOrderUpdateData` Success
+     */
+    vHabitOrderUpdate: (
+      { userId, version, ...query }: VHabitOrderUpdateParams,
+      data: ReorderHabitsReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitOrderUpdateData, any>({
+        path: `/api/v${version}/Habit/${userId}/order`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
      * @name VHabitExecutionsCreate
      * @request POST:/api/v{version}/Habit/{userId}/{habitVersionId}/executions
      * @secure
@@ -1960,6 +3099,28 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Habit
+     * @name VHabitExecutionsDelete
+     * @request DELETE:/api/v{version}/Habit/{userId}/{habitVersionId}/executions
+     * @secure
+     * @response `200` `VHabitExecutionsDeleteData` Success
+     */
+    vHabitExecutionsDelete: (
+      { userId, habitVersionId, version, ...query }: VHabitExecutionsDeleteParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VHabitExecutionsDeleteData, any>({
+        path: `/api/v${version}/Habit/${userId}/${habitVersionId}/executions`,
+        method: 'DELETE',
+        query: query,
+        secure: true,
         format: 'json',
         ...params,
       }),
@@ -2029,30 +3190,6 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
-     * @tags Habit
-     * @name VHabitExecutionsMarkDailyFailuresCreate
-     * @request POST:/api/v{version}/Habit/executions/mark-daily-failures
-     * @secure
-     * @response `200` `VHabitExecutionsMarkDailyFailuresCreateData` Success
-     */
-    vHabitExecutionsMarkDailyFailuresCreate: (
-      { version, ...query }: VHabitExecutionsMarkDailyFailuresCreateParams,
-      data: MarkDailyFailuresReq,
-      params: RequestParams = {},
-    ) =>
-      this.request<VHabitExecutionsMarkDailyFailuresCreateData, any>({
-        path: `/api/v${version}/Habit/executions/mark-daily-failures`,
-        method: 'POST',
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
      * @tags HabitCron
      * @name VHabitCronMarkDailyFailuresCreate
      * @request POST:/api/v{version}/habit-cron/mark-daily-failures
@@ -2068,6 +3205,137 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         method: 'POST',
         secure: true,
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Inbox
+     * @name VInboxDetail
+     * @request GET:/api/v{version}/Inbox/{userId}
+     * @secure
+     * @response `200` `VInboxDetailData` Success
+     */
+    vInboxDetail: ({ userId, version, ...query }: VInboxDetailParams, params: RequestParams = {}) =>
+      this.request<VInboxDetailData, any>({
+        path: `/api/v${version}/Inbox/${userId}`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Inbox
+     * @name VInboxUnreadCountList
+     * @request GET:/api/v{version}/Inbox/{userId}/unread-count
+     * @secure
+     * @response `200` `VInboxUnreadCountListData` Success
+     */
+    vInboxUnreadCountList: ({ userId, version, ...query }: VInboxUnreadCountListParams, params: RequestParams = {}) =>
+      this.request<VInboxUnreadCountListData, any>({
+        path: `/api/v${version}/Inbox/${userId}/unread-count`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Inbox
+     * @name VInboxReadCreate
+     * @request POST:/api/v{version}/Inbox/{userId}/{id}/read
+     * @secure
+     * @response `200` `VInboxReadCreateData` Success
+     */
+    vInboxReadCreate: ({ userId, id, version, ...query }: VInboxReadCreateParams, params: RequestParams = {}) =>
+      this.request<VInboxReadCreateData, any>({
+        path: `/api/v${version}/Inbox/${userId}/${id}/read`,
+        method: 'POST',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Inbox
+     * @name VInboxReadAllCreate
+     * @request POST:/api/v{version}/Inbox/{userId}/read-all
+     * @secure
+     * @response `200` `VInboxReadAllCreateData` Success
+     */
+    vInboxReadAllCreate: ({ userId, version, ...query }: VInboxReadAllCreateParams, params: RequestParams = {}) =>
+      this.request<VInboxReadAllCreateData, any>({
+        path: `/api/v${version}/Inbox/${userId}/read-all`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags NfcTag
+     * @name VNfcTagUpdate
+     * @request PUT:/api/v{version}/NfcTag/{userId}/{tagId}
+     * @secure
+     * @response `200` `VNfcTagUpdateData` Success
+     */
+    vNfcTagUpdate: (
+      { userId, tagId, version, ...query }: VNfcTagUpdateParams,
+      data: LinkNfcTagReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VNfcTagUpdateData, any>({
+        path: `/api/v${version}/NfcTag/${userId}/${tagId}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags NfcTag
+     * @name VNfcTagDetail
+     * @request GET:/api/v{version}/NfcTag/{userId}/{tagId}
+     * @secure
+     * @response `200` `VNfcTagDetailData` Success
+     */
+    vNfcTagDetail: ({ userId, tagId, version, ...query }: VNfcTagDetailParams, params: RequestParams = {}) =>
+      this.request<VNfcTagDetailData, any>({
+        path: `/api/v${version}/NfcTag/${userId}/${tagId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags NfcTag
+     * @name VNfcTagDelete
+     * @request DELETE:/api/v{version}/NfcTag/{userId}/{tagId}
+     * @secure
+     * @response `200` `VNfcTagDeleteData` Success
+     */
+    vNfcTagDelete: ({ userId, tagId, version, ...query }: VNfcTagDeleteParams, params: RequestParams = {}) =>
+      this.request<VNfcTagDeleteData, any>({
+        path: `/api/v${version}/NfcTag/${userId}/${tagId}`,
+        method: 'DELETE',
+        secure: true,
         ...params,
       }),
 
@@ -2226,6 +3494,24 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
     /**
      * No description
      *
+     * @tags Penalty
+     * @name VPenaltyOwedList
+     * @request GET:/api/v{version}/Penalty/{userId}/owed
+     * @secure
+     * @response `200` `VPenaltyOwedListData` Success
+     */
+    vPenaltyOwedList: ({ userId, version, ...query }: VPenaltyOwedListParams, params: RequestParams = {}) =>
+      this.request<VPenaltyOwedListData, any>({
+        path: `/api/v${version}/Penalty/${userId}/owed`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags PledgeSync
      * @name VCharitiesSyncPledgeCreate
      * @request POST:/api/v{version}/charities/sync/pledge
@@ -2238,6 +3524,83 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         method: 'POST',
         secure: true,
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Proof
+     * @name VProofPluginsList
+     * @request GET:/api/v{version}/Proof/plugins
+     * @secure
+     * @response `200` `VProofPluginsListData` Success
+     */
+    vProofPluginsList: ({ version, ...query }: VProofPluginsListParams, params: RequestParams = {}) =>
+      this.request<VProofPluginsListData, any>({
+        path: `/api/v${version}/Proof/plugins`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Proof
+     * @name VProofDetail
+     * @request GET:/api/v{version}/Proof/{userId}/{habitId}
+     * @secure
+     * @response `200` `VProofDetailData` Success
+     */
+    vProofDetail: ({ userId, habitId, version, ...query }: VProofDetailParams, params: RequestParams = {}) =>
+      this.request<VProofDetailData, any>({
+        path: `/api/v${version}/Proof/${userId}/${habitId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Proof
+     * @name VProofUpdate
+     * @request PUT:/api/v{version}/Proof/{userId}/{habitId}
+     * @secure
+     * @response `200` `VProofUpdateData` Success
+     */
+    vProofUpdate: (
+      { userId, habitId, version, ...query }: VProofUpdateParams,
+      data: BindProofReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VProofUpdateData, any>({
+        path: `/api/v${version}/Proof/${userId}/${habitId}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Proof
+     * @name VProofDelete
+     * @request DELETE:/api/v{version}/Proof/{userId}/{habitId}
+     * @secure
+     * @response `200` `VProofDeleteData` Success
+     */
+    vProofDelete: ({ userId, habitId, version, ...query }: VProofDeleteParams, params: RequestParams = {}) =>
+      this.request<VProofDeleteData, any>({
+        path: `/api/v${version}/Proof/${userId}/${habitId}`,
+        method: 'DELETE',
+        secure: true,
         ...params,
       }),
 
@@ -2279,6 +3642,305 @@ export class AlcoholZincApi<SecurityDataType extends unknown> extends HttpClient
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Routine
+     * @name VRoutineDetail
+     * @request GET:/api/v{version}/Routine/{userId}
+     * @secure
+     * @response `200` `VRoutineDetailData` Success
+     */
+    vRoutineDetail: ({ userId, version, ...query }: VRoutineDetailParams, params: RequestParams = {}) =>
+      this.request<VRoutineDetailData, any>({
+        path: `/api/v${version}/Routine/${userId}`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Routine
+     * @name VRoutineCreate
+     * @request POST:/api/v{version}/Routine/{userId}
+     * @secure
+     * @response `200` `VRoutineCreateData` Success
+     */
+    vRoutineCreate: (
+      { userId, version, ...query }: VRoutineCreateParams,
+      data: CreateRoutineReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VRoutineCreateData, any>({
+        path: `/api/v${version}/Routine/${userId}`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Routine
+     * @name VRoutineDetail2
+     * @request GET:/api/v{version}/Routine/{userId}/{id}
+     * @originalName vRoutineDetail
+     * @duplicate
+     * @secure
+     * @response `200` `VRoutineDetail2Data` Success
+     */
+    vRoutineDetail2: ({ userId, id, version, ...query }: VRoutineDetail2Params, params: RequestParams = {}) =>
+      this.request<VRoutineDetail2Data, any>({
+        path: `/api/v${version}/Routine/${userId}/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Routine
+     * @name VRoutineUpdate
+     * @request PUT:/api/v{version}/Routine/{userId}/{id}
+     * @secure
+     * @response `200` `VRoutineUpdateData` Success
+     */
+    vRoutineUpdate: (
+      { userId, id, version, ...query }: VRoutineUpdateParams,
+      data: UpdateRoutineReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VRoutineUpdateData, any>({
+        path: `/api/v${version}/Routine/${userId}/${id}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Routine
+     * @name VRoutineDelete
+     * @request DELETE:/api/v{version}/Routine/{userId}/{id}
+     * @secure
+     * @response `200` `VRoutineDeleteData` Success
+     */
+    vRoutineDelete: ({ userId, id, version, ...query }: VRoutineDeleteParams, params: RequestParams = {}) =>
+      this.request<VRoutineDeleteData, any>({
+        path: `/api/v${version}/Routine/${userId}/${id}`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaConnectUrlDetail
+     * @request GET:/api/v{version}/Strava/connect-url/{userId}
+     * @secure
+     * @response `200` `VStravaConnectUrlDetailData` Success
+     */
+    vStravaConnectUrlDetail: (
+      { userId, version, ...query }: VStravaConnectUrlDetailParams,
+      params: RequestParams = {},
+    ) =>
+      this.request<VStravaConnectUrlDetailData, any>({
+        path: `/api/v${version}/Strava/connect-url/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaCallbackList
+     * @request GET:/api/v{version}/Strava/callback
+     * @secure
+     * @response `200` `VStravaCallbackListData` Success
+     */
+    vStravaCallbackList: ({ version, ...query }: VStravaCallbackListParams, params: RequestParams = {}) =>
+      this.request<VStravaCallbackListData, any>({
+        path: `/api/v${version}/Strava/callback`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaDetail
+     * @request GET:/api/v{version}/Strava/{userId}
+     * @secure
+     * @response `200` `VStravaDetailData` Success
+     */
+    vStravaDetail: ({ userId, version, ...query }: VStravaDetailParams, params: RequestParams = {}) =>
+      this.request<VStravaDetailData, any>({
+        path: `/api/v${version}/Strava/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaDelete
+     * @request DELETE:/api/v{version}/Strava/{userId}
+     * @secure
+     * @response `200` `VStravaDeleteData` Success
+     */
+    vStravaDelete: ({ userId, version, ...query }: VStravaDeleteParams, params: RequestParams = {}) =>
+      this.request<VStravaDeleteData, any>({
+        path: `/api/v${version}/Strava/${userId}`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaActivitiesList
+     * @request GET:/api/v{version}/Strava/{userId}/activities
+     * @secure
+     * @response `200` `VStravaActivitiesListData` Success
+     */
+    vStravaActivitiesList: ({ userId, version, ...query }: VStravaActivitiesListParams, params: RequestParams = {}) =>
+      this.request<VStravaActivitiesListData, any>({
+        path: `/api/v${version}/Strava/${userId}/activities`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaActivitiesHabitUpdate
+     * @request PUT:/api/v{version}/Strava/{userId}/activities/{activityId}/habit
+     * @secure
+     * @response `200` `VStravaActivitiesHabitUpdateData` Success
+     */
+    vStravaActivitiesHabitUpdate: (
+      { userId, activityId, version, ...query }: VStravaActivitiesHabitUpdateParams,
+      data: AssignStravaActivityReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VStravaActivitiesHabitUpdateData, any>({
+        path: `/api/v${version}/Strava/${userId}/activities/${activityId}/habit`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaWebhookList
+     * @request GET:/api/v{version}/Strava/webhook
+     * @secure
+     * @response `200` `VStravaWebhookListData` Success
+     */
+    vStravaWebhookList: ({ version, ...query }: VStravaWebhookListParams, params: RequestParams = {}) =>
+      this.request<VStravaWebhookListData, any>({
+        path: `/api/v${version}/Strava/webhook`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Strava
+     * @name VStravaWebhookCreate
+     * @request POST:/api/v{version}/Strava/webhook
+     * @secure
+     * @response `200` `VStravaWebhookCreateData` Success
+     */
+    vStravaWebhookCreate: (
+      { version, ...query }: VStravaWebhookCreateParams,
+      data: VStravaWebhookCreatePayload,
+      params: RequestParams = {},
+    ) =>
+      this.request<VStravaWebhookCreateData, any>({
+        path: `/api/v${version}/Strava/webhook`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Subscription
+     * @name VSubscriptionPlansList
+     * @request GET:/api/v{version}/Subscription/plans
+     * @secure
+     * @response `200` `VSubscriptionPlansListData` Success
+     */
+    vSubscriptionPlansList: ({ version, ...query }: VSubscriptionPlansListParams, params: RequestParams = {}) =>
+      this.request<VSubscriptionPlansListData, any>({
+        path: `/api/v${version}/Subscription/plans`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Subscription
+     * @name VSubscriptionCtaList
+     * @request GET:/api/v{version}/Subscription/{userId}/cta
+     * @secure
+     * @response `200` `VSubscriptionCtaListData` Success
+     */
+    vSubscriptionCtaList: ({ userId, version, ...query }: VSubscriptionCtaListParams, params: RequestParams = {}) =>
+      this.request<VSubscriptionCtaListData, any>({
+        path: `/api/v${version}/Subscription/${userId}/cta`,
+        method: 'GET',
+        query: query,
+        secure: true,
         format: 'json',
         ...params,
       }),

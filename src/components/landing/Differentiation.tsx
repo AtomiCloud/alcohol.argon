@@ -117,7 +117,9 @@ export default function Differentiation({ tone = 'brand' }: DifferentiationProps
               <ul className="mt-4 space-y-2 text-sm sm:text-base text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-2">
                   <Check className="mt-0.5 h-4 w-4 text-emerald-500 dark:text-emerald-300" />
-                  <span>Weekly freezes and monthly skips so accountability never feels punitive.</span>
+                  <span>
+                    Monthly skips, plus automatic freezes on paid plans, so accountability never feels punitive.
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="mt-0.5 h-4 w-4 text-emerald-500 dark:text-emerald-300" />

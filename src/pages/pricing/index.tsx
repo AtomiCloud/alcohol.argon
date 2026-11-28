@@ -1,11 +1,19 @@
+import type { GetServerSidePropsResult } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import ScrollReveal from '@/lib/animations/ScrollReveal';
 import Pricing from '@/components/landing/Pricing';
 import { Button } from '@/components/ui/button';
 import { SignInCTA } from '@/components/ui/sign-in-cta';
+import { buildTime } from '@/adapters/external/core';
+import { withServerSideAtomi } from '@/adapters/atomi/next';
+import type { CatalogPlan } from '@/lib/billing/freeze-copy';
+import type { ResultSerial } from '@/lib/monads/result';
+import type { Problem } from '@/lib/problem/core';
 
-export default function PricingPage() {
+type PricingPageProps = { plans: ResultSerial<CatalogPlan[], Problem> };
+
+export default function PricingPage({ plans }: PricingPageProps) {
   return (
     <>
       <Head>
@@ -40,7 +48,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
-      <Pricing />
+      <Pricing plans={plans[0] === 'ok' ? plans[1] : null} />
       <section className="py-16 sm:py-20" data-reveal>
         <div className="container mx-auto px-6 sm:px-8 max-w-4xl text-center space-y-6">
           <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">
@@ -61,3 +69,12 @@ export default function PricingPage() {
     </>
   );
 }
+
+// The live plan catalog decides the freeze copy. If it fails, the cards fall back to copy with no freeze numbers.
+export const getServerSideProps = withServerSideAtomi(
+  { ...buildTime, guard: 'public' },
+  async (_, { apiTree }): Promise<GetServerSidePropsResult<PricingPageProps>> => {
+    const plans = await apiTree.alcohol.zinc.api.vSubscriptionPlansList({ version: '1.0' });
+    return { props: { plans: await plans.serial() } };
+  },
+);
